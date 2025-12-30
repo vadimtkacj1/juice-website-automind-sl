@@ -1,0 +1,229 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Plus, Pencil, Trash, MapPin, Phone, Eye, EyeOff, Globe, Image as ImageIcon } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
+interface Location {
+  id: number;
+  country: string;
+  city: string;
+  address: string;
+  hours?: string;
+  phone?: string;
+  email?: string;
+  image?: string;
+  map_url?: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
+export default function AdminLocations() {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  async function fetchLocations() {
+    try {
+      const response = await fetch('/api/locations');
+      const data = await response.json();
+      setLocations(data.locations || []);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+    }
+    setLoading(false);
+  }
+
+  async function handleDelete(id: number) {
+    if (!confirm('Are you sure you want to delete this location?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/locations/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        fetchLocations();
+      }
+    } catch (error) {
+      console.error('Error deleting location:', error);
+    }
+  }
+
+  async function toggleActive(location: Location) {
+    try {
+      await fetch(`/api/locations/${location.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...location,
+          is_active: !location.is_active,
+        }),
+      });
+      fetchLocations();
+    } catch (error) {
+      console.error('Error updating location:', error);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="lg" text="Loading locations..." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Locations Management</h1>
+        <p className="text-gray-500 mt-1">Manage store locations, images, and contact information</p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-purple-600" />
+              <div>
+                <CardTitle>All Locations</CardTitle>
+                <CardDescription>Store locations displayed on the website</CardDescription>
+              </div>
+            </div>
+            <Link href="/admin/locations/add">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Location
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {locations.length === 0 ? (
+            <div className="text-center py-12">
+              <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 mb-4">No locations yet</p>
+              <Link href="/admin/locations/add">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  Add Your First Location
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16">Image</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead className="w-20">Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {locations.map((location) => (
+                    <TableRow key={location.id} className={!location.is_active ? 'opacity-50' : ''}>
+                      <TableCell>
+                        {location.image ? (
+                          <img 
+                            src={location.image} 
+                            alt={location.city}
+                            className="w-14 h-14 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <ImageIcon className="h-6 w-6 text-gray-400" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-gray-900">{location.city}</p>
+                          <p className="text-sm text-gray-500 flex items-center gap-1">
+                            <Globe className="h-3 w-3" />
+                            {location.country}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-xs">
+                          <p className="text-sm text-gray-600 truncate">{location.address}</p>
+                          {location.hours && (
+                            <p className="text-xs text-gray-400">{location.hours}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {location.phone && (
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Phone className="h-3 w-3" />
+                              {location.phone}
+                            </div>
+                          )}
+                          {location.email && (
+                            <p className="text-xs text-gray-400 truncate max-w-32">{location.email}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => toggleActive(location)}
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            location.is_active
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-500'
+                          }`}
+                        >
+                          {location.is_active ? (
+                            <>
+                              <Eye className="h-3 w-3" />
+                              Active
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="h-3 w-3" />
+                              Hidden
+                            </>
+                          )}
+                        </button>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Link href={`/admin/locations/edit/${location.id}`}>
+                            <Button variant="ghost" size="sm">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(location.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

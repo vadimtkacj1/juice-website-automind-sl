@@ -1,0 +1,19 @@
+# Robots.txt for Juice Website
+
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /shop/*
+Allow: /menu
+Allow: /locations
+Allow: /contact
+
+# Block admin panel from indexing
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api
+Disallow: /api/*
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml
+
