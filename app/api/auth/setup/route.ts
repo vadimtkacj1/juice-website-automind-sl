@@ -16,38 +16,43 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    // Check if any admin exists
-    return new Promise((resolve) => {
-      db.get('SELECT COUNT(*) as count FROM admins', async (err: Error | null, result: any) => {
-        if (err) {
-          resolve(NextResponse.json({ error: 'Database error' }, { status: 500 }));
-          return;
-        }
-
-        if (result.count > 0) {
-          resolve(NextResponse.json({ error: 'Admin already exists' }, { status: 400 }));
-          return;
-        }
-
-        const hashedPassword = await hashPassword(password);
-
-        db.run(
-          'INSERT INTO admins (username, password, email) VALUES (?, ?, ?)',
-          [username, hashedPassword, email || null],
-          function(err: Error | null) {
-            if (err) {
-              resolve(NextResponse.json({ error: 'Failed to create admin' }, { status: 500 }));
-              return;
-            }
-
-            resolve(NextResponse.json({
-              success: true,
-              message: 'Admin created successfully',
-              id: this.lastID
-            }));
-          }
-        );
+    // Promisify db.get and db.run for async/await
+    const dbGet = (query: string, params: any[] = []) => {
+      return new Promise<any>((resolve, reject) => {
+        db.get(query, params, (err: Error | null, row: any) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
       });
+    };
+
+    const dbRun = (query: string, params: any[] = []) => {
+      return new Promise<any>((resolve, reject) => {
+        db.run(query, params, function(err: Error | null) {
+          if (err) reject(err);
+          else resolve(this);
+        });
+      });
+    };
+
+    // Check if any admin exists
+    const result = await dbGet('SELECT COUNT(*) as count FROM admins');
+
+    if (result.count > 0) {
+      return NextResponse.json({ error: 'Admin already exists' }, { status: 400 });
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const runResult = await dbRun(
+      'INSERT INTO admins (username, password, email) VALUES (?, ?, ?)',
+      [username, hashedPassword, email || null]
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: 'Admin created successfully',
+      id: runResult.lastID
     });
   } catch (error) {
     return NextResponse.json(

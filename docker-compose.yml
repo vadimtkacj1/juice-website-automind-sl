@@ -1,0 +1,23 @@
+services:
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment: {}
+    volumes:
+      # Опционально: если вы хотите, чтобы база данных сохранялась вне контейнера
+      # - ./data:/app/data
+      - ./juice_website.db:/app/juice_website.db # Это позволит сохранить базу данных даже после удаления контейнера
+
+  sqlite-web:
+    image: ghcr.io/coleifer/sqlite-web
+    ports:
+      - "8080:8080" # sqlite-web обычно работает на порту 8080
+    volumes:
+      - ./juice_website.db:/data/juice_website.db # База данных будет доступна внутри контейнера по пути /data/juice_website.db
+    environment:
+      SQLITE_DATABASE: /data/juice_website.db # Указываем sqlite-web, какую базу данных открыть
+    depends_on:
+      - nextjs-app # Зависимость: sqlite-web запустится после nextjs-app (опционально, но хорошая практика)

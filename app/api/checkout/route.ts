@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/database';
+import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
 
 interface CartAddon {
@@ -33,6 +33,7 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
   total: number;
 }> {
   return new Promise((resolve, reject) => {
+    const dbInstance = getDatabase();
     // Calculate total including addons and custom ingredients
     const total = items.reduce((sum, item) => {
       const itemPrice = item.price * item.quantity;
@@ -61,7 +62,7 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
     });
     const notes = notesParts.join(' | ');
     
-    db.run(
+    dbInstance.run(
       `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, status, payment_method, notes, created_at) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       [customer.name || 'Customer', customer.email, customer.phone, customer.deliveryAddress || null, total, 'pending', null, notes],
@@ -101,7 +102,7 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
             itemName += ` [Ingredients: ${ingredientsList}]`;
           }
           
-          db.run(
+          dbInstance.run(
             `INSERT INTO order_items (order_id, menu_item_id, item_name, quantity, price) VALUES (?, ?, ?, ?, ?)`,
             [orderId, item.id, itemName, item.quantity, itemTotalPrice],
             (itemErr: any) => {

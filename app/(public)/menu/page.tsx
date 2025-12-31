@@ -5,6 +5,7 @@ import { useCart } from '@/lib/cart-context';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ProductModal from '@/components/ProductModal';
 import { ShoppingBag } from 'lucide-react';
+import HeroSection from '@/components/HeroSection';
 
 const ITEMS_PER_LOAD = 6;
 
@@ -237,13 +238,9 @@ export default function MenuPage() {
 
   return (
     <div className="menu-page">
-      {/* Header */}
-      <header className="menu-header reveal">
-        <div className="menu-header-content">
-          <h1 className="menu-title">OUR MENU</h1>
-          <p className="menu-subtitle">Fresh, natural, and absolutely delicious</p>
-        </div>
-      </header>
+      <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080" >
+        <h1 className="hero-title">OUR MENU</h1>
+      </HeroSection>
 
       {/* Categories */}
       {displayedMenu.map((category, categoryIdx) => (
@@ -359,36 +356,6 @@ export default function MenuPage() {
 const styles = `
   .menu-page {
     padding-bottom: 80px;
-  }
-
-  /* Header */
-  .menu-header {
-    background: var(--primary, #7322ff);
-    border-radius: 24px;
-    margin: 120px 16px 48px;
-    padding: 80px 24px;
-    text-align: center;
-  }
-
-  .menu-header-content {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .menu-title {
-    font-family: "Archivo", sans-serif;
-    font-weight: 900;
-    font-size: clamp(60px, 12vw, 120px);
-    color: white;
-    margin: 0;
-    line-height: 1;
-    letter-spacing: -0.03em;
-  }
-
-  .menu-subtitle {
-    font-size: 20px;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 20px 0 0;
   }
 
   /* Loading, Error, Empty States */

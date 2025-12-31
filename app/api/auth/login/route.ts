@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { verifyPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { promisify } from 'util'; // Import promisify
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,54 +17,58 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
-      db.get(
-        'SELECT * FROM admins WHERE username = ?',
-        [username],
-        async (err: Error | null, admin: any) => {
-          if (err) {
-            resolve(NextResponse.json({ error: 'Database error' }, { status: 500 }));
-            return;
-          }
+    if (!db) {
+        return NextResponse.json(
+            { error: 'Database connection failed' },
+            { status: 500 }
+        );
+    }
 
-          if (!admin) {
-            resolve(NextResponse.json({ error: 'Invalid credentials' }, { status: 401 }));
-            return;
-          }
+    const dbGet = promisify(db.get).bind(db); // Promisify db.get
 
-          const isValid = await verifyPassword(password, admin.password);
+    let admin;
+    try {
+        admin = await dbGet('SELECT * FROM admins WHERE username = ?', [username]);
+    } catch (err: any) {
+        console.error('Database error:', err);
+        return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
 
-          if (!isValid) {
-            resolve(NextResponse.json({ error: 'Invalid credentials' }, { status: 401 }));
-            return;
-          }
+    if (!admin) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-          // Create session
-          const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-          
-          const response = NextResponse.json({
-            success: true,
-            user: {
-              id: admin.id,
-              username: admin.username,
-              email: admin.email
-            }
-          });
+    const isValid = await verifyPassword(password, admin.password);
 
-          response.cookies.set('admin_session', sessionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-          });
+    if (!isValid) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-          resolve(response);
+    // Create session
+    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+    const response = NextResponse.json({
+        success: true,
+        user: {
+            id: admin.id,
+            username: admin.username,
+            email: admin.email
         }
-      );
     });
-  } catch (error) {
+
+    response.cookies.set('admin_session', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
+
+  } catch (error: any) {
+    console.error('API error (POST login):', error); // Added specific log
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' }, // Use error.message if available
       { status: 500 }
     );
   }

@@ -11,7 +11,7 @@ const dbGet = (db: any, query: string, params: any[] = []) => {
   });
 };
 
-// Promisify db.run for async/await (if not already in lib/database)
+// Promisify db.run for async/await
 const dbRun = (db: any, query: string, params: any[] = []) => {
   return new Promise<any>((resolve, reject) => {
     db.run(query, params, function(err: Error | null) {
@@ -28,7 +28,7 @@ export async function GET(
   try {
     const { id } = params;
     const db = getDatabase();
-    
+
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -36,15 +36,15 @@ export async function GET(
       );
     }
 
-    const ingredient = await dbGet(db, 'SELECT * FROM custom_ingredients WHERE id = ?', [id]);
+    const businessHour = await dbGet(db, 'SELECT * FROM business_hours WHERE id = ?', [id]);
 
-    if (!ingredient) {
-      return NextResponse.json({ error: 'Custom ingredient not found' }, { status: 404 });
+    if (!businessHour) {
+      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ ingredient });
+    return NextResponse.json({ businessHour });
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('API error fetching business hour:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -59,10 +59,17 @@ export async function PUT(
   try {
     const { id } = params;
     const body = await request.json();
-    const { name, description, price, image, ingredient_category, is_available, sort_order } = body;
+    const { day_of_week, open_time, close_time, sort_order, is_active } = body;
+
+    if (!day_of_week || !open_time || !close_time) {
+      return NextResponse.json(
+        { error: 'Day of week, open time, and close time are required' },
+        { status: 400 }
+      );
+    }
 
     const db = getDatabase();
-    
+
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -72,31 +79,33 @@ export async function PUT(
 
     const result = await dbRun(
       db,
-      `UPDATE custom_ingredients 
-      SET name = ?, description = ?, price = ?, image = ?, ingredient_category = ?, is_available = ?, sort_order = ?
-      WHERE id = ?`,
+      `UPDATE business_hours 
+       SET day_of_week = ?, open_time = ?, close_time = ?, sort_order = ?, is_active = ?, updated_at = datetime('now')
+       WHERE id = ?`,
       [
-        name,
-        description || null,
-        price || 0,
-        image || null,
-        ingredient_category || 'fruits',
-        is_available !== false ? 1 : 0,
+        day_of_week,
+        open_time,
+        close_time,
         sort_order || 0,
+        is_active !== false ? 1 : 0,
         id
       ]
     );
 
     if (result.changes === 0) {
-      return NextResponse.json({ error: 'Custom ingredient not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ 
-      id: parseInt(id), 
-      name, description, price: price || 0, image, ingredient_category: ingredient_category || 'fruits', is_available, sort_order 
+    return NextResponse.json({
+      id: parseInt(id),
+      day_of_week,
+      open_time,
+      close_time,
+      sort_order: sort_order || 0,
+      is_active: is_active !== false ? 1 : 0,
     });
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('API error updating business hour:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -119,18 +128,19 @@ export async function DELETE(
       );
     }
 
-    const result = await dbRun(db, 'DELETE FROM custom_ingredients WHERE id = ?', [id]);
+    const result = await dbRun(db, 'DELETE FROM business_hours WHERE id = ?', [id]);
 
     if (result.changes === 0) {
-      return NextResponse.json({ error: 'Custom ingredient not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('API error deleting business hour:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

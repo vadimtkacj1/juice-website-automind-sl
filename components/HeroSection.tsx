@@ -1,18 +1,14 @@
-'use client';
+import React from 'react';
 
-export default function HeroSection() {
-  const letters = 'REVIVA'.split('');
+interface HeroSectionProps {
+  children: React.ReactNode;
+}
 
+export default function HeroSection({ children }: HeroSectionProps) {
   return (
-    <section className="hero" id="hero">
-      <div className="title-container">
-        <h1 className="hero-title">
-          {letters.map((letter, idx) => (
-            <span key={letter + idx} className="letter" style={{ ['--d' as string]: `${0.1 * (idx + 1)}s` }}>
-              {letter}
-            </span>
-          ))}
-        </h1>
+    <section className="hero relative pt-[120px] pb-[80px]" id="hero">
+      <div className="title-container relative z-10">
+        {children}
       </div>
    </section>
   );

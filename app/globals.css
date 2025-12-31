@@ -90,9 +90,7 @@ img {
   height: auto;
 }
 
-main {
-  padding-bottom: 120px;
-}
+main {}
 
 .container {
   max-width: 1200px;
@@ -104,11 +102,10 @@ main {
 /* Double navbar */
 .nav-main {
   position: absolute;
-  top: 40px;
+  top: 35px;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
-  max-width: 1200px;
   z-index: 100;
   transition: opacity 0.2s ease-out;
 }
@@ -118,8 +115,8 @@ main {
   top: 16px;
   left: 50%;
   transform: translateX(-50%) translateY(-160%);
-  width: 95%;
-  max-width: 650px;
+  width: calc(100% - 48px);
+  max-width: 600px;
   z-index: 2000;
   transition: transform 0.5s var(--spring-ease), opacity 0.2s;
   opacity: 0;
@@ -184,8 +181,7 @@ main {
 .hero {
   background-color: var(--primary);
   border-radius: 24px;
-  margin: 16px;
-  min-height: 520px;
+  margin: 15px 15px 0px 15px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -196,6 +192,8 @@ main {
 
 .title-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   width: 100%;
 }
@@ -480,7 +478,7 @@ main {
 
 .footer-brand {
   font-family: 'Archivo';
-  font-size: clamp(60px, 12vw, 150px);
+  font-size: clamp(80px, 16vw, 180px);
   line-height: 0.9;
   color: var(--white);
   text-transform: uppercase;
@@ -927,10 +925,11 @@ main {
   }
 
   .hero {
-    min-height: 520px;
+    min-height: 350px;
   }
 
-  .hero-title {
+  .hero-title,
+  .footer-brand {
     font-size: 70px;
   }
 }

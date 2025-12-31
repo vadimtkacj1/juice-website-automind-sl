@@ -16,22 +16,25 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
-      db.get('SELECT * FROM contacts WHERE id = ?', [id], (err, row) => {
-        if (err) {
-          console.error('Database error:', err);
-          resolve(NextResponse.json({ error: err.message }, { status: 500 }));
-          return;
-        }
-        if (!row) {
-          resolve(
-            NextResponse.json({ message: 'Contact not found' }, { status: 404 })
-          );
-          return;
-        }
-        resolve(NextResponse.json({ contact: row }));
+    const dbGet = (query: string, params: any[] = []) => {
+      return new Promise<any>((resolve, reject) => {
+        db.get(query, params, (err: Error | null, row: any) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
       });
-    });
+    };
+
+    try {
+      const row = await dbGet('SELECT * FROM contacts WHERE id = ?', [id]);
+      if (!row) {
+        return NextResponse.json({ message: 'Contact not found' }, { status: 404 });
+      }
+      return NextResponse.json({ contact: row });
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
+    }
   } catch (error: any) {
     console.error('API error:', error);
     return NextResponse.json(
@@ -60,26 +63,29 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
-      db.run(
+    const dbRun = (query: string, params: any[] = []) => {
+      return new Promise<any>((resolve, reject) => {
+        db.run(query, params, function(err: Error | null) {
+          if (err) reject(err);
+          else resolve(this);
+        });
+      });
+    };
+
+    try {
+      const runResult = await dbRun(
         'UPDATE contacts SET type = ?, value = ? WHERE id = ?',
-        [type, value, id],
-        function (err) {
-          if (err) {
-            console.error('Database error:', err);
-            resolve(NextResponse.json({ error: err.message }, { status: 500 }));
-            return;
-          }
-          if (this.changes === 0) {
-            resolve(
-              NextResponse.json({ message: 'Contact not found' }, { status: 404 })
-            );
-            return;
-          }
-          resolve(NextResponse.json({ message: 'Contact updated successfully' }));
-        }
+        [type, value, id]
       );
-    });
+
+      if (runResult.changes === 0) {
+        return NextResponse.json({ message: 'Contact not found' }, { status: 404 });
+      }
+      return NextResponse.json({ message: 'Contact updated successfully' });
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
+    }
   } catch (error: any) {
     console.error('API error:', error);
     return NextResponse.json(
@@ -105,22 +111,16 @@ export async function DELETE(
       );
     }
 
-    return new Promise((resolve) => {
-      db.run('DELETE FROM contacts WHERE id = ?', [id], function (err) {
-        if (err) {
-          console.error('Database error:', err);
-          resolve(NextResponse.json({ error: err.message }, { status: 500 }));
-          return;
-        }
-        if (this.changes === 0) {
-          resolve(
-            NextResponse.json({ message: 'Contact not found' }, { status: 404 })
-          );
-          return;
-        }
-        resolve(NextResponse.json({ message: 'Contact deleted successfully' }));
-      });
-    });
+    try {
+      const runResult = await dbRun('DELETE FROM contacts WHERE id = ?', [id]);
+      if (runResult.changes === 0) {
+        return NextResponse.json({ message: 'Contact not found' }, { status: 404 });
+      }
+      return NextResponse.json({ message: 'Contact deleted successfully' });
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
+    }
   } catch (error: any) {
     console.error('API error:', error);
     return NextResponse.json(

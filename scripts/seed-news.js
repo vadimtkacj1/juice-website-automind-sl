@@ -23,7 +23,6 @@ const fallbackNews = [
     id: 2,
     title: 'Grand Opening in Downtown City!',
     content: 'Our newest branch is now open in the heart of Downtown City! Visit us for special opening offers and enjoy our delicious juices.',
-    image: 'https://framerusercontent.com/images/2EOR7KFS2SokPXRK3lrfJmfMA1d00.png',
     is_active: true,
     created_at: '2023-10-20 09:30:00'
   },
@@ -31,7 +30,6 @@ const fallbackNews = [
     id: 3,
     title: 'Healthy Living Tips with Juice Website',
     content: 'Discover how our natural and fresh juices can boost your health and wellness. Read our latest blog post for tips and recipes.',
-    image: 'https://framerusercontent.com/images/Ey7T7JiYo6iRw8ZdtEFoqlTLxG00a20.jpg',
     is_active: true,
     created_at: '2023-10-15 11:45:00'
   },

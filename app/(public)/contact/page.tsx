@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageSquare, Send, Clock, MapPin, ArrowRight } from 'lucide-react';
+import HeroSection from '@/components/HeroSection';
 
 interface Contact {
   id: number;
@@ -121,16 +122,10 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page">
-      {/* Header */}
-      <header className="contact-header reveal">
-        <div className="contact-header-content">
-          <span className="contact-pill">Get in Touch</span>
-          <h1 className="contact-title">CONTACT</h1>
-          <p className="contact-subtitle">
-            Have a question or feedback? We'd love to hear from you!
-          </p>
-        </div>
-      </header>
+      <HeroSection backgroundImage="https://images.unsplash.com/photo-1556742526-778844872147?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcmNofDE3NXx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc1NDY0fDA&ixlib=rb-4.0.3&q=80&w=1080" >
+        <h1 className="hero-title">CONTACT US</h1>
+        <p className="hero-subtitle">Have a question or feedback? We'd love to hear from you!</p>
+      </HeroSection>
 
       {/* Main Content */}
       <div className="contact-content">
@@ -162,11 +157,7 @@ export default function ContactPage() {
         <div className="contact-grid">
           {/* Contact Form */}
           <div className="contact-form-wrapper reveal" style={{ ['--delay' as string]: '0.2s' }}>
-            <div className="contact-form-header">
-              <h2>Send us a message</h2>
-              <p>Fill out the form below and we'll get back to you shortly.</p>
-            </div>
-
+            {/* Removed the header here as per user request */}
             {submitted && (
               <div className="success-message">
                 <div className="success-icon">✓</div>
@@ -290,70 +281,6 @@ export default function ContactPage() {
       <style jsx>{`
         .contact-page {
           padding-bottom: 60px;
-        }
-
-        /* Header */
-        .contact-header {
-          background: linear-gradient(135deg, var(--secondary, #93f3aa) 0%, #7ae89a 100%);
-          border-radius: 24px;
-          margin: 120px 16px 32px;
-          padding: 80px 24px;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .contact-header::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-          animation: pulse 8s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-
-        .contact-header-content {
-          max-width: 800px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 1;
-        }
-
-        .contact-pill {
-          display: inline-block;
-          background: var(--dark, #1d1a40);
-          color: white;
-          padding: 10px 24px;
-          border-radius: 100px;
-          font-size: 14px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-bottom: 24px;
-        }
-
-        .contact-title {
-          font-family: "Archivo", sans-serif;
-          font-weight: 900;
-          font-size: clamp(60px, 12vw, 120px);
-          color: var(--dark, #1d1a40);
-          margin: 0;
-          line-height: 1;
-          letter-spacing: -0.03em;
-        }
-
-        .contact-subtitle {
-          font-size: 20px;
-          color: var(--dark, #1d1a40);
-          opacity: 0.8;
-          margin: 20px 0 0;
         }
 
         /* Content */

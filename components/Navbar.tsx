@@ -1,6 +1,5 @@
 'use client';
 
-import styles from './MobileMenu.module.css';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCart } from '@/lib/cart-context';
 import Link from 'next/link';
@@ -220,23 +219,23 @@ function MobileMenu({
   return (
     <>
       <div 
-        className={`${styles['mobile-menu-overlay']} ${!isOpen ? styles['closing'] : ''}`} 
+        className={`mobile-menu-overlay ${!isOpen ? 'closing' : ''}`} 
         onClick={onClose} 
       />
-      <div className={`${styles['mobile-menu']} ${!isOpen ? styles['closing'] : ''}`}>
+      <div className={`mobile-menu ${!isOpen ? 'closing' : ''}`}>
         <button
           onClick={onClose}
-          className={styles['mobile-menu-close']}
+          className="mobile-menu-close"
           aria-label="Close menu"
         >
           <X size={28} />
         </button>
-        <div className={styles['mobile-menu-content']}>
+        <div className="mobile-menu-content">
           {navLinks.map((link, index) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`${styles['mobile-menu-link']} ${pathname === link.href ? styles['active'] : ''}`}
+              className={`mobile-menu-link ${pathname === link.href ? 'active' : ''}`}
               style={{ animationDelay: `${index * 0.05}s` }}
               onClick={onClose}
             >
@@ -248,13 +247,13 @@ function MobileMenu({
               onClose();
               openCart();
             }}
-            className={styles['mobile-menu-cart']}
+            className="mobile-menu-cart"
             style={{ animationDelay: `${navLinks.length * 0.05}s` }}
           >
             <ShoppingBag size={24} />
             <span>Cart</span>
             {itemCount > 0 && (
-              <span className={styles['mobile-menu-cart-count']}>{itemCount}</span>
+              <span className="mobile-menu-cart-count">{itemCount}</span>
             )}
           </button>
         </div>

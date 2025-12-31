@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import getDatabase from '@/lib/database';
 
-// Promisify db.all and db.run for async/await
+// Promisify db.all for async/await
 const dbAll = (db: any, query: string, params: any[] = []) => {
   return new Promise<any[]>((resolve, reject) => {
     db.all(query, params, (err: Error | null, rows: any[]) => {
@@ -10,6 +11,7 @@ const dbAll = (db: any, query: string, params: any[] = []) => {
   });
 };
 
+// Promisify db.run for async/await
 const dbRun = (db: any, query: string, params: any[] = []) => {
   return new Promise<any>((resolve, reject) => {
     db.run(query, params, function(err: Error | null) {
@@ -21,9 +23,8 @@ const dbRun = (db: any, query: string, params: any[] = []) => {
 
 export async function GET() {
   try {
-    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-    
+
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -31,15 +32,10 @@ export async function GET() {
       );
     }
 
-    try {
-      const rows = await dbAll(db, 'SELECT * FROM contacts');
-      return NextResponse.json({ contacts: rows || [] });
-    } catch (dbError: any) {
-      console.error('Database error:', dbError);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+    const businessHours = await dbAll(db, 'SELECT * FROM business_hours ORDER BY sort_order, day_of_week');
+    return NextResponse.json({ businessHours });
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('API error fetching business hours:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -50,18 +46,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, value } = body;
+    const { day_of_week, open_time, close_time, sort_order, is_active } = body;
 
-    if (!type || !value) {
+    if (!day_of_week || !open_time || !close_time) {
       return NextResponse.json(
-        { error: 'Type and value are required.' },
+        { error: 'Day of week, open time, and close time are required' },
         { status: 400 }
       );
     }
 
-    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-    
+
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -69,19 +64,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    try {
-      const runResult = await dbRun(
-        db,
-        'INSERT INTO contacts (type, value) VALUES (?, ?)',
-        [type, value]
-      );
-      return NextResponse.json({ id: runResult.lastID, type, value }, { status: 201 });
-    } catch (dbError: any) {
-      console.error('Database error:', dbError);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+    const result = await dbRun(
+      db,
+      `INSERT INTO business_hours (day_of_week, open_time, close_time, sort_order, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      [
+        day_of_week,
+        open_time,
+        close_time,
+        sort_order || 0,
+        is_active !== false ? 1 : 0,
+      ]
+    );
+
+    return NextResponse.json({
+      id: result.lastID,
+      day_of_week,
+      open_time,
+      close_time,
+      sort_order: sort_order || 0,
+      is_active: is_active !== false ? 1 : 0,
+    });
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('API error creating business hours:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
