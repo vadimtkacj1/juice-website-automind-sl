@@ -18,6 +18,7 @@ interface MenuItem {
   image?: string;
   discount_percent: number;
   is_available: boolean;
+  categoryVolumes?: Array<{ volume: string; is_default: boolean; sort_order: number }>; // All volumes for this category
 }
 
 interface MenuCategory {
@@ -39,17 +40,43 @@ export default function MenuPage() {
   const { addToCart } = useCart();
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const processAndSetMenu = useCallback((data: MenuCategory[]) => {
+  const processAndSetMenu = useCallback(async (data: MenuCategory[]) => {
     const newMenu: MenuCategory[] = [];
-    // Flatten all items and then group them by category for display
-    data.forEach(category => {
+    
+    // Process each category and fetch volumes
+    for (const category of data) {
       if (category.items && category.items.length > 0) {
+        // Fetch category volumes
+        let categoryVolumes: any[] = [];
+        try {
+          const volumesRes = await fetch(`/api/menu-categories/${category.id}/volumes`);
+          const volumesData = await volumesRes.json();
+          categoryVolumes = volumesData.volumes || [];
+        } catch (err) {
+          console.error('Error fetching category volumes:', err);
+        }
+
+        // Sort volumes by sort_order
+        const sortedVolumes = [...categoryVolumes].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        // Update items with all volume info
+        const itemsWithVolumes = category.items.map(item => {
+          if (sortedVolumes.length > 0) {
+            return {
+              ...item,
+              categoryVolumes: sortedVolumes, // Store all volumes for this category
+            };
+          }
+          return item;
+        });
+
         newMenu.push({
           ...category,
-          items: category.items,
+          items: itemsWithVolumes,
         });
       }
-    });
+    }
+    
     setAllMenuItems(newMenu);
     setDisplayedMenu(newMenu.map(cat => ({ ...cat, items: cat.items.slice(0, ITEMS_PER_LOAD) })));
     setHasMore(newMenu.some(cat => cat.items.length > ITEMS_PER_LOAD));
@@ -64,7 +91,7 @@ export default function MenuPage() {
       if (data.error) {
         setError(data.error);
       } else {
-        processAndSetMenu(data.menu || []);
+        await processAndSetMenu(data.menu || []);
       }
     } catch (err) {
       setError('Failed to load menu');
@@ -145,16 +172,22 @@ export default function MenuPage() {
     };
   }, [loadingMore, hasMore, loadMoreItems]);
 
-  function handleAddToCart(item: MenuItem) {
+  function handleAddToCart(item: MenuItem & { volume?: string, addons?: any[], customIngredients?: any[] }) {
     const finalPrice = item.discount_percent > 0 
       ? item.price * (1 - item.discount_percent / 100) 
       : item.price;
+    
+    console.log('handleAddToCart in menu page - item:', item);
+    console.log('handleAddToCart in menu page - customIngredients:', item.customIngredients);
     
     addToCart({
       id: item.id,
       name: item.name,
       price: finalPrice,
       image: item.image,
+      volume: item.volume,
+      addons: item.addons,
+      customIngredients: item.customIngredients,
     });
   }
 
@@ -232,7 +265,10 @@ export default function MenuPage() {
                 key={item.id}
                 className="product-card reveal"
                 style={{ ['--delay' as string]: `${0.05 * (itemIdx + 1)}s` }}
-                onClick={() => setSelectedItem(item)}
+                onClick={() => {
+                  // Ensure category_id is included
+                  setSelectedItem({ ...item, category_id: item.category_id || category.id });
+                }}
               >
                 {/* Discount Badge */}
                 {item.discount_percent > 0 && (
@@ -260,22 +296,34 @@ export default function MenuPage() {
                   </div>
 
                   <div className="product-footer">
-                    <div className="price-badge">
-                      {item.discount_percent > 0 && (
-                        <span className="price-old">₪{item.price.toFixed(0)}</span>
-                      )}
-                      <span className="price-current">
-                        ₪{getDiscountedPrice(item.price, item.discount_percent).toFixed(0)}
-                      </span>
-                      {item.volume && (
-                        <span className="price-volume">{item.volume}</span>
-                      )}
-                    </div>
+                    {item.categoryVolumes && item.categoryVolumes.length > 0 ? (
+                      <div className="volumes-list">
+                        {item.categoryVolumes.map((vol, volIdx) => {
+                          const volPrice = getDiscountedPrice(item.price, item.discount_percent);
+                          return (
+                            <div key={volIdx} className="volume-badge">
+                              <span className="volume-label">{vol.volume}</span>
+                              <span className="volume-separator">•</span>
+                              <span className="volume-price">₪{volPrice.toFixed(0)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="price-badge">
+                        {item.discount_percent > 0 && (
+                          <span className="price-old">₪{item.price.toFixed(0)}</span>
+                        )}
+                        <span className="price-current">
+                          ₪{getDiscountedPrice(item.price, item.discount_percent).toFixed(0)}
+                        </span>
+                      </div>
+                    )}
                     <button 
                       className="add-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(item);
+                        setSelectedItem(item);
                       }}
                       aria-label={`Add ${item.name} to cart`}
                     >
@@ -502,6 +550,7 @@ const styles = `
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .price-badge {
@@ -530,6 +579,54 @@ const styles = `
     font-size: 12px;
     color: var(--text-gray, #70758c);
     margin-left: 4px;
+  }
+
+  .volumes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .volume-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #eaedf6 100%);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    border: 1px solid rgba(115, 34, 255, 0.1);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .volume-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(115, 34, 255, 0.12);
+    border-color: rgba(115, 34, 255, 0.2);
+  }
+
+  .volume-label {
+    color: var(--dark, #1d1a40);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  .volume-separator {
+    color: var(--text-gray, #70758c);
+    font-weight: 300;
+    opacity: 0.5;
+  }
+
+  .volume-price {
+    font-family: "Archivo", sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--primary, #7322ff);
+    letter-spacing: -0.01em;
   }
 
   .add-btn {
@@ -587,6 +684,19 @@ const styles = `
 
     .category-title {
       font-size: 32px;
+    }
+
+    .product-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .volumes-list {
+      width: 100%;
+    }
+
+    .add-btn {
+      align-self: flex-end;
     }
   }
 

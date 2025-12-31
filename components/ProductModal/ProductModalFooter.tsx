@@ -1,0 +1,30 @@
+import styles from '../ProductModal.module.css';
+
+interface ProductModalFooterProps {
+  totalPrice: number;
+  onAddToCart: () => void;
+}
+
+export default function ProductModalFooter({
+  totalPrice,
+  onAddToCart,
+}: ProductModalFooterProps) {
+  return (
+    <>
+      {/* Total Price */}
+      <div className={styles['modal-total']}>
+        <span className={styles['total-label']}>Total:</span>
+        <span className={styles['total-price']}>₪{totalPrice.toFixed(0)}</span>
+      </div>
+
+      {/* Add to Cart Button */}
+      <button 
+        className={styles['modal-add-btn']}
+        onClick={onAddToCart}
+      >
+        Add to Cart
+      </button>
+    </>
+  );
+}
+

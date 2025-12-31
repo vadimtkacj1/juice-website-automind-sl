@@ -12,9 +12,10 @@ export async function GET() {
         return;
       }
 
-      // Get total products
-      db.get('SELECT COUNT(*) as totalProducts FROM products', (err: Error | null, productsData: any) => {
+      // Get total products (menu items)
+      db.get('SELECT COUNT(*) as totalProducts FROM menu_items', (err: Error | null, productsData: any) => {
         if (err) {
+          console.error('Database error:', err);
           resolve(NextResponse.json({ error: 'Database error' }, { status: 500 }));
           return;
         }

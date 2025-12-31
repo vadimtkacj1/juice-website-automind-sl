@@ -10,7 +10,7 @@ export default function CheckoutSuccessPage() {
   const orderNumber = searchParams.get('order');
 
   useEffect(() => {
-    // Clear cart on successful payment
+    // Clear cart on successful order
     localStorage.removeItem('cart');
   }, []);
 
@@ -21,8 +21,8 @@ export default function CheckoutSuccessPage() {
           <CheckCircle size={80} />
         </div>
         
-        <h1>Payment Successful!</h1>
-        <p>Thank you for your order. We've received your payment and will start preparing your items right away. You will receive a confirmation email shortly.</p>
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for your order. We've received your order and will start preparing your items right away. You will receive a confirmation email shortly.</p>
         
         {orderNumber && (
           <div className="order-id">

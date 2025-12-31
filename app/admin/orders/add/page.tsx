@@ -16,7 +16,7 @@ export default function AddOrderPage() {
     customer_name: '',
     customer_email: '',
     customer_phone: '',
-    payment_method: '',
+    delivery_address: '',
     notes: ''
   });
   const [orderItems, setOrderItems] = useState<any[]>([
@@ -30,11 +30,19 @@ export default function AddOrderPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch('/api/menu-items?include_inactive=true');
       const data = await response.json();
-      setProducts(data.products || data || []);
+      // Map menu items to products format for compatibility
+      const items = data.items || [];
+      setProducts(items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        description: item.description,
+        image: item.image
+      })));
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      console.error('Failed to fetch menu items:', error);
     }
   };
 
@@ -90,7 +98,9 @@ export default function AddOrderPage() {
         newItems[index] = {
           ...newItems[index],
           product_id: product.id,
+          menu_item_id: product.id,
           product_name: product.name,
+          item_name: product.name,
           price: product.price
         };
       }
@@ -155,12 +165,14 @@ export default function AddOrderPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="payment_method">Payment Method</Label>
-              <Input
-                id="payment_method"
-                value={formData.payment_method}
-                onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
-                placeholder="Cash, Card, etc."
+              <Label htmlFor="delivery_address">Delivery Address</Label>
+              <textarea
+                id="delivery_address"
+                value={formData.delivery_address}
+                onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                rows={3}
+                placeholder="Enter full delivery address"
               />
             </div>
             <div>

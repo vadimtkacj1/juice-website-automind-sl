@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 
 interface Category {
@@ -15,10 +15,18 @@ interface Category {
   name: string;
 }
 
+interface VolumeOption {
+  volume: string;
+  price: number;
+  is_default: boolean;
+  sort_order: number;
+}
+
 export default function AddMenuItem() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
   const [form, setForm] = useState({
     category_id: '',
     name: '',
@@ -52,6 +60,7 @@ export default function AddMenuItem() {
     setLoading(true);
 
     try {
+      // Create menu item first
       const response = await fetch('/api/menu-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,17 +72,67 @@ export default function AddMenuItem() {
         })
       });
 
-      if (response.ok) {
-        router.push('/admin/menu');
-      } else {
+      if (!response.ok) {
         const data = await response.json();
         alert(data.error || 'Error adding item');
+        setLoading(false);
+        return;
       }
+
+      const itemData = await response.json();
+      const newItemId = itemData.id || itemData.item?.id;
+
+      // If volume options exist, add them
+      if (volumeOptions.length > 0 && newItemId) {
+        const volumesResponse = await fetch(`/api/menu-items/${newItemId}/volumes`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ volumes: volumeOptions })
+        });
+
+        if (!volumesResponse.ok) {
+          const data = await volumesResponse.json();
+          alert(data.error || 'Item created but error adding volume options');
+        }
+      }
+
+      router.push('/admin/menu');
     } catch (error) {
       console.error('Error adding item:', error);
       alert('Error adding item');
     }
     setLoading(false);
+  }
+
+  function addVolumeOption() {
+    setVolumeOptions([...volumeOptions, {
+      volume: '',
+      price: parseFloat(form.price) || 0,
+      is_default: volumeOptions.length === 0,
+      sort_order: volumeOptions.length
+    }]);
+  }
+
+  function removeVolumeOption(index: number) {
+    const newVolumes = volumeOptions.filter((_, i) => i !== index);
+    // If we removed the default, make the first one default
+    if (newVolumes.length > 0 && volumeOptions[index].is_default) {
+      newVolumes[0].is_default = true;
+    }
+    setVolumeOptions(newVolumes);
+  }
+
+  function updateVolumeOption(index: number, field: keyof VolumeOption, value: any) {
+    const newVolumes = [...volumeOptions];
+    if (field === 'is_default' && value) {
+      // Only one default allowed
+      newVolumes.forEach((v, i) => {
+        v.is_default = i === index;
+      });
+    } else {
+      newVolumes[index] = { ...newVolumes[index], [field]: value };
+    }
+    setVolumeOptions(newVolumes);
   }
 
   return (
@@ -194,6 +253,101 @@ export default function AddMenuItem() {
               folder="menu"
               label="Product Image"
             />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Volume Options</CardTitle>
+                <CardDescription>
+                  Define multiple volume/size options for this item. Customers can choose from these when ordering.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={addVolumeOption}
+                variant="outline"
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Volume
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {volumeOptions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No volume options defined.</p>
+                <p className="text-sm mt-2">Click "Add Volume" to create volume options for this item.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {volumeOptions.map((vol, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-4 p-4 border rounded-lg bg-gray-50">
+                    <div className="col-span-4">
+                      <Label htmlFor={`vol-${index}`}>Volume/Size *</Label>
+                      <Input
+                        id={`vol-${index}`}
+                        value={vol.volume}
+                        onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
+                        placeholder="0.5L"
+                        required
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <Label htmlFor={`price-${index}`}>Price (₪) *</Label>
+                      <Input
+                        id={`price-${index}`}
+                        type="number"
+                        step="0.01"
+                        value={vol.price}
+                        onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
+                        placeholder="25"
+                        required
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor={`sort-${index}`}>Sort Order</Label>
+                      <Input
+                        id={`sort-${index}`}
+                        type="number"
+                        value={vol.sort_order}
+                        onChange={(e) => updateVolumeOption(index, 'sort_order', parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="col-span-2 flex items-end">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`default-${index}`}
+                          checked={vol.is_default}
+                          onChange={(e) => updateVolumeOption(index, 'is_default', e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`default-${index}`} className="cursor-pointer text-sm">
+                          Default
+                        </Label>
+                      </div>
+                    </div>
+                    <div className="col-span-1 flex items-end">
+                      <Button
+                        type="button"
+                        onClick={() => removeVolumeOption(index)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

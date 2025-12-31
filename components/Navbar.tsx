@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './MobileMenu.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCart } from '@/lib/cart-context';
 import Link from 'next/link';
 import { ShoppingBag, Menu, X } from 'lucide-react';
@@ -121,6 +121,7 @@ function NavBarShell({
           padding: 0 4px;
         }
         .mobile-actions {
+          display: none;
           align-items: center;
           gap: 8px;
         }
@@ -172,21 +173,35 @@ function NavBarShell({
 
 function MobileMenu({ 
   isOpen,
-  onClose,
-  className
+  onClose
 }: { 
   isOpen: boolean; 
   onClose: () => void;
-  className?: string;
 }) {
   const pathname = usePathname();
   const { openCart, getTotalItems } = useCart();
   const itemCount = getTotalItems();
+  const [isVisible, setIsVisible] = useState(false);
+  const prevPathnameRef = useRef(pathname);
 
-  // Close menu when route changes
+  // Close menu when route changes (but not on initial mount)
   useEffect(() => {
-    onClose();
-  }, [pathname, onClose]);
+    if (prevPathnameRef.current !== pathname && isOpen) {
+      onClose();
+    }
+    prevPathnameRef.current = pathname;
+  }, [pathname, isOpen, onClose]);
+
+  // Handle visibility for animations
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+    } else {
+      // Delay hiding to allow closing animation
+      const timer = setTimeout(() => setIsVisible(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   // Prevent body scroll when menu is open
   useEffect(() => {
@@ -200,12 +215,22 @@ function MobileMenu({
     };
   }, [isOpen]);
 
-  if (!isOpen && className?.includes('closed')) return null; // Only render if open or closing
+  if (!isVisible) return null;
 
   return (
     <>
-      <div className={`${styles['mobile-menu-overlay']} ${className || ''}`} onClick={onClose} />
-      <div className={`${styles['mobile-menu']} ${className || ''}`}>
+      <div 
+        className={`${styles['mobile-menu-overlay']} ${!isOpen ? styles['closing'] : ''}`} 
+        onClick={onClose} 
+      />
+      <div className={`${styles['mobile-menu']} ${!isOpen ? styles['closing'] : ''}`}>
+        <button
+          onClick={onClose}
+          className={styles['mobile-menu-close']}
+          aria-label="Close menu"
+        >
+          <X size={28} />
+        </button>
         <div className={styles['mobile-menu-content']}>
           {navLinks.map((link, index) => (
             <Link
@@ -249,6 +274,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Memoize the close function to prevent unnecessary re-renders
+  const handleCloseMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
   return (
     <>
       <NavBarShell 
@@ -264,8 +294,7 @@ export default function Navbar() {
       />
       <MobileMenu 
         isOpen={mobileMenuOpen} 
-        onClose={() => setMobileMenuOpen(false)} 
-        className={mobileMenuOpen ? '' : styles['closed']}
+        onClose={handleCloseMenu}
       />
     </>
   );

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeInactive = searchParams.get('include_inactive') === 'true';
+    
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
     
@@ -13,7 +16,11 @@ export async function GET() {
     }
 
     return new Promise((resolve) => {
-      db.all('SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order', [], (err: any, rows: any[]) => {
+      const query = includeInactive 
+        ? 'SELECT * FROM menu_categories ORDER BY sort_order, name'
+        : 'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order';
+      
+      db.all(query, [], (err: any, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));

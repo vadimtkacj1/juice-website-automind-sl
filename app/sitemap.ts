@@ -1,7 +1,45 @@
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+async function getNewsItems() {
+  try {
+    const getDatabase = require('@/lib/database');
+    const db = getDatabase();
+    
+    if (!db) {
+      return [];
+    }
+
+    return new Promise<any[]>((resolve) => {
+      db.all(
+        'SELECT id, created_at FROM news WHERE is_active = 1 ORDER BY created_at DESC',
+        [],
+        (err: Error | null, rows: any[]) => {
+          if (err) {
+            console.error('Error fetching news for sitemap:', err);
+            resolve([]);
+            return;
+          }
+          resolve(rows || []);
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error in getNewsItems:', error);
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
+  
+  const newsItems = await getNewsItems();
+  
+  const newsUrls: MetadataRoute.Sitemap = newsItems.map((item) => ({
+    url: `${baseUrl}/news/${item.id}`,
+    lastModified: new Date(item.created_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
 
   return [
     {
@@ -9,6 +47,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/news`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/shop`,
@@ -34,6 +78,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
+    ...newsUrls,
   ];
 }
-

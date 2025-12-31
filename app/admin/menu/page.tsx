@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Pencil, Trash, Percent, FolderOpen, Coffee } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AlertDialog } from '@/components/ui/alert-dialog';
 
 interface MenuItem {
   id: number;
@@ -41,8 +43,35 @@ export default function AdminMenu() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [newDiscount, setNewDiscount] = useState('');
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
+  const [categoryForm, setCategoryForm] = useState({ 
+    name: '', 
+    description: '', 
+    sort_order: '0',
+    is_active: true 
+  });
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    type?: 'info' | 'success' | 'error' | 'warning';
+  }>({
+    open: false,
+    title: '',
+    message: '',
+    type: 'info',
+  });
 
   useEffect(() => {
     fetchData();
@@ -52,7 +81,7 @@ export default function AdminMenu() {
     try {
       const [itemsRes, catsRes] = await Promise.all([
         fetch('/api/menu-items?include_inactive=true'),
-        fetch('/api/menu-categories')
+        fetch('/api/menu-categories?include_inactive=true')
       ]);
       const itemsData = await itemsRes.json();
       const catsData = await catsRes.json();
@@ -65,30 +94,79 @@ export default function AdminMenu() {
   }
 
   async function handleDeleteItem(id: number) {
-    if (!confirm('Delete this menu item?')) return;
-
-    try {
-      const response = await fetch(`/api/menu-items/${id}`, { method: 'DELETE' });
-      if (response.ok) fetchData();
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Menu Item',
+      description: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/menu-items/${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            fetchData();
+            setAlertDialog({
+              open: true,
+              title: 'Success',
+              message: 'Menu item deleted successfully.',
+              type: 'success',
+            });
+          } else {
+            const data = await response.json();
+            setAlertDialog({
+              open: true,
+              title: 'Error',
+              message: data.error || 'Failed to delete menu item.',
+              type: 'error',
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            message: 'An error occurred while deleting the menu item.',
+            type: 'error',
+          });
+        }
+      },
+    });
   }
 
   async function handleDeleteCategory(id: number) {
-    if (!confirm('Delete this category? Remove all items first.')) return;
-
-    try {
-      const response = await fetch(`/api/menu-categories/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        fetchData();
-      } else {
-        const data = await response.json();
-        alert(data.error || 'Error deleting category');
-      }
-    } catch (error) {
-      console.error('Error deleting category:', error);
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Category',
+      description: 'Are you sure you want to delete this category? Make sure to remove all items from this category first. This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/menu-categories/${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            fetchData();
+            setAlertDialog({
+              open: true,
+              title: 'Success',
+              message: 'Category deleted successfully.',
+              type: 'success',
+            });
+          } else {
+            const data = await response.json();
+            setAlertDialog({
+              open: true,
+              title: 'Error',
+              message: data.error || 'Error deleting category.',
+              type: 'error',
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting category:', error);
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            message: 'An error occurred while deleting the category.',
+            type: 'error',
+          });
+        }
+      },
+    });
   }
 
   async function toggleItemAvailability(item: MenuItem) {
@@ -133,34 +211,78 @@ export default function AdminMenu() {
       setEditingCategory(category);
       setCategoryForm({ 
         name: category.name, 
-        description: category.description || '' 
+        description: category.description || '',
+        sort_order: (category.sort_order || 0).toString(),
+        is_active: category.is_active !== undefined ? category.is_active : true
       });
     } else {
       setEditingCategory(null);
-      setCategoryForm({ name: '', description: '' });
+      setCategoryForm({ 
+        name: '', 
+        description: '',
+        sort_order: '0',
+        is_active: true
+      });
     }
     setShowCategoryDialog(true);
   }
 
   async function saveCategory() {
+    if (!categoryForm.name.trim()) {
+      setAlertDialog({
+        open: true,
+        title: 'Validation Error',
+        message: 'Category name is required.',
+        type: 'warning',
+      });
+      return;
+    }
+
     try {
       const url = editingCategory 
         ? `/api/menu-categories/${editingCategory.id}` 
         : '/api/menu-categories';
       const method = editingCategory ? 'PUT' : 'POST';
       
+      const payload = {
+        name: categoryForm.name.trim(),
+        description: categoryForm.description.trim() || null,
+        sort_order: parseInt(categoryForm.sort_order) || 0,
+        ...(editingCategory ? { is_active: categoryForm.is_active } : {})
+      };
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(categoryForm)
+        body: JSON.stringify(payload)
       });
       
       if (response.ok) {
         fetchData();
         setShowCategoryDialog(false);
+        setAlertDialog({
+          open: true,
+          title: 'Success',
+          message: editingCategory ? 'Category updated successfully.' : 'Category created successfully.',
+          type: 'success',
+        });
+      } else {
+        const data = await response.json();
+        setAlertDialog({
+          open: true,
+          title: 'Error',
+          message: data.error || 'Error saving category.',
+          type: 'error',
+        });
       }
     } catch (error) {
       console.error('Error saving category:', error);
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        message: 'An error occurred while saving the category.',
+        type: 'error',
+      });
     }
   }
 
@@ -338,13 +460,12 @@ export default function AdminMenu() {
                   <CardTitle>Categories</CardTitle>
                   <CardDescription>Manage menu categories</CardDescription>
                 </div>
-                <Button 
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={() => openCategoryDialog()}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Category
-                </Button>
+                <Link href="/admin/menu/categories/add">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Category
+                  </Button>
+                </Link>
               </div>
             </CardHeader>
             <CardContent>
@@ -357,6 +478,8 @@ export default function AdminMenu() {
                       <TableHead>Name</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Items</TableHead>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -371,14 +494,24 @@ export default function AdminMenu() {
                           {items.filter(i => i.category_id === cat.id).length}
                         </TableCell>
                         <TableCell>
+                          <span className="text-sm text-gray-600">{cat.sort_order || 0}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            cat.is_active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {cat.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
                           <div className="flex gap-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => openCategoryDialog(cat)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            <Link href={`/admin/menu/categories/edit/${cat.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </Link>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -447,20 +580,26 @@ export default function AdminMenu() {
 
       {/* Category Dialog */}
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
               {editingCategory ? 'Edit Category' : 'New Category'}
             </DialogTitle>
+            <DialogDescription>
+              {editingCategory 
+                ? 'Update category information' 
+                : 'Create a new menu category'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="cat-name">Name</Label>
+              <Label htmlFor="cat-name">Name *</Label>
               <Input
                 id="cat-name"
                 value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                 placeholder="Fresh Juices"
+                required
               />
             </div>
             <div>
@@ -469,8 +608,38 @@ export default function AdminMenu() {
                 id="cat-desc"
                 value={categoryForm.description}
                 onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                placeholder="Category description"
+                placeholder="Category description (optional)"
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cat-sort">Sort Order</Label>
+                <Input
+                  id="cat-sort"
+                  type="number"
+                  value={categoryForm.sort_order}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
+                  placeholder="0"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Lower numbers appear first
+                </p>
+              </div>
+              {editingCategory && (
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="cat-active"
+                    checked={categoryForm.is_active}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="cat-active" className="cursor-pointer">
+                    Active
+                  </Label>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -478,11 +647,32 @@ export default function AdminMenu() {
               Cancel
             </Button>
             <Button onClick={saveCategory} className="bg-purple-600 hover:bg-purple-700 text-white">
-              Save
+              {editingCategory ? 'Update' : 'Create'} Category
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        open={alertDialog.open}
+        onOpenChange={(open) => setAlertDialog({ ...alertDialog, open })}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        type={alertDialog.type}
+      />
     </div>
   );
 }

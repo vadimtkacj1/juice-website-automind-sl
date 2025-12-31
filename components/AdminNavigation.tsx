@@ -13,7 +13,9 @@ import {
   LogOut,
   Menu,
   X,
-  Newspaper
+  Newspaper,
+  ChefHat,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -22,7 +24,9 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Menu', href: '/admin/menu', icon: Package },
+  { name: 'Ingredients', href: '/admin/ingredients', icon: ChefHat },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Telegram Delivery', href: '/admin/telegram-delivery', icon: MessageSquare },
   { name: 'News', href: '/admin/news', icon: Newspaper },
   { name: 'Discounts & Promos', href: '/admin/discounts', icon: Tag },
   { name: 'Locations', href: '/admin/locations', icon: MapPin },

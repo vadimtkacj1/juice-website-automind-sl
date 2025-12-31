@@ -13,6 +13,7 @@ export default function Cart() {
     getTotalItems,
     isCartOpen,
     closeCart,
+    getItemKey,
   } = useCart();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +23,7 @@ export default function Cart() {
   // Contact form state
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [emailError, setEmailError] = useState('');
 
@@ -96,10 +98,13 @@ export default function Cart() {
             price: item.price,
             quantity: item.quantity,
             image: item.image,
+            addons: item.addons,
+            customIngredients: item.customIngredients || [],
           })),
           customer: {
             phone: phone.trim(),
             email: email.trim(),
+            deliveryAddress: deliveryAddress.trim(),
           },
         }),
       });
@@ -111,9 +116,12 @@ export default function Cart() {
         return;
       }
 
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
+      if (data.success && data.redirectUrl) {
+        // Redirect to success page
+        window.location.href = data.redirectUrl;
+      } else if (data.orderNumber) {
+        // Fallback redirect
+        window.location.href = `/checkout/success?order=${data.orderNumber}`;
       }
     } catch (err) {
       setError('Failed to start checkout. Please try again.');
@@ -193,48 +201,97 @@ export default function Cart() {
                   </div>
                 ) : (
                   <div className="cart-items-list">
-                    {cart.map((item) => (
-                      <div key={item.id} className="cart-item">
-                        {item.image ? (
-                          <div className="cart-item-image">
-                            <img src={item.image} alt={item.name} />
-                          </div>
-                        ) : (
-                          <div className="cart-item-placeholder">
-                            <ShoppingBag size={24} />
-                          </div>
-                        )}
+                    {cart.map((item, index) => {
+                      // Calculate item total including addons and custom ingredients
+                      const addonsTotal = (item.addons || []).reduce((total, addon) => 
+                        total + addon.price * addon.quantity, 0
+                      );
+                      const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
+                        total + ingredient.price, 0
+                      );
+                      const itemTotal = item.price + addonsTotal + ingredientsTotal;
+                      
+                      return (
+                        <div key={`${item.id}-${index}`} className="cart-item">
+                          {item.image ? (
+                            <div className="cart-item-image">
+                              <img src={item.image} alt={item.name} />
+                            </div>
+                          ) : (
+                            <div className="cart-item-placeholder">
+                              <ShoppingBag size={24} />
+                            </div>
+                          )}
 
-                        <div className="cart-item-info">
-                          <h4>{item.name}</h4>
-                          <p className="cart-item-price">₪{item.price.toFixed(0)}</p>
-                        </div>
+                          <div className="cart-item-info">
+                            <h4>
+                              {item.name}
+                              {item.volume && <span className="cart-item-volume"> - {item.volume}</span>}
+                            </h4>
+                            
+                            {/* Addons */}
+                            {item.addons && item.addons.length > 0 && (
+                              <div className="cart-item-addons">
+                                {item.addons.map(addon => (
+                                  <div key={addon.id} className="cart-item-addon">
+                                    <span className="cart-item-addon-name">
+                                      + {addon.name} (x{addon.quantity})
+                                    </span>
+                                    <span className="cart-item-addon-price">
+                                      +₪{(addon.price * addon.quantity).toFixed(0)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
 
-                        <div className="cart-item-controls">
-                          <div className="cart-qty-controls">
+                            {/* Custom Ingredients */}
+                            {item.customIngredients && item.customIngredients.length > 0 && (
+                              <div className="cart-item-ingredients">
+                                <span className="cart-item-ingredients-label">With: </span>
+                                <span className="cart-item-ingredients-list">
+                                  {item.customIngredients.map((ingredient, idx) => (
+                                    <span key={ingredient.id}>
+                                      {ingredient.name}
+                                      {ingredient.price > 0 && ` (+₪${ingredient.price.toFixed(0)})`}
+                                      {idx < item.customIngredients!.length - 1 && ', '}
+                                    </span>
+                                  ))}
+                                </span>
+                              </div>
+                            )}
+
+                            <p className="cart-item-price">
+                              ₪{itemTotal.toFixed(0)} {item.quantity > 1 && `× ${item.quantity}`}
+                            </p>
+                          </div>
+
+                          <div className="cart-item-controls">
+                            <div className="cart-qty-controls">
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1, getItemKey(item))}
+                                className="cart-qty-btn"
+                              >
+                                <Minus size={16} />
+                              </button>
+                              <span className="cart-qty">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1, getItemKey(item))}
+                                className="cart-qty-btn"
+                              >
+                                <Plus size={16} />
+                              </button>
+                            </div>
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="cart-qty-btn"
+                              onClick={() => removeFromCart(item.id, getItemKey(item))}
+                              className="cart-remove-btn"
                             >
-                              <Minus size={16} />
-                            </button>
-                            <span className="cart-qty">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="cart-qty-btn"
-                            >
-                              <Plus size={16} />
+                              <Trash2 size={18} />
                             </button>
                           </div>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="cart-remove-btn"
-                          >
-                            <Trash2 size={18} />
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -302,16 +359,78 @@ export default function Cart() {
                     {emailError && <span className="field-error">{emailError}</span>}
                   </div>
 
+                  <div className="form-group">
+                    <label htmlFor="deliveryAddress">
+                      📍 Delivery Address *
+                    </label>
+                    <textarea
+                      id="deliveryAddress"
+                      placeholder="Enter full delivery address (street, building, apartment, etc.)"
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      rows={3}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        fontFamily: 'inherit',
+                        resize: 'vertical',
+                      }}
+                    />
+                  </div>
+
                   {/* Order Summary */}
                   <div className="order-summary">
                     <h4>Order Summary</h4>
                     <div className="summary-items">
-                      {cart.map((item) => (
-                        <div key={item.id} className="summary-item">
-                          <span>{item.quantity}x {item.name}</span>
-                          <span>₪{(item.price * item.quantity).toFixed(0)}</span>
-                        </div>
-                      ))}
+                      {cart.map((item, itemIndex) => {
+                        console.log(`Order Summary - Item ${itemIndex}:`, item.name, 'customIngredients:', item.customIngredients);
+                        // Calculate item total including addons and ingredients
+                        const addonsTotal = (item.addons || []).reduce((total, addon) => 
+                          total + addon.price * addon.quantity, 0
+                        );
+                        const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
+                          total + ingredient.price, 0
+                        );
+                        const itemTotal = item.price + addonsTotal + ingredientsTotal;
+                        const itemTotalWithQuantity = itemTotal * item.quantity;
+                        
+                        return (
+                          <div key={`${item.id}-${itemIndex}`} className="summary-item-group">
+                            <div className="summary-item">
+                              <span>{item.quantity}x {item.name}{item.volume ? ` (${item.volume})` : ''}</span>
+                              <span>₪{itemTotalWithQuantity.toFixed(0)}</span>
+                            </div>
+                            
+                            {/* Addons as sub-items */}
+                            {item.addons && item.addons.length > 0 && (
+                              <div className="summary-sub-items">
+                                {item.addons.map((addon) => (
+                                  <div key={addon.id} className="summary-sub-item">
+                                    <span>  + {addon.name} (x{addon.quantity})</span>
+                                    <span>+₪{(addon.price * addon.quantity * item.quantity).toFixed(0)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Custom Ingredients as sub-items */}
+                            {item.customIngredients && item.customIngredients.length > 0 && (
+                              <div className="summary-sub-items">
+                                {item.customIngredients.map((ingredient) => (
+                                  <div key={ingredient.id} className="summary-sub-item">
+                                    <span>  + {ingredient.name}</span>
+                                    <span>+₪{(ingredient.price * item.quantity).toFixed(0)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -580,16 +699,41 @@ export default function Cart() {
           gap: 10px;
         }
 
+        .summary-item-group {
+          margin-bottom: 12px;
+        }
+
         .summary-item {
           display: flex;
           justify-content: space-between;
           font-size: 14px;
-          color: var(--text-gray, #70758c);
+          color: var(--dark, #1d1a40);
+          font-weight: 600;
         }
 
         .summary-item span:last-child {
           font-weight: 600;
           color: var(--dark, #1d1a40);
+        }
+
+        .summary-sub-items {
+          margin-top: 4px;
+          margin-left: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .summary-sub-item {
+          display: flex;
+          justify-content: space-between;
+          font-size: 12px;
+          color: var(--text-gray, #70758c);
+        }
+
+        .summary-sub-item span:last-child {
+          font-weight: 500;
+          color: var(--text-gray, #70758c);
         }
 
         .cart-empty {
@@ -711,11 +855,49 @@ export default function Cart() {
           text-overflow: ellipsis;
         }
 
+        .cart-item-addons {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          margin: 8px 0 4px;
+        }
+
+        .cart-item-addon {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+          color: var(--text-gray, #70758c);
+        }
+
+        .cart-item-addon-name {
+          font-weight: 500;
+        }
+
+        .cart-item-addon-price {
+          font-weight: 600;
+          color: var(--primary, #7322ff);
+        }
+
+        .cart-item-ingredients {
+          font-size: 13px;
+          color: var(--text-gray, #70758c);
+          margin: 4px 0;
+        }
+
+        .cart-item-ingredients-label {
+          font-weight: 600;
+        }
+
+        .cart-item-ingredients-list {
+          font-weight: 400;
+        }
+
         .cart-item-price {
           font-weight: 800;
           font-size: 18px;
           color: var(--primary, #7322ff);
-          margin: 0;
+          margin: 4px 0 0;
         }
 
         .cart-item-controls {

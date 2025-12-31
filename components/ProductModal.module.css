@@ -167,6 +167,195 @@
   flex-shrink: 0;
 }
 
+/* Sections */
+.modal-section {
+  margin-bottom: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(29, 26, 64, 0.1);
+}
+
+.section-title {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--dark, #1d1a40);
+  margin: 0 0 16px;
+}
+
+/* Addons */
+.addons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addon-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.addon-item:hover {
+  border-color: var(--primary, #7322ff);
+}
+
+.addon-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.addon-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--dark, #1d1a40);
+}
+
+.addon-price {
+  font-size: 14px;
+  color: var(--text-gray, #70758c);
+  font-weight: 600;
+}
+
+.addon-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--primary, #7322ff);
+  background: white;
+  color: var(--primary, #7322ff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background: var(--primary, #7322ff);
+  color: white;
+}
+
+.qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qty-value {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--dark, #1d1a40);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Custom Ingredients */
+.ingredient-category {
+  margin-bottom: 24px;
+}
+
+.ingredient-category:last-child {
+  margin-bottom: 0;
+}
+
+.category-title {
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--dark, #1d1a40);
+  margin: 0 0 12px;
+}
+
+.selection-hint {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-gray, #70758c);
+  font-style: italic;
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.ingredient-item:hover {
+  border-color: var(--primary, #7322ff);
+}
+
+.ingredient-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary, #7322ff);
+}
+
+.ingredient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.ingredient-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--dark, #1d1a40);
+}
+
+.ingredient-price {
+  font-size: 14px;
+  color: var(--text-gray, #70758c);
+  font-weight: 600;
+}
+
+/* Total */
+.modal-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  margin-bottom: 16px;
+  border-top: 2px solid rgba(29, 26, 64, 0.1);
+}
+
+.total-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark, #1d1a40);
+}
+
+.total-price {
+  font-family: "Archivo", sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--primary, #7322ff);
+}
+
 /* Add Button */
 .modal-add-btn {
   margin-top: auto;

@@ -3,10 +3,11 @@ import getDatabase from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const db = getDatabase();
-  const orderId = params.id;
+  const { id } = await params;
+  const orderId = id;
 
   return new Promise((resolve) => {
     db.get(
@@ -46,10 +47,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
+    const { id } = await params;
+    const orderId = id;
     const { status, notes } = await request.json();
 
     const db = getDatabase();
@@ -99,10 +101,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const db = getDatabase();
-  const orderId = params.id;
+  const { id } = await params;
+  const orderId = id;
 
   return new Promise((resolve) => {
     // Delete order items first

@@ -19,6 +19,27 @@
   display: flex;
   flex-direction: column;
 }
+.mobile-menu-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(29, 26, 64, 0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+.mobile-menu-close:hover {
+  background: rgba(29, 26, 64, 0.2);
+  transform: scale(1.1);
+}
 .mobile-menu-content {
   display: flex;
   flex-direction: column;
@@ -93,12 +114,12 @@
   }
 }
 
-/* New animations for closing */
-.mobile-menu.closed .mobile-menu-overlay {
+/* Closing animations */
+.mobile-menu-overlay.closing {
   animation: fadeOut 0.3s ease-out forwards;
 }
 
-.mobile-menu.closed {
+.mobile-menu.closing {
   animation: slideOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 

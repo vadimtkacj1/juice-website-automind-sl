@@ -1,11 +1,9 @@
-\'use client\';
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import styles from './page.module.css';
 
 interface NewsItem {
   id: number;
@@ -16,98 +14,264 @@ interface NewsItem {
   created_at: string;
 }
 
-export default function NewsDetailPage() {
-  const params = useParams();
-  const { id } = params;
-  const [newsItem, setNewsItem] = useState<NewsItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      fetchNewsItem(Number(id));
+async function getNewsItem(id: number): Promise<NewsItem | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                   (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+    
+    // For server-side, we need to use absolute URL or fetch directly from database
+    const getDatabase = require('@/lib/database');
+    const db = getDatabase();
+    
+    if (!db) {
+      return null;
     }
-  }, [id]);
 
-  async function fetchNewsItem(newsId: number) {
-    try {
-      const response = await fetch(`/api/news/${newsId}`);
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError('News item not found.');
-        } else {
-          setError('Failed to fetch news item.');
+    return new Promise((resolve) => {
+      db.get('SELECT * FROM news WHERE id = ? AND is_active = 1', [id], (err: Error | null, row: any) => {
+        if (err || !row) {
+          resolve(null);
+          return;
         }
-        setNewsItem(null);
-        return;
-      }
-      const data = await response.json();
-      setNewsItem(data.newsItem);
-    } catch (err) {
-      console.error('Error fetching news item:', err);
-      setError('An unexpected error occurred.');
-      setNewsItem(null);
-    } finally {
-      setLoading(false);
-    }
+        resolve(row);
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching news item:', error);
+    return null;
   }
+}
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <LoadingSpinner size="lg" text="Loading news item..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold text-red-600 mb-4">Error</h1>
-        <p className="text-lg text-gray-700">{error}</p>
-        <Link href="/" className="mt-8 inline-flex items-center text-purple-600 hover:underline">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
-        </Link>
-      </div>
-    );
-  }
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const newsItem = await getNewsItem(Number(params.id));
 
   if (!newsItem) {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">News Item Not Found</h1>
-        <p className="text-lg text-gray-700">The news item you are looking for does not exist or is not active.</p>
-        <Link href="/" className="mt-8 inline-flex items-center text-purple-600 hover:underline">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
-        </Link>
-      </div>
-    );
+    return {
+      title: 'News Not Found | Reviva',
+      description: 'The news article you are looking for could not be found.',
+    };
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
+  const url = `${baseUrl}/news/${params.id}`;
+  const imageUrl = newsItem.image 
+    ? (newsItem.image.startsWith('http') ? newsItem.image : `${baseUrl}${newsItem.image}`)
+    : `${baseUrl}/images/default-news.jpg`;
+  
+  const excerpt = newsItem.content.length > 160 
+    ? `${newsItem.content.substring(0, 160)}...` 
+    : newsItem.content;
+
+  return {
+    title: `${newsItem.title} | Reviva News`,
+    description: excerpt,
+    keywords: [
+      'juice',
+      'fresh juice',
+      'health',
+      'nutrition',
+      'beverages',
+      'reviva',
+      'news',
+      'updates',
+      ...newsItem.title.toLowerCase().split(' '),
+    ],
+    authors: [{ name: 'Reviva' }],
+    openGraph: {
+      type: 'article',
+      title: newsItem.title,
+      description: excerpt,
+      url: url,
+      siteName: 'Reviva',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: newsItem.title,
+        },
+      ],
+      publishedTime: newsItem.created_at,
+      modifiedTime: newsItem.created_at,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: newsItem.title,
+      description: excerpt,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: url,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
+
+export default async function NewsDetailPage({ params }: { params: { id: string } }) {
+  const newsItem = await getNewsItem(Number(params.id));
+
+  if (!newsItem) {
+    notFound();
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
+  const publishedDate = new Date(newsItem.created_at);
+  const formattedDate = publishedDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const readingTime = Math.ceil(newsItem.content.split(' ').length / 200); // Average reading speed: 200 words per minute
+
+  // Format content with proper paragraphs
+  // Handle both newline-separated and single paragraph content
+  const formattedContent = newsItem.content
+    .split(/\n\s*\n|\n/)
+    .map(para => para.trim())
+    .filter(para => para.length > 0);
+  
+  // If no paragraphs found, treat entire content as one paragraph
+  const displayContent = formattedContent.length > 0 ? formattedContent : [newsItem.content];
+
+  // Structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: newsItem.title,
+    description: newsItem.content.length > 160 
+      ? `${newsItem.content.substring(0, 160)}...` 
+      : newsItem.content,
+    image: newsItem.image 
+      ? (newsItem.image.startsWith('http') ? newsItem.image : `${baseUrl}${newsItem.image}`)
+      : undefined,
+    datePublished: newsItem.created_at,
+    dateModified: newsItem.created_at,
+    author: {
+      '@type': 'Organization',
+      name: 'Reviva',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Reviva',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/images/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/news/${params.id}`,
+    },
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12 md:py-20 max-w-4xl">
-      <Link href="/" className="inline-flex items-center text-gray-600 hover:underline mb-8">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
-      </Link>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
+      <div className={styles.newsArticlePage}>
+        <div className={styles.newsArticleContainer}>
+          <Link href="/news" className={styles.newsArticleBackLink}>
+            <ArrowLeft size={18} />
+            <span>Back to News</span>
+          </Link>
 
-      <article className="bg-white p-6 md:p-10 rounded-lg shadow-lg">
-        {newsItem.image && (
-          <div className="relative w-full h-80 md:h-96 rounded-md overflow-hidden mb-8">
-            <Image src={newsItem.image} alt={newsItem.title} fill style={{ objectFit: 'cover' }} />
-          </div>
-        )}
+          <article className={styles.newsArticle} itemScope itemType="https://schema.org/NewsArticle">
+            {/* Article Header */}
+            <header className={styles.newsArticleHeader}>
+              <div className={styles.newsArticleMeta}>
+                <time 
+                  dateTime={newsItem.created_at} 
+                  itemProp="datePublished"
+                  className={styles.newsArticleDate}
+                >
+                  <Calendar size={16} />
+                  <span>{formattedDate}</span>
+                </time>
+                <div className={styles.newsArticleReadingTime}>
+                  <Clock size={16} />
+                  <span>{readingTime} min read</span>
+                </div>
+              </div>
 
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
-          {newsItem.title}
-        </h1>
-        <p className="text-gray-500 text-sm mb-6">
-          Published on {new Date(newsItem.created_at).toLocaleDateString()}
-        </p>
-        <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-          <p>{newsItem.content}</p>
-          {/* You might want to parse markdown or rich text here if content supports it */}
+              <h1 className={styles.newsArticleTitle} itemProp="headline">
+                {newsItem.title}
+              </h1>
+
+              {newsItem.image && (
+                <div className={styles.newsArticleFeaturedImage}>
+                  <Image
+                    src={newsItem.image}
+                    alt={newsItem.title}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                    priority
+                    itemProp="image"
+                  />
+                </div>
+              )}
+            </header>
+
+            {/* Article Body */}
+            <div className={styles.newsArticleBody} itemProp="articleBody">
+              {displayContent.map((paragraph, index) => (
+                <p key={index} className={styles.newsArticleParagraph}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Article Footer */}
+            <footer className={styles.newsArticleFooter}>
+              <div className={styles.newsArticleShare}>
+                <span className={styles.newsArticleShareLabel}>Share this article:</span>
+                <div className={styles.newsArticleShareButtons}>
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(newsItem.title)}&url=${encodeURIComponent(`${baseUrl}/news/${params.id}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.newsArticleShareButton}
+                    aria-label="Share on Twitter"
+                  >
+                    Twitter
+                  </a>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${baseUrl}/news/${params.id}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.newsArticleShareButton}
+                    aria-label="Share on Facebook"
+                  >
+                    Facebook
+                  </a>
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${baseUrl}/news/${params.id}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.newsArticleShareButton}
+                    aria-label="Share on LinkedIn"
+                  >
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </footer>
+          </article>
         </div>
-      </article>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Eye, Trash, Filter } from 'lucide-react';
+import { Eye, Trash } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -16,6 +16,17 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -64,20 +75,25 @@ export default function OrdersPage() {
   };
 
   const deleteOrder = async (orderId: number) => {
-    if (!confirm('Are you sure you want to delete this order?')) return;
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Order',
+      description: 'Are you sure you want to delete this order? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/orders/${orderId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        fetchOrders();
-        setShowDetailsDialog(false);
-      }
-    } catch (error) {
-      console.error('Failed to delete order:', error);
-    }
+          if (response.ok) {
+            fetchOrders();
+            setShowDetailsDialog(false);
+          }
+        } catch (error) {
+          console.error('Failed to delete order:', error);
+        }
+      },
+    });
   };
 
   const filteredOrders = statusFilter === 'all' 
@@ -101,17 +117,9 @@ export default function OrdersPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>All Orders</CardTitle>
-              <CardDescription>A list of all customer orders</CardDescription>
-            </div>
-            <Link href="/admin/orders/add">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Order
-              </Button>
-            </Link>
+          <div>
+            <CardTitle>All Orders</CardTitle>
+            <CardDescription>A list of all customer orders</CardDescription>
           </div>
           <div className="flex justify-end mt-4">
             <div className="flex gap-2">
@@ -254,10 +262,6 @@ export default function OrdersPage() {
                   <p className="font-medium">{selectedOrder.customer_phone || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-500">Payment Method</Label>
-                  <p className="font-medium">{selectedOrder.payment_method || 'N/A'}</p>
-                </div>
-                <div>
                   <Label className="text-gray-500">Status</Label>
                   <p className="font-medium capitalize">{selectedOrder.status}</p>
                 </div>
@@ -287,7 +291,7 @@ export default function OrdersPage() {
                     <TableBody>
                       {selectedOrder.items?.map((item: any) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.product_name}</TableCell>
+                          <TableCell>{item.item_name || item.product_name}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>${item.price.toFixed(2)}</TableCell>
                           <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
@@ -306,6 +310,18 @@ export default function OrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Redirect products API to menu-items since we use menu_items table
 export async function GET() {
   try {
-    // Dynamic import to handle native module
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
     
@@ -14,13 +14,22 @@ export async function GET() {
     }
 
     return new Promise((resolve) => {
-      db.all('SELECT * FROM products', [], (err, rows) => {
+      db.all('SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order, name', [], (err, rows) => {
         if (err) {
           console.error('Database error:', err);
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        resolve(NextResponse.json({ products: rows || [] }));
+        // Map menu_items to products format for compatibility
+        const products = (rows || []).map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image: item.image,
+          availability: item.is_available ? 1 : 0
+        }));
+        resolve(NextResponse.json({ products }));
       });
     });
   } catch (error: any) {
