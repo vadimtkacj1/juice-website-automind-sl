@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(
         `SELECT 
           mici.menu_item_id,
@@ -76,7 +76,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Start transaction by deleting all existing configs for this menu item
       db.run(
         'DELETE FROM menu_item_custom_ingredients WHERE menu_item_id = ?',

@@ -11,7 +11,7 @@ export async function PATCH(
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       const updates: string[] = [];
       const values: any[] = [];
 
@@ -49,7 +49,7 @@ export async function PATCH(
       db.run(
         `UPDATE discounts SET ${updates.join(', ')} WHERE id = ?`,
         values,
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to update discount' }, { status: 500 }));
             return;
@@ -79,8 +79,8 @@ export async function DELETE(
   const db = getDatabase();
   const discountId = params.id;
 
-  return new Promise((resolve) => {
-    db.run('DELETE FROM discounts WHERE id = ?', [discountId], function(err: Error | null) {
+  return new Promise<NextResponse>((resolve) => {
+    db.run('DELETE FROM discounts WHERE id = ?', [discountId], function(this: { lastID: number; changes: number }, err: Error | null) {
       if (err) {
         resolve(NextResponse.json({ error: 'Failed to delete discount' }, { status: 500 }));
         return;

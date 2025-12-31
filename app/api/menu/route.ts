@@ -12,7 +12,7 @@ export async function GET() {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Get all active categories
       db.all(
         'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order',

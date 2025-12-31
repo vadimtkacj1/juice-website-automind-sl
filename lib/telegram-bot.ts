@@ -72,7 +72,7 @@ export async function getBotInstance(enablePolling: boolean = false): Promise<Te
           return;
         }
 
-        if (botInstance && botInstance.token === settings.api_token) {
+        if (botInstance && (botInstance as any).token === settings.api_token) {
           // If polling is requested and not already started, start it (only if service not available)
           if (enablePolling && !botPolling && !serviceAvailable) {
             await startPollingSafely(botInstance);
@@ -201,23 +201,22 @@ function setupBotHandlers(bot: TelegramBot) {
   });
 }
 
-export async function sendOrderNotification(orderId: number) {
-  // Run asynchronously without blocking
-  setImmediate(async () => {
-    try {
-      const db = getDatabase();
-      const bot = await getBotInstance();
+export async function sendOrderNotification(orderId: number): Promise<boolean> {
+  try {
+    const db = getDatabase();
+    const bot = await getBotInstance();
 
-      if (!bot) {
-        console.log('[Telegram] Bot is not configured or enabled');
-        return;
-      }
-
-      await sendOrderNotificationInternal(orderId, bot, db);
-    } catch (error: any) {
-      console.error('[Telegram] Error sending order notification:', error.message);
+    if (!bot) {
+      console.log('[Telegram] Bot is not configured or enabled');
+      return false;
     }
-  });
+
+    await sendOrderNotificationInternal(orderId, bot, db);
+    return true;
+  } catch (error: any) {
+    console.error('[Telegram] Error sending order notification:', error.message);
+    return false;
+  }
 }
 
 async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, db: any): Promise<void> {

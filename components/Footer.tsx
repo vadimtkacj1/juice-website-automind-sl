@@ -7,6 +7,11 @@ const footerLinks = [
   { href: '/contact', label: 'Contact' },
 ];
 
+const legalLinks = [
+  { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/terms', label: 'Terms & Conditions' },
+];
+
 export default function Footer() {
   return (
     <footer className="footer-main">
@@ -19,6 +24,14 @@ export default function Footer() {
               <span>{link.label}</span>
               <span className="hvr">{link.label}</span>
             </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="footer-legal">
+        {legalLinks.map((link) => (
+          <Link key={link.href} href={link.href} className="legal-link">
+            {link.label}
           </Link>
         ))}
       </div>

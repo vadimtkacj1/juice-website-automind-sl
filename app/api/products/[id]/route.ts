@@ -16,8 +16,8 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
-      db.get('SELECT * FROM products WHERE id = ?', [id], (err, row) => {
+    return new Promise<NextResponse>((resolve) => {
+      db.get('SELECT * FROM products WHERE id = ?', [id], (err: Error | null, row: any) => {
         if (err) {
           console.error('Database error:', err);
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
@@ -60,11 +60,11 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         'UPDATE products SET name = ?, description = ?, price = ?, image = ?, availability = ? WHERE id = ?',
         [name, description, price, image, availability ? 1 : 0, id],
-        function (err) {
+        function (this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             console.error('Database error:', err);
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));
@@ -105,8 +105,8 @@ export async function DELETE(
       );
     }
 
-    return new Promise((resolve) => {
-      db.run('DELETE FROM products WHERE id = ?', [id], function (err) {
+    return new Promise<NextResponse>((resolve) => {
+      db.run('DELETE FROM products WHERE id = ?', [id], function (this: { lastID: number; changes: number }, err: Error | null) {
         if (err) {
           console.error('Database error:', err);
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));

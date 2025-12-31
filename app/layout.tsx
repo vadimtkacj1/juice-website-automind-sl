@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Change to 'ar' or 'he' for RTL languages
-  const lang = 'en';
+  const lang = 'en' as 'en' | 'ar' | 'he';
   const dir = lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr';
 
   return (

@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(
         `SELECT 
           ci.*,
@@ -72,7 +72,7 @@ export async function POST(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // First, remove all existing associations
       db.run(
         'DELETE FROM menu_item_custom_ingredients WHERE menu_item_id = ?',

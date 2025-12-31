@@ -66,7 +66,7 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
       `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, status, payment_method, notes, created_at) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       [customer.name || 'Customer', customer.email, customer.phone, customer.deliveryAddress || null, total, 'pending', null, notes],
-      function(err: any) {
+      function(this: { lastID: number; changes: number }, err: any) {
         if (err) {
           reject(err);
           return;

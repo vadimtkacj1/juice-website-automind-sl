@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Home, ShoppingBag } from 'lucide-react';
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order');
 
@@ -168,6 +168,24 @@ export default function CheckoutSuccessPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="success-page">
+        <div className="success-container">
+          <div className="success-icon">
+            <CheckCircle size={80} />
+          </div>
+          <h1>Order Confirmed!</h1>
+          <p>Thank you for your order. We've received your order and will start preparing your items right away.</p>
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
 

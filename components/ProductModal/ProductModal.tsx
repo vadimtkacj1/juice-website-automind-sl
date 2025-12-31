@@ -197,6 +197,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   };
 
   const proceedWithAddToCart = (additionalIngredientIds?: number[]) => {
+    if (!item) return;
+    
     const addonsArray: CartAddon[] = Array.from(selectedAddons.entries()).map(([id, quantity]) => {
       const addon = addons.find(a => a.id === id);
       return {
@@ -250,6 +252,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       name: item.name,
       price: finalPrice,
       image: item.image,
+      discount_percent: item.discount_percent,
       volume: selectedVolume || undefined,
       addons: addonsArray.length > 0 ? addonsArray : undefined,
       customIngredients: ingredientsArray.length > 0 ? ingredientsArray : undefined
@@ -300,7 +303,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     // Proceed with add to cart, passing the additional ingredient IDs
     // We combine current selectedIngredients with the new ones to ensure all are included
     const additionalIngredientIds = unselectedIngredients.map(ing => ing.id);
-    const allIngredientIds = new Set([...selectedIngredients, ...additionalIngredientIds]);
+    const allIngredientIds = new Set([...Array.from(selectedIngredients), ...additionalIngredientIds]);
     console.log('handleAddIngredients - allIngredientIds to add:', Array.from(allIngredientIds));
     proceedWithAddToCart(Array.from(allIngredientIds));
   };

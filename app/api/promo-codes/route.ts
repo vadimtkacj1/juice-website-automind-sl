@@ -4,7 +4,7 @@ import getDatabase from '@/lib/database';
 export async function GET() {
   const db = getDatabase();
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.all(
       'SELECT * FROM promo_codes ORDER BY created_at DESC',
       (err: Error | null, promoCodes: any[]) => {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Check if code already exists
       db.get('SELECT id FROM promo_codes WHERE code = ?', [code], (err: Error | null, existing: any) => {
         if (err) {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
             start_date || null,
             end_date || null
           ],
-          function(err: Error | null) {
+          function(this: { lastID: number; changes: number }, err: Error | null) {
             if (err) {
               resolve(NextResponse.json({ error: 'Failed to create promo code' }, { status: 500 }));
               return;

@@ -4,7 +4,7 @@ import getDatabase from '@/lib/database';
 export async function GET() {
   const db = getDatabase();
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.all(
       'SELECT * FROM telegram_couriers ORDER BY created_at DESC',
       (err: Error | null, couriers: any[]) => {
@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO telegram_couriers (telegram_id, name, is_active, created_at, updated_at)
          VALUES (?, ?, ?, datetime('now'), datetime('now'))`,
         [telegram_id, name, is_active !== false ? 1 : 0],
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             if (err.message.includes('UNIQUE constraint')) {
               resolve(NextResponse.json({ error: 'Courier with this Telegram ID already exists' }, { status: 400 }));
@@ -84,13 +84,13 @@ export async function PUT(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `UPDATE telegram_couriers 
          SET telegram_id = ?, name = ?, is_active = ?, updated_at = datetime('now')
          WHERE id = ?`,
         [telegram_id, name, is_active ? 1 : 0, id],
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to update courier' }, { status: 500 }));
             return;
@@ -127,11 +127,11 @@ export async function DELETE(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         'DELETE FROM telegram_couriers WHERE id = ?',
         [id],
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to delete courier' }, { status: 500 }));
             return;

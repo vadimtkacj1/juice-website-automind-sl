@@ -13,8 +13,8 @@ export async function GET() {
       );
     }
 
-    return new Promise((resolve) => {
-      db.all('SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order, name', [], (err, rows) => {
+    return new Promise<NextResponse>((resolve) => {
+      db.all('SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order, name', [], (err: Error | null, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
@@ -63,11 +63,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         'INSERT INTO products (name, description, price, image, availability) VALUES (?, ?, ?, ?, ?)',
         [name, description, price, image, availability ? 1 : 0],
-        function (err) {
+        function (this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             console.error('Database error:', err);
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));

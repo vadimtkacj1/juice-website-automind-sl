@@ -11,8 +11,8 @@ const dbAll = (db: any, query: string, params: any[] = []) => {
 };
 
 const dbRun = (db: any, query: string, params: any[] = []) => {
-  return new Promise<any>((resolve, reject) => {
-    db.run(query, params, function(err: Error | null) {
+  return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
+    db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
       if (err) reject(err);
       else resolve(this);
     });

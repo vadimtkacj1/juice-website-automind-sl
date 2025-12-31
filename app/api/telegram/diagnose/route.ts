@@ -17,7 +17,7 @@ export async function GET() {
     const db = getDatabase();
 
     // Check bot settings
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.get(
         'SELECT * FROM telegram_bot_settings ORDER BY id DESC LIMIT 1',
         async (err: Error | null, settings: any) => {

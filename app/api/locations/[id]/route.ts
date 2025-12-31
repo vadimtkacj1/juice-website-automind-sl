@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.get('SELECT * FROM locations WHERE id = ?', [id], (err: Error | null, row: any) => {
         if (err) {
           console.error('Database error:', err);
@@ -60,7 +60,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `UPDATE locations SET 
           country = ?, city = ?, address = ?, hours = ?, phone = ?, 
@@ -108,7 +108,7 @@ export async function DELETE(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run('DELETE FROM locations WHERE id = ?', [id], function (this: any, err: Error | null) {
         if (err) {
           console.error('Database error:', err);

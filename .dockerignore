@@ -1,38 +1,52 @@
-# Ignore Node.js modules
-node_modules/
-**/node_modules/
-
-# Ignore Next.js build output
-.next/
-out/
-
-# Ignore cache directories
-.turbo/
-.cache/
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Dependencies
+node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-store/
 
-# Ignore editor and IDE files
-.vscode/
-.idea/
-*.log
-*.tmp
-*.bak
-.DS_Store
+# Next.js
+.next
+out
+build
+
+# Environment files
+.env
+.env*.local
+.env.production
 
 # Git
-.git/
+.git
 .gitignore
+.github
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.log
+*.tsbuildinfo
+next-env.d.ts
+
+# Database (should be mounted as volume)
+juice_website.db
+*.db
 
 # Documentation
-README.md
+*.md
+!README.md
 
-# Database file
-# juice_website.db
+# CI/CD
+.dockerignore
+Dockerfile
+docker-compose.yml

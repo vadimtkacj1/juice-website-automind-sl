@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY ci.sort_order, ci.name';
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(query, params, (err: any, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO custom_ingredients (name, description, price, image, ingredient_category, is_available, sort_order) 
         VALUES (?, ?, ?, ?, ?, ?, ?)`,

@@ -12,7 +12,7 @@ export async function GET() {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all('SELECT * FROM locations ORDER BY sort_order, id', [], (err: Error | null, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO locations (country, city, address, hours, phone, email, image, map_url, is_active, sort_order) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

@@ -5,7 +5,7 @@ import TelegramBot from 'node-telegram-bot-api';
 
 // Direct notification function (without setImmediate for better error handling)
 async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db: any): Promise<boolean> {
-  return new Promise((resolve) => {
+  return new Promise<boolean>((resolve) => {
     db.get(
       `SELECT o.*, 
         GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items

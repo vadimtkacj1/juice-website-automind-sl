@@ -156,7 +156,7 @@ export default function EditNewsItem() {
             </CardHeader>
             <CardContent className="space-y-4">
               <ImageUpload
-                value={formData.image}
+                value={formData.image || ''}
                 onChange={(url) => setFormData({ ...formData, image: url })}
                 folder="news"
                 label="News Image"

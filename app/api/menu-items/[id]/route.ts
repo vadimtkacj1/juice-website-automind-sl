@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.get(
         `SELECT mi.*, mc.name as category_name 
          FROM menu_items mi 
@@ -68,7 +68,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `UPDATE menu_items SET 
           category_id = COALESCE(?, category_id),
@@ -126,7 +126,7 @@ export async function DELETE(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run('DELETE FROM menu_items WHERE id = ?', [id], function (this: any, err: any) {
         if (err) {
           console.error('Database error:', err);

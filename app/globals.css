@@ -489,6 +489,29 @@ main {}
   gap: 40px;
 }
 
+.footer-legal {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legal-link {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.legal-link:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
 .white-link .roll-inner span {
   color: var(--white) !important;
 }

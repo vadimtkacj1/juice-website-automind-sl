@@ -64,8 +64,8 @@ export async function PUT(
     }
 
     const dbRun = (query: string, params: any[] = []) => {
-      return new Promise<any>((resolve, reject) => {
-        db.run(query, params, function(err: Error | null) {
+      return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
+        db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) reject(err);
           else resolve(this);
         });
@@ -110,6 +110,15 @@ export async function DELETE(
         { status: 500 }
       );
     }
+
+    const dbRun = (query: string, params: any[] = []) => {
+      return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
+        db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
+          if (err) reject(err);
+          else resolve(this);
+        });
+      });
+    };
 
     try {
       const runResult = await dbRun('DELETE FROM contacts WHERE id = ?', [id]);

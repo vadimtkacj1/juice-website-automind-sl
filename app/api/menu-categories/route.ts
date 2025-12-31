@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       const query = includeInactive 
         ? 'SELECT * FROM menu_categories ORDER BY sort_order, name'
         : 'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order';
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         'INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)',
         [name, description || null, sort_order || 0],

@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY mi.category_id, mi.sort_order';
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(query, params, (err: any, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO menu_items 
           (category_id, name, description, price, volume, image, discount_percent, is_available, sort_order) 

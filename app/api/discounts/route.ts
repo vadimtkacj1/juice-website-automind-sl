@@ -4,7 +4,7 @@ import getDatabase from '@/lib/database';
 export async function GET() {
   const db = getDatabase();
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.all(
       `SELECT d.*, p.name as product_name
        FROM discounts d
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO discounts (name, type, value, product_id, is_active, start_date, end_date)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           start_date || null,
           end_date || null
         ],
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to create discount' }, { status: 500 }));
             return;

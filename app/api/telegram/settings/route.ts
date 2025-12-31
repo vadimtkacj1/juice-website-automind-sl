@@ -4,7 +4,7 @@ import getDatabase from '@/lib/database';
 export async function GET() {
   const db = getDatabase();
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.get(
       'SELECT * FROM telegram_bot_settings ORDER BY id DESC LIMIT 1',
       (err: Error | null, settings: any) => {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Check if settings exist
       db.get(
         'SELECT id FROM telegram_bot_settings ORDER BY id DESC LIMIT 1',

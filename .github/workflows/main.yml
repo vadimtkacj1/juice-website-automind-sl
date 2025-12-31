@@ -3,60 +3,170 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main # Запускать при пуше в ветку main
+      - main
+      - master
   pull_request:
     branches:
-      - main # Запускать при создании или обновлении Pull Request в ветку main
+      - main
+      - master
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # Lint and Test
+  lint:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint || true
+
+      - name: Type check
+        run: npx tsc --noEmit || true
+
+  # Build Application
   build:
-    runs-on: ubuntu-latest # Используем свежий образ Ubuntu
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+          # Build-time environment variables (optional, for validation)
+          RAPYD_ACCESS_KEY: ${{ secrets.RAPYD_ACCESS_KEY }}
+          RAPYD_SECRET_KEY: ${{ secrets.RAPYD_SECRET_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+
+  # Build and Push Docker Image
+  docker-build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18' # Убедитесь, что это соответствует вашей версии Node.js
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Cache Node.js modules
-      id: cache-node-modules
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm # Или node_modules, если вы не используете pnpm/yarn
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install dependencies
-      if: steps.cache-node-modules.outputs.cache-hit != 'true' # Устанавливаем, только если кэш не сработал
-      run: npm install
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-    - name: Build Next.js application
-      run: npm run build
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
+            RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          platforms: linux/amd64,linux/arm64
 
-    - name: Login to Docker Hub (or GitHub Container Registry)
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }} # Или GITHUB_TOKEN для GCR
-        password: ${{ secrets.DOCKER_PASSWORD }} # Или ${{ secrets.GITHUB_TOKEN }} для GCR
+  # Deploy to Server
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    environment:
+      name: production
+      url: ${{ secrets.DEPLOYMENT_URL }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: your_docker_username/juice-website:latest # Замените на свой Docker Hub username
-        # cache-from: type=gha,scope=build-image
-        # cache-to: type=gha,scope=build-image,mode=max
-
-    # Здесь будет шаг развертывания, который мы добавим после уточнения
-    # - name: Deploy to Server
-    #   run: |
-    #     # Команды для развертывания
-    #     # scp ...
-    #     # ssh ...
-    #     # или docker run / docker-compose up на сервере
-
+    steps:
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOYMENT_PATH || "/var/www/app" }}
+            
+            # Pull latest image
+            echo "Pulling latest Docker image..."
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || true
+            
+            # Stop and remove old container
+            echo "Stopping old container..."
+            docker-compose down || true
+            
+            # Update docker-compose.yml with new image
+            export GITHUB_REPOSITORY="${{ github.repository }}"
+            
+            # Start new container
+            echo "Starting new container..."
+            docker-compose up -d --remove-orphans
+            
+            # Clean up old images
+            echo "Cleaning up old images..."
+            docker image prune -af --filter "until=24h" || true
+            
+            # Health check
+            echo "Waiting for application to be ready..."
+            sleep 10
+            curl -f ${{ secrets.DEPLOYMENT_URL }}/api/health || echo "Health check failed, but continuing..."

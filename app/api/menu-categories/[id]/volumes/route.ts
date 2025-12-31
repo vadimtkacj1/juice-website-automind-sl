@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(
         `SELECT * FROM menu_category_volumes 
         WHERE category_id = ?
@@ -67,7 +67,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Delete all existing volumes for this category
       db.run(
         'DELETE FROM menu_category_volumes WHERE category_id = ?',

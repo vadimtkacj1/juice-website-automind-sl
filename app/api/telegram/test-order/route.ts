@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   try {
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // First, get some real menu items from database
       db.all(
         'SELECT * FROM menu_items WHERE is_available = 1 ORDER BY RANDOM() LIMIT 3',
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
               [testOrder.customer_name, testOrder.customer_email, testOrder.customer_phone, 
                testOrder.delivery_address, testOrder.total_amount, testOrder.status, null, testOrder.notes],
-              function(err: Error | null) {
+              function(this: { lastID: number; changes: number }, err: Error | null) {
                 if (err) {
                   resolve(NextResponse.json({ error: 'Failed to create test order' }, { status: 500 }));
                   return;
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
             [testOrder.customer_name, testOrder.customer_email, testOrder.customer_phone, 
              testOrder.delivery_address, testOrder.total_amount, testOrder.status, null, testOrder.notes],
-            function(err: Error | null) {
+            function(this: { lastID: number; changes: number }, err: Error | null) {
               if (err) {
                 resolve(NextResponse.json({ error: 'Failed to create test order' }, { status: 500 }));
                 return;

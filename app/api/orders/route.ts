@@ -5,7 +5,7 @@ import { sendOrderNotification } from '@/lib/telegram-bot';
 export async function GET() {
   const db = getDatabase();
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.all(
       `SELECT o.*, 
         COUNT(oi.id) as items_count,
@@ -43,12 +43,12 @@ export async function POST(request: NextRequest) {
     // Calculate total
     const total_amount = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, payment_method, notes, status)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
         [customer_name, customer_email || null, customer_phone || null, delivery_address || null, total_amount, null, notes || null],
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to create order' }, { status: 500 }));
             return;

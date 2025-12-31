@@ -21,7 +21,7 @@ export async function GET(
     
     const availabilityFilter = includeInactive ? '' : 'AND ci.is_available = 1';
     
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all(
         `SELECT 
           mcci.category_id,
@@ -82,7 +82,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // Delete all existing configs for this category
       db.run(
         'DELETE FROM menu_category_custom_ingredients WHERE category_id = ?',

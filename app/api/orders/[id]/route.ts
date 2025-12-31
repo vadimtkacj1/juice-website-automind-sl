@@ -9,7 +9,7 @@ export async function GET(
   const { id } = await params;
   const orderId = id;
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     db.get(
       'SELECT * FROM orders WHERE id = ?',
       [orderId],
@@ -56,7 +56,7 @@ export async function PATCH(
 
     const db = getDatabase();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       const updates: string[] = [];
       const values: any[] = [];
 
@@ -76,7 +76,7 @@ export async function PATCH(
       db.run(
         `UPDATE orders SET ${updates.join(', ')} WHERE id = ?`,
         values,
-        function(err: Error | null) {
+        function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
             resolve(NextResponse.json({ error: 'Failed to update order' }, { status: 500 }));
             return;
@@ -107,7 +107,7 @@ export async function DELETE(
   const { id } = await params;
   const orderId = id;
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     // Delete order items first
     db.run('DELETE FROM order_items WHERE order_id = ?', [orderId], (err: Error | null) => {
       if (err) {
@@ -116,7 +116,7 @@ export async function DELETE(
       }
 
       // Then delete the order
-      db.run('DELETE FROM orders WHERE id = ?', [orderId], function(err: Error | null) {
+      db.run('DELETE FROM orders WHERE id = ?', [orderId], function(this: { lastID: number; changes: number }, err: Error | null) {
         if (err) {
           resolve(NextResponse.json({ error: 'Failed to delete order' }, { status: 500 }));
           return;

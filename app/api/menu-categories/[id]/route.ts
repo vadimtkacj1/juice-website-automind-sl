@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.get('SELECT * FROM menu_categories WHERE id = ?', [id], (err: any, row: any) => {
         if (err) {
           console.error('Database error:', err);
@@ -58,7 +58,7 @@ export async function PUT(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         `UPDATE menu_categories SET 
           name = COALESCE(?, name),
@@ -106,7 +106,7 @@ export async function DELETE(
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       // First check if there are menu items in this category
       db.get('SELECT COUNT(*) as count FROM menu_items WHERE category_id = ?', [id], (err: any, row: any) => {
         if (err) {

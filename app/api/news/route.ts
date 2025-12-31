@@ -12,7 +12,7 @@ export async function GET() {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.all('SELECT * FROM news ORDER BY created_at DESC', [], (err: Error | null, rows: any[]) => {
         if (err) {
           console.error('Database error:', err);
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       db.run(
         'INSERT INTO news (title, content, image, is_active) VALUES (?, ?, ?, ?)',
         [title, content, image || null, is_active ? 1 : 0],
