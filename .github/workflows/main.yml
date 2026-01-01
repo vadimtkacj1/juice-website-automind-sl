@@ -166,7 +166,8 @@ jobs:
             
             if [ ! -f 'docker-compose.yml' ]; then
               echo "docker-compose.yml not found, creating it..."
-              REPO_NAME="${GITHUB_REPOSITORY}"
+              REPO_NAME="${GITHUB_REPOSITORY:-vadimtkacj1/juice-website-automind-sl}"
+              echo "Using repository: ${REPO_NAME}"
               cat > docker-compose.yml << EOF
             version: '3.8'
             
@@ -256,34 +257,116 @@ jobs:
             GITHUB_REPOSITORY=${{ github.repository }}
             EOF
             
+            # Export environment variables for docker-compose
+            export GITHUB_REPOSITORY="${{ github.repository }}"
+            export RAPYD_ACCESS_KEY="${{ secrets.RAPYD_ACCESS_KEY }}"
+            export RAPYD_SECRET_KEY="${{ secrets.RAPYD_SECRET_KEY }}"
+            export PAYPLUS_API_KEY="${{ secrets.PAYPLUS_API_KEY }}"
+            export PAYPLUS_SECRET_KEY="${{ secrets.PAYPLUS_SECRET_KEY }}"
+            export PAYPLUS_PAGE_UID="${{ secrets.PAYPLUS_PAGE_UID }}"
+            export TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+            export SESSION_SECRET="${{ secrets.SESSION_SECRET }}"
+            export DEPLOYMENT_URL="${{ secrets.DEPLOYMENT_URL }}"
+            export PORT=80
+            
             # Pull latest image
             echo "Pulling latest Docker image..."
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || true
             
-            # Stop and remove old container
+            # Stop and remove old container completely
             echo "Stopping old container..."
             docker-compose -f docker-compose.yml down || true
+            docker stop juice-website 2>/dev/null || true
+            docker rm -f juice-website 2>/dev/null || true
             
-            # Update docker-compose.yml with new image
-            export GITHUB_REPOSITORY="${{ github.repository }}"
+            # Verify docker-compose.yml has correct image
+            echo "Verifying docker-compose.yml..."
+            grep -q "image:" docker-compose.yml && echo "✓ docker-compose.yml has image specified" || echo "⚠ docker-compose.yml missing image"
+            cat docker-compose.yml | grep image
             
             # Start new container
-            echo "Starting new container..."
-            docker-compose -f docker-compose.yml up -d --remove-orphans
+            echo "Starting new container with docker-compose..."
+            if ! docker-compose -f docker-compose.yml up -d --remove-orphans; then
+              echo "❌ docker-compose up failed!"
+              echo "Checking docker-compose logs..."
+              docker-compose -f docker-compose.yml logs || true
+              exit 1
+            fi
+            echo "✓ Container started successfully"
+            
+            # Wait for container to start
+            echo "Waiting for container to start..."
+            sleep 10
+            
+            # Check if container is actually running
+            echo "Checking container status..."
+            if docker ps | grep -q juice-website; then
+              echo "✓ Container is running"
+              docker ps | grep juice-website
+            else
+              echo "❌ Container is NOT running!"
+              echo "Checking stopped containers:"
+              docker ps -a | grep juice-website
+              echo ""
+              echo "Container logs (last 50 lines):"
+              docker logs juice-website --tail 50 || echo "Could not get logs"
+              echo ""
+              echo "❌ Deployment failed - container did not start!"
+              exit 1
+            fi
+            
+            # Show container status
+            echo ""
+            echo "Container details:"
+            docker-compose -f docker-compose.yml ps
+            
+            # Check container logs for errors
+            echo ""
+            echo "Container logs (last 30 lines):"
+            docker logs juice-website --tail 30
+            
+            # Check if port 80 is listening
+            echo ""
+            echo "Checking if port 80 is listening..."
+            netstat -tlnp | grep :80 || ss -tlnp | grep :80 || echo "⚠ Port 80 not found"
+            
+            # Test local connection with retries
+            echo ""
+            echo "Testing local connection to http://localhost/api/health..."
+            for i in {1..5}; do
+              if curl -f http://localhost/api/health 2>/dev/null; then
+                echo "✓ Server is responding on port 80!"
+                break
+              else
+                echo "Attempt $i/5: Server not responding yet, waiting..."
+                sleep 5
+              fi
+            done
+            
+            # Final check
+            if ! curl -f http://localhost/api/health 2>/dev/null; then
+              echo "⚠ WARNING: Server not responding after all attempts"
+              echo "Check logs: docker logs juice-website"
+            fi
             
             # Clean up old images
             echo "Cleaning up old images..."
             docker image prune -af --filter "until=24h" || true
             
-            # Show container status
-            echo "Container status:"
-            docker-compose -f docker-compose.yml ps
-            
             # Health check
             if [ -n "${DEPLOYMENT_URL}" ]; then
               echo "Waiting for application to be ready..."
               sleep 10
-              curl -f ${DEPLOYMENT_URL}/api/health || echo "Health check failed, but continuing..."
+              echo "Testing ${DEPLOYMENT_URL}/api/health..."
+              curl -f ${DEPLOYMENT_URL}/api/health && echo "✓ Health check passed!" || echo "⚠ Health check failed (may need more time)"
             else
-              echo "DEPLOYMENT_URL not set, skipping health check"
+              echo "DEPLOYMENT_URL not set, skipping external health check"
             fi
+            
+            echo ""
+            echo "✅ Deployment completed!"
+            echo "If website is not accessible, check:"
+            echo "1. Container logs: docker logs juice-website"
+            echo "2. Container status: docker ps"
+            echo "3. Port 80: netstat -tlnp | grep :80"
+            echo "4. Firewall: sudo ufw status"
