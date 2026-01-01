@@ -364,6 +364,92 @@ jobs:
               else
                 echo "✓ Database already exists, skipping initialization"
               fi
+              
+              # Configure Nginx to proxy to Docker container
+              echo "Configuring Nginx..."
+              
+              # Check if nginx is installed
+              if command -v nginx &> /dev/null; then
+                echo "✓ Nginx is installed"
+                
+                # Create nginx config directory if it doesn't exist
+                mkdir -p /etc/nginx/sites-available
+                mkdir -p /etc/nginx/sites-enabled
+                mkdir -p /etc/nginx/ssl
+                
+                # Get domain from DEPLOYMENT_URL or use IP
+                DEPLOYMENT_DOMAIN=$(echo "${{ secrets.DEPLOYMENT_URL }}" | sed -e 's|^[^/]*//||' -e 's|/.*$||' | sed 's|:.*$||')
+                if [ -z "$DEPLOYMENT_DOMAIN" ] || [ "$DEPLOYMENT_DOMAIN" = "" ]; then
+                  DEPLOYMENT_DOMAIN="_"
+                fi
+                
+                # Create nginx configuration
+                cat > /etc/nginx/sites-available/juice-website << 'NGINX_EOF'
+# HTTP server - proxy to Docker container
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+    
+    # Allow Let's Encrypt verification
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+    
+    # Proxy to Docker container
+    location / {
+        proxy_pass http://localhost:80;
+        proxy_http_version 1.1;
+        
+        # Headers for Next.js
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # Cache bypass
+        proxy_cache_bypass $http_upgrade;
+        
+        # Don't buffer responses
+        proxy_buffering off;
+        
+        # Increase timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+    
+    # Health check endpoint
+    location /api/health {
+        proxy_pass http://localhost:80/api/health;
+        proxy_set_header Host $host;
+        access_log off;
+    }
+}
+NGINX_EOF
+                
+                # Enable site by creating symlink
+                rm -f /etc/nginx/sites-enabled/default
+                rm -f /etc/nginx/sites-enabled/juice-website
+                ln -sf /etc/nginx/sites-available/juice-website /etc/nginx/sites-enabled/juice-website
+                
+                # Test nginx configuration
+                if nginx -t 2>/dev/null; then
+                  echo "✓ Nginx configuration is valid"
+                  # Reload nginx
+                  systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo "⚠ Could not reload nginx (may need manual reload)"
+                  echo "✓ Nginx configured and reloaded"
+                else
+                  echo "⚠ Nginx configuration test failed, but continuing..."
+                  nginx -t || true
+                fi
+              else
+                echo "⚠ Nginx not installed, skipping nginx configuration"
+              fi
             else
               echo "❌ Container is NOT running!"
               echo "Checking stopped containers:"
