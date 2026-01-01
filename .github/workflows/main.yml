@@ -135,6 +135,9 @@ jobs:
       name: production
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -143,9 +146,71 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           timeout: 120s
-          source: "docker-compose.yml"
+          source: "./docker-compose.yml"
           target: "${{ secrets.DEPLOYMENT_PATH || '/opt/juice-website' }}"
-        continue-on-error: false
+        continue-on-error: true
+
+      - name: Verify or create docker-compose.yml
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 120s
+          script: |
+            APP_PATH="${DEPLOYMENT_PATH:-/opt/juice-website}"
+            cd ${APP_PATH}
+            
+            if [ ! -f 'docker-compose.yml' ]; then
+              echo "docker-compose.yml not found, creating it..."
+              REPO_NAME="${GITHUB_REPOSITORY}"
+              cat > docker-compose.yml << EOF
+            version: '3.8'
+            
+            services:
+              nextjs-app:
+                image: ghcr.io/${REPO_NAME}:latest
+                container_name: juice-website
+                restart: unless-stopped
+                ports:
+                  - "80:80"
+                environment:
+                  - NODE_ENV=production
+                  - PORT=80
+                  - RAPYD_ACCESS_KEY=\${RAPYD_ACCESS_KEY}
+                  - RAPYD_SECRET_KEY=\${RAPYD_SECRET_KEY}
+                  - PAYPLUS_API_KEY=\${PAYPLUS_API_KEY}
+                  - PAYPLUS_SECRET_KEY=\${PAYPLUS_SECRET_KEY}
+                  - PAYPLUS_PAGE_UID=\${PAYPLUS_PAGE_UID}
+                  - TELEGRAM_BOT_TOKEN=\${TELEGRAM_BOT_TOKEN}
+                  - SESSION_SECRET=\${SESSION_SECRET}
+                  - DATABASE_PATH=/app/data/juice_website.db
+                  - DEPLOYMENT_URL=\${DEPLOYMENT_URL}
+                  - HOSTNAME=0.0.0.0
+                volumes:
+                  - ./data:/app/data
+                  - ./public/uploads:/app/public/uploads
+                healthcheck:
+                  test: ["CMD", "node", "-e", "require('http').get('http://localhost:80/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
+                  start_period: 40s
+                networks:
+                  - juice-network
+            
+            networks:
+              juice-network:
+                driver: bridge
+            EOF
+              echo "✓ Created docker-compose.yml"
+            else
+              echo "✓ docker-compose.yml already exists"
+            fi
+            ls -lh docker-compose.yml
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
