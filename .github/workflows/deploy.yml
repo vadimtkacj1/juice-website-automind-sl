@@ -73,13 +73,29 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
+            set -e
             cd /opt/juice-website
+            # Extract deployment package
             tar -xzf deploy.tar.gz
-            cd deploy
-            npm ci --production
-            # Use standalone server for production (required when output: standalone)
-            pm2 restart juice-website || pm2 start node --name juice-website -- .next/standalone/server.js
+            # Move contents from deploy/ to current directory
+            cp -r deploy/* . || cp -r deploy/. .
+            # Install production dependencies
+            npm ci --production --omit=dev
+            # Initialize database if it doesn't exist
+            if [ ! -f "juice_website.db" ]; then
+              echo "Database not found, initializing..."
+              npm run init-db || echo "Database initialization skipped"
+              npm run create-admin || echo "Admin creation skipped"
+            fi
+            # Stop existing PM2 process
+            pm2 stop juice-website || true
+            pm2 delete juice-website || true
+            # Start with standalone server (required for output: standalone)
+            pm2 start node --name juice-website -- .next/standalone/server.js
+            pm2 save
+            # Clean up
             rm -rf deploy deploy.tar.gz
+            echo "✅ Deployment completed successfully!"
 
       - name: Health check
         continue-on-error: true
