@@ -65,8 +65,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 300s
           source: "deploy.tar.gz"
           target: "/opt/juice-website"
+        continue-on-error: false
+        env:
+          SCP_DEBUG: true
 
       - name: Execute deployment commands
         uses: appleboy/ssh-action@v1.0.3
@@ -75,6 +80,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 300s
           script: |
             set -e
             cd /opt/juice-website
