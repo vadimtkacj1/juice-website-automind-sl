@@ -181,19 +181,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   };
 
   const handleAddToCartClick = () => {
-    // Check if there are unselected ingredients configured for this category
-    const unselectedIngredients = customIngredients.filter(
-      ing => !selectedIngredients.has(ing.id)
-    );
-
-    // If there are unselected ingredients and prompt is not already showing, show it
-    if (unselectedIngredients.length > 0 && !showIngredientPrompt) {
-      setPendingAddToCart(true);
-      setShowIngredientPrompt(true);
-      return;
-    }
-
-    // Otherwise, proceed directly to add to cart
+    // Ingredients are optional - allow adding to cart without selecting any
+    // Users can add items directly without being forced to select ingredients
     proceedWithAddToCart();
   };
 

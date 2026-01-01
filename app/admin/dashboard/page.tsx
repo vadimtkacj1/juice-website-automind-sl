@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DollarSign, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Analytics {
   totalOrders: number;
@@ -19,6 +19,7 @@ interface Analytics {
 }
 
 export default function AdminDashboard() {
+  const { t, language } = useAdminLanguage();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,55 +52,55 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading dashboard...')} />
+        <LoadingSpinner size="lg" text={t('Loading dashboard...')} />
       </div>
     );
   }
 
   if (!analytics) {
-    return <div>{translateToHebrew('Failed to load analytics. Please check the server logs.')}</div>;
+    return <div>{t('Failed to load analytics. Please check the server logs.')}</div>;
   }
 
   const stats = [
     {
-      title: translateToHebrew('Total Revenue'),
+      title: t('Total Revenue'),
       value: `$${(analytics.totalRevenue || 0).toFixed(2)}`,
       icon: DollarSign,
-      description: translateToHebrew('Total sales revenue'),
+      description: t('Total sales revenue'),
       color: 'text-green-600',
       bg: 'bg-green-50'
     },
     {
-      title: translateToHebrew('Total Orders'),
+      title: t('Total Orders'),
       value: analytics.totalOrders || 0,
       icon: ShoppingCart,
-      description: translateToHebrew('All time orders'),
+      description: t('All time orders'),
       color: 'text-blue-600',
       bg: 'bg-blue-50'
     },
     {
-      title: translateToHebrew('Products'),
+      title: t('Products'),
       value: analytics.totalProducts || 0,
       icon: Package,
-      description: translateToHebrew('Available products'),
+      description: t('Available products'),
       color: 'text-purple-600',
       bg: 'bg-purple-50'
     },
     {
-      title: translateToHebrew('Active Promos'),
+      title: t('Active Promos'),
       value: analytics.activePromoCodes || 0,
       icon: Tag,
-      description: translateToHebrew('Active promo codes'),
+      description: t('Active promo codes'),
       color: 'text-orange-600',
       bg: 'bg-orange-50'
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
+    <div className="max-w-7xl mx-auto space-y-6" dir={language}>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Dashboard')}</h1>
-        <p className="text-gray-500 mt-1">{translateToHebrew('Welcome to your admin panel')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('Dashboard')}</h1>
+        <p className="text-gray-500 mt-1">{t('Welcome to your admin panel')}</p>
       </div>
 
       {/* Stats Grid */}
@@ -131,8 +132,8 @@ export default function AdminDashboard() {
         {/* Top Selling Products */}
         <Card>
           <CardHeader>
-            <CardTitle>{translateToHebrew('Top Selling Products')}</CardTitle>
-            <CardDescription>{translateToHebrew('Best performing products')}</CardDescription>
+            <CardTitle>{t('Top Selling Products')}</CardTitle>
+            <CardDescription>{t('Best performing products')}</CardDescription>
           </CardHeader>
           <CardContent>
             {(analytics.topProducts && analytics.topProducts.length > 0) ? (
@@ -140,8 +141,8 @@ export default function AdminDashboard() {
                 {analytics.topProducts.map((product, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium">{translateToHebrew(product.name)}</p>
-                      <p className="text-sm text-gray-500">{product.total_sold || 0} {translateToHebrew('sold')}</p>
+                      <p className="font-medium">{t(product.name)}</p>
+                      <p className="text-sm text-gray-500">{product.total_sold || 0} {t('sold')}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">${(product.revenue || 0).toFixed(2)}</p>
@@ -150,7 +151,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">{translateToHebrew('No sales data yet')}</p>
+              <p className="text-center text-gray-500 py-4">{t('No sales data yet')}</p>
             )}
           </CardContent>
         </Card>
@@ -158,8 +159,8 @@ export default function AdminDashboard() {
         {/* Orders by Status */}
         <Card>
           <CardHeader>
-            <CardTitle>{translateToHebrew('Orders by Status')}</CardTitle>
-            <CardDescription>{translateToHebrew('Current order distribution')}</CardDescription>
+            <CardTitle>{t('Orders by Status')}</CardTitle>
+            <CardDescription>{t('Current order distribution')}</CardDescription>
           </CardHeader>
           <CardContent>
             {(analytics.ordersByStatus && analytics.ordersByStatus.length > 0) ? (
@@ -173,14 +174,14 @@ export default function AdminDashboard() {
                         status.status === 'cancelled' ? 'bg-red-500' :
                         'bg-blue-500'
                       }`}></div>
-                      <p className="font-medium capitalize">{translateToHebrew(status.status)}</p>
+                      <p className="font-medium capitalize">{t(status.status)}</p>
                     </div>
                     <p className="font-bold">{status.count || 0}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">{translateToHebrew('No orders yet')}</p>
+              <p className="text-center text-gray-500 py-4">{t('No orders yet')}</p>
             )}
           </CardContent>
         </Card>
@@ -189,27 +190,27 @@ export default function AdminDashboard() {
       {/* Recent Orders */}
       <Card>
         <CardHeader>
-          <CardTitle>{translateToHebrew('Recent Orders')}</CardTitle>
-          <CardDescription>{translateToHebrew('Latest customer orders')}</CardDescription>
+          <CardTitle>{t('Recent Orders')}</CardTitle>
+          <CardDescription>{t('Latest customer orders')}</CardDescription>
         </CardHeader>
         <CardContent>
             {(analytics.recentOrders && analytics.recentOrders.length > 0) ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{translateToHebrew('Order ID')}</TableHead>
-                  <TableHead>{translateToHebrew('Customer')}</TableHead>
-                  <TableHead>{translateToHebrew('Items')}</TableHead>
-                  <TableHead>{translateToHebrew('Total')}</TableHead>
-                  <TableHead>{translateToHebrew('Status')}</TableHead>
-                  <TableHead>{translateToHebrew('Date')}</TableHead>
+                  <TableHead>{t('Order ID')}</TableHead>
+                  <TableHead>{t('Customer')}</TableHead>
+                  <TableHead>{t('Items')}</TableHead>
+                  <TableHead>{t('Total')}</TableHead>
+                  <TableHead>{t('Status')}</TableHead>
+                  <TableHead>{t('Date')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {analytics.recentOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">#{order.id}</TableCell>
-                    <TableCell>{translateToHebrew(order.customer_name)}</TableCell>
+                    <TableCell>{t(order.customer_name)}</TableCell>
                     <TableCell>{order.items_count || 0}</TableCell>
                     <TableCell>${(order.total_amount || 0).toFixed(2)}</TableCell>
                     <TableCell>
@@ -219,16 +220,16 @@ export default function AdminDashboard() {
                         order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                         'bg-blue-100 text-blue-800'
                       }`}>
-                        {translateToHebrew(order.status)}
+                        {t(order.status)}
                       </span>
                     </TableCell>
-                    <TableCell>{new Date(order.created_at).toLocaleDateString('he-IL')}</TableCell>
+                    <TableCell>{new Date(order.created_at).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US')}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           ) : (
-            <p className="text-center text-gray-500 py-8">{translateToHebrew('No orders yet')}</p>
+            <p className="text-center text-gray-500 py-8">{t('No orders yet')}</p>
           )}
         </CardContent>
       </Card>
@@ -237,14 +238,14 @@ export default function AdminDashboard() {
       {(analytics.revenueByMonth && analytics.revenueByMonth.length > 0) && (
         <Card>
           <CardHeader>
-            <CardTitle>{translateToHebrew('Revenue Trend')}</CardTitle>
-            <CardDescription>{translateToHebrew('Monthly revenue over the last 6 months')}</CardDescription>
+            <CardTitle>{t('Revenue Trend')}</CardTitle>
+            <CardDescription>{t('Monthly revenue over the last 6 months')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {analytics.revenueByMonth.map((month, index) => (
                 <div key={index} className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium">{translateToHebrew(month.month)}</div>
+                  <div className="w-24 text-sm font-medium">{t(month.month)}</div>
                   <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
                     <div 
                       className="bg-purple-600 h-full flex items-center justify-end pr-2"
@@ -256,7 +257,7 @@ export default function AdminDashboard() {
                       <span className="text-white text-sm font-bold">${(month.revenue || 0).toFixed(2)}</span>
                     </div>
                   </div>
-                  <div className="w-16 text-sm text-gray-500">{month.orders || 0} {translateToHebrew('orders')}</div>
+                  <div className="w-16 text-sm text-gray-500">{month.orders || 0} {t('orders')}</div>
                 </div>
               ))}
             </div>

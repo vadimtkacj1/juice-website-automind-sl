@@ -33,10 +33,14 @@ Configure the following secrets in your GitHub repository (Settings → Secrets 
 - `NEXT_PUBLIC_APP_URL` - Public URL of your application
 
 ### Application Secrets (Both Methods)
-- `RAPYD_ACCESS_KEY` - Rapyd API access key
-- `RAPYD_SECRET_KEY` - Rapyd API secret key
+- `RAPYD_ACCESS_KEY` - Rapyd API access key (legacy, optional)
+- `RAPYD_SECRET_KEY` - Rapyd API secret key (legacy, optional)
+- `PAYPLUS_API_KEY` - PayPlus API key (required for payments)
+- `PAYPLUS_SECRET_KEY` - PayPlus secret key (required for payments)
+- `PAYPLUS_PAGE_UID` - PayPlus payment page UID (required for payments)
 - `TELEGRAM_BOT_TOKEN` - Telegram bot token (optional)
 - `SESSION_SECRET` - Secret key for session encryption (generate a random string)
+- `DEPLOYMENT_URL` - Full URL of your deployment (e.g., `https://yourdomain.com`) - required for PayPlus callbacks
 
 ## Deployment Methods
 
@@ -66,8 +70,12 @@ cd /opt/juice-website
 cat > .env << EOF
 RAPYD_ACCESS_KEY=your_access_key
 RAPYD_SECRET_KEY=your_secret_key
+PAYPLUS_API_KEY=your_payplus_api_key
+PAYPLUS_SECRET_KEY=your_payplus_secret_key
+PAYPLUS_PAGE_UID=your_payplus_page_uid
 TELEGRAM_BOT_TOKEN=your_telegram_token
 SESSION_SECRET=your_session_secret
+DEPLOYMENT_URL=https://yourdomain.com
 PORT=3000
 EOF
 ```
@@ -116,8 +124,12 @@ NODE_ENV=production
 PORT=3000
 RAPYD_ACCESS_KEY=your_access_key
 RAPYD_SECRET_KEY=your_secret_key
+PAYPLUS_API_KEY=your_payplus_api_key
+PAYPLUS_SECRET_KEY=your_payplus_secret_key
+PAYPLUS_PAGE_UID=your_payplus_page_uid
 TELEGRAM_BOT_TOKEN=your_telegram_token
 SESSION_SECRET=your_session_secret
+DEPLOYMENT_URL=https://yourdomain.com
 DATABASE_PATH=./juice_website.db
 EOF
 ```
@@ -136,8 +148,10 @@ npm run create-admin
 
 ### Required
 - `NODE_ENV=production`
-- `RAPYD_ACCESS_KEY` - Payment gateway access key
-- `RAPYD_SECRET_KEY` - Payment gateway secret key
+- `PAYPLUS_API_KEY` - PayPlus API key (required for payments)
+- `PAYPLUS_SECRET_KEY` - PayPlus secret key (required for payments)
+- `PAYPLUS_PAGE_UID` - PayPlus payment page UID (required for payments)
+- `DEPLOYMENT_URL` - Full URL of your deployment (required for PayPlus callbacks)
 - `SESSION_SECRET` - Random string for session encryption
 
 ### Optional

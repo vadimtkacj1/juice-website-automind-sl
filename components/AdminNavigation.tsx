@@ -20,24 +20,15 @@ import {
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { cn } from '@/lib/utils';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const navigation = [
-  { name: translateToHebrew('Dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: translateToHebrew('Menu'), href: '/admin/menu', icon: Package },
-  { name: translateToHebrew('Ingredients'), href: '/admin/ingredients', icon: ChefHat },
-  { name: translateToHebrew('Orders'), href: '/admin/orders', icon: ShoppingCart },
-  { name: translateToHebrew('Telegram Delivery'), href: '/admin/telegram-delivery', icon: MessageSquare },
-  { name: translateToHebrew('News'), href: '/admin/news', icon: Newspaper },
-  { name: translateToHebrew('Discounts & Promos'), href: '/admin/discounts', icon: Tag },
-  { name: translateToHebrew('Locations'), href: '/admin/locations', icon: MapPin },
-  { name: translateToHebrew('Contacts'), href: '/admin/contacts', icon: Users },
-];
 
 export default function AdminNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const { t, language } = useAdminLanguage();
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -49,71 +40,88 @@ export default function AdminNavigation() {
     return null;
   }
 
+  const navigation = [
+    { name: t('Dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: t('Menu'), href: '/admin/menu', icon: Package },
+    { name: t('Ingredients'), href: '/admin/ingredients', icon: ChefHat },
+    { name: t('Orders'), href: '/admin/orders', icon: ShoppingCart },
+    { name: t('Telegram Delivery'), href: '/admin/telegram-delivery', icon: MessageSquare },
+    { name: t('News'), href: '/admin/news', icon: Newspaper },
+    { name: t('Discounts & Promos'), href: '/admin/discounts', icon: Tag },
+    { name: t('Locations'), href: '/admin/locations', icon: MapPin },
+    { name: t('Contacts'), href: '/admin/contacts', icon: Users },
+  ];
+
   return (
     <>
       {/* Mobile Header with Burger */}
-      <div className="desktop:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center px-4" dir="rtl">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] p-0" dir="rtl">
-            <div className="flex flex-col h-full">
-              <SheetHeader className="p-6 border-b">
-                <SheetTitle className="text-2xl font-bold text-purple-600">
-                  {translateToHebrew('Admin Panel')}
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="flex-1 overflow-y-auto p-4">
-                <div className="flex flex-col gap-2">
-                  {navigation.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname.startsWith(item.href);
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                          'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors',
-                          isActive
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                        {item.name}
-                      </Link>
-                    );
-                  })}
+      <div className={`desktop:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center justify-between px-4`} dir={language}>
+        <div className="flex items-center">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side={language === 'he' ? 'right' : 'left'} className="w-[280px] p-0" dir={language}>
+              <div className="flex flex-col h-full">
+                <SheetHeader className="p-6 border-b">
+                  <SheetTitle className="text-2xl font-bold text-purple-600">
+                    {t('Admin Panel')}
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex-1 overflow-y-auto p-4">
+                  <div className="flex flex-col gap-2">
+                    {navigation.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = pathname.startsWith(item.href);
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setIsOpen(false)}
+                          className={cn(
+                            'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors',
+                            isActive
+                              ? 'bg-purple-100 text-purple-700'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          )}
+                        >
+                          <Icon className="h-5 w-5" />
+                          {item.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </nav>
+                <div className="p-4 border-t space-y-2">
+                  <LanguageSwitcher />
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className={language === 'he' ? 'ml-3' : 'mr-3'} style={{ transform: language === 'he' ? 'scaleX(-1)' : 'none' }} />
+                    {t('Logout')}
+                  </Button>
                 </div>
-              </nav>
-              <div className="p-4 border-t">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <LogOut className="mr-3 h-5 w-5" />
-                  {translateToHebrew('Logout')}
-                </Button>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        <h1 className="ml-3 text-xl font-bold text-purple-600">{translateToHebrew('Admin Panel')}</h1>
+            </SheetContent>
+          </Sheet>
+          <h1 className={`text-xl font-bold text-purple-600 ${language === 'he' ? 'ml-3' : 'mr-3'}`}>{t('Admin Panel')}</h1>
+        </div>
+        <LanguageSwitcher />
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden desktop:flex desktop:fixed desktop:inset-y-0 desktop:right-0 desktop:w-64 desktop:flex-col bg-white border-l border-gray-200 z-50">
+      <aside className={`hidden desktop:flex desktop:fixed desktop:inset-y-0 ${language === 'he' ? 'desktop:right-0' : 'desktop:left-0'} desktop:w-64 desktop:flex-col bg-white ${language === 'he' ? 'border-l' : 'border-r'} border-gray-200 z-50`} dir={language}>
         {/* Sidebar Header */}
-        <div className="flex items-center h-16 px-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-purple-600">{translateToHebrew('Admin Panel')}</h1>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-purple-600">{t('Admin Panel')}</h1>
+          <LanguageSwitcher />
         </div>
 
         {/* Sidebar Navigation */}
@@ -148,8 +156,8 @@ export default function AdminNavigation() {
             onClick={handleLogout}
             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            <LogOut className="mr-3 h-5 w-5" />
-            {translateToHebrew('Logout')}
+            <LogOut className={language === 'he' ? 'ml-3' : 'mr-3'} style={{ transform: language === 'he' ? 'scaleX(-1)' : 'none' }} />
+            {t('Logout')}
           </Button>
         </div>
       </aside>

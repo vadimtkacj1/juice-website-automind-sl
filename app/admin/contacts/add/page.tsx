@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AddContact() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,18 +35,18 @@ export default function AddContact() {
       if (response.ok) {
         router.push('/admin/contacts');
       } else {
-        alert('Failed to add contact');
+        alert(t('Failed to add contact'));
       }
     } catch (error) {
       console.error('Error adding contact:', error);
-      alert('An error occurred');
+      alert(t('An error occurred. Please try again.'));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/contacts">
           <Button variant="ghost" size="icon">
@@ -52,20 +54,20 @@ export default function AddContact() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add New Contact</h1>
-          <p className="text-gray-500 mt-1">Create a new contact method</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Add Contact')}</h1>
+          <p className="text-gray-500 mt-1">{t('Create a new contact method')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>Enter the contact details</CardDescription>
+            <CardTitle>{t('Contact Information')}</CardTitle>
+            <CardDescription>{t('Enter the contact details')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="type">Contact Type *</Label>
+              <Label htmlFor="type">{t('Contact Type')} *</Label>
               <select
                 id="type"
                 value={formData.type}
@@ -73,16 +75,16 @@ export default function AddContact() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
               >
-                <option value="">Select type</option>
-                <option value="email">Email</option>
-                <option value="phone">Phone</option>
+                <option value="">{t('Select type')}</option>
+                <option value="email">{t('Email')}</option>
+                <option value="phone">{t('Phone')}</option>
                 <option value="whatsapp">WhatsApp</option>
-                <option value="other">Other</option>
+                <option value="other">{t('Other')}</option>
               </select>
             </div>
 
             <div>
-              <Label htmlFor="value">Contact Value *</Label>
+              <Label htmlFor="value">{t('Contact Value')} *</Label>
               <Input
                 id="value"
                 value={formData.value}
@@ -96,10 +98,10 @@ export default function AddContact() {
 
         <div className="flex justify-end gap-4">
           <Link href="/admin/contacts">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
           <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
-            {loading ? 'Creating...' : 'Create Contact'}
+            {loading ? t('Creating...') : t('Create') + ' ' + t('Contact')}
           </Button>
         </div>
       </form>

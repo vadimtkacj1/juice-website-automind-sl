@@ -10,9 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash, Pencil, RefreshCw } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function DiscountsPage() {
+  const { t, language } = useAdminLanguage();
   const [discounts, setDiscounts] = useState<any[]>([]);
   const [promoCodes, setPromoCodes] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -128,7 +129,7 @@ export default function DiscountsPage() {
         resetPromoForm();
       } else {
         const data = await response.json();
-        alert(data.error || translateToHebrew('Failed to save promo code'));
+        alert(data.error || t('Failed to save promo code'));
       }
     } catch (error) {
       console.error('Failed to save promo code:', error);
@@ -136,7 +137,7 @@ export default function DiscountsPage() {
   };
 
   const deleteDiscount = async (id: number) => {
-    if (!confirm(translateToHebrew('Are you sure you want to delete this discount?'))) return;
+    if (!confirm(t('Are you sure you want to delete this discount?'))) return;
 
     try {
       const response = await fetch(`/api/discounts/${id}`, { method: 'DELETE' });
@@ -147,7 +148,7 @@ export default function DiscountsPage() {
   };
 
   const deletePromoCode = async (id: number) => {
-    if (!confirm(translateToHebrew('Are you sure you want to delete this promo code?'))) return;
+    if (!confirm(t('Are you sure you want to delete this promo code?'))) return;
 
     try {
       const response = await fetch(`/api/promo-codes/${id}`, { method: 'DELETE' });
@@ -186,22 +187,22 @@ export default function DiscountsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading discounts...')} />
+        <LoadingSpinner size="lg" text={t('Loading discounts...')} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
+    <div className="max-w-7xl mx-auto space-y-6" dir={language}>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Discounts & Promo Codes')}</h1>
-        <p className="text-gray-500 mt-1">{translateToHebrew('Manage discounts and promotional codes')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('Discounts & Promo Codes')}</h1>
+        <p className="text-gray-500 mt-1">{t('Manage discounts and promotional codes')}</p>
       </div>
 
       <Tabs defaultValue="discounts" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="discounts">{translateToHebrew('Discounts')}</TabsTrigger>
-          <TabsTrigger value="promo-codes">{translateToHebrew('Promo Codes')}</TabsTrigger>
+          <TabsTrigger value="discounts">{t('Discounts')}</TabsTrigger>
+          <TabsTrigger value="promo-codes">{t('Promo Codes')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="discounts">
@@ -209,12 +210,12 @@ export default function DiscountsPage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>{translateToHebrew('Product Discounts')}</CardTitle>
-                  <CardDescription>{translateToHebrew('Manage discounts for products')}</CardDescription>
+                  <CardTitle>{t('Product Discounts')}</CardTitle>
+                  <CardDescription>{t('Manage discounts for products')}</CardDescription>
                 </div>
                 <Button onClick={() => { resetDiscountForm(); setShowDiscountDialog(true); }} className="bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="mr-2 h-4 w-4" />
-                  {translateToHebrew('Add Discount')}
+                  {t('Add Discount')}
                 </Button>
               </div>
             </CardHeader>
@@ -223,28 +224,28 @@ export default function DiscountsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{translateToHebrew('Name')}</TableHead>
-                      <TableHead>{translateToHebrew('Type')}</TableHead>
-                      <TableHead>{translateToHebrew('Value')}</TableHead>
-                      <TableHead>{translateToHebrew('Product')}</TableHead>
-                      <TableHead>{translateToHebrew('Status')}</TableHead>
-                      <TableHead>{translateToHebrew('Actions')}</TableHead>
+                      <TableHead>{t('Name')}</TableHead>
+                      <TableHead>{t('Type')}</TableHead>
+                      <TableHead>{t('Value')}</TableHead>
+                      <TableHead>{t('Product')}</TableHead>
+                      <TableHead>{t('Status')}</TableHead>
+                      <TableHead>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {discounts.map((discount) => (
                       <TableRow key={discount.id}>
-                        <TableCell className="font-medium">{translateToHebrew(discount.name)}</TableCell>
-                        <TableCell className="capitalize">{translateToHebrew(discount.type)}</TableCell>
+                        <TableCell className="font-medium">{t(discount.name)}</TableCell>
+                        <TableCell className="capitalize">{t(discount.type)}</TableCell>
                         <TableCell>
                           {discount.type === 'percentage' ? `${discount.value}%` : `$${discount.value}`}
                         </TableCell>
-                        <TableCell>{discount.product_name ? translateToHebrew(discount.product_name) : translateToHebrew('All Products')}</TableCell>
+                        <TableCell>{discount.product_name ? t(discount.product_name) : t('All Products')}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             discount.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                           }`}>
-                            {discount.is_active ? translateToHebrew('Active') : translateToHebrew('Inactive')}
+                            {discount.is_active ? t('Active') : t('Inactive')}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -264,7 +265,7 @@ export default function DiscountsPage() {
                   </TableBody>
                 </Table>
               ) : (
-                <p className="text-center text-gray-500 py-8">{translateToHebrew('No discounts yet')}</p>
+                <p className="text-center text-gray-500 py-8">{t('No discounts yet')}</p>
               )}
             </CardContent>
           </Card>
@@ -275,12 +276,12 @@ export default function DiscountsPage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>{translateToHebrew('Promo Codes')}</CardTitle>
-                  <CardDescription>{translateToHebrew('Manage promotional codes for customers')}</CardDescription>
+                  <CardTitle>{t('Promo Codes')}</CardTitle>
+                  <CardDescription>{t('Manage promotional codes for customers')}</CardDescription>
                 </div>
                 <Button onClick={() => { resetPromoForm(); generatePromoCode(); setShowPromoDialog(true); }} className="bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="mr-2 h-4 w-4" />
-                  {translateToHebrew('Generate Promo Code')}
+                  {t('Generate Promo Code')}
                 </Button>
               </div>
             </CardHeader>
@@ -289,19 +290,19 @@ export default function DiscountsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{translateToHebrew('Code')}</TableHead>
-                      <TableHead>{translateToHebrew('Type')}</TableHead>
-                      <TableHead>{translateToHebrew('Value')}</TableHead>
-                      <TableHead>{translateToHebrew('Usage')}</TableHead>
-                      <TableHead>{translateToHebrew('Status')}</TableHead>
-                      <TableHead>{translateToHebrew('Actions')}</TableHead>
+                      <TableHead>{t('Code')}</TableHead>
+                      <TableHead>{t('Type')}</TableHead>
+                      <TableHead>{t('Value')}</TableHead>
+                      <TableHead>{t('Usage')}</TableHead>
+                      <TableHead>{t('Status')}</TableHead>
+                      <TableHead>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {promoCodes.map((promo) => (
                       <TableRow key={promo.id}>
                         <TableCell className="font-mono font-bold">{promo.code}</TableCell>
-                        <TableCell className="capitalize">{translateToHebrew(promo.discount_type)}</TableCell>
+                        <TableCell className="capitalize">{t(promo.discount_type)}</TableCell>
                         <TableCell>
                           {promo.discount_type === 'percentage' ? `${promo.discount_value}%` : `$${promo.discount_value}`}
                         </TableCell>
@@ -312,7 +313,7 @@ export default function DiscountsPage() {
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             promo.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                           }`}>
-                            {promo.is_active ? translateToHebrew('Active') : translateToHebrew('Inactive')}
+                            {promo.is_active ? t('Active') : t('Inactive')}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -332,7 +333,7 @@ export default function DiscountsPage() {
                   </TableBody>
                 </Table>
               ) : (
-                <p className="text-center text-gray-500 py-8">{translateToHebrew('No promo codes yet')}</p>
+                <p className="text-center text-gray-500 py-8">{t('No promo codes yet')}</p>
               )}
             </CardContent>
           </Card>
@@ -341,36 +342,36 @@ export default function DiscountsPage() {
 
       {/* Discount Dialog */}
       <Dialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
-        <DialogContent dir="rtl">
+        <DialogContent dir={language}>
           <DialogHeader>
-            <DialogTitle>{discountForm.id ? translateToHebrew('Edit') : translateToHebrew('Add')} {translateToHebrew('Discount')}</DialogTitle>
-            <DialogDescription>{translateToHebrew('Configure discount settings')}</DialogDescription>
+            <DialogTitle>{discountForm.id ? t('Edit') : t('Add')} {t('Discount')}</DialogTitle>
+            <DialogDescription>{t('Configure discount settings')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="discount-name">{translateToHebrew('Discount Name')}</Label>
+              <Label htmlFor="discount-name">{t('Discount Name')}</Label>
               <Input
                 id="discount-name"
                 value={discountForm.name}
                 onChange={(e) => setDiscountForm({ ...discountForm, name: e.target.value })}
-                placeholder={translateToHebrew('Summer Sale')}
+                placeholder={t('Summer Sale')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="discount-type">{translateToHebrew('Type')}</Label>
+                <Label htmlFor="discount-type">{t('Type')}</Label>
                 <select
                   id="discount-type"
                   value={discountForm.type}
                   onChange={(e) => setDiscountForm({ ...discountForm, type: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  <option value="percentage">{translateToHebrew('Percentage')}</option>
-                  <option value="fixed">{translateToHebrew('Fixed Amount')}</option>
+                  <option value="percentage">{t('Percentage')}</option>
+                  <option value="fixed">{t('Fixed Amount')}</option>
                 </select>
               </div>
               <div>
-                <Label htmlFor="discount-value">{translateToHebrew('Value')}</Label>
+                <Label htmlFor="discount-value">{t('Value')}</Label>
                 <Input
                   id="discount-value"
                   type="number"
@@ -382,17 +383,17 @@ export default function DiscountsPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="discount-product">{translateToHebrew('Product (Optional)')}</Label>
+              <Label htmlFor="discount-product">{t('Product (Optional)')}</Label>
               <select
                 id="discount-product"
                 value={discountForm.product_id}
                 onChange={(e) => setDiscountForm({ ...discountForm, product_id: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="">{translateToHebrew('All Products')}</option>
+                <option value="">{t('All Products')}</option>
                 {Array.isArray(products) && products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {translateToHebrew(product.name)}
+                    {t(product.name)}
                   </option>
                 ))}
               </select>
@@ -404,28 +405,28 @@ export default function DiscountsPage() {
                 checked={discountForm.is_active}
                 onChange={(e) => setDiscountForm({ ...discountForm, is_active: e.target.checked })}
               />
-              <Label htmlFor="discount-active">{translateToHebrew('Active')}</Label>
+              <Label htmlFor="discount-active">{t('Active')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDiscountDialog(false)}>
-              {translateToHebrew('Cancel')}
+              {t('Cancel')}
             </Button>
-            <Button onClick={saveDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">{translateToHebrew('Save Discount')}</Button>
+            <Button onClick={saveDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">{t('Save Discount')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Promo Code Dialog */}
       <Dialog open={showPromoDialog} onOpenChange={setShowPromoDialog}>
-        <DialogContent dir="rtl">
+        <DialogContent dir={language}>
           <DialogHeader>
-            <DialogTitle>{promoForm.id ? translateToHebrew('Edit') : translateToHebrew('Generate')} {translateToHebrew('Promo Code')}</DialogTitle>
-            <DialogDescription>{translateToHebrew('Configure promo code settings')}</DialogDescription>
+            <DialogTitle>{promoForm.id ? t('Edit') : t('Generate')} {t('Promo Code')}</DialogTitle>
+            <DialogDescription>{t('Configure promo code settings')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="promo-code">{translateToHebrew('Promo Code')}</Label>
+              <Label htmlFor="promo-code">{t('Promo Code')}</Label>
               <div className="flex gap-2">
                 <Input
                   id="promo-code"
@@ -441,19 +442,19 @@ export default function DiscountsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="promo-type">{translateToHebrew('Discount Type')}</Label>
+                <Label htmlFor="promo-type">{t('Discount Type')}</Label>
                 <select
                   id="promo-type"
                   value={promoForm.discount_type}
                   onChange={(e) => setPromoForm({ ...promoForm, discount_type: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  <option value="percentage">{translateToHebrew('Percentage')}</option>
-                  <option value="fixed">{translateToHebrew('Fixed Amount')}</option>
+                  <option value="percentage">{t('Percentage')}</option>
+                  <option value="fixed">{t('Fixed Amount')}</option>
                 </select>
               </div>
               <div>
-                <Label htmlFor="promo-value">{translateToHebrew('Discount Value')}</Label>
+                <Label htmlFor="promo-value">{t('Discount Value')}</Label>
                 <Input
                   id="promo-value"
                   type="number"
@@ -465,13 +466,13 @@ export default function DiscountsPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="usage-limit">{translateToHebrew('Usage Limit (Optional)')}</Label>
+              <Label htmlFor="usage-limit">{t('Usage Limit (Optional)')}</Label>
               <Input
                 id="usage-limit"
                 type="number"
                 value={promoForm.usage_limit}
                 onChange={(e) => setPromoForm({ ...promoForm, usage_limit: e.target.value })}
-                placeholder={translateToHebrew('Leave empty for unlimited')}
+                placeholder={t('Leave empty for unlimited')}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -481,14 +482,14 @@ export default function DiscountsPage() {
                 checked={promoForm.is_active}
                 onChange={(e) => setPromoForm({ ...promoForm, is_active: e.target.checked })}
               />
-              <Label htmlFor="promo-active">{translateToHebrew('Active')}</Label>
+              <Label htmlFor="promo-active">{t('Active')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPromoDialog(false)}>
-              {translateToHebrew('Cancel')}
+              {t('Cancel')}
             </Button>
-            <Button onClick={savePromoCode} className="bg-purple-600 hover:bg-purple-700 text-white">{translateToHebrew('Save Promo Code')}</Button>
+            <Button onClick={savePromoCode} className="bg-purple-600 hover:bg-purple-700 text-white">{t('Save Promo Code')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

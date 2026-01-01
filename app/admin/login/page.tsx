@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { translateToHebrew } from '@/lib/translations';
+import { AdminLanguageProvider, useAdminLanguage } from '@/lib/admin-language-context';
 
-export default function AdminLogin() {
+function AdminLoginContent() {
   const router = useRouter();
+  const { t, language } = useAdminLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,22 +35,22 @@ export default function AdminLogin() {
       if (response.ok) {
         router.push('/admin/dashboard');
       } else {
-        setError(data.error || translateToHebrew('Login failed'));
+        setError(data.error || t('Login failed'));
       }
     } catch (err) {
-      setError(translateToHebrew('An error occurred. Please try again.'));
+      setError(t('An error occurred. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" dir={language}>
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center text-gray-900">{translateToHebrew('Admin Panel')}</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-gray-900">{t('Admin Panel')}</CardTitle>
           <CardDescription className="text-center">
-            {translateToHebrew('Enter your credentials to access the admin dashboard')}
+            {t('Enter your credentials to access the admin dashboard')}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -60,11 +61,11 @@ export default function AdminLogin() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="username">{translateToHebrew('Username')}</Label>
+              <Label htmlFor="username">{t('Username')}</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder={translateToHebrew('Enter your username')}
+                placeholder={t('Enter your username')}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -72,11 +73,11 @@ export default function AdminLogin() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{translateToHebrew('Password')}</Label>
+              <Label htmlFor="password">{t('Password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder={translateToHebrew('Enter your password')}
+                placeholder={t('Enter your password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -90,12 +91,20 @@ export default function AdminLogin() {
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold" 
               disabled={loading}
             >
-              {loading ? translateToHebrew('Signing in...') : translateToHebrew('Sign in')}
+              {loading ? t('Signing in...') : t('Sign in')}
             </Button>
           </CardFooter>
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function AdminLogin() {
+  return (
+    <AdminLanguageProvider>
+      <AdminLoginContent />
+    </AdminLanguageProvider>
   );
 }
 

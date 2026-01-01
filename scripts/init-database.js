@@ -108,6 +108,18 @@ const tables = [
     )`
   },
   {
+    name: 'pending_orders',
+    sql: `CREATE TABLE IF NOT EXISTS pending_orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_token TEXT NOT NULL UNIQUE,
+      order_data TEXT NOT NULL,
+      total_amount REAL NOT NULL,
+      payment_uid TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      expires_at DATETIME
+    )`
+  },
+  {
     name: 'discounts',
     sql: `CREATE TABLE IF NOT EXISTS discounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

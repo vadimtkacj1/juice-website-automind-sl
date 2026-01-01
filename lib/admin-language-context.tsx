@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { translateToHebrew } from '@/lib/translations';
 
 type Language = 'he' | 'en';
 
@@ -23,6 +24,22 @@ export function AdminLanguageProvider({ children }: { children: React.ReactNode 
     }
   }, []);
 
+  // Update document direction and language when language changes
+  useEffect(() => {
+    const root = document.getElementById('admin-layout-root');
+    const main = document.getElementById('admin-main-content');
+    
+    if (language === 'he') {
+      if (root) root.setAttribute('dir', 'rtl');
+      if (main) main.setAttribute('dir', 'rtl');
+      document.documentElement.setAttribute('lang', 'he');
+    } else {
+      if (root) root.setAttribute('dir', 'ltr');
+      if (main) main.setAttribute('dir', 'ltr');
+      document.documentElement.setAttribute('lang', 'en');
+    }
+  }, [language]);
+
   // Save language to localStorage when it changes
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -39,8 +56,6 @@ export function AdminLanguageProvider({ children }: { children: React.ReactNode 
     }
     
     // If language is Hebrew, translate using existing translation function
-    // We'll import and use translateToHebrew
-    const { translateToHebrew } = require('@/lib/translations');
     return translateToHebrew(text);
   };
 

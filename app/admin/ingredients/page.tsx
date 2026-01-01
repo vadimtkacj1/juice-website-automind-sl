@@ -14,7 +14,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import ImageUpload from '@/components/ImageUpload';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 import {
   DndContext,
   closestCenter,
@@ -72,10 +72,12 @@ function SortableRow({
   ingredient,
   onEdit,
   onDelete,
+  t,
 }: {
   ingredient: Ingredient;
   onEdit: (ingredient: Ingredient) => void;
   onDelete: (id: number) => void;
+  t: (text: string) => string;
 }) {
   const {
     attributes,
@@ -105,10 +107,10 @@ function SortableRow({
         </button>
       </TableCell>
       <TableCell className="font-medium">{ingredient.sort_order}</TableCell>
-      <TableCell className="font-medium">{translateToHebrew(ingredient.name)}</TableCell>
-      <TableCell>{translateToHebrew(ingredient.description) || '-'}</TableCell>
+      <TableCell className="font-medium">{t(ingredient.name)}</TableCell>
+      <TableCell>{ingredient.description ? t(ingredient.description) : '-'}</TableCell>
       <TableCell>${ingredient.price.toFixed(2)}</TableCell>
-      <TableCell>{ingredient.is_available ? translateToHebrew('Yes') : translateToHebrew('No')}</TableCell>
+      <TableCell>{ingredient.is_available ? t('Yes') : t('No')}</TableCell>
       <TableCell>
         <div className="flex gap-2">
           <Button
@@ -132,6 +134,7 @@ function SortableRow({
 }
 
 export default function AdminIngredients() {
+  const { t, language } = useAdminLanguage();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -723,12 +726,12 @@ export default function AdminIngredients() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6" dir="rtl">
+    <div className="container mx-auto p-6 space-y-6" dir={language}>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{translateToHebrew('Ingredient Management')}</h1>
+          <h1 className="text-3xl font-bold">{t('Ingredient Management')}</h1>
           <p className="text-muted-foreground mt-2">
-            {translateToHebrew('Manage boosters, fruits, and toppings. Attach them to menu categories and set prices.')}
+            {t('Manage boosters, fruits, and toppings. Attach them to menu categories and set prices.')}
           </p>
         </div>
         <Button 
@@ -736,22 +739,22 @@ export default function AdminIngredients() {
           className="bg-purple-600 hover:bg-purple-700 text-white"
         >
           <Plus className="ml-2 h-4 w-4" />
-          {translateToHebrew('Add Ingredient')}
+          {t('Add Ingredient')}
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList>
-          <TabsTrigger value="fruits">{translateToHebrew('Fruits')}</TabsTrigger>
-          <TabsTrigger value="boosters">{translateToHebrew('Boosters')}</TabsTrigger>
-          <TabsTrigger value="toppings">{translateToHebrew('Toppings')}</TabsTrigger>
+          <TabsTrigger value="fruits">{t('Fruits')}</TabsTrigger>
+          <TabsTrigger value="boosters">{t('Boosters')}</TabsTrigger>
+          <TabsTrigger value="toppings">{t('Toppings')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="fruits">
           <Card>
             <CardHeader>
-              <CardTitle>{translateToHebrew('Fruits')}</CardTitle>
-              <CardDescription>{translateToHebrew('Manage fruit ingredients. Drag and drop to reorder.')}</CardDescription>
+              <CardTitle>{t('Fruits')}</CardTitle>
+              <CardDescription>{t('Manage fruit ingredients. Drag and drop to reorder.')}</CardDescription>
             </CardHeader>
             <CardContent>
               <DndContext
@@ -763,19 +766,19 @@ export default function AdminIngredients() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12"></TableHead>
-                      <TableHead>{translateToHebrew('Sort Order')}</TableHead>
-                      <TableHead>{translateToHebrew('Name')}</TableHead>
-                      <TableHead>{translateToHebrew('Description')}</TableHead>
-                      <TableHead>{translateToHebrew('Price')}</TableHead>
-                      <TableHead>{translateToHebrew('Available')}</TableHead>
-                      <TableHead>{translateToHebrew('Actions')}</TableHead>
+                      <TableHead>{t('Sort Order')}</TableHead>
+                      <TableHead>{t('Name')}</TableHead>
+                      <TableHead>{t('Description')}</TableHead>
+                      <TableHead>{t('Price')}</TableHead>
+                      <TableHead>{t('Available')}</TableHead>
+                      <TableHead>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredIngredients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {translateToHebrew('No fruits found. Click "Add Ingredient" button above to get started.')}
+                          {t('No fruits found. Click "Add Ingredient" button above to get started.')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -789,6 +792,7 @@ export default function AdminIngredients() {
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
+                            t={t}
                           />
                         ))}
                       </SortableContext>
@@ -803,8 +807,8 @@ export default function AdminIngredients() {
         <TabsContent value="boosters">
           <Card>
             <CardHeader>
-              <CardTitle>{translateToHebrew('Boosters')}</CardTitle>
-              <CardDescription>{translateToHebrew('Manage booster ingredients. Drag and drop to reorder.')}</CardDescription>
+              <CardTitle>{t('Boosters')}</CardTitle>
+              <CardDescription>{t('Manage booster ingredients. Drag and drop to reorder.')}</CardDescription>
             </CardHeader>
             <CardContent>
               <DndContext
@@ -816,19 +820,19 @@ export default function AdminIngredients() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12"></TableHead>
-                      <TableHead>{translateToHebrew('Sort Order')}</TableHead>
-                      <TableHead>{translateToHebrew('Name')}</TableHead>
-                      <TableHead>{translateToHebrew('Description')}</TableHead>
-                      <TableHead>{translateToHebrew('Price')}</TableHead>
-                      <TableHead>{translateToHebrew('Available')}</TableHead>
-                      <TableHead>{translateToHebrew('Actions')}</TableHead>
+                      <TableHead>{t('Sort Order')}</TableHead>
+                      <TableHead>{t('Name')}</TableHead>
+                      <TableHead>{t('Description')}</TableHead>
+                      <TableHead>{t('Price')}</TableHead>
+                      <TableHead>{t('Available')}</TableHead>
+                      <TableHead>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredIngredients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {translateToHebrew('No boosters found. Click "Add Ingredient" button above to get started.')}
+                          {t('No boosters found. Click "Add Ingredient" button above to get started.')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -842,6 +846,7 @@ export default function AdminIngredients() {
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
+                            t={t}
                           />
                         ))}
                       </SortableContext>
@@ -856,8 +861,8 @@ export default function AdminIngredients() {
         <TabsContent value="toppings">
           <Card>
             <CardHeader>
-              <CardTitle>{translateToHebrew('Toppings')}</CardTitle>
-              <CardDescription>{translateToHebrew('Manage topping ingredients. Drag and drop to reorder.')}</CardDescription>
+              <CardTitle>{t('Toppings')}</CardTitle>
+              <CardDescription>{t('Manage topping ingredients. Drag and drop to reorder.')}</CardDescription>
             </CardHeader>
             <CardContent>
               <DndContext
@@ -869,19 +874,19 @@ export default function AdminIngredients() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12"></TableHead>
-                      <TableHead>{translateToHebrew('Sort Order')}</TableHead>
-                      <TableHead>{translateToHebrew('Name')}</TableHead>
-                      <TableHead>{translateToHebrew('Description')}</TableHead>
-                      <TableHead>{translateToHebrew('Price')}</TableHead>
-                      <TableHead>{translateToHebrew('Available')}</TableHead>
-                      <TableHead>{translateToHebrew('Actions')}</TableHead>
+                      <TableHead>{t('Sort Order')}</TableHead>
+                      <TableHead>{t('Name')}</TableHead>
+                      <TableHead>{t('Description')}</TableHead>
+                      <TableHead>{t('Price')}</TableHead>
+                      <TableHead>{t('Available')}</TableHead>
+                      <TableHead>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredIngredients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {translateToHebrew('No toppings found. Click "Add Ingredient" button above to get started.')}
+                          {t('No toppings found. Click "Add Ingredient" button above to get started.')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -895,6 +900,7 @@ export default function AdminIngredients() {
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
+                            t={t}
                           />
                         ))}
                       </SortableContext>
@@ -909,34 +915,34 @@ export default function AdminIngredients() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{translateToHebrew('Category Configurations')}</CardTitle>
-          <CardDescription>{translateToHebrew('Attach ingredients to menu categories. All items in a category will have access to these ingredients.')}</CardDescription>
+          <CardTitle>{t('Category Configurations')}</CardTitle>
+          <CardDescription>{t('Attach ingredients to menu categories. All items in a category will have access to these ingredients.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{translateToHebrew('Category Name')}</TableHead>
-                <TableHead>{translateToHebrew('Description')}</TableHead>
-                <TableHead>{translateToHebrew('Attached Ingredients')}</TableHead>
-                <TableHead>{translateToHebrew('Actions')}</TableHead>
+                <TableHead>{t('Category Name')}</TableHead>
+                <TableHead>{t('Description')}</TableHead>
+                <TableHead>{t('Attached Ingredients')}</TableHead>
+                <TableHead>{t('Actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {menuCategories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    {translateToHebrew('No categories found.')}
+                    {t('No categories found.')}
                   </TableCell>
                 </TableRow>
               ) : (
                 menuCategories.map((category) => (
                   <TableRow key={category.id}>
-                    <TableCell className="font-medium">{translateToHebrew(category.name)}</TableCell>
-                    <TableCell>{translateToHebrew(category.description) || '-'}</TableCell>
+                    <TableCell className="font-medium">{t(category.name)}</TableCell>
+                    <TableCell>{category.description ? t(category.description) : '-'}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {categoryIngredientCounts[category.id] || 0} {translateToHebrew('ingredient')}{(categoryIngredientCounts[category.id] || 0) !== 1 ? 'ים' : ''}
+                        {categoryIngredientCounts[category.id] || 0} {t('ingredient')}{(categoryIngredientCounts[category.id] || 0) !== 1 ? 'ים' : ''}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -946,7 +952,7 @@ export default function AdminIngredients() {
                         onClick={() => handleOpenCategoryConfigDialog(category)}
                       >
                         <Settings className="ml-2 h-4 w-4" />
-                        {translateToHebrew('Configure')}
+                        {t('Configure')}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -962,17 +968,17 @@ export default function AdminIngredients() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editingIngredient ? translateToHebrew('Edit Ingredient') : translateToHebrew('Add New Ingredient')}
+              {editingIngredient ? t('Edit Ingredient') : t('Add New Ingredient')}
             </DialogTitle>
             <DialogDescription>
               {editingIngredient
-                ? translateToHebrew('Update ingredient details')
-                : translateToHebrew('Create a new ingredient')}
+                ? t('Update ingredient details')
+                : t('Create a new ingredient')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">{translateToHebrew('Name')} *</Label>
+              <Label htmlFor="name">{t('Name')} *</Label>
               <Input
                 id="name"
                 value={ingredientForm.name}
@@ -983,19 +989,19 @@ export default function AdminIngredients() {
               />
             </div>
             <div>
-              <Label htmlFor="description">{translateToHebrew('Description')}</Label>
+              <Label htmlFor="description">{t('Description')}</Label>
               <Textarea
                 id="description"
                 value={ingredientForm.description}
                 onChange={(e) =>
                   setIngredientForm({ ...ingredientForm, description: e.target.value })
                 }
-                placeholder={translateToHebrew('Optional description')}
+                placeholder={t('Optional description')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="price">{translateToHebrew('Base Price ($)')}</Label>
+                <Label htmlFor="price">{t('Base Price ($)')}</Label>
                 <Input
                   id="price"
                   type="number"
@@ -1007,7 +1013,7 @@ export default function AdminIngredients() {
                 />
               </div>
               <div>
-                <Label htmlFor="category">{translateToHebrew('Ingredient Category')}</Label>
+                <Label htmlFor="category">{t('Ingredient Category')}</Label>
                 <select
                   id="category"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
@@ -1019,18 +1025,18 @@ export default function AdminIngredients() {
                     })
                   }
                 >
-                  <option value="fruits">{translateToHebrew('Fruits')}</option>
-                  <option value="boosters">{translateToHebrew('Boosters')}</option>
-                  <option value="toppings">{translateToHebrew('Toppings')}</option>
+                  <option value="fruits">{t('Fruits')}</option>
+                  <option value="boosters">{t('Boosters')}</option>
+                  <option value="toppings">{t('Toppings')}</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {translateToHebrew('You can change this anytime. This only affects how ingredients are grouped in the admin panel. You can still attach any ingredient to any menu category.')}
+                  {t('You can change this anytime. This only affects how ingredients are grouped in the admin panel. You can still attach any ingredient to any menu category.')}
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sort_order">{translateToHebrew('Sort Order')}</Label>
+                <Label htmlFor="sort_order">{t('Sort Order')}</Label>
                 <Input
                   id="sort_order"
                   type="number"
@@ -1041,7 +1047,7 @@ export default function AdminIngredients() {
                   placeholder="0"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {translateToHebrew('Lower numbers appear first. Controls display order in customer selection.')}
+                  {t('Lower numbers appear first. Controls display order in customer selection.')}
                 </p>
               </div>
               <div className="flex items-center space-x-2 pt-8">
@@ -1057,18 +1063,18 @@ export default function AdminIngredients() {
                   }
                   className="h-4 w-4"
                 />
-                <Label htmlFor="is_available">{translateToHebrew('Available')}</Label>
+                <Label htmlFor="is_available">{t('Available')}</Label>
               </div>
             </div>
             <div>
-              <Label htmlFor="image">{translateToHebrew('Image URL')}</Label>
+              <Label htmlFor="image">{t('Image URL')}</Label>
               <Input
                 id="image"
                 value={ingredientForm.image}
                 onChange={(e) =>
                   setIngredientForm({ ...ingredientForm, image: e.target.value })
                 }
-                placeholder={translateToHebrew('Image URL or use upload below')}
+                placeholder={t('Image URL or use upload below')}
               />
               <ImageUpload
                 value={ingredientForm.image}
@@ -1083,9 +1089,9 @@ export default function AdminIngredients() {
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <Label>{translateToHebrew('Volume/Weight Options')}</Label>
+                  <Label>{t('Volume/Weight Options')}</Label>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {translateToHebrew('Define volume or weight options (e.g., 100g, 250g, 1kg, 0.5L). Customers can choose from these when selecting this ingredient.')}
+                    {t('Define volume or weight options (e.g., 100g, 250g, 1kg, 0.5L). Customers can choose from these when selecting this ingredient.')}
                   </p>
                 </div>
                 <Button
@@ -1096,30 +1102,30 @@ export default function AdminIngredients() {
                   className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
                 >
                   <Plus className="h-4 w-4 ml-2" />
-                  {translateToHebrew('Add Volume')}
+                  {t('Add Volume')}
                 </Button>
               </div>
               {volumeOptions.length === 0 ? (
                 <div className="text-center py-6 text-sm text-muted-foreground border rounded-md">
-                  <p>{translateToHebrew('No volume options defined.')}</p>
-                  <p className="text-xs mt-1">{translateToHebrew('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
+                  <p>{t('No volume options defined.')}</p>
+                  <p className="text-xs mt-1">{t('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {volumeOptions.map((vol, index) => (
                     <div key={index} className="grid grid-cols-12 gap-3 p-3 border rounded-lg bg-gray-50">
                       <div className="col-span-4">
-                        <Label htmlFor={`vol-${index}`} className="text-xs">{translateToHebrew('Volume/Weight')} *</Label>
+                        <Label htmlFor={`vol-${index}`} className="text-xs">{t('Volume/Weight')} *</Label>
                         <Input
                           id={`vol-${index}`}
                           value={vol.volume}
                           onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
-                          placeholder={translateToHebrew('e.g., 100g, 250g, 1kg')}
+                          placeholder={t('e.g., 100g, 250g, 1kg')}
                           className="h-9"
                         />
                       </div>
                       <div className="col-span-3">
-                        <Label htmlFor={`vol-price-${index}`} className="text-xs">{translateToHebrew('Price ($)')} *</Label>
+                        <Label htmlFor={`vol-price-${index}`} className="text-xs">{t('Price ($)')} *</Label>
                         <Input
                           id={`vol-price-${index}`}
                           type="number"
@@ -1131,7 +1137,7 @@ export default function AdminIngredients() {
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor={`vol-sort-${index}`} className="text-xs">{translateToHebrew('Sort Order')}</Label>
+                        <Label htmlFor={`vol-sort-${index}`} className="text-xs">{t('Sort Order')}</Label>
                         <Input
                           id={`vol-sort-${index}`}
                           type="number"
@@ -1151,7 +1157,7 @@ export default function AdminIngredients() {
                             className="w-4 h-4"
                           />
                           <Label htmlFor={`vol-default-${index}`} className="text-xs cursor-pointer">
-                            {translateToHebrew('Default')}
+                            {t('Default')}
                           </Label>
                         </div>
                       </div>
@@ -1174,10 +1180,10 @@ export default function AdminIngredients() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowIngredientDialog(false)}>
-              {translateToHebrew('Cancel')}
+              {t('Cancel')}
             </Button>
             <Button onClick={handleSaveIngredient}>
-              {editingIngredient ? translateToHebrew('Update') : translateToHebrew('Create')}
+              {editingIngredient ? t('Update') : t('Create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1187,18 +1193,18 @@ export default function AdminIngredients() {
       <Dialog open={showCategoryConfigDialog} onOpenChange={setShowCategoryConfigDialog}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{translateToHebrew('Configure Ingredients for')} {translateToHebrew(selectedCategory?.name || '')}</DialogTitle>
+            <DialogTitle>{t('Configure Ingredients for')} {t(selectedCategory?.name || '')}</DialogTitle>
             <DialogDescription>
-              {translateToHebrew('Attach ingredients to this category and configure their settings.')}
+              {t('Attach ingredients to this category and configure their settings.')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label>{translateToHebrew('Available Ingredients')}</Label>
+                <Label>{t('Available Ingredients')}</Label>
                 <div className="flex items-center gap-2">
                   <p className="text-xs text-muted-foreground">
-                    {translateToHebrew('You can add multiple ingredients. Click "Add" for each one you want to include.')}
+                    {t('You can add multiple ingredients. Click "Add" for each one you want to include.')}
                   </p>
                   {ingredients.filter(
                     (ing) => !categoryConfigs.find((c) => c.ingredient_id === ing.id)
@@ -1232,7 +1238,7 @@ export default function AdminIngredients() {
                       className="text-xs"
                     >
                       <Plus className="h-3 w-3 ml-1" />
-                      {translateToHebrew('Add All Available')}
+                      {t('Add All Available')}
                     </Button>
                   )}
                 </div>
@@ -1256,9 +1262,9 @@ export default function AdminIngredients() {
                       className="flex items-center justify-between p-2 hover:bg-muted rounded"
                     >
                       <div>
-                        <span className="font-medium">{translateToHebrew(ingredient.name)}</span>
+                        <span className="font-medium">{t(ingredient.name)}</span>
                         <span className="text-sm text-muted-foreground ml-2">
-                          ({translateToHebrew(ingredient.ingredient_category)}) - ${ingredient.price.toFixed(2)}
+                          ({t(ingredient.ingredient_category)}) - ${ingredient.price.toFixed(2)}
                         </span>
                       </div>
                       <Button
@@ -1268,10 +1274,10 @@ export default function AdminIngredients() {
                           handleAddIngredientToCategory(ingredient);
                         }}
                         className="bg-purple-600 hover:bg-purple-700 text-white"
-                        title={`${translateToHebrew('Add')} ${translateToHebrew(ingredient.name)} ${translateToHebrew('to')} ${translateToHebrew(selectedCategory?.name || '')}`}
+                        title={`${t('Add')} ${t(ingredient.name)} ${t('to')} ${t(selectedCategory?.name || '')}`}
                       >
                         <Plus className="h-4 w-4 ml-1" />
-                        {translateToHebrew('Add')}
+                        {t('Add')}
                       </Button>
                     </div>
                   ))}
@@ -1279,7 +1285,7 @@ export default function AdminIngredients() {
                   (ing) => !categoryConfigs.find((c) => c.ingredient_id === ing.id)
                 ).length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    {translateToHebrew('All ingredients are already attached')}
+                    {t('All ingredients are already attached')}
                   </p>
                 )}
               </div>
@@ -1287,15 +1293,15 @@ export default function AdminIngredients() {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label>{translateToHebrew('Attached Ingredients')} ({categoryConfigs.length})</Label>
+                <Label>{t('Attached Ingredients')} ({categoryConfigs.length})</Label>
                 <p className="text-xs text-muted-foreground">
-                  {translateToHebrew('All ingredients listed here will be available when customers select items from this category')}
+                  {t('All ingredients listed here will be available when customers select items from this category')}
                 </p>
               </div>
               <div className="mt-2 space-y-4">
                 {categoryConfigs.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    {translateToHebrew('No ingredients attached. Add ingredients from the list above.')}
+                    {t('No ingredients attached. Add ingredients from the list above.')}
                   </p>
                 ) : (
                   categoryConfigs.map((config) => {
@@ -1306,9 +1312,9 @@ export default function AdminIngredients() {
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <h4 className="font-medium">{translateToHebrew(config.ingredient_name)}</h4>
+                                <h4 className="font-medium">{t(config.ingredient_name)}</h4>
                                 <p className="text-sm text-muted-foreground">
-                                  {translateToHebrew('Category')}: {translateToHebrew(ingredient?.ingredient_category || '')}
+                                  {t('Category')}: {t(ingredient?.ingredient_category || '')}
                                 </p>
                               </div>
                               <Button
@@ -1321,7 +1327,7 @@ export default function AdminIngredients() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label>{translateToHebrew('Selection Type')}</Label>
+                                <Label>{t('Selection Type')}</Label>
                                 <select
                                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                   value={config.selection_type}
@@ -1333,17 +1339,17 @@ export default function AdminIngredients() {
                                     )
                                   }
                                 >
-                                  <option value="multiple">{translateToHebrew('Multiple Choice (Recommended)')}</option>
-                                  <option value="single">{translateToHebrew('Single Choice (Choose One)')}</option>
+                                  <option value="multiple">{t('Multiple Choice (Recommended)')}</option>
+                                  <option value="single">{t('Single Choice (Choose One)')}</option>
                                 </select>
                                 <p className="text-xs text-muted-foreground mt-1">
                                   {config.selection_type === 'multiple' 
-                                    ? translateToHebrew('Customers can select multiple ingredients from this category')
-                                    : translateToHebrew('Customers can only select one ingredient from this category')}
+                                    ? t('Customers can select multiple ingredients from this category')
+                                    : t('Customers can only select one ingredient from this category')}
                                 </p>
                               </div>
                               <div>
-                                <Label>{translateToHebrew('Base Price Override ($) - Optional')}</Label>
+                                <Label>{t('Base Price Override ($) - Optional')}</Label>
                                 <Input
                                   type="number"
                                   step="0.01"
@@ -1355,10 +1361,10 @@ export default function AdminIngredients() {
                                       e.target.value ? parseFloat(e.target.value) : undefined
                                     )
                                   }
-                                  placeholder={`${translateToHebrew('Default')}: $${ingredient?.price.toFixed(2) || '0.00'}`}
+                                  placeholder={`${t('Default')}: $${ingredient?.price.toFixed(2) || '0.00'}`}
                                 />
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {translateToHebrew('Base price if volume prices are not set')}
+                                  {t('Base price if volume prices are not set')}
                                 </p>
                               </div>
                             </div>
@@ -1366,9 +1372,9 @@ export default function AdminIngredients() {
                             {/* Price per Volume */}
                             {categoryVolumes.length > 0 && (
                               <div>
-                                <Label>{translateToHebrew('Price per Volume/Weight')}</Label>
+                                <Label>{t('Price per Volume/Weight')}</Label>
                                 <p className="text-xs text-muted-foreground mb-2">
-                                  {translateToHebrew('Set the price for this ingredient for each category volume option:')}
+                                  {t('Set the price for this ingredient for each category volume option:')}
                                 </p>
                                 <div className="grid grid-cols-2 gap-3">
                                   {categoryVolumes.map((vol) => {
@@ -1396,7 +1402,7 @@ export default function AdminIngredients() {
                                   })}
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-2">
-                                  {translateToHebrew('If a price is not set for a volume, the base price override (or ingredient base price) will be used.')}
+                                  {t('If a price is not set for a volume, the base price override (or ingredient base price) will be used.')}
                                 </p>
                               </div>
                             )}
@@ -1411,9 +1417,9 @@ export default function AdminIngredients() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCategoryConfigDialog(false)}>
-              {translateToHebrew('Cancel')}
+              {t('Cancel')}
             </Button>
-            <Button onClick={handleSaveCategoryConfig}>{translateToHebrew('Save Configuration')}</Button>
+            <Button onClick={handleSaveCategoryConfig}>{t('Save Configuration')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Pencil, Trash, Newspaper, Eye, EyeOff, Image as ImageIcon } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface NewsItem {
   id: number;
@@ -19,6 +19,7 @@ interface NewsItem {
 }
 
 export default function AdminNews() {
+  const { t, language } = useAdminLanguage();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +39,7 @@ export default function AdminNews() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm(translateToHebrew('Are you sure you want to delete this news item?'))) {
+    if (!confirm(t('Are you sure you want to delete this news item?'))) {
       return;
     }
 
@@ -73,16 +74,16 @@ export default function AdminNews() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading news...')} />
+        <LoadingSpinner size="lg" text={t('Loading news...')} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={language}>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('News Management')}</h1>
-        <p className="text-gray-500 mt-1">{translateToHebrew('Manage news articles and announcements')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('News Management')}</h1>
+        <p className="text-gray-500 mt-1">{t('Manage news articles and announcements')}</p>
       </div>
 
       <Card>
@@ -91,14 +92,14 @@ export default function AdminNews() {
             <div className="flex items-center gap-2">
               <Newspaper className="h-5 w-5 text-purple-600" />
               <div>
-                <CardTitle>{translateToHebrew('All News')}</CardTitle>
-                <CardDescription>{translateToHebrew('News items displayed on the website')}</CardDescription>
+                <CardTitle>{t('All News')}</CardTitle>
+                <CardDescription>{t('News items displayed on the website')}</CardDescription>
               </div>
             </div>
             <Link href="/admin/news/add">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 <Plus className="mr-2 h-4 w-4" />
-                {translateToHebrew('Add News')}
+                {t('Add News')}
               </Button>
             </Link>
           </div>
@@ -107,10 +108,10 @@ export default function AdminNews() {
           {news.length === 0 ? (
             <div className="text-center py-12">
               <Newspaper className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">{translateToHebrew('No news items yet')}</p>
+              <p className="text-gray-500 mb-4">{t('No news items yet')}</p>
               <Link href="/admin/news/add">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  {translateToHebrew('Add Your First News Item')}
+                  {t('Add Your First News Item')}
                 </Button>
               </Link>
             </div>
@@ -119,11 +120,11 @@ export default function AdminNews() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-16">{translateToHebrew('Image')}</TableHead>
-                    <TableHead>{translateToHebrew('Title')}</TableHead>
-                    <TableHead>{translateToHebrew('Content')}</TableHead>
-                    <TableHead className="w-20">{translateToHebrew('Status')}</TableHead>
-                    <TableHead className="text-right">{translateToHebrew('Actions')}</TableHead>
+                    <TableHead className="w-16">{t('Image')}</TableHead>
+                    <TableHead>{t('Title')}</TableHead>
+                    <TableHead>{t('Content')}</TableHead>
+                    <TableHead className="w-20">{t('Status')}</TableHead>
+                    <TableHead className="text-right">{t('Actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -144,15 +145,15 @@ export default function AdminNews() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium text-gray-900">{translateToHebrew(item.title)}</p>
+                          <p className="font-medium text-gray-900">{t(item.title)}</p>
                           <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <span className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString('he-IL')}</span>
+                            <span className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US')}</span>
                           </p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="max-w-xs">
-                          <p className="text-sm text-gray-600 truncate">{translateToHebrew(item.content)}</p>
+                          <p className="text-sm text-gray-600 truncate">{t(item.content)}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -167,12 +168,12 @@ export default function AdminNews() {
                           {item.is_active ? (
                             <>
                               <Eye className="h-3 w-3" />
-                              {translateToHebrew('Active')}
+                              {t('Active')}
                             </>
                           ) : (
                             <>
                               <EyeOff className="h-3 w-3" />
-                              {translateToHebrew('Hidden')}
+                              {t('Hidden')}
                             </>
                           )}
                         </button>

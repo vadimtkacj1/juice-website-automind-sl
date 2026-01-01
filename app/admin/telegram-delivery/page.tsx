@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, Pencil, Trash, Settings, Bot, Users, TestTube, Activity } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { AlertDialog } from '@/components/ui/alert-dialog';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface BotSettings {
   id?: number;
@@ -27,6 +28,7 @@ interface Courier {
 }
 
 export default function TelegramDeliveryPage() {
+  const { t } = useAdminLanguage();
   const [settings, setSettings] = useState<BotSettings>({
     bot_id: '',
     api_token: '',
@@ -86,8 +88,8 @@ export default function TelegramDeliveryPage() {
     if (!settings.api_token) {
       setAlertDialog({
         open: true,
-        title: 'Validation Error',
-        message: 'API Token is required. Get it from @BotFather in Telegram.',
+        title: t('Validation Error'),
+        message: t('API Token is required. Get it from @BotFather in Telegram.'),
         type: 'error',
       });
       return;
@@ -106,8 +108,8 @@ export default function TelegramDeliveryPage() {
       if (!validateData.valid) {
         setAlertDialog({
           open: true,
-          title: 'Invalid Token',
-          message: validateData.message || 'The API token is invalid. Please check your token from @BotFather.\n\nTo get a token:\n1. Open Telegram\n2. Search for @BotFather\n3. Type /newbot\n4. Follow instructions\n5. Copy the token (format: 123456789:ABCdef...)',
+          title: t('Invalid Token'),
+          message: validateData.message || t('The API token is invalid. Please check your token from @BotFather.\n\nTo get a token:\n1. Open Telegram\n2. Search for @BotFather\n3. Type /newbot\n4. Follow instructions\n5. Copy the token (format: 123456789:ABCdef...)'),
           type: 'error',
         });
         return;
@@ -146,23 +148,23 @@ export default function TelegramDeliveryPage() {
         fetchData();
         setAlertDialog({
           open: true,
-          title: 'Success',
-          message: 'Settings saved successfully! Bot will be initialized in the background.',
+          title: t('Success'),
+          message: t('Settings saved successfully! Bot will be initialized in the background.'),
           type: 'success',
         });
       } catch (error: any) {
         setAlertDialog({
           open: true,
-          title: 'Error',
-          message: error.message || 'Failed to save settings',
+          title: t('Error'),
+          message: error.message || t('Failed to save settings'),
           type: 'error',
         });
       }
     } catch (error: any) {
       setAlertDialog({
         open: true,
-        title: 'Validation Error',
-        message: 'Failed to validate token. Please check your API token.',
+        title: t('Validation Error'),
+        message: t('Failed to validate token. Please check your API token.'),
         type: 'error',
       });
     }
@@ -183,15 +185,15 @@ export default function TelegramDeliveryPage() {
       const data = await response.json();
       setAlertDialog({
         open: true,
-        title: 'Test Order Created',
-        message: `Test order #${data.orderId} created successfully! Check your Telegram bot - all active couriers should receive a notification.`,
+        title: t('Test Order Created'),
+        message: t(`Test order #${data.orderId} created successfully! Check your Telegram bot - all active couriers should receive a notification.`),
         type: 'success',
       });
     } catch (error: any) {
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: error.message || 'Failed to create test order',
+        title: t('Error'),
+        message: error.message || t('Failed to create test order'),
         type: 'error',
       });
     }
@@ -202,28 +204,28 @@ export default function TelegramDeliveryPage() {
       const response = await fetch('/api/telegram/diagnose');
       const data = await response.json();
 
-      let message = 'Diagnostics:\n\n';
-      message += `Bot Configured: ${data.bot_configured ? 'Yes' : 'No'}\n`;
-      message += `Bot Enabled: ${data.bot_enabled ? 'Yes' : 'No'}\n`;
-      message += `Token Valid: ${data.bot_token_valid ? 'Yes' : 'No'}\n`;
-      message += `Active Couriers: ${data.active_couriers}\n`;
-      message += `Bot Instance Ready: ${data.bot_instance_ready ? 'Yes' : 'No'}\n`;
+      let message = t('Diagnostics:') + '\n\n';
+      message += `${t('Bot Configured')}: ${data.bot_configured ? t('Yes') : t('No')}\n`;
+      message += `${t('Bot Enabled')}: ${data.bot_enabled ? t('Yes') : t('No')}\n`;
+      message += `${t('Token Valid')}: ${data.bot_token_valid ? t('Yes') : t('No')}\n`;
+      message += `${t('Active Couriers')}: ${data.active_couriers}\n`;
+      message += `${t('Bot Instance Ready')}: ${data.bot_instance_ready ? t('Yes') : t('No')}\n`;
       
       if (data.errors && data.errors.length > 0) {
-        message += `\nErrors:\n${data.errors.join('\n')}`;
+        message += `\n${t('Errors')}:\n${data.errors.join('\n')}`;
       }
 
       if (data.status === 'ready') {
         setAlertDialog({
           open: true,
-          title: 'System Status: Ready',
+          title: t('System Status: Ready'),
           message: message,
           type: 'success',
         });
       } else {
         setAlertDialog({
           open: true,
-          title: 'System Status: Not Ready',
+          title: t('System Status: Not Ready'),
           message: message,
           type: 'error',
         });
@@ -231,8 +233,8 @@ export default function TelegramDeliveryPage() {
     } catch (error: any) {
       setAlertDialog({
         open: true,
-        title: 'Diagnostic Error',
-        message: error.message || 'Failed to run diagnostics',
+        title: t('Diagnostic Error'),
+        message: error.message || t('Failed to run diagnostics'),
         type: 'error',
       });
     }
@@ -261,8 +263,8 @@ export default function TelegramDeliveryPage() {
     if (!courierForm.telegram_id || !courierForm.name) {
       setAlertDialog({
         open: true,
-        title: 'Validation Error',
-        message: 'Telegram ID and name are required.',
+        title: t('Validation Error'),
+        message: t('Telegram ID and name are required.'),
         type: 'error',
       });
       return;
@@ -291,15 +293,15 @@ export default function TelegramDeliveryPage() {
       fetchData();
       setAlertDialog({
         open: true,
-        title: 'Success',
-        message: `Courier ${editingCourier ? 'updated' : 'created'} successfully!`,
+        title: t('Success'),
+        message: editingCourier ? t('Courier updated successfully!') : t('Courier created successfully!'),
         type: 'success',
       });
     } catch (error: any) {
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: error.message || 'Failed to save courier',
+        title: t('Error'),
+        message: error.message || t('Failed to save courier'),
         type: 'error',
       });
     }
@@ -318,15 +320,15 @@ export default function TelegramDeliveryPage() {
       fetchData();
       setAlertDialog({
         open: true,
-        title: 'Success',
-        message: 'Courier deleted successfully!',
+        title: t('Success'),
+        message: t('Courier deleted successfully!'),
         type: 'success',
       });
     } catch (error: any) {
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: error.message || 'Failed to delete courier',
+        title: t('Error'),
+        message: error.message || t('Failed to delete courier'),
         type: 'error',
       });
     }
@@ -340,22 +342,19 @@ export default function TelegramDeliveryPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Telegram Delivery Management</h1>
+          <h1 className="text-3xl font-bold">{t('Telegram Delivery Management')}</h1>
           <p className="text-muted-foreground mt-2">
-            Configure Telegram bot integration and manage couriers
-          </p>
-          <p className="text-xs text-yellow-600 mt-1">
-            ⚠️ If you're running the standalone service (npm run telegram:service), don't use "Initialize Bot" here to avoid conflicts.
+            {t('Configure Telegram bot integration and manage couriers')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleDiagnose} variant="outline" className="bg-green-50 hover:bg-green-100">
             <Activity className="mr-2 h-4 w-4" />
-            Diagnose
+            {t('Diagnose')}
           </Button>
           <Button onClick={handleTestOrder} variant="outline" className="bg-blue-50 hover:bg-blue-100">
             <TestTube className="mr-2 h-4 w-4" />
-            Test Order
+            {t('Test Order')}
           </Button>
         </div>
       </div>
@@ -367,41 +366,41 @@ export default function TelegramDeliveryPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />
-                Bot Settings
+                {t('Bot Settings')}
               </CardTitle>
               <CardDescription>
-                Enter Bot ID and API Token for Telegram integration
+                {t('Enter Bot ID and API Token for Telegram integration')}
               </CardDescription>
             </div>
             <Button onClick={() => setShowSettingsDialog(true)}>
               <Settings className="mr-2 h-4 w-4" />
-              Configure
+              {t('Configure')}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Bot ID:</span>
-              <span className="font-medium">{settings.bot_id ? settings.bot_id : 'Not configured (will be auto-filled)'}</span>
+              <span className="text-sm text-muted-foreground">{t('Bot ID')}:</span>
+              <span className="font-medium">{settings.bot_id ? settings.bot_id : t('Not configured (will be auto-filled)')}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">API Token:</span>
+              <span className="text-sm text-muted-foreground">{t('API Token')}:</span>
               <span className="font-medium">
                 {settings.api_token && settings.api_token.length > 4 
                   ? '****' + settings.api_token.slice(-4) 
-                  : 'Not configured'}
+                  : t('Not configured')}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Status:</span>
+              <span className="text-sm text-muted-foreground">{t('Status')}:</span>
               <span className={`font-medium ${settings.is_enabled ? 'text-green-600' : 'text-gray-500'}`}>
-                {settings.is_enabled ? 'Enabled' : 'Disabled'}
+                {settings.is_enabled ? t('Enabled') : t('Disabled')}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Reminder Interval:</span>
-              <span className="font-medium">{settings.reminder_interval_minutes} min.</span>
+              <span className="text-sm text-muted-foreground">{t('Reminder Interval')}:</span>
+              <span className="font-medium">{settings.reminder_interval_minutes} {t('min.')}</span>
             </div>
           </div>
         </CardContent>
@@ -414,15 +413,15 @@ export default function TelegramDeliveryPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Delivery Accounts
+                {t('Delivery Accounts')}
               </CardTitle>
               <CardDescription>
-                Manage the list of couriers who receive order notifications
+                {t('Manage the list of couriers who receive order notifications')}
               </CardDescription>
             </div>
             <Button onClick={() => handleOpenCourierDialog()}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Courier
+              {t('Add Courier')}
             </Button>
           </div>
         </CardHeader>
@@ -430,17 +429,17 @@ export default function TelegramDeliveryPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Telegram ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t('Telegram ID')}</TableHead>
+                <TableHead>{t('Name')}</TableHead>
+                <TableHead>{t('Status')}</TableHead>
+                <TableHead>{t('Actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {couriers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No couriers. Click "Add Courier" to get started.
+                    {t('No couriers. Click "Add Courier" to get started.')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -454,7 +453,7 @@ export default function TelegramDeliveryPage() {
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {courier.is_active ? 'Active' : 'Inactive'}
+                        {courier.is_active ? t('Active') : t('Inactive')}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -487,41 +486,41 @@ export default function TelegramDeliveryPage() {
       <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Telegram Bot Settings</DialogTitle>
+            <DialogTitle>{t('Telegram Bot Settings')}</DialogTitle>
             <DialogDescription>
-              Enter Bot ID and API Token. You can get them from @BotFather in Telegram.
+              {t('Enter Bot ID and API Token. You can get them from @BotFather in Telegram.')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="api_token">API Token *</Label>
+              <Label htmlFor="api_token">{t('API Token')} *</Label>
               <Input
                 id="api_token"
                 type="password"
                 value={settings.api_token}
                 onChange={(e) => setSettings({ ...settings, api_token: e.target.value })}
-                placeholder="e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                placeholder={t('e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz')}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Get this from @BotFather in Telegram. Type /newbot to create a bot, then copy the token.
+                {t('Get this from @BotFather in Telegram. Type /newbot to create a bot, then copy the token.')}
               </p>
             </div>
             <div>
-              <Label htmlFor="bot_id">Bot ID (Auto-filled)</Label>
+              <Label htmlFor="bot_id">{t('Bot ID (Auto-filled)')}</Label>
               <Input
                 id="bot_id"
                 value={settings.bot_id}
                 onChange={(e) => setSettings({ ...settings, bot_id: e.target.value })}
-                placeholder="Will be auto-filled from token"
+                placeholder={t('Will be auto-filled from token')}
                 disabled
                 className="bg-gray-50"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Bot ID is automatically extracted from the API token. You don't need to enter it manually.
+                {t('Bot ID is automatically extracted from the API token. You don\'t need to enter it manually.')}
               </p>
             </div>
             <div>
-              <Label htmlFor="reminder_interval">Reminder Interval (minutes)</Label>
+              <Label htmlFor="reminder_interval">{t('Reminder Interval (minutes)')}</Label>
               <Input
                 id="reminder_interval"
                 type="number"
@@ -534,7 +533,7 @@ export default function TelegramDeliveryPage() {
                 })}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                How often to send reminders to courier if order is not delivered (1-60 minutes)
+                {t('How often to send reminders to courier if order is not delivered (1-60 minutes)')}
               </p>
             </div>
             <div className="flex items-center space-x-2 pt-4">
@@ -545,15 +544,15 @@ export default function TelegramDeliveryPage() {
                 onChange={(e) => setSettings({ ...settings, is_enabled: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="is_enabled">Enable Bot</Label>
+              <Label htmlFor="is_enabled">{t('Enable Bot')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button onClick={handleSaveSettings}>
-              Save
+              {t('Save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -564,34 +563,34 @@ export default function TelegramDeliveryPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingCourier ? 'Edit Courier' : 'Add Courier'}
+              {editingCourier ? t('Edit Courier') : t('Add Courier')}
             </DialogTitle>
             <DialogDescription>
               {editingCourier
-                ? 'Update courier information'
-                : 'Add a new courier to the system'}
+                ? t('Update courier information')
+                : t('Add a new courier to the system')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="courier_telegram_id">Telegram ID *</Label>
+              <Label htmlFor="courier_telegram_id">{t('Telegram ID')} *</Label>
               <Input
                 id="courier_telegram_id"
                 value={courierForm.telegram_id}
                 onChange={(e) => setCourierForm({ ...courierForm, telegram_id: e.target.value })}
-                placeholder="e.g., 123456789"
+                placeholder={t('e.g., 123456789')}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Find your Telegram ID using @userinfobot
+                {t('Find your Telegram ID using @userinfobot')}
               </p>
             </div>
             <div>
-              <Label htmlFor="courier_name">Name *</Label>
+              <Label htmlFor="courier_name">{t('Name')} *</Label>
               <Input
                 id="courier_name"
                 value={courierForm.name}
                 onChange={(e) => setCourierForm({ ...courierForm, name: e.target.value })}
-                placeholder="e.g., John Doe"
+                placeholder={t('e.g., John Doe')}
               />
             </div>
             <div className="flex items-center space-x-2 pt-4">
@@ -602,15 +601,15 @@ export default function TelegramDeliveryPage() {
                 onChange={(e) => setCourierForm({ ...courierForm, is_active: e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="courier_is_active">Active</Label>
+              <Label htmlFor="courier_is_active">{t('Active')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCourierDialog(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button onClick={handleSaveCourier}>
-              {editingCourier ? 'Update' : 'Create'}
+              {editingCourier ? t('Update') : t('Create')}
             </Button>
           </DialogFooter>
         </DialogContent>

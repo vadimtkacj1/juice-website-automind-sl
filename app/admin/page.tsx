@@ -3,10 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { t, language } = useAdminLanguage();
 
   useEffect(() => {
     // Check if user is logged in
@@ -27,8 +28,8 @@ export default function AdminPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
-      <LoadingSpinner size="lg" text={translateToHebrew('Checking authentication...')} />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" dir={language}>
+      <LoadingSpinner size="lg" text={t('Checking authentication...')} />
     </div>
   );
 }

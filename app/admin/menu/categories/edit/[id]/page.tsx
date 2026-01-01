@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface MenuCategory {
   id: number;
@@ -20,6 +21,7 @@ interface MenuCategory {
 }
 
 export default function EditCategory() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const params = useParams();
   const { id } = params;
@@ -44,7 +46,7 @@ export default function EditCategory() {
       const response = await fetch(`/api/menu-categories/${categoryId}`);
       if (!response.ok) {
         if (response.status === 404) {
-          alert('Category not found');
+          alert(t('Category not found'));
           router.push('/admin/menu');
           return;
         }
@@ -61,7 +63,7 @@ export default function EditCategory() {
       });
     } catch (error) {
       console.error('Error fetching category:', error);
-      alert('Error loading category');
+      alert(t('Error loading category'));
       router.push('/admin/menu');
     } finally {
       setInitialLoading(false);
@@ -72,7 +74,7 @@ export default function EditCategory() {
     e.preventDefault();
     
     if (!form.name.trim()) {
-      alert('Category name is required');
+      alert(t('Category name is required.'));
       return;
     }
 
@@ -94,11 +96,11 @@ export default function EditCategory() {
         router.push('/admin/menu');
       } else {
         const data = await response.json();
-        alert(data.error || 'Error updating category');
+        alert(data.error || t('Error updating category'));
       }
     } catch (error) {
       console.error('Error updating category:', error);
-      alert('Error updating category');
+      alert(t('Error updating category'));
     }
     setLoading(false);
   }
@@ -106,13 +108,13 @@ export default function EditCategory() {
   if (initialLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading category..." />
+        <LoadingSpinner size="lg" text={t('Loading category...')} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/menu">
           <Button variant="ghost" size="icon">
@@ -120,43 +122,43 @@ export default function EditCategory() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Category</h1>
-          <p className="text-gray-500 mt-1">Modify category details</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Edit Category')}</h1>
+          <p className="text-gray-500 mt-1">{t('Modify category details')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>Category Details</CardTitle>
-            <CardDescription>Update the category information</CardDescription>
+            <CardTitle>{t('Category Details')}</CardTitle>
+            <CardDescription>{t('Update the category information')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('Name')} *</Label>
               <Input
                 id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Fresh Juices"
+                placeholder={t('Fresh Juices')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('Description')}</Label>
               <Textarea
                 id="description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Category description (optional)"
+                placeholder={t('Category description (optional)')}
                 rows={3}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sort_order">Sort Order</Label>
+                <Label htmlFor="sort_order">{t('Sort Order')}</Label>
                 <Input
                   id="sort_order"
                   type="number"
@@ -166,7 +168,7 @@ export default function EditCategory() {
                   min="0"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Lower numbers appear first
+                  {t('Lower numbers appear first')}
                 </p>
               </div>
 
@@ -179,7 +181,7 @@ export default function EditCategory() {
                   className="w-4 h-4"
                 />
                 <Label htmlFor="is_active" className="cursor-pointer">
-                  Active (show on website)
+                  {t('Active (show on website)')}
                 </Label>
               </div>
             </div>
@@ -192,10 +194,10 @@ export default function EditCategory() {
             disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            {loading ? 'Updating...' : 'Update Category'}
+            {loading ? t('Updating...') : t('Update Category')}
           </Button>
           <Link href="/admin/menu">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
         </div>
       </form>

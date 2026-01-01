@@ -117,9 +117,9 @@ export default function Cart() {
         return;
       }
 
-      if (data.success && data.redirectUrl) {
-        // Redirect to success page
-        window.location.href = data.redirectUrl;
+      if (data.success && (data.redirectUrl || data.paymentUrl)) {
+        // Redirect to payment page or success page
+        window.location.href = data.redirectUrl || data.paymentUrl;
       } else if (data.orderNumber) {
         // Fallback redirect
         window.location.href = `/checkout/success?order=${data.orderNumber}`;

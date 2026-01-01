@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Pencil, Trash, Mail, Phone, MessageSquare, Users } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Contact {
   id: number;
@@ -16,6 +16,7 @@ interface Contact {
 }
 
 export default function AdminContacts() {
+  const { t, language } = useAdminLanguage();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +36,7 @@ export default function AdminContacts() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm(translateToHebrew('Are you sure you want to delete this contact?'))) {
+    if (!confirm(t('Are you sure you want to delete this contact?'))) {
       return;
     }
 
@@ -67,16 +68,16 @@ export default function AdminContacts() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading contacts...')} />
+        <LoadingSpinner size="lg" text={t('Loading contacts...')} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
+    <div className="max-w-7xl mx-auto space-y-6" dir={language}>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Contacts Management')}</h1>
-        <p className="text-gray-500 mt-1">{translateToHebrew('Manage contact information and methods')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('Contacts Management')}</h1>
+        <p className="text-gray-500 mt-1">{t('Manage contact information and methods')}</p>
       </div>
 
       <Card>
@@ -85,29 +86,29 @@ export default function AdminContacts() {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-600" />
               <div>
-                <CardTitle>{translateToHebrew('All Contacts')}</CardTitle>
-                <CardDescription>{translateToHebrew('Contact methods and information')}</CardDescription>
+                <CardTitle>{t('All Contacts')}</CardTitle>
+                <CardDescription>{t('Contact methods and information')}</CardDescription>
               </div>
             </div>
             <Link href="/admin/contacts/add">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 <Plus className="mr-2 h-4 w-4" />
-                {translateToHebrew('Add Contact')}
+                {t('Add Contact')}
               </Button>
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {contacts.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">{translateToHebrew('No contacts yet')}</p>
+            <p className="text-center text-gray-500 py-8">{t('No contacts yet')}</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{translateToHebrew('Type')}</TableHead>
-                    <TableHead>{translateToHebrew('Value')}</TableHead>
-                    <TableHead className="text-right">{translateToHebrew('Actions')}</TableHead>
+                    <TableHead>{t('Type')}</TableHead>
+                    <TableHead>{t('Value')}</TableHead>
+                    <TableHead className="text-right">{t('Actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -116,7 +117,7 @@ export default function AdminContacts() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getContactIcon(contact.type)}
-                          <span className="font-medium capitalize">{translateToHebrew(contact.type)}</span>
+                          <span className="font-medium capitalize">{t(contact.type)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="font-mono">{contact.value}</TableCell>

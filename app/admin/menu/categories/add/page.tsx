@@ -9,8 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft } from 'lucide-react';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AddCategory() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -24,7 +26,7 @@ export default function AddCategory() {
     e.preventDefault();
     
     if (!form.name.trim()) {
-      alert('Category name is required');
+      alert(t('Category name is required.'));
       return;
     }
 
@@ -45,17 +47,17 @@ export default function AddCategory() {
         router.push('/admin/menu');
       } else {
         const data = await response.json();
-        alert(data.error || 'Error adding category');
+        alert(data.error || t('Error saving category.'));
       }
     } catch (error) {
       console.error('Error adding category:', error);
-      alert('Error adding category');
+      alert(t('Error saving category.'));
     }
     setLoading(false);
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/menu">
           <Button variant="ghost" size="icon">
@@ -63,42 +65,42 @@ export default function AddCategory() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add Category</h1>
-          <p className="text-gray-500 mt-1">Create a new menu category</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Add Category')}</h1>
+          <p className="text-gray-500 mt-1">{t('Create a new menu category')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>Category Details</CardTitle>
-            <CardDescription>Fill in the category information</CardDescription>
+            <CardTitle>{t('Category Details')}</CardTitle>
+            <CardDescription>{t('Fill in the category information')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('Name')} *</Label>
               <Input
                 id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Fresh Juices"
+                placeholder={t('Fresh Juices')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('Description')}</Label>
               <Textarea
                 id="description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Category description (optional)"
+                placeholder={t('Category description (optional)')}
                 rows={3}
               />
             </div>
 
             <div>
-              <Label htmlFor="sort_order">Sort Order</Label>
+              <Label htmlFor="sort_order">{t('Sort Order')}</Label>
               <Input
                 id="sort_order"
                 type="number"
@@ -108,7 +110,7 @@ export default function AddCategory() {
                 min="0"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Lower numbers appear first in the menu
+                {t('Lower numbers appear first')}
               </p>
             </div>
           </CardContent>
@@ -120,10 +122,10 @@ export default function AddCategory() {
             disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            {loading ? 'Creating...' : 'Create Category'}
+            {loading ? t('Creating...') : t('Create') + ' ' + t('Category')}
           </Button>
           <Link href="/admin/menu">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
         </div>
       </form>
