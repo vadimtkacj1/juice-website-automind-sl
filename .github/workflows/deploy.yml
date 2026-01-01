@@ -38,14 +38,24 @@ jobs:
       - name: Create deployment package
         run: |
           mkdir -p deploy
-          # Copy standalone build output
+          # Verify standalone build output exists
+          if [ ! -d ".next/standalone" ]; then
+            echo "Error: .next/standalone directory not found. Build may have failed."
+            exit 1
+          fi
+          # Copy standalone build output (includes server.js, .next/static, public, node_modules)
+          echo "Copying standalone build output..."
           cp -r .next/standalone/* deploy/
-          cp -r .next/static deploy/.next/static
-          cp -r public deploy/public
-          # Copy scripts for database initialization
-          cp -r scripts deploy/scripts
-          # Copy package.json for npm scripts
-          cp package.json deploy/
+          # Ensure scripts directory exists for database initialization
+          if [ -d "scripts" ] && [ ! -d "deploy/scripts" ]; then
+            cp -r scripts deploy/scripts
+          fi
+          # Verify critical files exist
+          if [ ! -f "deploy/server.js" ]; then
+            echo "Error: server.js not found in standalone output"
+            exit 1
+          fi
+          echo "Deployment package created successfully"
           tar -czf deploy.tar.gz deploy/
 
       - name: Deploy to server via SSH
@@ -91,8 +101,21 @@ jobs:
             # Stop existing PM2 process
             pm2 stop juice-website || true
             pm2 delete juice-website || true
-            # Start with standalone server
-            pm2 start server.js --name juice-website --update-env
+            # Start application - check if standalone server.js exists, otherwise use npm start
+            if [ -f "server.js" ]; then
+              echo "Starting with standalone server.js"
+              pm2 start server.js --name juice-website --update-env
+            elif [ -f ".next/standalone/server.js" ]; then
+              echo "Starting with .next/standalone/server.js"
+              pm2 start .next/standalone/server.js --name juice-website --update-env
+            else
+              echo "Starting with npm start"
+              # Install production dependencies if needed
+              if [ ! -d "node_modules" ]; then
+                npm ci --production --omit=dev
+              fi
+              pm2 start npm --name juice-website -- start --update-env
+            fi
             pm2 save
             # Clean up
             rm -rf deploy deploy.tar.gz
