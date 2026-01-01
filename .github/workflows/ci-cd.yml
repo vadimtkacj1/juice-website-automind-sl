@@ -202,22 +202,20 @@ jobs:
             mkdir -p data public/uploads && \
             chmod 755 data public/uploads && \
             # Create/update .env file
-            echo 'Creating .env file...'
-            cat > .env << EOF
-NODE_ENV=production
-PORT=80
-RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
-RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
-PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
-PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
-PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
-TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
-GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
-DATABASE_PATH=/app/data/juice_website.db
-EOF
-            && \
+            echo 'Creating .env file...' && \
+            printf '%s\n' \
+              'NODE_ENV=production' \
+              'PORT=80' \
+              'RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}' \
+              'RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}' \
+              'PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}' \
+              'PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}' \
+              'PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}' \
+              'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' \
+              'SESSION_SECRET=${{ secrets.SESSION_SECRET }}' \
+              'DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}' \
+              'GITHUB_REPOSITORY=${GITHUB_REPOSITORY}' \
+              'DATABASE_PATH=/app/data/juice_website.db' > .env && \
             if [ -n '${GHCR_TOKEN}' ] && [ '${GHCR_TOKEN}' != '' ]; then \
               echo 'Logging in to GitHub Container Registry...' && \
               echo '${GHCR_TOKEN}' | docker login ghcr.io -u ${GHCR_USER} --password-stdin; \
@@ -268,41 +266,82 @@ EOF
             if command -v nginx &> /dev/null; then \
               echo '✓ Nginx is installed' && \
               mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && \
-              printf '%s\n' \
-                '# HTTP server - proxy to Docker container' \
-                'server {' \
-                '    listen 80;' \
-                '    listen [::]:80;' \
-                '    server_name _;' \
-                '    ' \
-                '    location /.well-known/acme-challenge/ {' \
-                '        root /var/www/html;' \
-                '    }' \
-                '    ' \
-                '    location / {' \
-                '        proxy_pass http://localhost:80;' \
-                '        proxy_http_version 1.1;' \
-                '        proxy_set_header Upgrade $http_upgrade;' \
-                '        proxy_set_header Connection "upgrade";' \
-                '        proxy_set_header Host $host;' \
-                '        proxy_set_header X-Real-IP $remote_addr;' \
-                '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
-                '        proxy_set_header X-Forwarded-Proto $scheme;' \
-                '        proxy_set_header X-Forwarded-Host $host;' \
-                '        proxy_set_header X-Forwarded-Port $server_port;' \
-                '        proxy_cache_bypass $http_upgrade;' \
-                '        proxy_buffering off;' \
-                '        proxy_connect_timeout 60s;' \
-                '        proxy_send_timeout 60s;' \
-                '        proxy_read_timeout 60s;' \
-                '    }' \
-                '    ' \
-                '    location /api/health {' \
-                '        proxy_pass http://localhost:80/api/health;' \
-                '        proxy_set_header Host $host;' \
-                '        access_log off;' \
-                '    }' \
-                '}' > /etc/nginx/sites-available/juice-website && \
+              if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then \
+                echo '✓ SSL certificates found, configuring HTTPS...' && \
+                printf '%s\n' \
+                  '# HTTP server - redirect to HTTPS' \
+                  'server {' \
+                  '    listen 80;' \
+                  '    listen [::]:80;' \
+                  '    server_name _;' \
+                  '    location /.well-known/acme-challenge/ { root /var/www/html; }' \
+                  '    location / { return 301 https://$host$request_uri; }' \
+                  '}' \
+                  '# HTTPS server' \
+                  'server {' \
+                  '    listen 443 ssl http2;' \
+                  '    listen [::]:443 ssl http2;' \
+                  '    server_name _;' \
+                  '    ssl_certificate /etc/nginx/ssl/cert.pem;' \
+                  '    ssl_certificate_key /etc/nginx/ssl/key.pem;' \
+                  '    ssl_protocols TLSv1.2 TLSv1.3;' \
+                  '    ssl_ciphers HIGH:!aNULL:!MD5;' \
+                  '    location / {' \
+                  '        proxy_pass http://localhost:80;' \
+                  '        proxy_http_version 1.1;' \
+                  '        proxy_set_header Upgrade $http_upgrade;' \
+                  '        proxy_set_header Connection "upgrade";' \
+                  '        proxy_set_header Host $host;' \
+                  '        proxy_set_header X-Real-IP $remote_addr;' \
+                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
+                  '        proxy_set_header X-Forwarded-Host $host;' \
+                  '        proxy_set_header X-Forwarded-Port $server_port;' \
+                  '        proxy_cache_bypass $http_upgrade;' \
+                  '        proxy_buffering off;' \
+                  '        proxy_connect_timeout 60s;' \
+                  '        proxy_send_timeout 60s;' \
+                  '        proxy_read_timeout 60s;' \
+                  '    }' \
+                  '    location /api/health {' \
+                  '        proxy_pass http://localhost:80/api/health;' \
+                  '        proxy_set_header Host $host;' \
+                  '        access_log off;' \
+                  '    }' \
+                  '}' > /etc/nginx/sites-available/juice-website; \
+              else \
+                echo '⚠ SSL certificates not found, configuring HTTP only...' && \
+                printf '%s\n' \
+                  '# HTTP server - proxy to Docker container' \
+                  'server {' \
+                  '    listen 80;' \
+                  '    listen [::]:80;' \
+                  '    server_name _;' \
+                  '    location /.well-known/acme-challenge/ { root /var/www/html; }' \
+                  '    location / {' \
+                  '        proxy_pass http://localhost:80;' \
+                  '        proxy_http_version 1.1;' \
+                  '        proxy_set_header Upgrade $http_upgrade;' \
+                  '        proxy_set_header Connection "upgrade";' \
+                  '        proxy_set_header Host $host;' \
+                  '        proxy_set_header X-Real-IP $remote_addr;' \
+                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
+                  '        proxy_set_header X-Forwarded-Host $host;' \
+                  '        proxy_set_header X-Forwarded-Port $server_port;' \
+                  '        proxy_cache_bypass $http_upgrade;' \
+                  '        proxy_buffering off;' \
+                  '        proxy_connect_timeout 60s;' \
+                  '        proxy_send_timeout 60s;' \
+                  '        proxy_read_timeout 60s;' \
+                  '    }' \
+                  '    location /api/health {' \
+                  '        proxy_pass http://localhost:80/api/health;' \
+                  '        proxy_set_header Host $host;' \
+                  '        access_log off;' \
+                  '    }' \
+                  '}' > /etc/nginx/sites-available/juice-website; \
+              fi && \
               rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/juice-website && \
               ln -sf /etc/nginx/sites-available/juice-website /etc/nginx/sites-enabled/juice-website && \
               nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo '⚠ Could not reload nginx' && \

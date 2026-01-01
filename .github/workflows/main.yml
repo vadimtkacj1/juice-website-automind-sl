@@ -377,42 +377,104 @@ jobs:
                 mkdir -p /etc/nginx/sites-enabled
                 mkdir -p /etc/nginx/ssl
                 
-                # Create nginx configuration using printf to avoid YAML parsing issues
-                printf '%s\n' \
-                  '# HTTP server - proxy to Docker container' \
-                  'server {' \
-                  '    listen 80;' \
-                  '    listen [::]:80;' \
-                  '    server_name _;' \
-                  '    ' \
-                  '    location /.well-known/acme-challenge/ {' \
-                  '        root /var/www/html;' \
-                  '    }' \
-                  '    ' \
-                  '    location / {' \
-                  '        proxy_pass http://localhost:80;' \
-                  '        proxy_http_version 1.1;' \
-                  '        proxy_set_header Upgrade $http_upgrade;' \
-                  '        proxy_set_header Connection "upgrade";' \
-                  '        proxy_set_header Host $host;' \
-                  '        proxy_set_header X-Real-IP $remote_addr;' \
-                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
-                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
-                  '        proxy_set_header X-Forwarded-Host $host;' \
-                  '        proxy_set_header X-Forwarded-Port $server_port;' \
-                  '        proxy_cache_bypass $http_upgrade;' \
-                  '        proxy_buffering off;' \
-                  '        proxy_connect_timeout 60s;' \
-                  '        proxy_send_timeout 60s;' \
-                  '        proxy_read_timeout 60s;' \
-                  '    }' \
-                  '    ' \
-                  '    location /api/health {' \
-                  '        proxy_pass http://localhost:80/api/health;' \
-                  '        proxy_set_header Host $host;' \
-                  '        access_log off;' \
-                  '    }' \
-                  '}' > /etc/nginx/sites-available/juice-website
+                # Check if SSL certificates exist
+                if [ -f "/etc/nginx/ssl/cert.pem" ] && [ -f "/etc/nginx/ssl/key.pem" ]; then
+                  echo "✓ SSL certificates found, configuring HTTPS..."
+                  # Create nginx configuration with HTTPS support
+                  printf '%s\n' \
+                    '# HTTP server - redirect to HTTPS' \
+                    'server {' \
+                    '    listen 80;' \
+                    '    listen [::]:80;' \
+                    '    server_name _;' \
+                    '    ' \
+                    '    location /.well-known/acme-challenge/ {' \
+                    '        root /var/www/html;' \
+                    '    }' \
+                    '    ' \
+                    '    location / {' \
+                    '        return 301 https://$host$request_uri;' \
+                    '    }' \
+                    '}' \
+                    '' \
+                    '# HTTPS server' \
+                    'server {' \
+                    '    listen 443 ssl http2;' \
+                    '    listen [::]:443 ssl http2;' \
+                    '    server_name _;' \
+                    '    ' \
+                    '    ssl_certificate /etc/nginx/ssl/cert.pem;' \
+                    '    ssl_certificate_key /etc/nginx/ssl/key.pem;' \
+                    '    ssl_protocols TLSv1.2 TLSv1.3;' \
+                    '    ssl_ciphers HIGH:!aNULL:!MD5;' \
+                    '    ssl_prefer_server_ciphers on;' \
+                    '    ' \
+                    '    location / {' \
+                    '        proxy_pass http://localhost:80;' \
+                    '        proxy_http_version 1.1;' \
+                    '        proxy_set_header Upgrade $http_upgrade;' \
+                    '        proxy_set_header Connection "upgrade";' \
+                    '        proxy_set_header Host $host;' \
+                    '        proxy_set_header X-Real-IP $remote_addr;' \
+                    '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+                    '        proxy_set_header X-Forwarded-Proto $scheme;' \
+                    '        proxy_set_header X-Forwarded-Host $host;' \
+                    '        proxy_set_header X-Forwarded-Port $server_port;' \
+                    '        proxy_cache_bypass $http_upgrade;' \
+                    '        proxy_buffering off;' \
+                    '        proxy_connect_timeout 60s;' \
+                    '        proxy_send_timeout 60s;' \
+                    '        proxy_read_timeout 60s;' \
+                    '    }' \
+                    '    ' \
+                    '    location /api/health {' \
+                    '        proxy_pass http://localhost:80/api/health;' \
+                    '        proxy_set_header Host $host;' \
+                    '        access_log off;' \
+                    '    }' \
+                    '}' > /etc/nginx/sites-available/juice-website
+                else
+                  echo "⚠ SSL certificates not found, configuring HTTP only..."
+                  echo "  To enable HTTPS, place certificates at:"
+                  echo "    /etc/nginx/ssl/cert.pem"
+                  echo "    /etc/nginx/ssl/key.pem"
+                  # Create HTTP-only configuration
+                  printf '%s\n' \
+                    '# HTTP server - proxy to Docker container' \
+                    'server {' \
+                    '    listen 80;' \
+                    '    listen [::]:80;' \
+                    '    server_name _;' \
+                    '    ' \
+                    '    location /.well-known/acme-challenge/ {' \
+                    '        root /var/www/html;' \
+                    '    }' \
+                    '    ' \
+                    '    location / {' \
+                    '        proxy_pass http://localhost:80;' \
+                    '        proxy_http_version 1.1;' \
+                    '        proxy_set_header Upgrade $http_upgrade;' \
+                    '        proxy_set_header Connection "upgrade";' \
+                    '        proxy_set_header Host $host;' \
+                    '        proxy_set_header X-Real-IP $remote_addr;' \
+                    '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+                    '        proxy_set_header X-Forwarded-Proto $scheme;' \
+                    '        proxy_set_header X-Forwarded-Host $host;' \
+                    '        proxy_set_header X-Forwarded-Port $server_port;' \
+                    '        proxy_cache_bypass $http_upgrade;' \
+                    '        proxy_buffering off;' \
+                    '        proxy_connect_timeout 60s;' \
+                    '        proxy_send_timeout 60s;' \
+                    '        proxy_read_timeout 60s;' \
+                    '    }' \
+                    '    ' \
+                    '    location /api/health {' \
+                    '        proxy_pass http://localhost:80/api/health;' \
+                    '        proxy_set_header Host $host;' \
+                    '        access_log off;' \
+                    '    }' \
+                    '}' > /etc/nginx/sites-available/juice-website
+                fi
                 
                 # Enable site by creating symlink
                 rm -f /etc/nginx/sites-enabled/default
