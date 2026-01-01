@@ -150,6 +150,18 @@ jobs:
           fi
           set -e  # Re-enable exit on error
 
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 120s
+          source: "docker-compose.yml"
+          target: "${{ secrets.APP_PATH || '/opt/juice-website' }}"
+        continue-on-error: false
+
       - name: Deploy to Hetzner Server
         env:
           APP_PATH: ${{ secrets.APP_PATH || '/opt/juice-website' }}
@@ -161,6 +173,29 @@ jobs:
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "set -e && \
             cd ${APP_PATH} && \
+            # Ensure docker-compose.yml exists
+            if [ ! -f 'docker-compose.yml' ]; then
+              echo '❌ docker-compose.yml not found!'
+              exit 1
+            fi && \
+            # Create required directories
+            mkdir -p data public/uploads && \
+            # Create/update .env file
+            echo 'Creating .env file...'
+            cat > .env << EOF
+NODE_ENV=production
+PORT=80
+RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
+RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
+PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
+PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
+TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
+GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+EOF
+            && \
             if [ -n '${GHCR_TOKEN}' ] && [ '${GHCR_TOKEN}' != '' ]; then \
               echo 'Logging in to GitHub Container Registry...' && \
               echo '${GHCR_TOKEN}' | docker login ghcr.io -u ${GHCR_USER} --password-stdin; \
