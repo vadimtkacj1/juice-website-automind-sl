@@ -236,7 +236,7 @@ export default function Cart() {
                                 {item.addons.map(addon => (
                                   <div key={addon.id} className="cart-item-addon">
                                     <span className="cart-item-addon-name">
-                                      + {translateToEnglish(addon.name)} (x{addon.quantity})
+                                      + {translateToHebrew(addon.name)} (x{addon.quantity})
                                     </span>
                                     <span className="cart-item-addon-price">
                                       +₪{(addon.price * addon.quantity).toFixed(0)}
@@ -423,7 +423,7 @@ export default function Cart() {
                               <div className="summary-sub-items">
                                 {item.customIngredients.map((ingredient) => (
                                   <div key={ingredient.id} className="summary-sub-item">
-                                    <span>  + {translateToEnglish(ingredient.name)}</span>
+                                    <span>  + {translateToHebrew(ingredient.name)}</span>
                                     <span>+₪{(ingredient.price * item.quantity).toFixed(0)}</span>
                                   </div>
                                 ))}

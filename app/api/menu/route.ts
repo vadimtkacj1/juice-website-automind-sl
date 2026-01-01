@@ -37,11 +37,11 @@ export async function GET() {
               }
 
               // Group items by category and translate
-              const menu = categories.map((category) => {
-                const categoryItems = items.filter((item) => item.category_id === category.id);
+              const menu = categories.map((category: any) => {
+                const categoryItems = items.filter((item: any) => item.category_id === category.id);
                 return {
                   ...translateObject(category),
-                  items: categoryItems.map(item => translateObject(item)),
+                  items: categoryItems.map((item: any) => translateObject(item)),
                 };
               });
 

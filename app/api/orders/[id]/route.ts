@@ -37,7 +37,7 @@ export async function GET(
 
             resolve(NextResponse.json({
               ...translateObject(order),
-              items: (items || []).map(item => translateObject(item))
+              items: (items || []).map((item: any) => translateObject(item))
             }));
           }
         );

@@ -22,7 +22,7 @@ export async function GET() {
           return;
         }
 
-        const translatedOrders = (orders || []).map(order => translateObject(order));
+        const translatedOrders = (orders || []).map((order: any) => translateObject(order));
         resolve(NextResponse.json(translatedOrders));
       }
     );

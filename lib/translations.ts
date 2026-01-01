@@ -184,8 +184,6 @@ const hebrewTranslations: Record<string, string> = {
   "we're committed to supporting local farmers and building a healthier community.": 'אנו מחויבים לתמוך בחקלאים מקומיים ולבנות קהילה בריאה יותר',
   'premium quality': 'איכות פרמיום',
   'we maintain the highest standards in every step of our production process.': 'אנו שומרים על הסטנדרטים הגבוהים ביותר בכל שלב בתהליך הייצור שלנו',
-  'contact us': 'צור קשר',
-  'our locations': 'המיקומים שלנו',
   'latest news': 'חדשות אחרונות',
   'view all': 'צפה בהכל',
   'view all news': 'צפה בכל החדשות',
@@ -196,27 +194,20 @@ const hebrewTranslations: Record<string, string> = {
   'error fetching phone number:': 'שגיאה בטעינת מספר טלפון',
   'close menu': 'סגור תפריט',
   'open menu': 'פתח תפריט',
-  'shopping cart': 'עגלת קניות',
   'reviva': 'ראביבה',
   'reviva logo': 'לוגו ראביבה',
   // Admin panel translations
-  'dashboard': 'לוח בקרה',
   'admin panel': 'פאנל ניהול',
-  'logout': 'התנתקות',
   'telegram delivery': 'משלוח טלגרם',
   'discounts & promos': 'הנחות וקופונים',
   'contacts': 'אנשי קשר',
   'ingredient management': 'ניהול מרכיבים',
   'manage boosters, fruits, and toppings. attach them to menu categories and set prices.': 'נהל בוסטרים, פירות ותוספות. צרף אותם לקטגוריות תפריט והגדר מחירים',
   'add ingredient': 'הוסף מרכיב',
-  'fruits': 'פירות',
-  'boosters': 'בוסטרים',
-  'toppings': 'תוספות',
   'manage fruit ingredients. drag and drop to reorder.': 'נהל מרכיבי פירות. גרור ושחרר לסידור מחדש',
   'manage booster ingredients. drag and drop to reorder.': 'נהל מרכיבי בוסטרים. גרור ושחרר לסידור מחדש',
   'manage topping ingredients. drag and drop to reorder.': 'נהל מרכיבי תוספות. גרור ושחרר לסידור מחדש',
   'sort order': 'סדר מיון',
-  'available': 'זמין',
   'actions': 'פעולות',
   'no fruits found. click "add ingredient" button above to get started.': 'לא נמצאו פירות. לחץ על כפתור "הוסף מרכיב" למעלה כדי להתחיל',
   'no boosters found. click "add ingredient" button above to get started.': 'לא נמצאו בוסטרים. לחץ על כפתור "הוסף מרכיב" למעלה כדי להתחיל',
@@ -246,8 +237,6 @@ const hebrewTranslations: Record<string, string> = {
   'e.g., 100g, 250g, 1kg': 'למשל, 100גרם, 250גרם, 1ק"ג',
   'price ($) *': 'מחיר ($) *',
   'default': 'ברירת מחדל',
-  'cancel': 'ביטול',
-  'update': 'עדכן',
   'create': 'צור',
   'configure ingredients for': 'הגדר מרכיבים עבור',
   'attach ingredients to this category and configure their settings.': 'צרף מרכיבים לקטגוריה זו והגדר את ההגדרות שלהם',
@@ -255,7 +244,6 @@ const hebrewTranslations: Record<string, string> = {
   'you can add multiple ingredients. click "add" for each one you want to include.': 'אתה יכול להוסיף מספר מרכיבים. לחץ על "הוסף" עבור כל אחד שברצונך לכלול',
   'add all available': 'הוסף הכל זמין',
   'all ingredients are already attached': 'כל המרכיבים כבר מצורפים',
-  'attached ingredients': 'מרכיבים מצורפים',
   'all ingredients listed here will be available when customers select items from this category': 'כל המרכיבים המפורטים כאן יהיו זמינים כאשר לקוחות בוחרים פריטים מקטגוריה זו',
   'no ingredients attached. add ingredients from the list above.': 'אין מרכיבים מצורפים. הוסף מרכיבים מהרשימה למעלה',
   'selection type': 'סוג בחירה',
@@ -273,10 +261,8 @@ const hebrewTranslations: Record<string, string> = {
   'are you sure you want to delete this ingredient? this will remove it from all juices.': 'האם אתה בטוח שברצונך למחוק מרכיב זה? זה יסיר אותו מכל המיצים',
   'validation error': 'שגיאת אימות',
   'ingredient name is required.': 'שם מרכיב נדרש',
-  'success': 'הצלחה',
   'ingredient updated successfully!': 'מרכיב עודכן בהצלחה',
   'ingredient created successfully!': 'מרכיב נוצר בהצלחה',
-  'error': 'שגיאה',
   'failed to save ingredient': 'נכשל בשמירת מרכיב',
   'failed to save volume options': 'נכשל בשמירת אפשרויות נפח',
   'failed to update ingredient order. please try again.': 'נכשל בעדכון סדר המרכיבים. אנא נסה שוב',
@@ -307,17 +293,13 @@ const hebrewTranslations: Record<string, string> = {
   'customer': 'לקוח',
   'items': 'פריטים',
   'status': 'סטטוס',
-  'date': 'תאריך',
   'revenue trend': 'מגמת הכנסות',
   'monthly revenue over the last 6 months': 'הכנסות חודשיות במהלך 6 החודשים האחרונים',
   'orders': 'הזמנות',
   'failed to load analytics. please check the server logs.': 'נכשל בטעינת אנליטיקה. אנא בדוק את לוגי השרת',
   'optional description': 'תיאור אופציונלי',
   'ingredient': 'מרכיב',
-  'ingredients': 'מרכיבים',
-  'add': 'הוסף',
   'to': 'ל',
-  'category': 'קטגוריה',
 };
 
 /**
@@ -418,12 +400,13 @@ export function translateObject<T extends Record<string, any>>(obj: T): T {
   ];
   
   for (const key in translated) {
-    if (translatableFields.includes(key) && typeof translated[key] === 'string') {
-      translated[key] = translateToHebrew(translated[key]);
-    } else if (typeof translated[key] === 'object' && translated[key] !== null && !Array.isArray(translated[key])) {
-      translated[key] = translateObject(translated[key]);
-    } else if (Array.isArray(translated[key])) {
-      translated[key] = translated[key].map((item: any) => 
+    const value = translated[key];
+    if (translatableFields.includes(key) && typeof value === 'string') {
+      (translated as any)[key] = translateToHebrew(value);
+    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      (translated as any)[key] = translateObject(value);
+    } else if (Array.isArray(value)) {
+      (translated as any)[key] = value.map((item: any) => 
         typeof item === 'object' ? translateObject(item) : 
         typeof item === 'string' ? translateToHebrew(item) : item
       );

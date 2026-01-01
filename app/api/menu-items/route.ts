@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        const translatedItems = (rows || []).map(item => translateObject(item));
+        const translatedItems = (rows || []).map((item: any) => translateObject(item));
         resolve(NextResponse.json({ items: translatedItems }));
       });
     });

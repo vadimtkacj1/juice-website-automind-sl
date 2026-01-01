@@ -34,7 +34,7 @@ export async function GET() {
     }
 
     const businessHours = await dbAll(db, 'SELECT * FROM business_hours ORDER BY sort_order, day_of_week');
-    const translatedBusinessHours = (businessHours || []).map(bh => translateObject(bh));
+    const translatedBusinessHours = (businessHours || []).map((bh: any) => translateObject(bh));
     return NextResponse.json({ businessHours: translatedBusinessHours });
   } catch (error: any) {
     console.error('API error fetching business hours:', error);

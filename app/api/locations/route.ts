@@ -20,7 +20,7 @@ export async function GET() {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        const translatedLocations = (rows || []).map(location => translateObject(location));
+        const translatedLocations = (rows || []).map((location: any) => translateObject(location));
         resolve(NextResponse.json({ locations: translatedLocations }));
       });
     });

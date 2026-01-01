@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     try {
       const rows = await dbAll(query, params);
-      const translatedAddons = (rows || []).map(addon => translateObject(addon));
+      const translatedAddons = (rows || []).map((addon: any) => translateObject(addon));
       return NextResponse.json({ addons: translatedAddons });
     } catch (err: any) {
       console.error('Database error (GET):', err);

@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        const translatedIngredients = (rows || []).map(ingredient => translateObject(ingredient));
+        const translatedIngredients = (rows || []).map((ingredient: any) => translateObject(ingredient));
         resolve(NextResponse.json({ ingredients: translatedIngredients }));
       });
     });

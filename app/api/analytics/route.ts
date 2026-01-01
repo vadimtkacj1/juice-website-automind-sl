@@ -71,10 +71,10 @@ export async function GET() {
       totalRevenue: ordersData?.totalRevenue || 0,
       totalProducts: productsData?.totalProducts || 0,
       activePromoCodes: promoData?.activePromoCodes || 0,
-      recentOrders: (recentOrders || []).map(order => translateObject(order)),
-      ordersByStatus: (ordersByStatus || []).map(status => translateObject(status)),
-      revenueByMonth: (revenueByMonth || []).map(month => translateObject(month)),
-      topProducts: (topProducts || []).map(product => translateObject(product))
+      recentOrders: (recentOrders || []).map((order: any) => translateObject(order)),
+      ordersByStatus: (ordersByStatus || []).map((status: any) => translateObject(status)),
+      revenueByMonth: (revenueByMonth || []).map((month: any) => translateObject(month)),
+      topProducts: (topProducts || []).map((product: any) => translateObject(product))
     });
 
   } catch (error: any) {

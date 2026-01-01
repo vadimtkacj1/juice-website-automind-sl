@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        const translatedCategories = (rows || []).map(category => translateObject(category));
+        const translatedCategories = (rows || []).map((category: any) => translateObject(category));
         resolve(NextResponse.json({ categories: translatedCategories }));
       });
     });

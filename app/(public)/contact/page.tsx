@@ -123,10 +123,14 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page">
-      <HeroSection backgroundImage="https://images.unsplash.com/photo-1556742526-778844872147?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcmNofDE3NXx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc1NDY0fDA&ixlib=rb-4.0.3&q=80&w=1080" >
-        <h1 className="hero-title">{translateToHebrew('CONTACT US')}</h1>
-        <p className="hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
-      </HeroSection>
+      <div className="contact-hero-section">
+        <div className="contact-hero-blue">
+          <h1 className="contact-hero-title">{translateToHebrew('CONTACT US')}</h1>
+        </div>
+        <div className="contact-hero-purple">
+          <p className="contact-hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="contact-content">
@@ -282,6 +286,70 @@ export default function ContactPage() {
       <style jsx>{`
         .contact-page {
           padding-bottom: 60px;
+        }
+
+        /* Contact Hero Section */
+        .contact-hero-section {
+          position: relative;
+          width: 100%;
+          margin-top: 100px;
+          margin-bottom: 60px;
+        }
+
+        .contact-hero-blue {
+          background: #0066ff;
+          padding: 80px 40px;
+          position: relative;
+          border-left: 20px solid #7322ff;
+          border-bottom: 20px solid #7322ff;
+        }
+
+        .contact-hero-title {
+          font-family: 'Archivo', sans-serif;
+          font-size: clamp(48px, 8vw, 96px);
+          font-weight: 900;
+          color: #ffffff;
+          margin: 0;
+          text-align: center;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+
+        .contact-hero-purple {
+          background: #7322ff;
+          padding: 30px 40px;
+          border-left: 20px solid #7322ff;
+        }
+
+        .contact-hero-subtitle {
+          font-family: 'Archivo', sans-serif;
+          font-size: clamp(20px, 3vw, 32px);
+          font-weight: 900;
+          color: #ffffff;
+          margin: 0;
+          text-align: right;
+          line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+          .contact-hero-blue {
+            padding: 60px 24px;
+            border-left: 12px solid #7322ff;
+            border-bottom: 12px solid #7322ff;
+          }
+
+          .contact-hero-purple {
+            padding: 24px;
+            border-left: 12px solid #7322ff;
+          }
+
+          .contact-hero-title {
+            font-size: clamp(36px, 10vw, 64px);
+          }
+
+          .contact-hero-subtitle {
+            font-size: clamp(18px, 4vw, 24px);
+          }
         }
 
         /* Content */

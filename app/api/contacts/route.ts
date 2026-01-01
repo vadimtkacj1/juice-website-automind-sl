@@ -34,7 +34,7 @@ export async function GET() {
 
     try {
       const rows = await dbAll(db, 'SELECT * FROM contacts');
-      const translatedContacts = (rows || []).map(contact => translateObject(contact));
+      const translatedContacts = (rows || []).map((contact: any) => translateObject(contact));
       return NextResponse.json({ contacts: translatedContacts });
     } catch (dbError: any) {
       console.error('Database error:', dbError);
