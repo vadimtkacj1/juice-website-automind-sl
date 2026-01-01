@@ -123,7 +123,7 @@ jobs:
             RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
 
   # Deploy to Server
   deploy:
