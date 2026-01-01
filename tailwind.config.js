@@ -18,6 +18,10 @@ module.exports = {
       screens: {
         'desktop': '1050px',
       },
+      fontFamily: {
+        sans: ['Horev CLM', 'Arial', 'sans-serif'],
+        display: ['Horev CLM', 'Arial', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

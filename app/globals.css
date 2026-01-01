@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,900;1,900&family=Inter:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Horev+CLM:wght@400;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -68,12 +69,14 @@
   -webkit-font-smoothing: antialiased;
   margin: 0;
   padding: 0;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
+  font-weight: 900;
   background-color: var(--white);
   color: var(--dark);
   overflow-x: hidden;
@@ -199,7 +202,7 @@ main {}
 }
 
 .hero-title {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(80px, 16vw, 180px);
   font-weight: 900;
   color: var(--white);
@@ -210,7 +213,7 @@ main {}
 }
 
 .hero-subtitle {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(24px, 4vw, 48px);
   font-weight: 900;
   color: var(--white);
@@ -311,8 +314,9 @@ main {}
 }
 
 .shop-main-title {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(48px, 8vw, 76px);
+  font-weight: 900;
   text-align: center;
   color: var(--dark);
   margin-bottom: 80px;
@@ -408,7 +412,7 @@ main {}
 }
 
 .track span {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-weight: 900;
   font-size: 32px;
   color: var(--primary);
@@ -489,8 +493,9 @@ main {}
 }
 
 .footer-brand {
-  font-family: 'Archivo';
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(80px, 16vw, 180px);
+  font-weight: 900;
   line-height: 0.9;
   color: var(--white);
   text-transform: uppercase;
@@ -582,8 +587,9 @@ main {}
 }
 
 .section-title {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(42px, 6vw, 72px);
+  font-weight: 900;
   text-align: center;
   margin-bottom: 24px;
 }
@@ -625,7 +631,7 @@ main {}
 }
 
 .menu-category-title {
-  font-family: "Archivo", sans-serif;
+  font-family: "Horev CLM", "Arial", sans-serif;
   font-weight: 900;
   font-size: clamp(48px, 10vw, 76px);
   letter-spacing: -0.03em;
@@ -635,11 +641,11 @@ main {}
 }
 
 .menu-category-subtitle {
-  font-family: "Inter", sans-serif;
+  font-family: "Horev CLM", "Arial", sans-serif;
   font-size: 18px;
+  font-weight: 900;
   color: var(--text-gray);
   margin: 16px 0 0;
-  font-weight: 400;
 }
 
 /* Menu Items Grid */
@@ -689,16 +695,17 @@ main {}
 }
 
 .menu-item-name {
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
+  font-family: "Horev CLM", "Arial", sans-serif;
+  font-weight: 900;
   font-size: 20px;
   color: var(--dark);
   margin: 0 0 6px;
 }
 
 .menu-item-desc {
-  font-family: "Inter", sans-serif;
+  font-family: "Horev CLM", "Arial", sans-serif;
   font-size: 14px;
+  font-weight: 900;
   line-height: 1.5;
   color: var(--text-gray);
   margin: 0;
@@ -712,8 +719,8 @@ main {}
 }
 
 .menu-item-price {
-  font-family: "Inter", sans-serif;
-  font-weight: 800;
+  font-family: "Horev CLM", "Arial", sans-serif;
+  font-weight: 900;
   font-size: 18px;
   color: var(--primary);
 }
@@ -816,8 +823,9 @@ main {}
 }
 
 .menu-empty h2 {
-  font-family: "Archivo", sans-serif;
+  font-family: "Horev CLM", "Arial", sans-serif;
   font-size: 32px;
+  font-weight: 900;
   color: var(--dark);
   margin: 0;
 }
@@ -880,7 +888,8 @@ main {}
   border: 1px solid #e4e7f0;
   border-radius: 14px;
   padding: 14px 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
+  font-weight: 900;
   font-size: 15px;
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
@@ -936,8 +945,9 @@ main {}
 }
 
 .product-hero h1 {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Horev CLM', 'Arial', sans-serif;
   font-size: clamp(42px, 6vw, 72px);
+  font-weight: 900;
   margin-bottom: 12px;
 }
 
