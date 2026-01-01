@@ -85,7 +85,8 @@ jobs:
             # Create .env file with secrets
             cat > .env << EOF
             NODE_ENV=production
-            PORT=${PORT:-3000}
+            PORT=80
+            HOSTNAME=0.0.0.0
             RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
             RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -101,22 +102,37 @@ jobs:
             # Stop existing PM2 process
             pm2 stop juice-website || true
             pm2 delete juice-website || true
+            # Allow Node.js to bind to port 80 without root (requires setcap)
+            echo "Setting capabilities for port 80..."
+            sudo setcap 'cap_net_bind_service=+ep' $(which node) || echo "setcap failed, may need to run as root or use reverse proxy"
             # Start application - check if standalone server.js exists, otherwise use npm start
             if [ -f "server.js" ]; then
-              echo "Starting with standalone server.js"
-              pm2 start server.js --name juice-website --update-env
+              echo "Starting with standalone server.js on port 80"
+              PORT=80 HOSTNAME=0.0.0.0 pm2 start server.js --name juice-website --update-env
             elif [ -f ".next/standalone/server.js" ]; then
-              echo "Starting with .next/standalone/server.js"
-              pm2 start .next/standalone/server.js --name juice-website --update-env
+              echo "Starting with .next/standalone/server.js on port 80"
+              PORT=80 HOSTNAME=0.0.0.0 pm2 start .next/standalone/server.js --name juice-website --update-env
             else
-              echo "Starting with npm start"
+              echo "Starting with npm start on port 80"
               # Install production dependencies if needed
               if [ ! -d "node_modules" ]; then
                 npm ci --production --omit=dev
               fi
-              pm2 start npm --name juice-website -- start --update-env
+              PORT=80 HOSTNAME=0.0.0.0 pm2 start npm --name juice-website -- start --update-env
             fi
             pm2 save
+            # Wait a moment for server to start
+            sleep 5
+            # Check if port is listening
+            echo "Checking if server is listening on port 80..."
+            sudo netstat -tlnp | grep :80 || sudo ss -tlnp | grep :80 || echo "Port check command not available"
+            # Test local connection
+            curl -f http://localhost/api/health && echo "✓ Server is responding on port 80" || echo "⚠ Server not responding - check PM2 logs: pm2 logs juice-website"
+            echo ""
+            echo "If server is not accessible, check:"
+            echo "1. Firewall: sudo ufw allow 80/tcp"
+            echo "2. Port 80 permissions: sudo setcap 'cap_net_bind_service=+ep' \$(which node)"
+            echo "3. Check if another service is using port 80: sudo lsof -i :80"
             # Clean up
             rm -rf deploy deploy.tar.gz
             echo "✅ Deployment completed successfully!"
@@ -126,7 +142,10 @@ jobs:
         run: |
           if [ -n "${{ secrets.DEPLOYMENT_URL }}" ]; then
             sleep 10
-            curl -f "${{ secrets.DEPLOYMENT_URL }}/api/health" && echo "Health check passed!" || echo "Health check failed (non-critical)"
+            # Try both http and https
+            curl -f "http://${{ secrets.DEPLOYMENT_URL }}/api/health" && echo "Health check passed!" || \
+            curl -f "https://${{ secrets.DEPLOYMENT_URL }}/api/health" && echo "Health check passed!" || \
+            echo "Health check failed (non-critical)"
           else
             echo "DEPLOYMENT_URL not set, skipping health check"
           fi
