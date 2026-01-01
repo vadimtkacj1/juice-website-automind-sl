@@ -200,6 +200,7 @@ jobs:
             fi && \
             # Create required directories
             mkdir -p data public/uploads && \
+            chmod 755 data public/uploads && \
             # Create/update .env file
             echo 'Creating .env file...'
             cat > .env << EOF
@@ -214,6 +215,7 @@ TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
 SESSION_SECRET=${{ secrets.SESSION_SECRET }}
 DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+DATABASE_PATH=/app/data/juice_website.db
 EOF
             && \
             if [ -n '${GHCR_TOKEN}' ] && [ '${GHCR_TOKEN}' != '' ]; then \
@@ -241,6 +243,26 @@ EOF
             # Use explicit file path
             docker-compose -f docker-compose.yml pull nextjs-app || true && \
             docker-compose -f docker-compose.yml up -d nextjs-app && \
+            sleep 5 && \
+            # Initialize database ONLY if it doesn't exist
+            echo 'Checking if database exists...' && \
+            if [ ! -f 'data/juice_website.db' ]; then \
+              echo 'Database not found, initializing...' && \
+              docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container' && \
+              docker exec juice-website mkdir -p /app/data || true && \
+              echo 'Creating database tables...' && \
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
+                echo '⚠ Database initialization failed, trying alternative method...' && \
+                docker exec juice-website touch /app/data/juice_website.db && \
+                docker exec juice-website chmod 666 /app/data/juice_website.db && \
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js; \
+              } && \
+              echo 'Creating admin user...' && \
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists' && \
+              echo '✅ Database initialized successfully!'; \
+            else \
+              echo '✓ Database already exists, skipping initialization'; \
+            fi && \
             docker image prune -f && \
             docker-compose -f docker-compose.yml ps && \
             echo 'Deployment completed successfully!'"

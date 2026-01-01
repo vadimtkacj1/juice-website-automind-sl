@@ -241,6 +241,37 @@ jobs:
             
             # Create required directories
             mkdir -p data public/uploads
+            chmod 755 data public/uploads
+            
+            # Initialize database ONLY if it doesn't exist
+            echo "Checking if database exists..."
+            if [ ! -f "data/juice_website.db" ]; then
+              echo "Database not found, initializing..."
+              
+              # Copy scripts into container temporarily for initialization
+              docker cp scripts juice-website:/app/scripts 2>/dev/null || echo "Scripts already in container"
+              
+              # Create data directory in container
+              docker exec juice-website mkdir -p /app/data || true
+              
+              # Initialize database
+              echo "Creating database tables..."
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
+                echo "⚠ Database initialization failed, trying alternative method..."
+                # Fallback: create database file first
+                docker exec juice-website touch /app/data/juice_website.db
+                docker exec juice-website chmod 666 /app/data/juice_website.db
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js
+              }
+              
+              # Create admin user
+              echo "Creating admin user..."
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo "⚠ Admin creation failed or admin already exists"
+              
+              echo "✅ Database initialized successfully!"
+            else
+              echo "✓ Database already exists, skipping initialization"
+            fi
             
             # Create/update .env file
             cat > .env << EOF
@@ -255,6 +286,7 @@ jobs:
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
             DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
             GITHUB_REPOSITORY=${{ github.repository }}
+            DATABASE_PATH=/app/data/juice_website.db
             EOF
             
             # Export environment variables for docker-compose
@@ -303,6 +335,35 @@ jobs:
             if docker ps | grep -q juice-website; then
               echo "✓ Container is running"
               docker ps | grep juice-website
+              
+              # Initialize database ONLY if it doesn't exist
+              echo "Checking if database exists..."
+              if [ ! -f "data/juice_website.db" ]; then
+                echo "Database not found, initializing..."
+                
+                # Copy scripts into container if needed
+                docker cp scripts juice-website:/app/scripts 2>/dev/null || echo "Scripts already in container"
+                
+                # Create data directory in container
+                docker exec juice-website mkdir -p /app/data || true
+                
+                # Initialize database
+                echo "Creating database tables..."
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
+                  echo "⚠ Database initialization failed, trying alternative method..."
+                  docker exec juice-website touch /app/data/juice_website.db
+                  docker exec juice-website chmod 666 /app/data/juice_website.db
+                  docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js
+                }
+                
+                # Create admin user
+                echo "Creating admin user..."
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo "⚠ Admin creation failed or admin already exists"
+                
+                echo "✅ Database initialized successfully!"
+              else
+                echo "✓ Database already exists, skipping initialization"
+              fi
             else
               echo "❌ Container is NOT running!"
               echo "Checking stopped containers:"
