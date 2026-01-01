@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Pencil, Trash, Mail, Phone, MessageSquare, Users } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Contact {
   id: number;
@@ -34,7 +35,7 @@ export default function AdminContacts() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this contact?')) {
+    if (!confirm(translateToHebrew('Are you sure you want to delete this contact?'))) {
       return;
     }
 
@@ -66,16 +67,16 @@ export default function AdminContacts() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading contacts..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading contacts...')} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Contacts Management</h1>
-        <p className="text-gray-500 mt-1">Manage contact information and methods</p>
+        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Contacts Management')}</h1>
+        <p className="text-gray-500 mt-1">{translateToHebrew('Manage contact information and methods')}</p>
       </div>
 
       <Card>
@@ -84,29 +85,29 @@ export default function AdminContacts() {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-600" />
               <div>
-                <CardTitle>All Contacts</CardTitle>
-                <CardDescription>Contact methods and information</CardDescription>
+                <CardTitle>{translateToHebrew('All Contacts')}</CardTitle>
+                <CardDescription>{translateToHebrew('Contact methods and information')}</CardDescription>
               </div>
             </div>
             <Link href="/admin/contacts/add">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Contact
+                {translateToHebrew('Add Contact')}
               </Button>
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {contacts.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No contacts yet</p>
+            <p className="text-center text-gray-500 py-8">{translateToHebrew('No contacts yet')}</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{translateToHebrew('Type')}</TableHead>
+                    <TableHead>{translateToHebrew('Value')}</TableHead>
+                    <TableHead className="text-right">{translateToHebrew('Actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -115,7 +116,7 @@ export default function AdminContacts() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getContactIcon(contact.type)}
-                          <span className="font-medium capitalize">{contact.type}</span>
+                          <span className="font-medium capitalize">{translateToHebrew(contact.type)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="font-mono">{contact.value}</TableCell>

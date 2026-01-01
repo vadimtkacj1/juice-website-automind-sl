@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Eye, Trash } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { translateToHebrew } from '@/lib/translations';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -77,8 +78,8 @@ export default function OrdersPage() {
   const deleteOrder = async (orderId: number) => {
     setConfirmDialog({
       open: true,
-      title: 'Delete Order',
-      description: 'Are you sure you want to delete this order? This action cannot be undone.',
+      title: translateToHebrew('Delete Order'),
+      description: translateToHebrew('Are you sure you want to delete this order? This action cannot be undone.'),
       onConfirm: async () => {
         try {
           const response = await fetch(`/api/orders/${orderId}`, {
@@ -103,23 +104,23 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading orders..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading orders...')} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Orders Management</h1>
-        <p className="text-gray-500 mt-1">View and manage customer orders</p>
+        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Orders Management')}</h1>
+        <p className="text-gray-500 mt-1">{translateToHebrew('View and manage customer orders')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <div>
-            <CardTitle>All Orders</CardTitle>
-            <CardDescription>A list of all customer orders</CardDescription>
+            <CardTitle>{translateToHebrew('All Orders')}</CardTitle>
+            <CardDescription>{translateToHebrew('A list of all customer orders')}</CardDescription>
           </div>
           <div className="flex justify-end mt-4">
             <div className="flex gap-2">
@@ -129,7 +130,7 @@ export default function OrdersPage() {
                 onClick={() => setStatusFilter('all')}
                 className={statusFilter === 'all' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}
               >
-                All
+                {translateToHebrew('All')}
               </Button>
               <Button
                 variant={statusFilter === 'pending' ? 'default' : 'outline'}
@@ -137,7 +138,7 @@ export default function OrdersPage() {
                 onClick={() => setStatusFilter('pending')}
                 className={statusFilter === 'pending' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}
               >
-                Pending
+                {translateToHebrew('Pending')}
               </Button>
               <Button
                 variant={statusFilter === 'completed' ? 'default' : 'outline'}
@@ -145,7 +146,7 @@ export default function OrdersPage() {
                 onClick={() => setStatusFilter('completed')}
                 className={statusFilter === 'completed' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}
               >
-                Completed
+                {translateToHebrew('Completed')}
               </Button>
               <Button
                 variant={statusFilter === 'cancelled' ? 'default' : 'outline'}
@@ -153,7 +154,7 @@ export default function OrdersPage() {
                 onClick={() => setStatusFilter('cancelled')}
                 className={statusFilter === 'cancelled' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}
               >
-                Cancelled
+                {translateToHebrew('Cancelled')}
               </Button>
             </div>
           </div>
@@ -163,13 +164,13 @@ export default function OrdersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{translateToHebrew('Order ID')}</TableHead>
+                  <TableHead>{translateToHebrew('Customer')}</TableHead>
+                  <TableHead>{translateToHebrew('Products')}</TableHead>
+                  <TableHead>{translateToHebrew('Total')}</TableHead>
+                  <TableHead>{translateToHebrew('Status')}</TableHead>
+                  <TableHead>{translateToHebrew('Date')}</TableHead>
+                  <TableHead>{translateToHebrew('Actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -178,14 +179,14 @@ export default function OrdersPage() {
                     <TableCell className="font-medium">#{order.id}</TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{order.customer_name}</p>
+                        <p className="font-medium">{translateToHebrew(order.customer_name)}</p>
                         {order.customer_email && (
                           <p className="text-sm text-gray-500">{order.customer_email}</p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm">{order.items_count} items</p>
+                      <p className="text-sm">{order.items_count} {translateToHebrew('items')}</p>
                     </TableCell>
                     <TableCell className="font-bold">${order.total_amount.toFixed(2)}</TableCell>
                     <TableCell>
@@ -199,13 +200,13 @@ export default function OrdersPage() {
                           'bg-blue-100 text-blue-800'
                         }`}
                       >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="pending">{translateToHebrew('Pending')}</option>
+                        <option value="processing">{translateToHebrew('Processing')}</option>
+                        <option value="completed">{translateToHebrew('Completed')}</option>
+                        <option value="cancelled">{translateToHebrew('Cancelled')}</option>
                       </select>
                     </TableCell>
-                    <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(order.created_at).toLocaleDateString('he-IL')}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
@@ -231,7 +232,7 @@ export default function OrdersPage() {
             </Table>
           ) : (
             <p className="text-center text-gray-500 py-8">
-              {statusFilter === 'all' ? 'No orders yet' : `No ${statusFilter} orders`}
+              {statusFilter === 'all' ? translateToHebrew('No orders yet') : translateToHebrew(`No ${statusFilter} orders`)}
             </p>
           )}
         </CardContent>
@@ -239,59 +240,59 @@ export default function OrdersPage() {
 
       {/* Order Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl" dir="rtl">
           <DialogHeader>
-            <DialogTitle>Order Details #{selectedOrder?.id}</DialogTitle>
+            <DialogTitle>{translateToHebrew('Order Details')} #{selectedOrder?.id}</DialogTitle>
             <DialogDescription>
-              Complete information about this order
+              {translateToHebrew('Complete information about this order')}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-500">Customer Name</Label>
-                  <p className="font-medium">{selectedOrder.customer_name}</p>
+                  <Label className="text-gray-500">{translateToHebrew('Customer Name')}</Label>
+                  <p className="font-medium">{translateToHebrew(selectedOrder.customer_name)}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-500">Email</Label>
-                  <p className="font-medium">{selectedOrder.customer_email || 'N/A'}</p>
+                  <Label className="text-gray-500">{translateToHebrew('Email')}</Label>
+                  <p className="font-medium">{selectedOrder.customer_email || translateToHebrew('N/A')}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-500">Phone</Label>
-                  <p className="font-medium">{selectedOrder.customer_phone || 'N/A'}</p>
+                  <Label className="text-gray-500">{translateToHebrew('Phone')}</Label>
+                  <p className="font-medium">{selectedOrder.customer_phone || translateToHebrew('N/A')}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-500">Status</Label>
-                  <p className="font-medium capitalize">{selectedOrder.status}</p>
+                  <Label className="text-gray-500">{translateToHebrew('Status')}</Label>
+                  <p className="font-medium capitalize">{translateToHebrew(selectedOrder.status)}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-500">Total Amount</Label>
+                  <Label className="text-gray-500">{translateToHebrew('Total Amount')}</Label>
                   <p className="font-bold text-lg">${selectedOrder.total_amount.toFixed(2)}</p>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-500">Notes</Label>
-                <p className="font-medium">{selectedOrder.notes || 'No notes'}</p>
+                <Label className="text-gray-500">{translateToHebrew('Notes')}</Label>
+                <p className="font-medium">{selectedOrder.notes || translateToHebrew('No notes')}</p>
               </div>
 
               <div>
-                <Label className="text-gray-500 mb-2 block">Order Items</Label>
+                <Label className="text-gray-500 mb-2 block">{translateToHebrew('Order Items')}</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Subtotal</TableHead>
+                        <TableHead>{translateToHebrew('Product')}</TableHead>
+                        <TableHead>{translateToHebrew('Quantity')}</TableHead>
+                        <TableHead>{translateToHebrew('Price')}</TableHead>
+                        <TableHead>{translateToHebrew('Subtotal')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {selectedOrder.items?.map((item: any) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.item_name || item.product_name}</TableCell>
+                          <TableCell>{translateToHebrew(item.item_name || item.product_name)}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>${item.price.toFixed(2)}</TableCell>
                           <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
@@ -305,7 +306,7 @@ export default function OrdersPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
-              Close
+              {translateToHebrew('Close')}
             </Button>
           </DialogFooter>
         </DialogContent>

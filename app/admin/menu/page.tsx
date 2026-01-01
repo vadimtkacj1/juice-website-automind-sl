@@ -13,6 +13,7 @@ import { Plus, Pencil, Trash, Percent, FolderOpen, Coffee } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
+import { translateToHebrew } from '@/lib/translations';
 
 interface MenuItem {
   id: number;
@@ -96,8 +97,8 @@ export default function AdminMenu() {
   async function handleDeleteItem(id: number) {
     setConfirmDialog({
       open: true,
-      title: 'Delete Menu Item',
-      description: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      title: translateToHebrew('Delete Menu Item'),
+      description: translateToHebrew('Are you sure you want to delete this menu item? This action cannot be undone.'),
       onConfirm: async () => {
         try {
           const response = await fetch(`/api/menu-items/${id}`, { method: 'DELETE' });
@@ -105,16 +106,16 @@ export default function AdminMenu() {
             fetchData();
             setAlertDialog({
               open: true,
-              title: 'Success',
-              message: 'Menu item deleted successfully.',
+              title: translateToHebrew('Success'),
+              message: translateToHebrew('Menu item deleted successfully.'),
               type: 'success',
             });
           } else {
             const data = await response.json();
             setAlertDialog({
               open: true,
-              title: 'Error',
-              message: data.error || 'Failed to delete menu item.',
+              title: translateToHebrew('Error'),
+              message: data.error || translateToHebrew('Failed to delete menu item.'),
               type: 'error',
             });
           }
@@ -122,8 +123,8 @@ export default function AdminMenu() {
           console.error('Error deleting item:', error);
           setAlertDialog({
             open: true,
-            title: 'Error',
-            message: 'An error occurred while deleting the menu item.',
+            title: translateToHebrew('Error'),
+            message: translateToHebrew('An error occurred while deleting the menu item.'),
             type: 'error',
           });
         }
@@ -134,8 +135,8 @@ export default function AdminMenu() {
   async function handleDeleteCategory(id: number) {
     setConfirmDialog({
       open: true,
-      title: 'Delete Category',
-      description: 'Are you sure you want to delete this category? Make sure to remove all items from this category first. This action cannot be undone.',
+      title: translateToHebrew('Delete Category'),
+      description: translateToHebrew('Are you sure you want to delete this category? Make sure to remove all items from this category first. This action cannot be undone.'),
       onConfirm: async () => {
         try {
           const response = await fetch(`/api/menu-categories/${id}`, { method: 'DELETE' });
@@ -143,16 +144,16 @@ export default function AdminMenu() {
             fetchData();
             setAlertDialog({
               open: true,
-              title: 'Success',
-              message: 'Category deleted successfully.',
+              title: translateToHebrew('Success'),
+              message: translateToHebrew('Category deleted successfully.'),
               type: 'success',
             });
           } else {
             const data = await response.json();
             setAlertDialog({
               open: true,
-              title: 'Error',
-              message: data.error || 'Error deleting category.',
+              title: translateToHebrew('Error'),
+              message: data.error || translateToHebrew('Error deleting category.'),
               type: 'error',
             });
           }
@@ -160,8 +161,8 @@ export default function AdminMenu() {
           console.error('Error deleting category:', error);
           setAlertDialog({
             open: true,
-            title: 'Error',
-            message: 'An error occurred while deleting the category.',
+            title: translateToHebrew('Error'),
+            message: translateToHebrew('An error occurred while deleting the category.'),
             type: 'error',
           });
         }
@@ -231,8 +232,8 @@ export default function AdminMenu() {
     if (!categoryForm.name.trim()) {
       setAlertDialog({
         open: true,
-        title: 'Validation Error',
-        message: 'Category name is required.',
+        title: translateToHebrew('Validation Error'),
+        message: translateToHebrew('Category name is required.'),
         type: 'warning',
       });
       return;
@@ -262,16 +263,16 @@ export default function AdminMenu() {
         setShowCategoryDialog(false);
         setAlertDialog({
           open: true,
-          title: 'Success',
-          message: editingCategory ? 'Category updated successfully.' : 'Category created successfully.',
+          title: translateToHebrew('Success'),
+          message: editingCategory ? translateToHebrew('Category updated successfully.') : translateToHebrew('Category created successfully.'),
           type: 'success',
         });
       } else {
         const data = await response.json();
         setAlertDialog({
           open: true,
-          title: 'Error',
-          message: data.error || 'Error saving category.',
+          title: translateToHebrew('Error'),
+          message: data.error || translateToHebrew('Error saving category.'),
           type: 'error',
         });
       }
@@ -279,8 +280,8 @@ export default function AdminMenu() {
       console.error('Error saving category:', error);
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: 'An error occurred while saving the category.',
+        title: translateToHebrew('Error'),
+        message: translateToHebrew('An error occurred while saving the category.'),
         type: 'error',
       });
     }
@@ -289,22 +290,22 @@ export default function AdminMenu() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading menu..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading menu...')} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
-        <p className="text-gray-500 mt-1">Categories, items, prices and discounts</p>
+        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Menu Management')}</h1>
+        <p className="text-gray-500 mt-1">{translateToHebrew('Categories, items, prices and discounts')}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
+            <CardTitle className="text-sm font-medium">{translateToHebrew('Categories')}</CardTitle>
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -313,7 +314,7 @@ export default function AdminMenu() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+            <CardTitle className="text-sm font-medium">{translateToHebrew('Total Items')}</CardTitle>
             <Coffee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -322,7 +323,7 @@ export default function AdminMenu() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available</CardTitle>
+            <CardTitle className="text-sm font-medium">{translateToHebrew('Available')}</CardTitle>
             <Coffee className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -331,7 +332,7 @@ export default function AdminMenu() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">On Sale</CardTitle>
+            <CardTitle className="text-sm font-medium">{translateToHebrew('On Sale')}</CardTitle>
             <Percent className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -342,8 +343,8 @@ export default function AdminMenu() {
 
       <Tabs defaultValue="items" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="items">Menu Items</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="items">{translateToHebrew('Menu Items')}</TabsTrigger>
+          <TabsTrigger value="categories">{translateToHebrew('Categories')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="items">
@@ -351,30 +352,30 @@ export default function AdminMenu() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>All Items</CardTitle>
-                  <CardDescription>Manage menu items</CardDescription>
+                  <CardTitle>{translateToHebrew('All Items')}</CardTitle>
+                  <CardDescription>{translateToHebrew('Manage menu items')}</CardDescription>
                 </div>
                 <Link href="/admin/menu/add">
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Item
+                    {translateToHebrew('Add Item')}
                   </Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {items.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No items yet</p>
+                <p className="text-center text-gray-500 py-8">{translateToHebrew('No items yet')}</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Discount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{translateToHebrew('Name')}</TableHead>
+                      <TableHead>{translateToHebrew('Category')}</TableHead>
+                      <TableHead>{translateToHebrew('Price')}</TableHead>
+                      <TableHead>{translateToHebrew('Discount')}</TableHead>
+                      <TableHead>{translateToHebrew('Status')}</TableHead>
+                      <TableHead>{translateToHebrew('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -390,7 +391,7 @@ export default function AdminMenu() {
                               />
                             )}
                             <div>
-                              <p className="font-medium">{item.name}</p>
+                              <p className="font-medium">{translateToHebrew(item.name)}</p>
                               {item.volume && (
                                 <p className="text-xs text-gray-500">{item.volume}</p>
                               )}
@@ -398,7 +399,7 @@ export default function AdminMenu() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-gray-600">{item.category_name}</span>
+                          <span className="text-sm text-gray-600">{translateToHebrew(item.category_name)}</span>
                         </TableCell>
                         <TableCell>
                           <span className="font-bold">₪{item.price}</span>
@@ -410,7 +411,7 @@ export default function AdminMenu() {
                             onClick={() => openDiscountDialog(item)}
                             className={item.discount_percent > 0 ? 'text-red-600' : ''}
                           >
-                            {item.discount_percent > 0 ? `-${item.discount_percent}%` : 'None'}
+                            {item.discount_percent > 0 ? `-${item.discount_percent}%` : translateToHebrew('None')}
                             <Percent className="ml-1 h-3 w-3" />
                           </Button>
                         </TableCell>
@@ -423,7 +424,7 @@ export default function AdminMenu() {
                                 : 'bg-red-100 text-red-800 hover:bg-red-200'
                             }`}
                           >
-                            {item.is_available ? 'Available' : 'Unavailable'}
+                            {item.is_available ? translateToHebrew('Available') : translateToHebrew('Unavailable')}
                           </button>
                         </TableCell>
                         <TableCell>
@@ -457,38 +458,38 @@ export default function AdminMenu() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Categories</CardTitle>
-                  <CardDescription>Manage menu categories</CardDescription>
+                  <CardTitle>{translateToHebrew('Categories')}</CardTitle>
+                  <CardDescription>{translateToHebrew('Manage menu categories')}</CardDescription>
                 </div>
                 <Link href="/admin/menu/categories/add">
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Category
+                    {translateToHebrew('Add Category')}
                   </Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {categories.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No categories yet</p>
+                <p className="text-center text-gray-500 py-8">{translateToHebrew('No categories yet')}</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Items</TableHead>
-                      <TableHead>Order</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{translateToHebrew('Name')}</TableHead>
+                      <TableHead>{translateToHebrew('Description')}</TableHead>
+                      <TableHead>{translateToHebrew('Items')}</TableHead>
+                      <TableHead>{translateToHebrew('Order')}</TableHead>
+                      <TableHead>{translateToHebrew('Status')}</TableHead>
+                      <TableHead>{translateToHebrew('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {categories.map((cat) => (
                       <TableRow key={cat.id}>
-                        <TableCell className="font-medium">{cat.name}</TableCell>
+                        <TableCell className="font-medium">{translateToHebrew(cat.name)}</TableCell>
                         <TableCell className="text-sm text-gray-600 max-w-xs truncate">
-                          {cat.description || '—'}
+                          {cat.description ? translateToHebrew(cat.description) : '—'}
                         </TableCell>
                         <TableCell>
                           {items.filter(i => i.category_id === cat.id).length}
@@ -502,7 +503,7 @@ export default function AdminMenu() {
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}>
-                            {cat.is_active ? 'Active' : 'Inactive'}
+                            {cat.is_active ? translateToHebrew('Active') : translateToHebrew('Inactive')}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -534,20 +535,20 @@ export default function AdminMenu() {
 
       {/* Discount Dialog */}
       <Dialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
-        <DialogContent>
+        <DialogContent dir="rtl">
           <DialogHeader>
-            <DialogTitle>Set Discount</DialogTitle>
+            <DialogTitle>{translateToHebrew('Set Discount')}</DialogTitle>
             <DialogDescription>
-              Discount for: {selectedItem?.name}
+              {translateToHebrew('Discount for:')} {selectedItem?.name ? translateToHebrew(selectedItem.name) : ''}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="current-price">Current Price</Label>
+              <Label htmlFor="current-price">{translateToHebrew('Current Price')}</Label>
               <p className="text-2xl font-bold">₪{selectedItem?.price}</p>
             </div>
             <div>
-              <Label htmlFor="discount">Discount (%)</Label>
+              <Label htmlFor="discount">{translateToHebrew('Discount (%)')}</Label>
               <Input
                 id="discount"
                 type="number"
@@ -560,7 +561,7 @@ export default function AdminMenu() {
             </div>
             {parseFloat(newDiscount) > 0 && selectedItem && (
               <div>
-                <Label>Discounted Price</Label>
+                <Label>{translateToHebrew('Discounted Price')}</Label>
                 <p className="text-2xl font-bold text-red-600">
                   ₪{(selectedItem.price * (1 - parseFloat(newDiscount) / 100)).toFixed(0)}
                 </p>
@@ -569,10 +570,10 @@ export default function AdminMenu() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDiscountDialog(false)}>
-              Cancel
+              {translateToHebrew('Cancel')}
             </Button>
             <Button onClick={updateDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">
-              Save
+              {translateToHebrew('Save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -580,40 +581,40 @@ export default function AdminMenu() {
 
       {/* Category Dialog */}
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
             <DialogTitle>
-              {editingCategory ? 'Edit Category' : 'New Category'}
+              {editingCategory ? translateToHebrew('Edit Category') : translateToHebrew('New Category')}
             </DialogTitle>
             <DialogDescription>
               {editingCategory 
-                ? 'Update category information' 
-                : 'Create a new menu category'}
+                ? translateToHebrew('Update category information')
+                : translateToHebrew('Create a new menu category')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="cat-name">Name *</Label>
+              <Label htmlFor="cat-name">{translateToHebrew('Name')} *</Label>
               <Input
                 id="cat-name"
                 value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                placeholder="Fresh Juices"
+                placeholder={translateToHebrew('Fresh Juices')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="cat-desc">Description</Label>
+              <Label htmlFor="cat-desc">{translateToHebrew('Description')}</Label>
               <Input
                 id="cat-desc"
                 value={categoryForm.description}
                 onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                placeholder="Category description (optional)"
+                placeholder={translateToHebrew('Category description (optional)')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="cat-sort">Sort Order</Label>
+                <Label htmlFor="cat-sort">{translateToHebrew('Sort Order')}</Label>
                 <Input
                   id="cat-sort"
                   type="number"
@@ -623,7 +624,7 @@ export default function AdminMenu() {
                   min="0"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Lower numbers appear first
+                  {translateToHebrew('Lower numbers appear first')}
                 </p>
               </div>
               {editingCategory && (
@@ -636,7 +637,7 @@ export default function AdminMenu() {
                     className="w-4 h-4"
                   />
                   <Label htmlFor="cat-active" className="cursor-pointer">
-                    Active
+                    {translateToHebrew('Active')}
                   </Label>
                 </div>
               )}
@@ -644,10 +645,10 @@ export default function AdminMenu() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCategoryDialog(false)}>
-              Cancel
+              {translateToHebrew('Cancel')}
             </Button>
             <Button onClick={saveCategory} className="bg-purple-600 hover:bg-purple-700 text-white">
-              {editingCategory ? 'Update' : 'Create'} Category
+              {editingCategory ? translateToHebrew('Update') : translateToHebrew('Create')} {translateToHebrew('Category')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Pencil, Trash, MapPin, Phone, Eye, EyeOff, Globe, Image as ImageIcon } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Location {
   id: number;
@@ -42,7 +43,7 @@ export default function AdminLocations() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this location?')) {
+    if (!confirm(translateToHebrew('Are you sure you want to delete this location?'))) {
       return;
     }
 
@@ -77,16 +78,16 @@ export default function AdminLocations() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading locations..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading locations...')} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Locations Management</h1>
-        <p className="text-gray-500 mt-1">Manage store locations, images, and contact information</p>
+        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Locations Management')}</h1>
+        <p className="text-gray-500 mt-1">{translateToHebrew('Manage store locations, images, and contact information')}</p>
       </div>
 
       <Card>
@@ -95,14 +96,14 @@ export default function AdminLocations() {
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-purple-600" />
               <div>
-                <CardTitle>All Locations</CardTitle>
-                <CardDescription>Store locations displayed on the website</CardDescription>
+                <CardTitle>{translateToHebrew('All Locations')}</CardTitle>
+                <CardDescription>{translateToHebrew('Store locations displayed on the website')}</CardDescription>
               </div>
             </div>
             <Link href="/admin/locations/add">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Location
+                {translateToHebrew('Add Location')}
               </Button>
             </Link>
           </div>
@@ -111,10 +112,10 @@ export default function AdminLocations() {
           {locations.length === 0 ? (
             <div className="text-center py-12">
               <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">No locations yet</p>
+              <p className="text-gray-500 mb-4">{translateToHebrew('No locations yet')}</p>
               <Link href="/admin/locations/add">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  Add Your First Location
+                  {translateToHebrew('Add Your First Location')}
                 </Button>
               </Link>
             </div>
@@ -123,12 +124,12 @@ export default function AdminLocations() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-16">Image</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Address</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead className="w-20">Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-16">{translateToHebrew('Image')}</TableHead>
+                    <TableHead>{translateToHebrew('Location')}</TableHead>
+                    <TableHead>{translateToHebrew('Address')}</TableHead>
+                    <TableHead>{translateToHebrew('Contact')}</TableHead>
+                    <TableHead className="w-20">{translateToHebrew('Status')}</TableHead>
+                    <TableHead className="text-right">{translateToHebrew('Actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -149,18 +150,18 @@ export default function AdminLocations() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium text-gray-900">{location.city}</p>
+                          <p className="font-medium text-gray-900">{translateToHebrew(location.city)}</p>
                           <p className="text-sm text-gray-500 flex items-center gap-1">
                             <Globe className="h-3 w-3" />
-                            {location.country}
+                            {translateToHebrew(location.country)}
                           </p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="max-w-xs">
-                          <p className="text-sm text-gray-600 truncate">{location.address}</p>
+                          <p className="text-sm text-gray-600 truncate">{translateToHebrew(location.address)}</p>
                           {location.hours && (
-                            <p className="text-xs text-gray-400">{location.hours}</p>
+                            <p className="text-xs text-gray-400">{translateToHebrew(location.hours)}</p>
                           )}
                         </div>
                       </TableCell>
@@ -189,12 +190,12 @@ export default function AdminLocations() {
                           {location.is_active ? (
                             <>
                               <Eye className="h-3 w-3" />
-                              Active
+                              {translateToHebrew('Active')}
                             </>
                           ) : (
                             <>
                               <EyeOff className="h-3 w-3" />
-                              Hidden
+                              {translateToHebrew('Hidden')}
                             </>
                           )}
                         </button>

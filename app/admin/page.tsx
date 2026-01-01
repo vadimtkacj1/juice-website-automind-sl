@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { translateToHebrew } from '@/lib/translations';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -26,8 +27,8 @@ export default function AdminPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <LoadingSpinner size="lg" text="Checking authentication..." />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
+      <LoadingSpinner size="lg" text={translateToHebrew('Checking authentication...')} />
     </div>
   );
 }
