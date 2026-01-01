@@ -133,19 +133,22 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     environment:
       name: production
-      url: ${{ secrets.DEPLOYMENT_URL }}
 
     steps:
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOYMENT_PATH: ${{ secrets.DEPLOYMENT_PATH }}
+          DEPLOYMENT_URL: ${{ secrets.DEPLOYMENT_URL }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
-            cd ${{ secrets.DEPLOYMENT_PATH || "/var/www/app" }}
+            APP_PATH="${DEPLOYMENT_PATH:-/opt/juice-website}"
+            cd ${APP_PATH}
             
             # Pull latest image
             echo "Pulling latest Docker image..."
@@ -167,6 +170,10 @@ jobs:
             docker image prune -af --filter "until=24h" || true
             
             # Health check
-            echo "Waiting for application to be ready..."
-            sleep 10
-            curl -f ${{ secrets.DEPLOYMENT_URL }}/api/health || echo "Health check failed, but continuing..."
+            if [ -n "${DEPLOYMENT_URL}" ]; then
+              echo "Waiting for application to be ready..."
+              sleep 10
+              curl -f ${DEPLOYMENT_URL}/api/health || echo "Health check failed, but continuing..."
+            else
+              echo "DEPLOYMENT_URL not set, skipping health check"
+            fi
