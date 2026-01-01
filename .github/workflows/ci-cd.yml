@@ -162,6 +162,20 @@ jobs:
           target: "${{ secrets.APP_PATH || '/opt/juice-website' }}"
         continue-on-error: false
 
+      - name: Verify docker-compose.yml was copied
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.APP_PATH || '/opt/juice-website' }} && \
+            if [ -f 'docker-compose.yml' ]; then
+              echo '✓ docker-compose.yml found on server'
+              ls -lh docker-compose.yml
+            else
+              echo '❌ docker-compose.yml NOT found on server!'
+              echo 'Files in directory:'
+              ls -la
+              exit 1
+            fi"
+
       - name: Deploy to Hetzner Server
         env:
           APP_PATH: ${{ secrets.APP_PATH || '/opt/juice-website' }}
@@ -173,10 +187,16 @@ jobs:
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "set -e && \
             cd ${APP_PATH} && \
+            # Debug: Show current directory and files
+            echo 'Current directory:' && pwd && \
+            echo 'Files in directory:' && ls -la && \
             # Ensure docker-compose.yml exists
             if [ ! -f 'docker-compose.yml' ]; then
-              echo '❌ docker-compose.yml not found!'
+              echo '❌ docker-compose.yml not found in ${APP_PATH}!'
+              echo 'Attempting to create it...'
               exit 1
+            else
+              echo '✓ docker-compose.yml found'
             fi && \
             # Create required directories
             mkdir -p data public/uploads && \
@@ -212,11 +232,17 @@ EOF
             export TELEGRAM_BOT_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}' && \
             export SESSION_SECRET='${{ secrets.SESSION_SECRET }}' && \
             export DEPLOYMENT_URL='${{ secrets.DEPLOYMENT_URL }}' && \
-            export PORT='${PORT:-3000}' && \
-            docker-compose pull nextjs-app || true && \
-            docker-compose up -d nextjs-app && \
+            export PORT='${PORT:-80}' && \
+            # Verify docker-compose is available and file exists
+            echo 'Checking docker-compose...' && \
+            docker-compose --version && \
+            echo 'Using docker-compose.yml from:' && pwd && \
+            ls -la docker-compose.yml && \
+            # Use explicit file path
+            docker-compose -f docker-compose.yml pull nextjs-app || true && \
+            docker-compose -f docker-compose.yml up -d nextjs-app && \
             docker image prune -f && \
-            docker-compose ps && \
+            docker-compose -f docker-compose.yml ps && \
             echo 'Deployment completed successfully!'"
 
       - name: Verify Deployment
