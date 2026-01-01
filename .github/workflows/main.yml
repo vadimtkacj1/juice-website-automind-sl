@@ -177,7 +177,7 @@ jobs:
                 container_name: juice-website
                 restart: unless-stopped
                 ports:
-                  - "80:80"
+                  - "3000:80"
                 environment:
                   - NODE_ENV=production
                   - PORT=80
@@ -415,7 +415,7 @@ jobs:
                   echo "✓ SSL certificates found, configuring HTTPS..."
                   # Create nginx configuration with HTTPS support
                   printf '%s\n' \
-                    '# HTTP server - redirect to HTTPS' \
+                    '# HTTP server - proxy to Docker container' \
                     'server {' \
                     '    listen 80;' \
                     '    listen [::]:80;' \
@@ -426,24 +426,7 @@ jobs:
                     '    }' \
                     '    ' \
                     '    location / {' \
-                    '        return 301 https://$host$request_uri;' \
-                    '    }' \
-                    '}' \
-                    '' \
-                    '# HTTPS server' \
-                    'server {' \
-                    '    listen 443 ssl http2;' \
-                    '    listen [::]:443 ssl http2;' \
-                    '    server_name _;' \
-                    '    ' \
-                    '    ssl_certificate /etc/nginx/ssl/cert.pem;' \
-                    '    ssl_certificate_key /etc/nginx/ssl/key.pem;' \
-                    '    ssl_protocols TLSv1.2 TLSv1.3;' \
-                    '    ssl_ciphers HIGH:!aNULL:!MD5;' \
-                    '    ssl_prefer_server_ciphers on;' \
-                    '    ' \
-                    '    location / {' \
-                    '        proxy_pass http://localhost:80;' \
+                    '        proxy_pass http://localhost:3000;' \
                     '        proxy_http_version 1.1;' \
                     '        proxy_set_header Upgrade $http_upgrade;' \
                     '        proxy_set_header Connection "upgrade";' \
@@ -461,7 +444,44 @@ jobs:
                     '    }' \
                     '    ' \
                     '    location /api/health {' \
-                    '        proxy_pass http://localhost:80/api/health;' \
+                    '        proxy_pass http://localhost:3000/api/health;' \
+                    '        proxy_set_header Host $host;' \
+                    '        access_log off;' \
+                    '    }' \
+                    '}' \
+                    '' \
+                    '# HTTPS server' \
+                    'server {' \
+                    '    listen 443 ssl http2;' \
+                    '    listen [::]:443 ssl http2;' \
+                    '    server_name _;' \
+                    '    ' \
+                    '    ssl_certificate /etc/nginx/ssl/cert.pem;' \
+                    '    ssl_certificate_key /etc/nginx/ssl/key.pem;' \
+                    '    ssl_protocols TLSv1.2 TLSv1.3;' \
+                    '    ssl_ciphers HIGH:!aNULL:!MD5;' \
+                    '    ssl_prefer_server_ciphers on;' \
+                    '    ' \
+                    '    location / {' \
+                    '        proxy_pass http://localhost:3000;' \
+                    '        proxy_http_version 1.1;' \
+                    '        proxy_set_header Upgrade $http_upgrade;' \
+                    '        proxy_set_header Connection "upgrade";' \
+                    '        proxy_set_header Host $host;' \
+                    '        proxy_set_header X-Real-IP $remote_addr;' \
+                    '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+                    '        proxy_set_header X-Forwarded-Proto $scheme;' \
+                    '        proxy_set_header X-Forwarded-Host $host;' \
+                    '        proxy_set_header X-Forwarded-Port $server_port;' \
+                    '        proxy_cache_bypass $http_upgrade;' \
+                    '        proxy_buffering off;' \
+                    '        proxy_connect_timeout 60s;' \
+                    '        proxy_send_timeout 60s;' \
+                    '        proxy_read_timeout 60s;' \
+                    '    }' \
+                    '    ' \
+                    '    location /api/health {' \
+                    '        proxy_pass http://localhost:3000/api/health;' \
                     '        proxy_set_header Host $host;' \
                     '        access_log off;' \
                     '    }' \
@@ -484,7 +504,7 @@ jobs:
                     '    }' \
                     '    ' \
                     '    location / {' \
-                    '        proxy_pass http://localhost:80;' \
+                    '        proxy_pass http://localhost:3000;' \
                     '        proxy_http_version 1.1;' \
                     '        proxy_set_header Upgrade $http_upgrade;' \
                     '        proxy_set_header Connection "upgrade";' \
@@ -502,7 +522,7 @@ jobs:
                     '    }' \
                     '    ' \
                     '    location /api/health {' \
-                    '        proxy_pass http://localhost:80/api/health;' \
+                    '        proxy_pass http://localhost:3000/api/health;' \
                     '        proxy_set_header Host $host;' \
                     '        access_log off;' \
                     '    }' \
@@ -549,17 +569,17 @@ jobs:
             echo "Container logs (last 30 lines):"
             docker logs juice-website --tail 30
             
-            # Check if port 80 is listening
+            # Check if port 3000 is listening
             echo ""
-            echo "Checking if port 80 is listening..."
-            netstat -tlnp | grep :80 || ss -tlnp | grep :80 || echo "⚠ Port 80 not found"
+            echo "Checking if port 3000 is listening..."
+            netstat -tlnp | grep :3000 || ss -tlnp | grep :3000 || echo "⚠ Port 3000 not found"
             
             # Test local connection with retries
             echo ""
-            echo "Testing local connection to http://localhost/api/health..."
+            echo "Testing local connection to http://localhost:3000/api/health..."
             for i in {1..5}; do
-              if curl -f http://localhost/api/health 2>/dev/null; then
-                echo "✓ Server is responding on port 80!"
+              if curl -f http://localhost:3000/api/health 2>/dev/null; then
+                echo "✓ Server is responding on port 3000!"
                 break
               else
                 echo "Attempt $i/5: Server not responding yet, waiting..."
@@ -568,7 +588,7 @@ jobs:
             done
             
             # Final check
-            if ! curl -f http://localhost/api/health 2>/dev/null; then
+            if ! curl -f http://localhost:3000/api/health 2>/dev/null; then
               echo "⚠ WARNING: Server not responding after all attempts"
               echo "Check logs: docker logs juice-website"
             fi
@@ -592,5 +612,5 @@ jobs:
             echo "If website is not accessible, check:"
             echo "1. Container logs: docker logs juice-website"
             echo "2. Container status: docker ps"
-            echo "3. Port 80: netstat -tlnp | grep :80"
+            echo "3. Port 3000: netstat -tlnp | grep :3000"
             echo "4. Firewall: sudo ufw status"
