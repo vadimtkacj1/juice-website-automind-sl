@@ -103,40 +103,100 @@ jobs:
               node scripts/init-database.js || echo "Database initialization skipped"
               node scripts/create-admin.js || echo "Admin creation skipped"
             fi
+            # Check if PM2 is installed
+            if ! command -v pm2 &> /dev/null; then
+              echo "PM2 not found, installing..."
+              npm install -g pm2
+            fi
+            
             # Stop existing PM2 process
             pm2 stop juice-website || true
             pm2 delete juice-website || true
+            
             # Allow Node.js to bind to port 80 without root (requires setcap)
             echo "Setting capabilities for port 80..."
-            sudo setcap 'cap_net_bind_service=+ep' $(which node) || echo "setcap failed, may need to run as root or use reverse proxy"
+            NODE_PATH=$(which node)
+            if [ -n "$NODE_PATH" ]; then
+              sudo setcap 'cap_net_bind_service=+ep' "$NODE_PATH" || echo "⚠ setcap failed, trying alternative method"
+            fi
+            
+            # Check what files exist
+            echo "Checking deployment files..."
+            ls -la server.js .next/standalone/server.js 2>/dev/null || echo "Checking for server files..."
+            
+            # Export environment variables from .env file
+            set -a
+            [ -f .env ] && source .env
+            set +a
+            
+            # Ensure we're in the right directory
+            cd /opt/juice-website
+            
             # Start application - check if standalone server.js exists, otherwise use npm start
             if [ -f "server.js" ]; then
-              echo "Starting with standalone server.js on port 80"
+              echo "✓ Found server.js, starting with PM2 on port 80"
               PORT=80 HOSTNAME=0.0.0.0 pm2 start server.js --name juice-website --update-env
             elif [ -f ".next/standalone/server.js" ]; then
-              echo "Starting with .next/standalone/server.js on port 80"
+              echo "✓ Found .next/standalone/server.js, starting with PM2 on port 80"
               PORT=80 HOSTNAME=0.0.0.0 pm2 start .next/standalone/server.js --name juice-website --update-env
             else
-              echo "Starting with npm start on port 80"
-              # Install production dependencies if needed
-              if [ ! -d "node_modules" ]; then
-                npm ci --production --omit=dev
+              echo "⚠ No standalone server found, checking for package.json..."
+              if [ -f "package.json" ]; then
+                echo "Installing production dependencies..."
+                npm ci --production --omit=dev || npm install --production --omit=dev
+                echo "Starting with npm start on port 80"
+                PORT=80 HOSTNAME=0.0.0.0 pm2 start npm --name juice-website -- start --update-env
+              else
+                echo "❌ ERROR: No server.js, .next/standalone/server.js, or package.json found!"
+                echo "Deployment files:"
+                ls -la /opt/juice-website/ | head -20
+                exit 1
               fi
-              PORT=80 HOSTNAME=0.0.0.0 pm2 start npm --name juice-website -- start --update-env
             fi
+            
+            # Save PM2 configuration
             pm2 save
-            # Wait a moment for server to start
-            sleep 5
+            
+            # Wait for server to start
+            echo "Waiting for server to start..."
+            sleep 10
+            
+            # Check PM2 status
+            echo "PM2 Status:"
+            pm2 status
+            
+            # Check PM2 logs for errors
+            echo "Recent PM2 logs:"
+            pm2 logs juice-website --lines 20 --nostream || echo "Could not get logs"
+            
             # Check if port is listening
             echo "Checking if server is listening on port 80..."
             sudo netstat -tlnp | grep :80 || sudo ss -tlnp | grep :80 || echo "Port check command not available"
-            # Test local connection
-            curl -f http://localhost/api/health && echo "✓ Server is responding on port 80" || echo "⚠ Server not responding - check PM2 logs: pm2 logs juice-website"
-            echo ""
-            echo "If server is not accessible, check:"
-            echo "1. Firewall: sudo ufw allow 80/tcp"
-            echo "2. Port 80 permissions: sudo setcap 'cap_net_bind_service=+ep' \$(which node)"
-            echo "3. Check if another service is using port 80: sudo lsof -i :80"
+            
+            # Check if another service is using port 80
+            echo "Checking for processes using port 80..."
+            sudo lsof -i :80 || echo "lsof not available"
+            
+            # Test local connection with retries
+            echo "Testing server connection..."
+            for i in {1..5}; do
+              if curl -f http://localhost/api/health 2>/dev/null; then
+                echo "✓ Server is responding on port 80"
+                break
+              else
+                echo "Attempt $i/5: Server not responding yet, waiting..."
+                sleep 3
+              fi
+            done
+            
+            # Final check
+            if ! curl -f http://localhost/api/health 2>/dev/null; then
+              echo "⚠ WARNING: Server not responding after all attempts"
+              echo "Check PM2 logs: pm2 logs juice-website"
+              echo "Check PM2 status: pm2 status"
+              echo "Check if port 80 is in use: sudo lsof -i :80"
+              echo "Check environment: cat .env"
+            fi
             # Clean up
             rm -rf deploy deploy.tar.gz
             echo "✅ Deployment completed successfully!"
