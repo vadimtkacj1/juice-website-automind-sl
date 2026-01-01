@@ -72,7 +72,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           source: "deploy.tar.gz"
-          target: ${{ secrets.DEPLOYMENT_PATH || "/var/www/app" }}
+          target: "/opt/juice-website"
 
       - name: Execute deployment commands
         uses: appleboy/ssh-action@v1.0.3
@@ -82,7 +82,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ secrets.DEPLOYMENT_PATH || "/var/www/app" }}
+            cd /opt/juice-website
             tar -xzf deploy.tar.gz
             cd deploy
             npm ci --production
