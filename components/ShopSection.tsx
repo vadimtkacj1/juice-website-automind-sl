@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { products } from '@/lib/products';
+import { translateToHebrew } from '@/lib/translations';
 
 export default function ShopSection() {
   return (
     <section className="shop-section">
-      <h2 className="shop-main-title reveal">Roasted goodness!</h2>
+      <h2 className="shop-main-title reveal">{translateToHebrew('Roasted goodness!')}</h2>
       <div className="shop-grid">
         {products.slice(0, 3).map((product, index) => (
           <Link

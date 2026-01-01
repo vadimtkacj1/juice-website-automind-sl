@@ -6,11 +6,13 @@ import Link from 'next/link';
 import { ShoppingBag, Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import { translateToHebrew } from '@/lib/translations';
+
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/menu', label: 'Menu' },
-  { href: '/locations', label: 'Locations' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', label: translateToHebrew('Home') },
+  { href: '/menu', label: translateToHebrew('Menu') },
+  { href: '/locations', label: translateToHebrew('Locations') },
+  { href: '/contact', label: translateToHebrew('Contact') },
 ];
 
 const logoSrc = 'https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg';
@@ -49,7 +51,7 @@ function NavBarShell({
           <button
             onClick={openCart}
             className="menu-item cart-button"
-            aria-label="Shopping cart"
+            aria-label={translateToHebrew('Shopping cart')}
           >
             <div className="roll-inner">
               <span className="cart-icon-wrapper">
@@ -73,7 +75,7 @@ function NavBarShell({
           <button
             onClick={openCart}
             className="mobile-cart-btn"
-            aria-label="Shopping cart"
+            aria-label={translateToHebrew('Shopping cart')}
           >
             <ShoppingBag size={22} />
             {itemCount > 0 && (
@@ -86,7 +88,7 @@ function NavBarShell({
               setMobileMenuOpen(!mobileMenuOpen);
             }}
             className="mobile-menu-btn"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileMenuOpen ? translateToHebrew('Close menu') : translateToHebrew('Open menu')}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -226,7 +228,7 @@ function MobileMenu({
         <button
           onClick={onClose}
           className="mobile-menu-close"
-          aria-label="Close menu"
+          aria-label={translateToHebrew('Close menu')}
         >
           <X size={28} />
         </button>
@@ -251,7 +253,7 @@ function MobileMenu({
             style={{ animationDelay: `${navLinks.length * 0.05}s` }}
           >
             <ShoppingBag size={24} />
-            <span>Cart</span>
+            <span>{translateToHebrew('Cart')}</span>
             {itemCount > 0 && (
               <span className="mobile-menu-cart-count">{itemCount}</span>
             )}

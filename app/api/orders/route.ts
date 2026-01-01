@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
+import { translateObject } from '@/lib/translations';
 
 export async function GET() {
   const db = getDatabase();
@@ -21,7 +22,8 @@ export async function GET() {
           return;
         }
 
-        resolve(NextResponse.json(orders || []));
+        const translatedOrders = (orders || []).map(order => translateObject(order));
+        resolve(NextResponse.json(translatedOrders));
       }
     );
   });

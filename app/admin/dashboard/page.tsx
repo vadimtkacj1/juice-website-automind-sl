@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DollarSign, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Analytics {
   totalOrders: number;
@@ -50,55 +51,55 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading dashboard..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading dashboard...')} />
       </div>
     );
   }
 
   if (!analytics) {
-    return <div>Failed to load analytics. Please check the server logs.</div>;
+    return <div>{translateToHebrew('Failed to load analytics. Please check the server logs.')}</div>;
   }
 
   const stats = [
     {
-      title: 'Total Revenue',
+      title: translateToHebrew('Total Revenue'),
       value: `$${(analytics.totalRevenue || 0).toFixed(2)}`,
       icon: DollarSign,
-      description: 'Total sales revenue',
+      description: translateToHebrew('Total sales revenue'),
       color: 'text-green-600',
       bg: 'bg-green-50'
     },
     {
-      title: 'Total Orders',
+      title: translateToHebrew('Total Orders'),
       value: analytics.totalOrders || 0,
       icon: ShoppingCart,
-      description: 'All time orders',
+      description: translateToHebrew('All time orders'),
       color: 'text-blue-600',
       bg: 'bg-blue-50'
     },
     {
-      title: 'Products',
+      title: translateToHebrew('Products'),
       value: analytics.totalProducts || 0,
       icon: Package,
-      description: 'Available products',
+      description: translateToHebrew('Available products'),
       color: 'text-purple-600',
       bg: 'bg-purple-50'
     },
     {
-      title: 'Active Promos',
+      title: translateToHebrew('Active Promos'),
       value: analytics.activePromoCodes || 0,
       icon: Tag,
-      description: 'Active promo codes',
+      description: translateToHebrew('Active promo codes'),
       color: 'text-orange-600',
       bg: 'bg-orange-50'
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome to your admin panel</p>
+        <h1 className="text-3xl font-bold text-gray-900">{translateToHebrew('Dashboard')}</h1>
+        <p className="text-gray-500 mt-1">{translateToHebrew('Welcome to your admin panel')}</p>
       </div>
 
       {/* Stats Grid */}
@@ -130,8 +131,8 @@ export default function AdminDashboard() {
         {/* Top Selling Products */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Selling Products</CardTitle>
-            <CardDescription>Best performing products</CardDescription>
+            <CardTitle>{translateToHebrew('Top Selling Products')}</CardTitle>
+            <CardDescription>{translateToHebrew('Best performing products')}</CardDescription>
           </CardHeader>
           <CardContent>
             {(analytics.topProducts && analytics.topProducts.length > 0) ? (
@@ -139,8 +140,8 @@ export default function AdminDashboard() {
                 {analytics.topProducts.map((product, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.total_sold || 0} sold</p>
+                      <p className="font-medium">{translateToHebrew(product.name)}</p>
+                      <p className="text-sm text-gray-500">{product.total_sold || 0} {translateToHebrew('sold')}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">${(product.revenue || 0).toFixed(2)}</p>
@@ -149,7 +150,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">No sales data yet</p>
+              <p className="text-center text-gray-500 py-4">{translateToHebrew('No sales data yet')}</p>
             )}
           </CardContent>
         </Card>
@@ -157,8 +158,8 @@ export default function AdminDashboard() {
         {/* Orders by Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Orders by Status</CardTitle>
-            <CardDescription>Current order distribution</CardDescription>
+            <CardTitle>{translateToHebrew('Orders by Status')}</CardTitle>
+            <CardDescription>{translateToHebrew('Current order distribution')}</CardDescription>
           </CardHeader>
           <CardContent>
             {(analytics.ordersByStatus && analytics.ordersByStatus.length > 0) ? (
@@ -172,14 +173,14 @@ export default function AdminDashboard() {
                         status.status === 'cancelled' ? 'bg-red-500' :
                         'bg-blue-500'
                       }`}></div>
-                      <p className="font-medium capitalize">{status.status}</p>
+                      <p className="font-medium capitalize">{translateToHebrew(status.status)}</p>
                     </div>
                     <p className="font-bold">{status.count || 0}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-4">No orders yet</p>
+              <p className="text-center text-gray-500 py-4">{translateToHebrew('No orders yet')}</p>
             )}
           </CardContent>
         </Card>
@@ -188,27 +189,27 @@ export default function AdminDashboard() {
       {/* Recent Orders */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
-          <CardDescription>Latest customer orders</CardDescription>
+          <CardTitle>{translateToHebrew('Recent Orders')}</CardTitle>
+          <CardDescription>{translateToHebrew('Latest customer orders')}</CardDescription>
         </CardHeader>
         <CardContent>
             {(analytics.recentOrders && analytics.recentOrders.length > 0) ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>{translateToHebrew('Order ID')}</TableHead>
+                  <TableHead>{translateToHebrew('Customer')}</TableHead>
+                  <TableHead>{translateToHebrew('Items')}</TableHead>
+                  <TableHead>{translateToHebrew('Total')}</TableHead>
+                  <TableHead>{translateToHebrew('Status')}</TableHead>
+                  <TableHead>{translateToHebrew('Date')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {analytics.recentOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">#{order.id}</TableCell>
-                    <TableCell>{order.customer_name}</TableCell>
+                    <TableCell>{translateToHebrew(order.customer_name)}</TableCell>
                     <TableCell>{order.items_count || 0}</TableCell>
                     <TableCell>${(order.total_amount || 0).toFixed(2)}</TableCell>
                     <TableCell>
@@ -218,16 +219,16 @@ export default function AdminDashboard() {
                         order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                         'bg-blue-100 text-blue-800'
                       }`}>
-                        {order.status}
+                        {translateToHebrew(order.status)}
                       </span>
                     </TableCell>
-                    <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(order.created_at).toLocaleDateString('he-IL')}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           ) : (
-            <p className="text-center text-gray-500 py-8">No orders yet</p>
+            <p className="text-center text-gray-500 py-8">{translateToHebrew('No orders yet')}</p>
           )}
         </CardContent>
       </Card>
@@ -236,14 +237,14 @@ export default function AdminDashboard() {
       {(analytics.revenueByMonth && analytics.revenueByMonth.length > 0) && (
         <Card>
           <CardHeader>
-            <CardTitle>Revenue Trend</CardTitle>
-            <CardDescription>Monthly revenue over the last 6 months</CardDescription>
+            <CardTitle>{translateToHebrew('Revenue Trend')}</CardTitle>
+            <CardDescription>{translateToHebrew('Monthly revenue over the last 6 months')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {analytics.revenueByMonth.map((month, index) => (
                 <div key={index} className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium">{month.month}</div>
+                  <div className="w-24 text-sm font-medium">{translateToHebrew(month.month)}</div>
                   <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
                     <div 
                       className="bg-purple-600 h-full flex items-center justify-end pr-2"
@@ -255,7 +256,7 @@ export default function AdminDashboard() {
                       <span className="text-white text-sm font-bold">${(month.revenue || 0).toFixed(2)}</span>
                     </div>
                   </div>
-                  <div className="w-16 text-sm text-gray-500">{month.orders || 0} orders</div>
+                  <div className="w-16 text-sm text-gray-500">{month.orders || 0} {translateToHebrew('orders')}</div>
                 </div>
               ))}
             </div>

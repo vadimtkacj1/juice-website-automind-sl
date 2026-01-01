@@ -6,6 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ProductModal from '@/components/ProductModal';
 import { ShoppingBag } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
+import { translateToHebrew } from '@/lib/translations';
 
 const ITEMS_PER_LOAD = 6;
 
@@ -95,7 +96,7 @@ export default function MenuPage() {
         await processAndSetMenu(data.menu || []);
       }
     } catch (err) {
-      setError('Failed to load menu');
+      setError(translateToHebrew('Failed to load menu'));
     } finally {
       setLoading(false);
     }
@@ -203,7 +204,7 @@ export default function MenuPage() {
     return (
       <div className="menu-page">
         <div className="menu-loading">
-          <LoadingSpinner size="lg" text="Loading delicious menu..." fullPage />
+          <LoadingSpinner size="lg" text={translateToHebrew('Loading delicious menu...')} fullPage />
         </div>
         <style jsx>{styles}</style>
       </div>
@@ -214,9 +215,9 @@ export default function MenuPage() {
     return (
       <div className="menu-page">
         <div className="menu-error">
-          <p>{error}</p>
+          <p>{translateToHebrew(error || '')}</p>
           <button onClick={fetchMenu} className="retry-btn">
-            Try again
+            {translateToHebrew('Try again')}
           </button>
         </div>
         <style jsx>{styles}</style>
@@ -228,8 +229,8 @@ export default function MenuPage() {
     return (
       <div className="menu-page">
         <div className="menu-empty">
-          <h2>Menu is empty</h2>
-          <p>Delicious items coming soon!</p>
+          <h2>{translateToHebrew('Menu is empty')}</h2>
+          <p>{translateToHebrew('Delicious items coming soon!')}</p>
         </div>
         <style jsx>{styles}</style>
       </div>
@@ -239,7 +240,7 @@ export default function MenuPage() {
   return (
     <div className="menu-page">
       <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080" >
-        <h1 className="hero-title">OUR MENU</h1>
+        <h1 className="hero-title">{translateToHebrew('OUR MENU')}</h1>
       </HeroSection>
 
       {/* Categories */}
@@ -250,9 +251,9 @@ export default function MenuPage() {
           style={{ ['--delay' as string]: `${0.1 * categoryIdx}s` }}
         >
           <div className="category-header">
-            <h2 className="category-title">{category.name}</h2>
+            <h2 className="category-title">{translateToHebrew(category.name)}</h2>
             {category.description && (
-              <p className="category-desc">{category.description}</p>
+              <p className="category-desc">{translateToHebrew(category.description)}</p>
             )}
           </div>
 
@@ -286,9 +287,9 @@ export default function MenuPage() {
                 {/* Info */}
                 <div className="product-info">
                   <div className="product-text">
-                    <h3 className="product-name">{item.name}</h3>
+                    <h3 className="product-name">{translateToHebrew(item.name)}</h3>
                     {item.description && (
-                      <p className="product-desc">{item.description}</p>
+                      <p className="product-desc">{translateToHebrew(item.description)}</p>
                     )}
                   </div>
 
@@ -299,7 +300,7 @@ export default function MenuPage() {
                           const volPrice = getDiscountedPrice(item.price, item.discount_percent);
                           return (
                             <div key={volIdx} className="volume-badge">
-                              <span className="volume-label">{vol.volume}</span>
+                              <span className="volume-label">{translateToHebrew(vol.volume)}</span>
                               <span className="volume-separator">•</span>
                               <span className="volume-price">₪{volPrice.toFixed(0)}</span>
                             </div>
@@ -336,7 +337,7 @@ export default function MenuPage() {
 
       {hasMore && (
         <div ref={observerTarget} className="load-more-trigger">
-          <LoadingSpinner size="md" text="Loading more items..." />
+          <LoadingSpinner size="md" text={translateToHebrew('Loading more items...')} />
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promisify } from 'util'; // Импортируем promisify
+import { translateObject } from '@/lib/translations';
 const getDatabase = require('@/lib/database');
 
 export async function GET(request: NextRequest) {
@@ -29,7 +30,8 @@ export async function GET(request: NextRequest) {
 
     try {
       const rows = await dbAll(query, params);
-      return NextResponse.json({ addons: rows || [] });
+      const translatedAddons = (rows || []).map(addon => translateObject(addon));
+      return NextResponse.json({ addons: translatedAddons });
     } catch (err: any) {
       console.error('Database error (GET):', err);
       return NextResponse.json({ error: err.message }, { status: 500 });

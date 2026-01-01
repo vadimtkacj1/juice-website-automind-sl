@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { promisify } from 'util'; // Import promisify
+import { translateObject } from '@/lib/translations';
 
 export async function GET() {
   const db = getDatabase();
@@ -70,10 +71,10 @@ export async function GET() {
       totalRevenue: ordersData?.totalRevenue || 0,
       totalProducts: productsData?.totalProducts || 0,
       activePromoCodes: promoData?.activePromoCodes || 0,
-      recentOrders: recentOrders || [],
-      ordersByStatus: ordersByStatus || [],
-      revenueByMonth: revenueByMonth || [],
-      topProducts: topProducts || []
+      recentOrders: (recentOrders || []).map(order => translateObject(order)),
+      ordersByStatus: (ordersByStatus || []).map(status => translateObject(status)),
+      revenueByMonth: (revenueByMonth || []).map(month => translateObject(month)),
+      topProducts: (topProducts || []).map(product => translateObject(product))
     });
 
   } catch (error: any) {

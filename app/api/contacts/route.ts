@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 // Promisify db.all and db.run for async/await
 const dbAll = (db: any, query: string, params: any[] = []) => {
@@ -33,7 +34,8 @@ export async function GET() {
 
     try {
       const rows = await dbAll(db, 'SELECT * FROM contacts');
-      return NextResponse.json({ contacts: rows || [] });
+      const translatedContacts = (rows || []).map(contact => translateObject(contact));
+      return NextResponse.json({ contacts: translatedContacts });
     } catch (dbError: any) {
       console.error('Database error:', dbError);
       return NextResponse.json({ error: dbError.message }, { status: 500 });

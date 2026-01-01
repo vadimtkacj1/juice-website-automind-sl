@@ -1,15 +1,16 @@
 import Link from 'next/link';
+import { translateToHebrew } from '@/lib/translations';
 
 const footerLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/menu', label: 'Menu' },
-  { href: '/locations', label: 'Locations' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', label: translateToHebrew('Home') },
+  { href: '/menu', label: translateToHebrew('Menu') },
+  { href: '/locations', label: translateToHebrew('Locations') },
+  { href: '/contact', label: translateToHebrew('Contact') },
 ];
 
 const legalLinks = [
-  { href: '/privacy', label: 'Privacy Policy' },
-  { href: '/terms', label: 'Terms & Conditions' },
+  { href: '/privacy', label: translateToHebrew('Privacy Policy') },
+  { href: '/terms', label: translateToHebrew('Terms & Conditions') },
 ];
 
 export default function Footer() {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageSquare, Send, Clock, MapPin, ArrowRight } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Contact {
   id: number;
@@ -123,8 +124,8 @@ export default function ContactPage() {
   return (
     <div className="contact-page">
       <HeroSection backgroundImage="https://images.unsplash.com/photo-1556742526-778844872147?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcmNofDE3NXx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc1NDY0fDA&ixlib=rb-4.0.3&q=80&w=1080" >
-        <h1 className="hero-title">CONTACT US</h1>
-        <p className="hero-subtitle">Have a question or feedback? We'd love to hear from you!</p>
+        <h1 className="hero-title">{translateToHebrew('CONTACT US')}</h1>
+        <p className="hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
       </HeroSection>
 
       {/* Main Content */}
@@ -144,9 +145,9 @@ export default function ContactPage() {
                 {getContactIcon(contact.type)}
               </div>
               <div className="contact-card-info">
-                <h3>{contact.label}</h3>
+                <h3>{translateToHebrew(contact.label)}</h3>
                 <p className="contact-card-value">{contact.value}</p>
-                <p className="contact-card-desc">{contact.description}</p>
+                <p className="contact-card-desc">{translateToHebrew(contact.description)}</p>
               </div>
               <ArrowRight size={20} className="contact-card-arrow" />
             </a>
@@ -162,8 +163,8 @@ export default function ContactPage() {
               <div className="success-message">
                 <div className="success-icon">✓</div>
                 <div>
-                  <p className="success-title">Message sent!</p>
-                  <p className="success-desc">We'll get back to you soon.</p>
+                  <p className="success-title">{translateToHebrew('Message sent!')}</p>
+                  <p className="success-desc">{translateToHebrew("We'll get back to you soon.")}</p>
                 </div>
               </div>
             )}
@@ -171,7 +172,7 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="contact-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="name">Your Name</label>
+                  <label htmlFor="name">{translateToHebrew('Your Name')}</label>
                   <input
                     type="text"
                     id="name"
@@ -182,7 +183,7 @@ export default function ContactPage() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="email">Email Address</label>
+                  <label htmlFor="email">{translateToHebrew('Email Address')}</label>
                   <input
                     type="email"
                     id="email"
@@ -195,25 +196,25 @@ export default function ContactPage() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="subject">Subject</label>
+                <label htmlFor="subject">{translateToHebrew('Subject')}</label>
                 <input
                   type="text"
                   id="subject"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="How can we help?"
+                  placeholder={translateToHebrew('How can we help?')}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="message">Message</label>
+                <label htmlFor="message">{translateToHebrew('Message')}</label>
                 <textarea
                   id="message"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   rows={5}
-                  placeholder="Tell us what you're thinking..."
+                  placeholder={translateToHebrew("Tell us what you're thinking...")}
                   required
                 />
               </div>
@@ -222,12 +223,12 @@ export default function ContactPage() {
                 {submitting ? (
                   <>
                     <span className="spinner"></span>
-                    Sending...
+                    {translateToHebrew('Sending')}...
                   </>
                 ) : (
                   <>
                     <Send size={18} />
-                    Send Message
+                    {translateToHebrew('Send Message')}
                   </>
                 )}
               </button>
@@ -240,7 +241,7 @@ export default function ContactPage() {
             <div className="info-card reveal" style={{ ['--delay' as string]: '0.3s' }}>
               <div className="info-card-header">
                 <Clock size={24} />
-                <h3>Business Hours</h3>
+                <h3>{translateToHebrew('Business Hours')}</h3>
               </div>
               <div className="hours-list">
                 {businessHours.map((item, index) => (
@@ -256,13 +257,13 @@ export default function ContactPage() {
             <div className="info-card reveal" style={{ ['--delay' as string]: '0.4s' }}>
               <div className="info-card-header">
                 <MapPin size={24} />
-                <h3>Visit Us</h3>
+                <h3>{translateToHebrew('Visit Us')}</h3>
               </div>
               <p className="info-text">
-                Find our juice bars across multiple locations. Fresh juices and smoothies await you!
+                {translateToHebrew('Find our juice bars across multiple locations. Fresh juices and smoothies await you!')}
               </p>
               <a href="/locations" className="info-link">
-                View All Locations
+                {translateToHebrew('View All Locations')}
                 <ArrowRight size={16} />
               </a>
             </div>

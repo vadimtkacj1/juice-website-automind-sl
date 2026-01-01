@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 // Redirect products API to menu-items since we use menu_items table
 export async function GET() {
@@ -20,15 +21,18 @@ export async function GET() {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        // Map menu_items to products format for compatibility
-        const products = (rows || []).map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          price: item.price,
-          image: item.image,
-          availability: item.is_available ? 1 : 0
-        }));
+        // Map menu_items to products format for compatibility and translate
+        const products = (rows || []).map((item: any) => {
+          const translated = translateObject({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            image: item.image,
+            availability: item.is_available ? 1 : 0
+          });
+          return translated;
+        });
         resolve(NextResponse.json({ products }));
       });
     });

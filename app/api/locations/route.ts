@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 export async function GET() {
   try {
@@ -19,7 +20,8 @@ export async function GET() {
           resolve(NextResponse.json({ error: err.message }, { status: 500 }));
           return;
         }
-        resolve(NextResponse.json({ locations: rows || [] }));
+        const translatedLocations = (rows || []).map(location => translateObject(location));
+        resolve(NextResponse.json({ locations: translatedLocations }));
       });
     });
   } catch (error: any) {

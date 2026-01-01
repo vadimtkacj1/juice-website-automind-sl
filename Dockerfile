@@ -59,23 +59,14 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy public folder
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy Next.js build output
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+# Copy Next.js standalone build output
+# The standalone output includes server.js and all necessary files
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy configuration files
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/tailwind.config.js ./
-COPY --from=builder --chown=nextjs:nodejs /app/postcss.config.js ./
-
-# Copy application source (needed for runtime)
-COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
-COPY --from=builder --chown=nextjs:nodejs /app/components ./components
-COPY --from=builder --chown=nextjs:nodejs /app/app ./app
-COPY --from=builder --chown=nextjs:nodejs /app/services ./services
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+# Ensure server.js exists (it's in the standalone output)
+RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)
 
 # Create data directory for database
 RUN mkdir -p /app/data /app/public/uploads && \
@@ -94,5 +85,5 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application using standalone server
+CMD ["node", "server.js"]

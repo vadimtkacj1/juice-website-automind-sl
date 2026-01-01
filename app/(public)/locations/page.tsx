@@ -5,6 +5,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import HeroSection from '@/components/HeroSection';
 import LocationList from '@/components/LocationList';
 import { Location } from '@/types/location';
+import { translateToHebrew } from '@/lib/translations';
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -31,7 +32,7 @@ export default function LocationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <LoadingSpinner size="lg" text="Loading locations..." />
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading locations...')} />
       </div>
     );
   }
@@ -39,8 +40,8 @@ export default function LocationsPage() {
   return (
     <>
       <HeroSection >
-        <h1 className="hero-title text-5xl md:text-6xl lg:text-7xl">OUR LOCATIONS</h1>
-        <p className="hero-subtitle text-white mt-4">Find us at a location near you!</p>
+        <h1 className="hero-title text-5xl md:text-6xl lg:text-7xl">{translateToHebrew('OUR LOCATIONS')}</h1>
+        <p className="hero-subtitle text-white mt-4">{translateToHebrew('Find us at a location near you!')}</p>
       </HeroSection>
       <LocationList locations={locations} />
     </>

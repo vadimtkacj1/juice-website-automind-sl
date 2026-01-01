@@ -4,6 +4,7 @@ import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Home, ShoppingBag } from 'lucide-react';
+import { translateToHebrew } from '@/lib/translations';
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
@@ -21,12 +22,12 @@ function CheckoutSuccessContent() {
           <CheckCircle size={80} />
         </div>
         
-        <h1>Order Confirmed!</h1>
-        <p>Thank you for your order. We've received your order and will start preparing your items right away. You will receive a confirmation email shortly.</p>
+        <h1>{translateToHebrew('Order Confirmed!')}</h1>
+        <p>{translateToHebrew("Thank you for your order. We've received your order and will start preparing your items right away. You will receive a confirmation email shortly.")}</p>
         
         {orderNumber && (
           <div className="order-id">
-            <span>Order Number:</span>
+            <span>{translateToHebrew('Order Number')}:</span>
             <code>{orderNumber}</code>
           </div>
         )}
@@ -34,11 +35,11 @@ function CheckoutSuccessContent() {
         <div className="success-actions">
           <Link href="/" className="btn-primary">
             <Home size={20} />
-            Back to Home
+            {translateToHebrew('Back to Home')}
           </Link>
           <Link href="/menu" className="btn-secondary">
             <ShoppingBag size={20} />
-            Order More
+            {translateToHebrew('Order More')}
           </Link>
         </div>
       </div>
@@ -179,8 +180,8 @@ export default function CheckoutSuccessPage() {
           <div className="success-icon">
             <CheckCircle size={80} />
           </div>
-          <h1>Order Confirmed!</h1>
-          <p>Thank you for your order. We've received your order and will start preparing your items right away.</p>
+          <h1>{translateToHebrew('Order Confirmed!')}</h1>
+          <p>{translateToHebrew("Thank you for your order. We've received your order and will start preparing your items right away.")}</p>
         </div>
       </div>
     }>

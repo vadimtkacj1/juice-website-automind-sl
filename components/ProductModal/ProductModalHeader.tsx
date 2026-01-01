@@ -1,4 +1,5 @@
 import styles from '../ProductModal.module.css';
+import { translateToHebrew } from '@/lib/translations';
 
 interface ProductModalHeaderProps {
   name: string;
@@ -17,9 +18,9 @@ export default function ProductModalHeader({
 }: ProductModalHeaderProps) {
   return (
     <div className={styles['modal-header']}>
-      <h2 className={styles['modal-title']}>{name}</h2>
+      <h2 className={styles['modal-title']}>{translateToHebrew(name)}</h2>
       {selectedVolume && (
-        <p className={styles['modal-subtitle']}>{selectedVolume}</p>
+        <p className={styles['modal-subtitle']}>{translateToHebrew(selectedVolume)}</p>
       )}
       <div className={styles['modal-price']}>
         {discountPercent > 0 && (

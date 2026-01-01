@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ArrowRight } from 'lucide-react';
+import { translateToHebrew } from '@/lib/translations';
 
 interface NewsItem {
   id: number;
@@ -43,13 +44,13 @@ const NewsSection = () => {
     <section className="news-section bg-gray-bg rounded-[40px] m-4 md:m-16 py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-16">
-          <h2 className="section-title text-dark">Latest News</h2>
+          <h2 className="section-title text-dark">{translateToHebrew('Latest News')}</h2>
           {newsItems.length > 0 && (
             <Link 
               href="/news" 
               className="news-view-all hidden md:flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all"
             >
-              View All <ArrowRight size={20} />
+              {translateToHebrew('View All')} <ArrowRight size={20} />
             </Link>
           )}
         </div>
@@ -60,7 +61,7 @@ const NewsSection = () => {
           </div>
         ) : newsItems.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-text-gray text-lg">No news available at the moment.</p>
+            <p className="text-text-gray text-lg">{translateToHebrew('No news available at the moment.')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -100,7 +101,7 @@ const NewsSection = () => {
                       : item.content}
                   </p>
                   <div className="mt-4 flex items-center text-primary font-bold group-hover:gap-2 transition-all">
-                    <span>Read More</span>
+                    <span>{translateToHebrew('Read More')}</span>
                     <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
@@ -115,7 +116,7 @@ const NewsSection = () => {
               href="/news" 
               className="inline-flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all"
             >
-              View All News <ArrowRight size={20} />
+              {translateToHebrew('View All News')} <ArrowRight size={20} />
             </Link>
           </div>
         )}

@@ -21,10 +21,10 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <DynamicAdminAuthWrapper>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" dir="rtl">
         <AdminNavigation />
         {/* Main content with proper spacing for sidebar/header */}
-        <main className="pt-16 desktop:pt-0 desktop:pl-64">
+        <main className="pt-16 desktop:pt-0 desktop:pr-64" dir="rtl">
           <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
             {children}
           </div>

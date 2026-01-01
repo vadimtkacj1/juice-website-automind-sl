@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Heart, Leaf, Users, Award } from 'lucide-react';
+import { translateToHebrew } from '@/lib/translations';
 
 const AboutSection = () => {
   return (
@@ -11,18 +12,12 @@ const AboutSection = () => {
         <div className="about-block">
           <div className="about-content">
             <div className="about-text">
-              <h2 className="about-title">Who We Are</h2>
+              <h2 className="about-title">{translateToHebrew('Who We Are')}</h2>
               <p className="about-description">
-                At Reviva, we are passionate about bringing you the freshest, most nutritious 
-                juices crafted from the finest ingredients. Our journey began with a simple 
-                mission: to make healthy living accessible and delicious for everyone.
+                {translateToHebrew('At Reviva, we are passionate about bringing you the freshest, most nutritious juices crafted from the finest ingredients. Our journey began with a simple mission: to make healthy living accessible and delicious for everyone.')}
               </p>
               <p className="about-description">
-                We source our fruits and vegetables from trusted local farms, ensuring that 
-                every bottle of juice is packed with natural vitamins, minerals, and 
-                antioxidants. Our team of expert juicemakers carefully blend each recipe to 
-                perfection, creating flavors that delight your taste buds while nourishing 
-                your body.
+                {translateToHebrew('We source our fruits and vegetables from trusted local farms, ensuring that every bottle of juice is packed with natural vitamins, minerals, and antioxidants. Our team of expert juicemakers carefully blend each recipe to perfection, creating flavors that delight your taste buds while nourishing your body.')}
               </p>
             </div>
             <div className="about-image-wrapper">
@@ -37,18 +32,12 @@ const AboutSection = () => {
         <div className="about-block">
           <div className="about-content reverse">
             <div className="about-text">
-              <h2 className="about-title">What We Do</h2>
+              <h2 className="about-title">{translateToHebrew('What We Do')}</h2>
               <p className="about-description">
-                We specialize in creating premium, cold-pressed juices that preserve the 
-                maximum nutritional value of fresh produce. Our innovative extraction process 
-                ensures that every sip delivers the full spectrum of vitamins and enzymes 
-                your body needs.
+                {translateToHebrew('We specialize in creating premium, cold-pressed juices that preserve the maximum nutritional value of fresh produce. Our innovative extraction process ensures that every sip delivers the full spectrum of vitamins and enzymes your body needs.')}
               </p>
               <p className="about-description">
-                From revitalizing morning blends to detoxifying green juices, we offer a 
-                wide range of flavors to suit every palate and lifestyle. Whether you're 
-                looking to boost your energy, support your immune system, or simply enjoy 
-                a refreshing drink, we have the perfect juice for you.
+                {translateToHebrew("From revitalizing morning blends to detoxifying green juices, we offer a wide range of flavors to suit every palate and lifestyle. Whether you're looking to boost your energy, support your immune system, or simply enjoy a refreshing drink, we have the perfect juice for you.")}
               </p>
             </div>
             <div className="about-image-wrapper">
@@ -65,9 +54,9 @@ const AboutSection = () => {
             <div className="value-icon-wrapper">
               <Leaf size={32} />
             </div>
-            <h3 className="value-title">100% Natural</h3>
+            <h3 className="value-title">{translateToHebrew('100% Natural')}</h3>
             <p className="value-description">
-              We use only fresh, organic ingredients with no artificial additives or preservatives.
+              {translateToHebrew('We use only fresh, organic ingredients with no artificial additives or preservatives.')}
             </p>
           </div>
 
@@ -75,9 +64,9 @@ const AboutSection = () => {
             <div className="value-icon-wrapper">
               <Heart size={32} />
             </div>
-            <h3 className="value-title">Health First</h3>
+            <h3 className="value-title">{translateToHebrew('Health First')}</h3>
             <p className="value-description">
-              Every recipe is designed to support your wellness journey and nourish your body.
+              {translateToHebrew('Every recipe is designed to support your wellness journey and nourish your body.')}
             </p>
           </div>
 
@@ -85,9 +74,9 @@ const AboutSection = () => {
             <div className="value-icon-wrapper">
               <Users size={32} />
             </div>
-            <h3 className="value-title">Community Focused</h3>
+            <h3 className="value-title">{translateToHebrew('Community Focused')}</h3>
             <p className="value-description">
-              We're committed to supporting local farmers and building a healthier community.
+              {translateToHebrew("We're committed to supporting local farmers and building a healthier community.")}
             </p>
           </div>
 
@@ -95,9 +84,9 @@ const AboutSection = () => {
             <div className="value-icon-wrapper">
               <Award size={32} />
             </div>
-            <h3 className="value-title">Premium Quality</h3>
+            <h3 className="value-title">{translateToHebrew('Premium Quality')}</h3>
             <p className="value-description">
-              We maintain the highest standards in every step of our production process.
+              {translateToHebrew('We maintain the highest standards in every step of our production process.')}
             </p>
           </div>
         </div>

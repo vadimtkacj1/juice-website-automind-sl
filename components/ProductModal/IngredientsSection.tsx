@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import styles from '../ProductModal.module.css';
+import { translateToHebrew } from '@/lib/translations';
 
 interface CustomIngredient {
   id: number;
@@ -43,16 +44,16 @@ export default function IngredientsSection({
   }, {} as Record<string, typeof ingredients>);
 
   const categoryLabels: Record<string, string> = {
-    fruits: 'Fruits',
-    boosters: 'Boosters',
-    toppings: 'Toppings'
+    fruits: translateToHebrew('Fruits'),
+    boosters: translateToHebrew('Boosters'),
+    toppings: translateToHebrew('Toppings')
   };
 
   return (
     <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>Add Ingredients</h3>
+      <h3 className={styles['section-title']}>{translateToHebrew('Add Ingredients')}</h3>
       <p style={{ fontSize: '14px', color: '#70758c', marginBottom: '16px' }}>
-        Choose additional ingredients to customize your juice
+        {translateToHebrew('Choose additional ingredients to customize your juice')}
       </p>
       {Object.entries(groupedIngredients).map(([category, categoryIngredients]) => {
         const selectionType = categoryIngredients[0]?.selection_type || 'multiple';
@@ -61,8 +62,8 @@ export default function IngredientsSection({
         return (
           <div key={category} className={styles['ingredient-category']}>
             <h4 className={styles['category-title']}>
-              {categoryLabels[category] || category}
-              {isSingleSelection && <span className={styles['selection-hint']}> (Choose one)</span>}
+              {categoryLabels[category] || translateToHebrew(category)}
+              {isSingleSelection && <span className={styles['selection-hint']}> ({translateToHebrew('Choose one')})</span>}
             </h4>
             <div className={styles['ingredients-list']}>
               {categoryIngredients.map(ingredient => {
@@ -96,7 +97,7 @@ export default function IngredientsSection({
                       console.log('Ingredient info clicked:', ingredient.name, ingredient.id);
                       onIngredientToggle(ingredient.id, selectionType, category);
                     }}>
-                      <span className={styles['ingredient-name']}>{ingredient.name}</span>
+                      <span className={styles['ingredient-name']}>{translateToHebrew(ingredient.name)}</span>
                       {price > 0 && (
                         <span className={styles['ingredient-price']}>+₪{price.toFixed(0)}</span>
                       )}

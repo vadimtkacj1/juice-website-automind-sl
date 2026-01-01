@@ -14,7 +14,7 @@ services:
       - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=${PORT:-3000}
       - RAPYD_ACCESS_KEY=${RAPYD_ACCESS_KEY}
       - RAPYD_SECRET_KEY=${RAPYD_SECRET_KEY}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
@@ -22,6 +22,7 @@ services:
       - TELEGRAM_SERVICE_PORT=${TELEGRAM_SERVICE_PORT:-3001}
       - SESSION_SECRET=${SESSION_SECRET}
       - DATABASE_PATH=/app/data/juice_website.db
+      - HOSTNAME=0.0.0.0
     volumes:
       # Database persistence
       - ./data:/app/data

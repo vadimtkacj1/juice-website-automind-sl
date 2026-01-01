@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail, Clock, Globe } from 'lucide-react';
 import React from 'react';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Location {
   id: number;
@@ -38,23 +39,23 @@ export default function LocationCard({ location }: LocationCardProps) {
         <div className="flex items-start gap-3 mb-4">
           <MapPin className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{location.city}</h3>
+            <h3 className="text-xl font-bold text-gray-900">{translateToHebrew(location.city)}</h3>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <Globe className="h-3 w-3" />
-              {location.country}
+              {translateToHebrew(location.country)}
             </p>
           </div>
         </div>
 
         <div className="space-y-3 text-sm">
           <div>
-            <p className="text-gray-600">{location.address}</p>
+            <p className="text-gray-600">{translateToHebrew(location.address)}</p>
           </div>
 
           {location.hours && (
             <div className="flex items-start gap-2">
               <Clock className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-              <p className="text-gray-600">{location.hours}</p>
+              <p className="text-gray-600">{translateToHebrew(location.hours)}</p>
             </div>
           )}
 
@@ -91,7 +92,7 @@ export default function LocationCard({ location }: LocationCardProps) {
                 className="text-purple-600 hover:text-purple-700 font-medium text-sm inline-flex items-center gap-1"
               >
                 <MapPin className="h-3 w-3" />
-                View on Map
+                {translateToHebrew('View on Map')}
               </a>
             </div>
           )}

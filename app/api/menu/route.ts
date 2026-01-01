@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 export async function GET() {
   try {
@@ -35,11 +36,14 @@ export async function GET() {
                 return;
               }
 
-              // Group items by category
-              const menu = categories.map((category) => ({
-                ...category,
-                items: items.filter((item) => item.category_id === category.id),
-              }));
+              // Group items by category and translate
+              const menu = categories.map((category) => {
+                const categoryItems = items.filter((item) => item.category_id === category.id);
+                return {
+                  ...translateObject(category),
+                  items: categoryItems.map(item => translateObject(item)),
+                };
+              });
 
               resolve(NextResponse.json({ menu }));
             }

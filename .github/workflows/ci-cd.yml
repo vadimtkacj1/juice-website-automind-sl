@@ -61,8 +61,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          # Add any build-time environment variables here
-          # They should be set as GitHub Secrets
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://your-domain.com' }}
 
   # Build and Push Docker Image
   build-and-push:
@@ -107,6 +106,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
+            RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            SESSION_SECRET=${{ secrets.SESSION_SECRET }}
 
   # Deploy Job to Hetzner Server
   deploy:
@@ -149,6 +154,11 @@ jobs:
             fi && \
             docker pull ${IMAGE_TAG} && \
             export GITHUB_REPOSITORY='${GITHUB_REPOSITORY}' && \
+            export RAPYD_ACCESS_KEY='${{ secrets.RAPYD_ACCESS_KEY }}' && \
+            export RAPYD_SECRET_KEY='${{ secrets.RAPYD_SECRET_KEY }}' && \
+            export TELEGRAM_BOT_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}' && \
+            export SESSION_SECRET='${{ secrets.SESSION_SECRET }}' && \
+            export PORT='${PORT:-3000}' && \
             docker-compose pull nextjs-app || true && \
             docker-compose up -d nextjs-app && \
             docker image prune -f && \

@@ -1,5 +1,6 @@
 import { Plus, Minus } from 'lucide-react';
 import styles from '../ProductModal.module.css';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Addon {
   id: number;
@@ -26,14 +27,14 @@ export default function AddonsSection({
 
   return (
     <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>Add-ons</h3>
+      <h3 className={styles['section-title']}>{translateToHebrew('Add-ons')}</h3>
       <div className={styles['addons-list']}>
         {addons.map(addon => {
           const quantity = selectedAddons.get(addon.id) || 0;
           return (
             <div key={addon.id} className={styles['addon-item']}>
               <div className={styles['addon-info']}>
-                <span className={styles['addon-name']}>{addon.name}</span>
+                <span className={styles['addon-name']}>{translateToHebrew(addon.name)}</span>
                 <span className={styles['addon-price']}>+₪{addon.price.toFixed(0)}</span>
               </div>
               <div className={styles['addon-controls']}>

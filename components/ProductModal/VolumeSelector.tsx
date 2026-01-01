@@ -1,4 +1,5 @@
 import styles from '../ProductModal.module.css';
+import { translateToHebrew } from '@/lib/translations';
 
 interface VolumeOption {
   id?: number;
@@ -28,7 +29,7 @@ export default function VolumeSelector({
 
   return (
     <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>Select Volume</h3>
+      <h3 className={styles['section-title']}>{translateToHebrew('Select Volume')}</h3>
       <div className={styles['ingredients-list']}>
         {volumeOptions.map((vol) => {
           const isSelected = selectedVolume === vol.volume;
@@ -45,7 +46,7 @@ export default function VolumeSelector({
                 className={styles['ingredient-checkbox']}
               />
               <div className={styles['ingredient-info']}>
-                <span className={styles['ingredient-name']}>{vol.volume}</span>
+                <span className={styles['ingredient-name']}>{translateToHebrew(vol.volume)}</span>
                 <span className={styles['ingredient-price']}>₪{volPrice.toFixed(0)}</span>
               </div>
             </label>

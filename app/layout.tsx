@@ -28,9 +28,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Change to 'ar' or 'he' for RTL languages
-  const lang = 'en' as 'en' | 'ar' | 'he';
-  const dir = lang === 'ar' || lang === 'he' ? 'rtl' : 'ltr';
+  // Use Hebrew and RTL for all pages
+  const lang = 'he' as 'en' | 'ar' | 'he';
+  const dir = 'rtl';
 
   return (
     <html lang={lang} dir={dir}>

@@ -14,6 +14,7 @@ import ProductModalFooter from './ProductModalFooter';
 import { useProductModalData } from './useProductModalData';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { translateToHebrew } from '@/lib/translations';
 
 interface ProductModalItem {
   id: number;
@@ -391,8 +392,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
             {/* Description */}
             <div className={styles['modal-description']}>
               <p>
-                {item.description || 
-                  'Experience the perfect blend of quality and taste. Made with care using only the finest natural ingredients to bring you an exceptional experience.'}
+                {translateToHebrew(item.description) || 
+                  translateToHebrew('Experience the perfect blend of quality and taste. Made with care using only the finest natural ingredients to bring you an exceptional experience.')}
               </p>
             </div>
 
@@ -442,9 +443,9 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Ingredients?</DialogTitle>
+            <DialogTitle>{translateToHebrew('Add Ingredients?')}</DialogTitle>
             <DialogDescription>
-              Would you like to add these ingredients to this juice?
+              {translateToHebrew('Would you like to add these ingredients to this juice?')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -457,7 +458,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
                     : ingredient.price;
                   return (
                     <div key={ingredient.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium">{ingredient.name}</span>
+                      <span className="font-medium">{translateToHebrew(ingredient.name)}</span>
                       {price > 0 && (
                         <span className="text-sm text-gray-600">+₪{price.toFixed(0)}</span>
                       )}
@@ -472,13 +473,13 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               onClick={handleSkipIngredients}
               className="w-full sm:w-auto"
             >
-              No, Skip
+              {translateToHebrew('No, Skip')}
             </Button>
             <Button
               onClick={handleAddIngredients}
               className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
             >
-              Yes, Add All
+              {translateToHebrew('Yes, Add All')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -5,6 +5,7 @@ import HeroSection from '@/components/HeroSection';
 import ShopSection from '@/components/ShopSection';
 import NewsSection from '@/components/NewsSection';
 import AboutSection from '@/components/AboutSection';
+import { translateToHebrew } from '@/lib/translations';
 
 interface Contact {
   id: number;
@@ -62,7 +63,7 @@ export default function HomePage() {
         />
       )}
       <HeroSection>
-        <h1 className="hero-title">REVIVA</h1>
+        <h1 className="hero-title">{translateToHebrew('REVIVA')}</h1>
       </HeroSection>
       <AboutSection />
       <NewsSection />

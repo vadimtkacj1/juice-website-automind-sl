@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
+import { translateObject } from '@/lib/translations';
 
 // Promisify db.all for async/await
 const dbAll = (db: any, query: string, params: any[] = []) => {
@@ -33,7 +34,8 @@ export async function GET() {
     }
 
     const businessHours = await dbAll(db, 'SELECT * FROM business_hours ORDER BY sort_order, day_of_week');
-    return NextResponse.json({ businessHours });
+    const translatedBusinessHours = (businessHours || []).map(bh => translateObject(bh));
+    return NextResponse.json({ businessHours: translatedBusinessHours });
   } catch (error: any) {
     console.error('API error fetching business hours:', error);
     return NextResponse.json(

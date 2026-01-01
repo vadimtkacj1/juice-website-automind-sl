@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
+import { translateObject } from '@/lib/translations';
 
 export async function GET(
   request: NextRequest,
@@ -35,8 +36,8 @@ export async function GET(
             }
 
             resolve(NextResponse.json({
-              ...order,
-              items: items || []
+              ...translateObject(order),
+              items: (items || []).map(item => translateObject(item))
             }));
           }
         );
