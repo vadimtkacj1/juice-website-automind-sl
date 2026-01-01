@@ -135,6 +135,18 @@ jobs:
       name: production
 
     steps:
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 120s
+          source: "docker-compose.yml"
+          target: "${{ secrets.DEPLOYMENT_PATH || '/opt/juice-website' }}"
+        continue-on-error: false
+
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -144,11 +156,40 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 120s
+          command_timeout: 300s
           script: |
             set -e
             APP_PATH="${DEPLOYMENT_PATH:-/opt/juice-website}"
             cd ${APP_PATH}
+            
+            # Verify docker-compose.yml exists
+            if [ ! -f 'docker-compose.yml' ]; then
+              echo '❌ docker-compose.yml not found in ${APP_PATH}!'
+              echo 'Files in directory:'
+              ls -la
+              exit 1
+            fi
+            echo '✓ docker-compose.yml found'
+            
+            # Create required directories
+            mkdir -p data public/uploads
+            
+            # Create/update .env file
+            cat > .env << EOF
+            NODE_ENV=production
+            PORT=80
+            RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
+            RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+            PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
+            PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
+            PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+            DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            EOF
             
             # Pull latest image
             echo "Pulling latest Docker image..."
@@ -156,18 +197,22 @@ jobs:
             
             # Stop and remove old container
             echo "Stopping old container..."
-            docker-compose down || true
+            docker-compose -f docker-compose.yml down || true
             
             # Update docker-compose.yml with new image
             export GITHUB_REPOSITORY="${{ github.repository }}"
             
             # Start new container
             echo "Starting new container..."
-            docker-compose up -d --remove-orphans
+            docker-compose -f docker-compose.yml up -d --remove-orphans
             
             # Clean up old images
             echo "Cleaning up old images..."
             docker image prune -af --filter "until=24h" || true
+            
+            # Show container status
+            echo "Container status:"
+            docker-compose -f docker-compose.yml ps
             
             # Health check
             if [ -n "${DEPLOYMENT_URL}" ]; then
