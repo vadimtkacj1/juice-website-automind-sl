@@ -56,6 +56,7 @@ interface PayPlusPaymentResponse {
     code?: number;
     message?: string;
   };
+  message?: string; // Root-level message for error responses
 }
 
 /**
