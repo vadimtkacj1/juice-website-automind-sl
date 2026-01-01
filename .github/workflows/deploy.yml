@@ -58,6 +58,18 @@ jobs:
           echo "Deployment package created successfully"
           tar -czf deploy.tar.gz deploy/
 
+      - name: Check SSH connection info
+        run: |
+          echo "🔍 SSH Connection Details:"
+          echo "Host: ${{ secrets.SSH_HOST }}"
+          echo "Port: ${{ secrets.SSH_PORT || 22 }}"
+          echo "User: ${{ secrets.SSH_USER }}"
+          echo ""
+          echo "⚠️  If connection fails, check:"
+          echo "1. SSH_PORT secret matches server's SSH port"
+          echo "2. Firewall allows port ${{ secrets.SSH_PORT || 22 }}"
+          echo "3. Run on server: bash scripts/check-ssh-ports.sh"
+
       - name: Deploy to server via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -65,13 +77,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          timeout: 60s
+          timeout: 120s
           command_timeout: 300s
           source: "deploy.tar.gz"
           target: "/opt/juice-website"
         continue-on-error: false
-        env:
-          SCP_DEBUG: true
 
       - name: Execute deployment commands
         uses: appleboy/ssh-action@v1.0.3
@@ -80,7 +90,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          timeout: 60s
+          timeout: 120s
           command_timeout: 300s
           script: |
             set -e
