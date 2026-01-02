@@ -14,11 +14,17 @@ const legalLinks = [
 ];
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+  
   return (
-    <footer className="footer-main">
-      <div className="footer-brand">נטורליי מרענן</div>
+    <footer className="footer-main" role="contentinfo" aria-label="כותרת תחתונה">
+      {/* Brand Name */}
+      <div className="footer-brand" aria-label="שם המותג">
+        נטורליי מרענן
+      </div>
 
-      <div className="footer-links">
+      {/* Navigation Links */}
+      <nav className="footer-links" aria-label="ניווט תחתון">
         {footerLinks.map((link) => (
           <Link key={link.href} href={link.href} className="menu-item white-link">
             <div className="roll-inner">
@@ -27,8 +33,9 @@ export default function Footer() {
             </div>
           </Link>
         ))}
-      </div>
+      </nav>
 
+      {/* Legal Links */}
       <div className="footer-legal">
         {legalLinks.map((link) => (
           <Link key={link.href} href={link.href} className="legal-link">
@@ -36,6 +43,20 @@ export default function Footer() {
           </Link>
         ))}
       </div>
+
+      {/* Copyright */}
+      <p className="footer-copyright">
+        © {currentYear} נטורליי מרענן. כל הזכויות שמורות.
+      </p>
+
+      <style jsx>{`
+        .footer-copyright {
+          color: rgba(29, 26, 64, 0.6);
+          font-size: clamp(12px, 1vw, 14px);
+          font-weight: 500;
+          margin-block-start: 20px;
+        }
+      `}</style>
     </footer>
   );
 }

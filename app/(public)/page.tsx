@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import NewsSection from '@/components/NewsSection';
 import AboutSection from '@/components/AboutSection';
-import { translateToHebrew } from '@/lib/translations';
 
 interface Contact {
   id: number;
@@ -38,33 +37,67 @@ export default function HomePage() {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "naturalay refreshing",
-    "url": "https://www.reviva.com", // Replace with your actual website URL
-    "logo": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg", // Replace with your actual logo URL
+    "name": "נטורליי מרענן - מיצים טבעיים",
+    "alternateName": "Naturalay Refreshing",
+    "url": "https://www.reviva.com",
+    "logo": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg",
+    "description": "חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום ללא חומרים משמרים.",
     "sameAs": [
-      "https://www.facebook.com/reviva", // Replace with your actual Facebook page
-      "https://www.instagram.com/reviva", // Replace with your actual Instagram page
-      // Add other social media profiles as needed
+      "https://www.facebook.com/reviva",
+      "https://www.instagram.com/reviva",
     ],
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": phoneNumber || "", // Dynamically fetched phone number
-      "contactType": "customer service"
+      "telephone": phoneNumber || "",
+      "contactType": "customer service",
+      "availableLanguage": ["Hebrew", "English"]
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "IL"
+    }
+  };
+
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "נטורליי מרענן",
+    "image": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg",
+    "priceRange": "$$",
+    "servesCuisine": "מיצים טבעיים, סמוזי, מזון בריא",
+    "telephone": phoneNumber || "",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "IL"
     }
   };
 
   return (
     <>
+      {/* Structured Data for SEO */}
       {phoneNumber && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+          />
+        </>
       )}
+      
+      {/* Hero Section with Floating Oranges */}
       <HeroSection>
         <h1 className="hero-title">נטורליי מרענן</h1>
+        <p className="hero-subtitle">מיצים טבעיים טריים • סמוזי • סלטי פירות • צלחות בריאות</p>
       </HeroSection>
+      
+      {/* About Section */}
       <AboutSection />
+      
+      {/* News Section */}
       <NewsSection />
     </>
   );

@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, ArrowRight } from 'lucide-react';
-import { translateToHebrew } from '@/lib/translations';
+import { Calendar, ArrowLeft } from 'lucide-react';
 
 interface NewsItem {
   id: number;
@@ -41,23 +40,24 @@ const NewsSection = () => {
   }
 
   return (
-    <section className="news-section">
+    <section className="news-section" aria-labelledby="news-title">
       <div className="news-container">
-        <div className="news-header-section">
-          <h2 className="news-title-top">חדשות</h2>
+        <header className="news-header-section">
+          <h2 id="news-title" className="news-title-top">חדשות</h2>
           {newsItems.length > 0 && (
             <Link 
               href="/news" 
               className="news-view-all"
+              aria-label="צפה בכל החדשות"
             >
-              צפה בכל <ArrowRight size={20} />
+              צפה בכל <ArrowLeft size={20} aria-hidden="true" />
             </Link>
           )}
-          <h3 className="news-title-bottom">אחרונות</h3>
-        </div>
+          <span className="news-title-bottom">אחרונות</span>
+        </header>
         
         {loading ? (
-          <div className="news-loading">
+          <div className="news-loading" role="status" aria-label="טוען חדשות">
             <div className="loading-spinner"></div>
           </div>
         ) : newsItems.length === 0 ? (
@@ -65,12 +65,13 @@ const NewsSection = () => {
             <p>אין חדשות זמינות כרגע.</p>
           </div>
         ) : (
-          <div className="news-grid">
+          <div className="news-grid" role="list">
             {newsItems.map((item) => (
               <Link 
                 key={item.id} 
                 href={`/news/${item.id}`}
                 className="news-card"
+                role="listitem"
               >
                 {item.image && (
                   <div className="news-card-image">
@@ -84,14 +85,14 @@ const NewsSection = () => {
                   </div>
                 )}
                 <div className="news-card-content">
-                  <div className="news-card-date">
-                    <Calendar size={14} />
+                  <time className="news-card-date" dateTime={item.created_at}>
+                    <Calendar size={14} aria-hidden="true" />
                     <span>{new Date(item.created_at).toLocaleDateString('he-IL', { 
                       year: 'numeric', 
                       month: 'long', 
                       day: 'numeric' 
                     })}</span>
-                  </div>
+                  </time>
                   <h3 className="news-card-title">
                     {item.title}
                   </h3>
@@ -100,10 +101,10 @@ const NewsSection = () => {
                       ? `${item.content.substring(0, 120)}...` 
                       : item.content}
                   </p>
-                  <div className="news-card-link">
+                  <span className="news-card-link" aria-hidden="true">
                     <span>קרא עוד</span>
-                    <ArrowRight size={16} />
-                  </div>
+                    <ArrowLeft size={16} />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -112,8 +113,8 @@ const NewsSection = () => {
 
         {newsItems.length > 0 && (
           <div className="news-view-all-mobile">
-            <Link href="/news">
-              צפה בכל החדשות <ArrowRight size={20} />
+            <Link href="/news" aria-label="צפה בכל החדשות">
+              צפה בכל החדשות <ArrowLeft size={20} aria-hidden="true" />
             </Link>
           </div>
         )}
@@ -122,14 +123,14 @@ const NewsSection = () => {
       <style jsx>{`
         .news-section {
           background-color: var(--gray-bg);
-          border-radius: 40px;
+          border-radius: var(--radius-xl, 40px);
           margin: 20px 16px;
           padding: 100px 40px;
         }
 
         .news-container {
           max-width: 1200px;
-          margin: 0 auto;
+          margin-inline: auto;
         }
 
         .news-header-section {
@@ -138,10 +139,11 @@ const NewsSection = () => {
           align-items: center;
           text-align: center;
           gap: 20px;
-          margin-bottom: 80px;
+          margin-block-end: 80px;
         }
 
-        .news-title-top {
+        .news-title-top,
+        .news-title-bottom {
           font-family: 'Heebo', sans-serif;
           font-size: clamp(60px, 12vw, 175px);
           font-weight: 900;
@@ -155,12 +157,12 @@ const NewsSection = () => {
           display: flex;
           align-items: center;
           gap: 8px;
-          font-size: 22px;
+          font-size: clamp(18px, 1.5vw, 22px);
           font-weight: 700;
           color: var(--primary);
           text-decoration: none;
-          transition: all 0.3s var(--spring-ease);
-          margin: 10px 0;
+          transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
+          margin-block: 10px;
         }
 
         .news-view-all:hover {
@@ -168,34 +170,26 @@ const NewsSection = () => {
           color: var(--dark);
         }
 
-        .news-title-bottom {
-          font-family: 'Heebo', sans-serif;
-          font-size: clamp(60px, 12vw, 175px);
-          font-weight: 900;
-          color: var(--dark);
-          margin: 0;
-          letter-spacing: -0.02em;
-          line-height: 1;
-        }
-
         .news-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 24px;
         }
 
         .news-card {
           background: var(--white);
-          border-radius: 30px;
+          border-radius: var(--radius-lg, 30px);
           overflow: hidden;
           text-decoration: none;
           color: inherit;
           display: flex;
           flex-direction: column;
           box-shadow: 0 12px 40px rgba(29, 26, 64, 0.08);
+          transition: all 0.4s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
         }
 
         .news-card:hover {
+          transform: translateY(-10px);
           box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
         }
 
@@ -205,7 +199,6 @@ const NewsSection = () => {
           height: 240px;
           overflow: hidden;
         }
-
 
         .news-card-content {
           padding: 24px;
@@ -225,7 +218,7 @@ const NewsSection = () => {
 
         .news-card-title {
           font-family: 'Heebo', sans-serif;
-          font-size: 24px;
+          font-size: clamp(20px, 2vw, 24px);
           font-weight: 900;
           color: var(--dark);
           margin: 0;
@@ -238,7 +231,7 @@ const NewsSection = () => {
         }
 
         .news-card-excerpt {
-          font-size: 16px;
+          font-size: clamp(14px, 1.2vw, 16px);
           line-height: 1.6;
           color: var(--text-gray);
           margin: 0;
@@ -255,7 +248,12 @@ const NewsSection = () => {
           font-size: 16px;
           font-weight: 700;
           color: var(--primary);
-          margin-top: auto;
+          margin-block-start: auto;
+          transition: gap 0.3s ease;
+        }
+
+        .news-card:hover .news-card-link {
+          gap: 12px;
         }
 
         .news-loading,
@@ -268,7 +266,7 @@ const NewsSection = () => {
         }
 
         .news-empty p {
-          font-size: 20px;
+          font-size: clamp(16px, 1.5vw, 20px);
           color: var(--text-gray);
         }
 
@@ -287,18 +285,18 @@ const NewsSection = () => {
 
         .news-view-all-mobile {
           text-align: center;
-          margin-top: 40px;
+          margin-block-start: 40px;
         }
 
         .news-view-all-mobile a {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          font-size: 20px;
+          font-size: clamp(16px, 1.5vw, 20px);
           font-weight: 700;
           color: var(--primary);
           text-decoration: none;
-          transition: all 0.3s var(--spring-ease);
+          transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
         }
 
         .news-view-all-mobile a:hover {
@@ -313,7 +311,7 @@ const NewsSection = () => {
           }
 
           .news-header-section {
-            margin-bottom: 60px;
+            margin-block-end: 60px;
           }
 
           .news-title-top,
@@ -330,6 +328,7 @@ const NewsSection = () => {
           .news-section {
             margin: 12px;
             padding: 40px 16px;
+            border-radius: var(--radius-lg, 30px);
           }
 
           .news-grid {
