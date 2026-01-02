@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Contact {
   id: number;
@@ -16,6 +17,7 @@ interface Contact {
 }
 
 export default function EditContact() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const params = useParams();
   const { id } = params;
@@ -67,11 +69,11 @@ export default function EditContact() {
       if (response.ok) {
         router.push('/admin/contacts');
       } else {
-        alert('Failed to update contact');
+        alert(t('Failed to update contact'));
       }
     } catch (error) {
       console.error('Error updating contact:', error);
-      alert('An error occurred');
+      alert(t('An error occurred'));
     } finally {
       setLoading(false);
     }
@@ -80,13 +82,13 @@ export default function EditContact() {
   if (loading && formData.id === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p>Loading contact data...</p>
+        <p>{t('Loading contact data...')}</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/contacts">
           <Button variant="ghost" size="icon">
@@ -94,20 +96,20 @@ export default function EditContact() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Contact</h1>
-          <p className="text-gray-500 mt-1">Modify an existing contact method</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Edit Contact')}</h1>
+          <p className="text-gray-500 mt-1">{t('Modify an existing contact method')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>Edit the contact details</CardDescription>
+            <CardTitle>{t('Contact Information')}</CardTitle>
+            <CardDescription>{t('Edit the contact details')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="type">Contact Type *</Label>
+              <Label htmlFor="type">{t('Contact Type')} *</Label>
               <select
                 id="type"
                 value={formData.type}
@@ -115,21 +117,21 @@ export default function EditContact() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
               >
-                <option value="">Select type</option>
-                <option value="email">Email</option>
-                <option value="phone">Phone</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="other">Other</option>
+                <option value="">{t('Select type')}</option>
+                <option value="email">{t('Email')}</option>
+                <option value="phone">{t('Phone')}</option>
+                <option value="whatsapp">{t('WhatsApp')}</option>
+                <option value="other">{t('Other')}</option>
               </select>
             </div>
 
             <div>
-              <Label htmlFor="value">Contact Value *</Label>
+              <Label htmlFor="value">{t('Contact Value')} *</Label>
               <Input
                 id="value"
                 value={formData.value}
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                placeholder="e.g., contact@example.com"
+                placeholder={t('e.g., contact@example.com')}
                 required
               />
             </div>
@@ -138,10 +140,10 @@ export default function EditContact() {
 
         <div className="flex justify-end gap-4">
           <Link href="/admin/contacts">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
           <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
-            {loading ? 'Updating...' : 'Update Contact'}
+            {loading ? t('Updating...') : t('Update Contact')}
           </Button>
         </div>
       </form>

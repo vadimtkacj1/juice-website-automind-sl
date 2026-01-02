@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Category {
   id: number;
@@ -38,14 +39,25 @@ interface VolumeOption {
   sort_order: number;
 }
 
+interface AdditionalItem {
+  id?: number;
+  name: string;
+  description?: string;
+  price: number;
+  is_available: boolean;
+  sort_order: number;
+}
+
 export default function EditMenuItem() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
+  const { t, language } = useAdminLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
+  const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
   const [form, setForm] = useState({
     category_id: '',
     name: '',
@@ -78,14 +90,15 @@ export default function EditMenuItem() {
   async function fetchMenuItem(itemId: number) {
     setInitialLoading(true);
     try {
-      const [itemResponse, volumesResponse] = await Promise.all([
+      const [itemResponse, volumesResponse, additionalItemsResponse] = await Promise.all([
         fetch(`/api/menu-items/${itemId}`),
-        fetch(`/api/menu-items/${itemId}/volumes`)
+        fetch(`/api/menu-items/${itemId}/volumes`),
+        fetch(`/api/menu-items/${itemId}/additional-items`)
       ]);
       
       if (!itemResponse.ok) {
         if (itemResponse.status === 404) {
-          alert('Menu item not found');
+          alert(t('Menu item not found'));
           router.push('/admin/menu');
           return;
         }
@@ -112,9 +125,15 @@ export default function EditMenuItem() {
         const volumesData = await volumesResponse.json();
         setVolumeOptions(volumesData.volumes || []);
       }
+
+      // Fetch additional items
+      if (additionalItemsResponse.ok) {
+        const additionalItemsData = await additionalItemsResponse.json();
+        setAdditionalItems(additionalItemsData.additionalItems || []);
+      }
     } catch (error) {
       console.error('Error fetching menu item:', error);
-      alert('Error loading menu item');
+      alert(t('Error loading menu item'));
       router.push('/admin/menu');
     } finally {
       setInitialLoading(false);
@@ -145,7 +164,7 @@ export default function EditMenuItem() {
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || 'Error updating item');
+        alert(data.error || t('Error updating item'));
         setLoading(false);
         return;
       }
@@ -159,15 +178,39 @@ export default function EditMenuItem() {
 
       if (!volumesResponse.ok) {
         const data = await volumesResponse.json();
-        alert(data.error || 'Error updating volume options');
+        alert(data.error || t('Error updating volume options'));
         setLoading(false);
         return;
+      }
+
+      // Save additional items (delete all and recreate)
+      // First, delete all existing additional items
+      const existingItems = additionalItems.filter(item => item.id);
+      for (const item of existingItems) {
+        await fetch(`/api/menu-items/${id}/additional-items/${item.id}`, {
+          method: 'DELETE'
+        });
+      }
+
+      // Then create new ones
+      for (const item of additionalItems) {
+        await fetch(`/api/menu-items/${id}/additional-items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: item.name,
+            description: item.description || null,
+            price: item.price,
+            is_available: item.is_available,
+            sort_order: item.sort_order
+          })
+        });
       }
 
       router.push('/admin/menu');
     } catch (error) {
       console.error('Error updating item:', error);
-      alert('Error updating item');
+      alert(t('Error updating item'));
     }
     setLoading(false);
   }
@@ -203,16 +246,43 @@ export default function EditMenuItem() {
     setVolumeOptions(newVolumes);
   }
 
+  const addAdditionalItem = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setAdditionalItems(prev => {
+      const newItem = {
+        name: '',
+        description: '',
+        price: 0,
+        is_available: true,
+        sort_order: prev.length
+      };
+      return [...prev, newItem];
+    });
+  }, []);
+
+  function removeAdditionalItem(index: number) {
+    setAdditionalItems(additionalItems.filter((_, i) => i !== index));
+  }
+
+  function updateAdditionalItem(index: number, field: keyof AdditionalItem, value: any) {
+    const newItems = [...additionalItems];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setAdditionalItems(newItems);
+  }
+
   if (initialLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading menu item..." />
+        <LoadingSpinner size="lg" text={t('Loading menu item...')} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/menu">
           <Button variant="ghost" size="icon">
@@ -220,20 +290,20 @@ export default function EditMenuItem() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Menu Item</h1>
-          <p className="text-gray-500 mt-1">Modify menu item details</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Edit Menu Item')}</h1>
+          <p className="text-gray-500 mt-1">{t('Modify menu item details')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Item Details</CardTitle>
-            <CardDescription>Update the item information</CardDescription>
+            <CardTitle>{t('Item Details')}</CardTitle>
+            <CardDescription>{t('Update the item information')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">{t('Category *')}</Label>
               <select
                 id="category"
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md"
@@ -248,50 +318,50 @@ export default function EditMenuItem() {
             </div>
 
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('Name *')}</Label>
               <Input
                 id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Orange Juice"
+                placeholder={t('Orange Juice')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('Description')}</Label>
               <Input
                 id="description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Fresh squeezed orange juice"
+                placeholder={t('Fresh squeezed orange juice')}
               />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="price">Price (₪) *</Label>
+                <Label htmlFor="price">{t('Price (₪) *')}</Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  placeholder="25"
+                  placeholder={t('25')}
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="volume">Volume/Size</Label>
+                <Label htmlFor="volume">{t('Volume/Size')}</Label>
                 <Input
                   id="volume"
                   value={form.volume}
                   onChange={(e) => setForm({ ...form, volume: e.target.value })}
-                  placeholder="0.5L"
+                  placeholder={t('0.5L')}
                 />
               </div>
               <div>
-                <Label htmlFor="discount">Discount (%)</Label>
+                <Label htmlFor="discount">{t('Discount (%)')}</Label>
                 <Input
                   id="discount"
                   type="number"
@@ -299,23 +369,23 @@ export default function EditMenuItem() {
                   max="100"
                   value={form.discount_percent}
                   onChange={(e) => setForm({ ...form, discount_percent: e.target.value })}
-                  placeholder="0"
+                  placeholder={t('0')}
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="sort_order">Sort Order</Label>
+              <Label htmlFor="sort_order">{t('Sort Order')}</Label>
               <Input
                 id="sort_order"
                 type="number"
                 value={form.sort_order}
                 onChange={(e) => setForm({ ...form, sort_order: e.target.value })}
-                placeholder="0"
+                placeholder={t('0')}
                 min="0"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Lower numbers appear first
+                {t('Lower numbers appear first')}
               </p>
             </div>
 
@@ -327,22 +397,22 @@ export default function EditMenuItem() {
                 onChange={(e) => setForm({ ...form, is_available: e.target.checked })}
                 className="w-4 h-4"
               />
-              <Label htmlFor="available">Available for order</Label>
+              <Label htmlFor="available">{t('Available for order')}</Label>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Item Image</CardTitle>
-            <CardDescription>Upload or update the image URL</CardDescription>
+            <CardTitle>{t('Item Image')}</CardTitle>
+            <CardDescription>{t('Upload or update the image URL')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ImageUpload
               value={form.image}
               onChange={(url) => setForm({ ...form, image: url })}
               folder="menu"
-              label="Product Image"
+              label={t('Product Image')}
             />
           </CardContent>
         </Card>
@@ -351,9 +421,9 @@ export default function EditMenuItem() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Volume Options</CardTitle>
+                <CardTitle>{t('Volume Options')}</CardTitle>
                 <CardDescription>
-                  Define multiple volume/size options for this item. Customers can choose from these when ordering.
+                  {t('Define multiple volume/size options for this item. Customers can choose from these when ordering.')}
                 </CardDescription>
               </div>
               <Button
@@ -364,50 +434,50 @@ export default function EditMenuItem() {
                 className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Volume
+                {t('Add Volume')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {volumeOptions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <p>No volume options defined.</p>
-                <p className="text-sm mt-2">Click "Add Volume" to create volume options for this item.</p>
+                <p>{t('No volume options defined.')}</p>
+                <p className="text-sm mt-2">{t('Click "Add Volume" to create volume options for this item.')}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {volumeOptions.map((vol, index) => (
                   <div key={index} className="grid grid-cols-12 gap-4 p-4 border rounded-lg bg-gray-50">
                     <div className="col-span-4">
-                      <Label htmlFor={`vol-${index}`}>Volume/Size *</Label>
+                      <Label htmlFor={`vol-${index}`}>{t('Volume/Size *')}</Label>
                       <Input
                         id={`vol-${index}`}
                         value={vol.volume}
                         onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
-                        placeholder="0.5L"
+                        placeholder={t('0.5L')}
                         required
                       />
                     </div>
                     <div className="col-span-3">
-                      <Label htmlFor={`price-${index}`}>Price (₪) *</Label>
+                      <Label htmlFor={`price-${index}`}>{t('Price (₪) *')}</Label>
                       <Input
                         id={`price-${index}`}
                         type="number"
                         step="0.01"
                         value={vol.price}
                         onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
-                        placeholder="25"
+                        placeholder={t('25')}
                         required
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label htmlFor={`sort-${index}`}>Sort Order</Label>
+                      <Label htmlFor={`sort-${index}`}>{t('Sort Order')}</Label>
                       <Input
                         id={`sort-${index}`}
                         type="number"
                         value={vol.sort_order}
                         onChange={(e) => updateVolumeOption(index, 'sort_order', parseInt(e.target.value) || 0)}
-                        placeholder="0"
+                        placeholder={t('0')}
                       />
                     </div>
                     <div className="col-span-2 flex items-end">
@@ -420,7 +490,7 @@ export default function EditMenuItem() {
                           className="w-4 h-4"
                         />
                         <Label htmlFor={`default-${index}`} className="cursor-pointer text-sm">
-                          Default
+                          {t('Default')}
                         </Label>
                       </div>
                     </div>
@@ -442,16 +512,126 @@ export default function EditMenuItem() {
           </CardContent>
         </Card>
 
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('Additional Items')}</CardTitle>
+                <CardDescription>
+                  {t('Add optional items like "Bigger Glass" or "More KG" that customers can select when buying this item.')}
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  addAdditionalItem(e);
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+                formNoValidate
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t('Add Item')}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {additionalItems.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>{t('No additional items defined.')}</p>
+                <p className="text-sm mt-2">{t('Click "Add Item" to create additional options for this item.')}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {additionalItems.map((item, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-4 p-4 border rounded-lg bg-gray-50">
+                    <div className="col-span-4">
+                      <Label htmlFor={`add-name-${index}`}>{t('Name *')}</Label>
+                      <Input
+                        id={`add-name-${index}`}
+                        value={item.name}
+                        onChange={(e) => updateAdditionalItem(index, 'name', e.target.value)}
+                        placeholder={t('Bigger Glass')}
+                        required
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <Label htmlFor={`add-price-${index}`}>{t('Price (₪) *')}</Label>
+                      <Input
+                        id={`add-price-${index}`}
+                        type="number"
+                        step="0.01"
+                        value={item.price}
+                        onChange={(e) => updateAdditionalItem(index, 'price', parseFloat(e.target.value) || 0)}
+                        placeholder={t('5')}
+                        required
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor={`add-sort-${index}`}>{t('Sort Order')}</Label>
+                      <Input
+                        id={`add-sort-${index}`}
+                        type="number"
+                        value={item.sort_order}
+                        onChange={(e) => updateAdditionalItem(index, 'sort_order', parseInt(e.target.value) || 0)}
+                        placeholder={t('0')}
+                      />
+                    </div>
+                    <div className="col-span-2 flex items-end">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`add-available-${index}`}
+                          checked={item.is_available}
+                          onChange={(e) => updateAdditionalItem(index, 'is_available', e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`add-available-${index}`} className="text-sm">
+                          {t('Available')}
+                        </Label>
+                      </div>
+                    </div>
+                    <div className="col-span-1 flex items-end">
+                      <Button
+                        type="button"
+                        onClick={() => removeAdditionalItem(index)}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="col-span-12">
+                      <Label htmlFor={`add-desc-${index}`}>{t('Description')}</Label>
+                      <Input
+                        id={`add-desc-${index}`}
+                        value={item.description || ''}
+                        onChange={(e) => updateAdditionalItem(index, 'description', e.target.value)}
+                        placeholder={t('Optional description')}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="lg:col-span-2 flex gap-4">
           <Button 
             type="submit" 
             disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            {loading ? 'Updating...' : 'Update Item'}
+            {loading ? t('Updating...') : t('Update Item')}
           </Button>
           <Link href="/admin/menu">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
         </div>
       </form>

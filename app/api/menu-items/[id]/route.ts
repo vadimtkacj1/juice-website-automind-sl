@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +34,7 @@ export async function GET(
             resolve(NextResponse.json({ error: 'Item not found' }, { status: 404 }));
             return;
           }
-          resolve(NextResponse.json({ item: row }));
+          resolve(NextResponse.json({ item: translateObject(row) }));
         }
       );
     });

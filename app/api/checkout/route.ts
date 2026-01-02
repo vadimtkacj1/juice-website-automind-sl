@@ -133,16 +133,19 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
           }
           
           const item = items[index];
-          // Calculate item price including addons and ingredients
+          // Calculate item price including addons, ingredients, and additional items
           const addonsPrice = (item.addons || []).reduce((addonTotal, addon) => 
             addonTotal + addon.price * addon.quantity, 0
           );
           const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal, ing) => 
             ingTotal + ing.price, 0
           );
-          const itemTotalPrice = item.price + addonsPrice + ingredientsPrice;
+          const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) => 
+            addTotal + addItem.price, 0
+          );
+          const itemTotalPrice = item.price + addonsPrice + ingredientsPrice + additionalItemsPrice;
           
-          // Build item name with addons and ingredients info
+          // Build item name with addons, ingredients, and additional items info
           let itemName = item.name;
           if (item.addons && item.addons.length > 0) {
             const addonsList = item.addons.map(a => `+${a.name}${a.quantity > 1 ? `(x${a.quantity})` : ''}`).join(' ');
@@ -151,6 +154,10 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
           if (item.customIngredients && item.customIngredients.length > 0) {
             const ingredientsList = item.customIngredients.map(ing => ing.name).join(', ');
             itemName += ` [Ingredients: ${ingredientsList}]`;
+          }
+          if (item.additionalItems && item.additionalItems.length > 0) {
+            const additionalList = item.additionalItems.map(addItem => `+${addItem.name}`).join(', ');
+            itemName += ` [${additionalList}]`;
           }
           
           dbInstance.run(

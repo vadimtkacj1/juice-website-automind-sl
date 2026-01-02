@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { translateToHebrew } from '@/lib/translations';
+import styles from './Footer.module.css';
 
 const footerLinks = [
   { href: '/', label: translateToHebrew('Home') },
@@ -17,16 +18,16 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="footer-main" role="contentinfo" aria-label="כותרת תחתונה">
+    <footer className={styles.footerMain} role="contentinfo" aria-label="כותרת תחתונה">
       {/* Brand Name */}
-      <div className="footer-brand" aria-label="שם המותג">
+      <div className={styles.footerBrand} aria-label="שם המותג">
         נטורליי מרענן
       </div>
 
       {/* Navigation Links */}
-      <nav className="footer-links" aria-label="ניווט תחתון">
+      <nav className={styles.footerLinks} aria-label="ניווט תחתון">
         {footerLinks.map((link) => (
-          <Link key={link.href} href={link.href} className="menu-item white-link">
+          <Link key={link.href} href={link.href} className={`menu-item ${styles.whiteLink}`}>
             <div className="roll-inner">
               <span>{link.label}</span>
               <span className="hvr">{link.label}</span>
@@ -36,27 +37,18 @@ export default function Footer() {
       </nav>
 
       {/* Legal Links */}
-      <div className="footer-legal">
+      <div className={styles.footerLegal}>
         {legalLinks.map((link) => (
-          <Link key={link.href} href={link.href} className="legal-link">
+          <Link key={link.href} href={link.href} className={styles.legalLink}>
             {link.label}
           </Link>
         ))}
       </div>
 
       {/* Copyright */}
-      <p className="footer-copyright">
+      <p className={styles.footerCopyright}>
         © {currentYear} נטורליי מרענן. כל הזכויות שמורות.
       </p>
-
-      <style jsx>{`
-        .footer-copyright {
-          color: rgba(255, 255, 255, 0.8);
-          font-size: clamp(12px, 1vw, 14px);
-          font-weight: 500;
-          margin-block-start: 20px;
-        }
-      `}</style>
     </footer>
   );
 }

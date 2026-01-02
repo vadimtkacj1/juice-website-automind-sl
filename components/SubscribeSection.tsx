@@ -1,12 +1,15 @@
+import { translateToHebrew } from '@/lib/translations';
+import styles from './SubscribeSection.module.css';
+
 export default function SubscribeSection() {
   return (
-    <section className="subscribe-section reveal">
-      <div className="sub-content">
-        <h2>Stay in touch!</h2>
-        <p>Latest offers, news, & goodies to your inbox.</p>
-        <form className="sub-form">
-          <input type="email" name="email" placeholder="Your email address" required />
-          <button type="submit">Subscribe</button>
+    <section className={`${styles.subscribeSection} reveal`}>
+      <div className={styles.subContent}>
+        <h2>{translateToHebrew('Stay in touch!')}</h2>
+        <p>{translateToHebrew('Latest offers, news, & goodies to your inbox.')}</p>
+        <form className={styles.subForm}>
+          <input type="email" name="email" placeholder={translateToHebrew('Your email address')} required />
+          <button type="submit">{translateToHebrew('Subscribe')}</button>
         </form>
       </div>
     </section>

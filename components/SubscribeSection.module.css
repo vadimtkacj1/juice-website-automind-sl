@@ -1,0 +1,104 @@
+/* Subscribe Section Styles */
+
+.subscribeSection {
+  background-color: var(--white);
+  border-radius: var(--radius-xl);
+  margin: 20px var(--spacing-sm);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  width: calc(100% - 32px);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+.subContent {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.subForm {
+  width: 100%;
+  max-width: 550px;
+  position: relative;
+  margin: var(--spacing-lg) auto;
+}
+
+.subForm input {
+  width: 100%;
+  padding: 26px 30px;
+  border-radius: var(--radius-full);
+  border: none;
+  font-size: 32px;
+  outline: none;
+  font-family: inherit;
+  font-weight: 900;
+}
+
+.subForm button {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding-inline: 35px;
+  border-radius: var(--radius-full);
+  font-weight: 900;
+  font-size: 36px;
+  transition: background 0.3s ease;
+}
+
+.subForm button:hover {
+  background: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .subForm input {
+    font-size: 28px;
+    padding: 24px 28px;
+  }
+
+  .subForm button {
+    font-size: 32px;
+    padding-inline: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .subscribeSection {
+    margin: 12px;
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+
+  .subForm input {
+    font-size: 24px;
+    padding: 20px 24px;
+  }
+
+  .subForm button {
+    font-size: 28px;
+    padding-inline: 25px;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .subForm input {
+    font-size: 20px;
+    padding: 18px 20px;
+  }
+
+  .subForm button {
+    font-size: 24px;
+    padding-inline: 20px;
+  }
+}
+

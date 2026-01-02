@@ -30,21 +30,26 @@ export default function PageLoader() {
   if (!isLoading) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgb(255, 255, 255)',
-      zIndex: 99999,
-      transition: 'opacity 0.3s ease-out',
-    }}>
+    <div 
+      className="global-loader-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        backdropFilter: 'blur(4px)',
+        zIndex: 999999,
+        transition: 'opacity 0.3s ease-out, visibility 0.3s ease-out',
+        pointerEvents: 'all',
+      }}
+    >
       <LoadingSpinner size="lg" />
     </div>
   );

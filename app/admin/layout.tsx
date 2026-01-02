@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { AdminLanguageProvider } from '@/lib/admin-language-context';
+import './admin.css';
 
 const DynamicAdminAuthWrapper = dynamic(() => import('@/components/AdminAuthWrapper'), { ssr: false });
 const DynamicLanguageProvider = dynamic(() => Promise.resolve(AdminLanguageProvider), { ssr: false });

@@ -1,0 +1,309 @@
+/* ============================================
+   ADMIN PANEL STYLES
+   ============================================ */
+
+/* Admin Panel Text - Better Colors */
+/* Target admin layout specifically */
+#admin-layout-root .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+/* Target admin main content area */
+#admin-main-content .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+/* Card content text in admin */
+#admin-layout-root .card .text-muted-foreground,
+#admin-layout-root .card .text-gray-500 {
+  color: #2d3748 !important;
+}
+
+#admin-layout-root .card .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+/* Table text in admin */
+#admin-layout-root table .text-muted-foreground,
+#admin-layout-root table .text-gray-500 {
+  color: #2d3748 !important;
+}
+
+#admin-layout-root table .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+/* Description and helper text in admin */
+#admin-layout-root .text-xs.text-muted-foreground,
+#admin-layout-root .text-sm.text-muted-foreground,
+#admin-layout-root .text-xs.text-gray-500,
+#admin-layout-root .text-sm.text-gray-500,
+#admin-main-content .text-xs.text-muted-foreground,
+#admin-main-content .text-sm.text-muted-foreground,
+#admin-main-content .text-xs.text-gray-500,
+#admin-main-content .text-sm.text-gray-500 {
+  color: #2d3748 !important;
+}
+
+/* Small text */
+#admin-layout-root .text-xs,
+#admin-main-content .text-xs,
+#admin-layout-root .text-sm,
+#admin-main-content .text-sm {
+  color: #1a202c !important;
+}
+
+/* Paragraph and description text */
+#admin-layout-root p,
+#admin-main-content p,
+#admin-layout-root .text-base,
+#admin-main-content .text-base {
+  color: #000000 !important;
+}
+
+/* DialogDescription text */
+#admin-layout-root [role="dialog"] p,
+#admin-main-content [role="dialog"] p,
+#admin-layout-root [role="dialog"] .text-sm,
+#admin-main-content [role="dialog"] .text-sm {
+  color: #000000 !important;
+}
+
+#admin-layout-root [role="dialog"] .text-muted-foreground,
+#admin-main-content [role="dialog"] .text-muted-foreground {
+  color: #1a202c !important;
+}
+
+/* Navigation text */
+#admin-layout-root aside .text-gray-700,
+#admin-layout-root nav .text-gray-700 {
+  color: #000000 !important;
+}
+
+/* Admin Panel Headers - Remove Bold, Better Colors */
+#admin-layout-root h1,
+#admin-main-content h1,
+#admin-layout-root h2,
+#admin-main-content h2,
+#admin-layout-root h3,
+#admin-main-content h3,
+#admin-layout-root h4,
+#admin-main-content h4,
+#admin-layout-root h5,
+#admin-main-content h5,
+#admin-layout-root h6,
+#admin-main-content h6,
+#admin-layout-root .text-3xl,
+#admin-main-content .text-3xl,
+#admin-layout-root .text-2xl,
+#admin-main-content .text-2xl,
+#admin-layout-root .text-xl,
+#admin-main-content .text-xl,
+#admin-layout-root [class*="CardTitle"],
+#admin-main-content [class*="CardTitle"],
+#admin-layout-root .card-title,
+#admin-main-content .card-title,
+#admin-layout-root h1[class*="text-gray"],
+#admin-main-content h1[class*="text-gray"],
+#admin-layout-root h2[class*="text-gray"],
+#admin-main-content h2[class*="text-gray"],
+#admin-layout-root h3[class*="text-gray"],
+#admin-main-content h3[class*="text-gray"] {
+  color: #000000 !important;
+  font-weight: 500;
+}
+
+#admin-layout-root h1.text-gray-900,
+#admin-main-content h1.text-gray-900,
+#admin-layout-root h2.text-gray-900,
+#admin-main-content h2.text-gray-900,
+#admin-layout-root h3.text-gray-900,
+#admin-main-content h3.text-gray-900,
+#admin-layout-root [class*="CardTitle"].text-gray-900,
+#admin-main-content [class*="CardTitle"].text-gray-900,
+#admin-layout-root [class*="CardTitle"][class*="text-gray"],
+#admin-main-content [class*="CardTitle"][class*="text-gray"] {
+  color: #000000 !important;
+}
+
+/* Admin Panel Buttons - Relative Font Sizes and Colors */
+#admin-layout-root button,
+#admin-main-content button,
+#admin-layout-root .button,
+#admin-main-content .button {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+}
+
+#admin-layout-root button[class*="bg-purple"],
+#admin-main-content button[class*="bg-purple"],
+#admin-layout-root button[class*="bg-purple-600"],
+#admin-main-content button[class*="bg-purple-600"] {
+  color: white !important;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+#admin-layout-root button[class*="bg-purple"]:hover,
+#admin-main-content button[class*="bg-purple"]:hover {
+  color: white !important;
+}
+
+#admin-layout-root button[class*="variant"]:not([class*="bg-purple"]),
+#admin-main-content button[class*="variant"]:not([class*="bg-purple"]) {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+#admin-layout-root button.size-sm,
+#admin-main-content button.size-sm {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#admin-layout-root button.size-lg,
+#admin-main-content button.size-lg {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Admin Panel Form Elements - Relative Font Sizes */
+#admin-layout-root input,
+#admin-main-content input,
+#admin-layout-root select,
+#admin-main-content select,
+#admin-layout-root textarea,
+#admin-main-content textarea {
+  font-size: 16px;
+  color: #000000;
+}
+
+#admin-layout-root input::placeholder,
+#admin-main-content input::placeholder,
+#admin-layout-root textarea::placeholder,
+#admin-main-content textarea::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 16px;
+}
+
+#admin-layout-root label,
+#admin-main-content label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+}
+
+#admin-layout-root label.text-xs,
+#admin-main-content label.text-xs {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* Admin Panel Dialog Buttons */
+#admin-layout-root [role="dialog"] button,
+#admin-main-content [role="dialog"] button {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+#admin-layout-root [role="dialog"] button[class*="bg-purple"],
+#admin-main-content [role="dialog"] button[class*="bg-purple"] {
+  color: white !important;
+}
+
+/* Admin Panel Add/Remove Volume Buttons */
+#admin-layout-root button[type="button"]:has(svg),
+#admin-main-content button[type="button"]:has(svg) {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+#admin-layout-root button:has([class*="Plus"]),
+#admin-main-content button:has([class*="Plus"]),
+#admin-layout-root button:has([class*="Trash"]),
+#admin-main-content button:has([class*="Trash"]) {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+}
+
+#admin-layout-root button:has([class*="Plus"])[class*="bg-purple"],
+#admin-main-content button:has([class*="Plus"])[class*="bg-purple"],
+#admin-layout-root button:has([class*="Trash"])[class*="bg-purple"],
+#admin-main-content button:has([class*="Trash"])[class*="bg-purple"] {
+  color: white !important;
+}
+
+/* Darken all text elements that don't have explicit color classes */
+#admin-layout-root span:not([class*="text-white"]):not([class*="text-purple"]):not(button *),
+#admin-main-content span:not([class*="text-white"]):not([class*="text-purple"]):not(button *) {
+  color: #000000 !important;
+}
+
+/* Darken CardDescription and similar helper text */
+#admin-layout-root [class*="CardDescription"],
+#admin-main-content [class*="CardDescription"],
+#admin-layout-root [class*="DialogDescription"],
+#admin-main-content [class*="DialogDescription"] {
+  color: #1a202c !important;
+}
+
+/* Remove bold styling from all admin panel text */
+#admin-layout-root .font-bold,
+#admin-main-content .font-bold,
+#admin-layout-root .font-semibold,
+#admin-main-content .font-semibold {
+  font-weight: 500 !important;
+}
+
+/* Override bold in headers */
+#admin-layout-root h1.font-bold,
+#admin-main-content h1.font-bold,
+#admin-layout-root h2.font-bold,
+#admin-main-content h2.font-bold,
+#admin-layout-root h3.font-bold,
+#admin-main-content h3.font-bold,
+#admin-layout-root h4.font-bold,
+#admin-main-content h4.font-bold,
+#admin-layout-root h5.font-bold,
+#admin-main-content h5.font-bold,
+#admin-layout-root h6.font-bold,
+#admin-main-content h6.font-bold {
+  font-weight: 500 !important;
+}
+
+/* Better color scheme for admin panel */
+#admin-layout-root .text-gray-500,
+#admin-main-content .text-gray-500 {
+  color: #1a202c !important;
+}
+
+#admin-layout-root .text-gray-600,
+#admin-main-content .text-gray-600 {
+  color: #000000 !important;
+}
+
+#admin-layout-root .text-gray-700,
+#admin-main-content .text-gray-700 {
+  color: #000000 !important;
+}
+
+#admin-layout-root .text-gray-800,
+#admin-main-content .text-gray-800 {
+  color: #000000 !important;
+}
+
+#admin-layout-root .text-gray-900,
+#admin-main-content .text-gray-900 {
+  color: #000000 !important;
+}
+
+/* Improve muted foreground color */
+#admin-layout-root .text-muted-foreground,
+#admin-main-content .text-muted-foreground {
+  color: #1a202c !important;
+}
+

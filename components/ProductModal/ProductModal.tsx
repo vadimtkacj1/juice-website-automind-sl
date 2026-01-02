@@ -10,6 +10,7 @@ import ProductModalFeatures from './ProductModalFeatures';
 import VolumeSelector from './VolumeSelector';
 import AddonsSection from './AddonsSection';
 import IngredientsSection from './IngredientsSection';
+import AdditionalItemsSection from './AdditionalItemsSection';
 import ProductModalFooter from './ProductModalFooter';
 import { useProductModalData } from './useProductModalData';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -35,16 +36,42 @@ interface ProductModalProps {
   onAddToCart: (item: ProductModalItem & { volume?: string, addons?: CartAddon[], customIngredients?: CartCustomIngredient[] }) => void;
 }
 
+interface OrderPrompt {
+  id: number;
+  title: string;
+  description?: string;
+  prompt_type: string;
+  is_active: boolean;
+  sort_order: number;
+  show_on_all_products: boolean;
+  products?: OrderPromptProduct[];
+}
+
+interface OrderPromptProduct {
+  id: number;
+  prompt_id: number;
+  menu_item_id?: number;
+  product_name?: string;
+  product_price: number;
+  volume_option?: string;
+  sort_order: number;
+}
+
 export default function ProductModal({ item, isOpen, onClose, onAddToCart }: ProductModalProps) {
-  const { addons, customIngredients, volumeOptions } = useProductModalData(item, isOpen);
+  const { addons, customIngredients, volumeOptions, additionalItems } = useProductModalData(item, isOpen);
   
   const [selectedVolume, setSelectedVolume] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<Map<number, number>>(new Map());
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [selectedIngredientsByCategory, setSelectedIngredientsByCategory] = useState<Map<string, number>>(new Map());
+  const [selectedAdditionalItems, setSelectedAdditionalItems] = useState<Set<number>>(new Set());
   const [showIngredientPrompt, setShowIngredientPrompt] = useState(false);
   const [pendingAddToCart, setPendingAddToCart] = useState(false);
   const [hasShownPrompt, setHasShownPrompt] = useState(false);
+  const [orderPrompts, setOrderPrompts] = useState<OrderPrompt[]>([]);
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const [showOrderPrompt, setShowOrderPrompt] = useState(false);
+  const [selectedPromptProducts, setSelectedPromptProducts] = useState<Set<number>>(new Set());
 
   // Debug: Log when ingredients change
   useEffect(() => {
@@ -67,9 +94,13 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     }
   }, [volumeOptions, selectedVolume]);
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll when modal is open and scroll to top
   useEffect(() => {
     if (isOpen) {
+      // Scroll to top when modal opens
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Prevent body scroll
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -101,6 +132,36 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     }
   }, [isOpen, customIngredients.length, selectedIngredients.size, hasShownPrompt]);
 
+  // Fetch order prompts when modal opens
+  useEffect(() => {
+    if (isOpen && item) {
+      fetchOrderPrompts();
+    }
+  }, [isOpen, item]);
+
+  // Fetch order prompts
+  const fetchOrderPrompts = async () => {
+    try {
+      const response = await fetch('/api/order-prompts');
+      if (response.ok) {
+        const data = await response.json();
+        // Filter prompts that should show for this product
+        const relevantPrompts = (data.prompts || []).filter((prompt: OrderPrompt) => {
+          if (!prompt.is_active) return false;
+          if (prompt.show_on_all_products) return true;
+          // If not showing on all products, check if this product is in the prompt's products
+          if (prompt.products && prompt.products.length > 0) {
+            return prompt.products.some((p: OrderPromptProduct) => p.menu_item_id === item?.id);
+          }
+          return false;
+        });
+        setOrderPrompts(relevantPrompts);
+      }
+    } catch (error) {
+      console.error('Error fetching order prompts:', error);
+    }
+  };
+
   // Reset selections when modal closes
   useEffect(() => {
     if (!isOpen) {
@@ -111,6 +172,10 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       setShowIngredientPrompt(false);
       setPendingAddToCart(false);
       setHasShownPrompt(false);
+      setOrderPrompts([]);
+      setCurrentPromptIndex(0);
+      setShowOrderPrompt(false);
+      setSelectedPromptProducts(new Set());
     }
   }, [isOpen]);
 
@@ -218,6 +283,16 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       };
     });
 
+    // Get selected additional items
+    const additionalItemsArray = Array.from(selectedAdditionalItems).map(id => {
+      const additionalItem = additionalItems.find(i => i.id === id);
+      return {
+        id,
+        name: additionalItem?.name || '',
+        price: additionalItem?.price || 0
+      };
+    });
+
     // Calculate the correct base price based on selected volume
     let basePrice = item.price;
     if (selectedVolume && volumeOptions.length > 0) {
@@ -236,6 +311,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     console.log('proceedWithAddToCart - customIngredients available:', customIngredients);
     console.log('proceedWithAddToCart - allIngredientIds:', Array.from(allIngredientIds));
     console.log('proceedWithAddToCart - ingredientsArray:', ingredientsArray);
+    console.log('proceedWithAddToCart - selectedAdditionalItems:', Array.from(selectedAdditionalItems));
+    console.log('proceedWithAddToCart - additionalItemsArray:', additionalItemsArray);
     
     const cartItem = {
       id: item.id,
@@ -245,15 +322,27 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       discount_percent: item.discount_percent,
       volume: selectedVolume || undefined,
       addons: addonsArray.length > 0 ? addonsArray : undefined,
-      customIngredients: ingredientsArray.length > 0 ? ingredientsArray : undefined
+      customIngredients: ingredientsArray.length > 0 ? ingredientsArray : undefined,
+      additionalItems: additionalItemsArray.length > 0 ? additionalItemsArray : undefined
     };
     
     console.log('Adding to cart:', cartItem);
     console.log('Cart item customIngredients:', cartItem.customIngredients);
     console.log('Cart item has ingredients?', cartItem.customIngredients && cartItem.customIngredients.length > 0);
     
-    onAddToCart(cartItem);
+    // Close all dialogs and modals first
+    setShowIngredientPrompt(false);
+    setShowOrderPrompt(false);
+    setPendingAddToCart(false);
+    
+    // Close modal
     onClose();
+    
+    // Small delay to ensure modal and dialogs are closed, then add to cart
+    setTimeout(() => {
+      onAddToCart(cartItem);
+      // Cart will open automatically via cart context (setIsCartOpen(true))
+    }, 300);
   };
 
   const handleAddIngredients = () => {
@@ -304,6 +393,62 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     proceedWithAddToCart();
   };
 
+  // Handle order prompt product selection
+  const handleTogglePromptProduct = (productId: number) => {
+    setSelectedPromptProducts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle order prompt actions
+  const handleOrderPromptNext = () => {
+    const currentPrompt = orderPrompts[currentPromptIndex];
+    if (!currentPrompt) return;
+
+    // Add selected products to cart
+    if (selectedPromptProducts.size > 0 && currentPrompt.products) {
+      currentPrompt.products
+        .filter(p => selectedPromptProducts.has(p.id))
+        .forEach(product => {
+          const promptCartItem = {
+            id: product.menu_item_id || 0,
+            name: product.product_name || translateToHebrew('Additional Item'),
+            price: product.product_price,
+            image: undefined,
+            discount_percent: 0,
+            volume: product.volume_option || undefined,
+          };
+          onAddToCart(promptCartItem as any);
+        });
+    }
+
+    // Move to next prompt or close
+    if (currentPromptIndex < orderPrompts.length - 1) {
+      setCurrentPromptIndex(currentPromptIndex + 1);
+      setSelectedPromptProducts(new Set());
+    } else {
+      setShowOrderPrompt(false);
+      onClose();
+    }
+  };
+
+  const handleOrderPromptSkip = () => {
+    // Move to next prompt or close
+    if (currentPromptIndex < orderPrompts.length - 1) {
+      setCurrentPromptIndex(currentPromptIndex + 1);
+      setSelectedPromptProducts(new Set());
+    } else {
+      setShowOrderPrompt(false);
+      onClose();
+    }
+  };
+
   const calculateTotalPrice = () => {
     if (!item) return 0;
     
@@ -332,7 +477,12 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       return total + price;
     }, 0);
 
-    return discountedPrice + addonsPrice + ingredientsPrice;
+    const additionalItemsPrice = Array.from(selectedAdditionalItems).reduce((total, id) => {
+      const additionalItem = additionalItems.find(i => i.id === id);
+      return total + (additionalItem?.price || 0);
+    }, 0);
+
+    return discountedPrice + addonsPrice + ingredientsPrice + additionalItemsPrice;
   };
 
   if (!isOpen || !item) {
@@ -411,6 +561,23 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               onIngredientToggle={handleIngredientToggle}
             />
 
+            {/* Additional Items */}
+            <AdditionalItemsSection
+              additionalItems={additionalItems}
+              selectedItems={selectedAdditionalItems}
+              onToggle={(id) => {
+                setSelectedAdditionalItems(prev => {
+                  const newSet = new Set(prev);
+                  if (newSet.has(id)) {
+                    newSet.delete(id);
+                  } else {
+                    newSet.add(id);
+                  }
+                  return newSet;
+                });
+              }}
+            />
+
             {/* Footer */}
             <ProductModalFooter
               totalPrice={calculateTotalPrice()}
@@ -473,6 +640,95 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Order Prompt Dialog */}
+      {orderPrompts.length > 0 && (
+        <Dialog 
+          open={showOrderPrompt} 
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowOrderPrompt(false);
+              onClose();
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>
+                {translateToHebrew(orderPrompts[currentPromptIndex]?.title || 'Additional Items')}
+              </DialogTitle>
+              {orderPrompts[currentPromptIndex]?.description && (
+                <DialogDescription>
+                  {translateToHebrew(orderPrompts[currentPromptIndex].description)}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+            <div className="py-4">
+              {orderPrompts[currentPromptIndex]?.products && orderPrompts[currentPromptIndex].products!.length > 0 ? (
+                <div className="space-y-2">
+                  {orderPrompts[currentPromptIndex].products!.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => handleTogglePromptProduct(product.id)}
+                      className={`flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                        selectedPromptProducts.has(product.id)
+                          ? 'bg-purple-50 border-purple-500'
+                          : 'bg-gray-50 border-gray-200 hover:border-purple-300'
+                      }`}
+                    >
+                      <div className="flex-1">
+                        <span className="font-medium block">
+                          {translateToHebrew(product.product_name || 'Product')}
+                        </span>
+                        {product.volume_option && (
+                          <span className="text-sm text-gray-600">
+                            {translateToHebrew(product.volume_option)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-purple-600">
+                          ₪{product.product_price.toFixed(0)}
+                        </span>
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          selectedPromptProducts.has(product.id)
+                            ? 'bg-purple-600 border-purple-600'
+                            : 'border-gray-300'
+                        }`}>
+                          {selectedPromptProducts.has(product.id) && (
+                            <span className="text-white text-xs">✓</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-4">
+                  {translateToHebrew('No products available in this prompt.')}
+                </p>
+              )}
+            </div>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={handleOrderPromptSkip}
+                className="w-full sm:w-auto"
+              >
+                {translateToHebrew('Skip')}
+              </Button>
+              <Button
+                onClick={handleOrderPromptNext}
+                className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
+              >
+                {currentPromptIndex < orderPrompts.length - 1
+                  ? translateToHebrew('Next')
+                  : translateToHebrew('Done')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

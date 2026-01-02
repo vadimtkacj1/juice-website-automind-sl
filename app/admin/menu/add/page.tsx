@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Category {
   id: number;
@@ -24,6 +25,7 @@ interface VolumeOption {
 
 export default function AddMenuItem() {
   const router = useRouter();
+  const { t, language } = useAdminLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
@@ -74,7 +76,7 @@ export default function AddMenuItem() {
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || 'Error adding item');
+        alert(data.error || t('Error adding item'));
         setLoading(false);
         return;
       }
@@ -92,14 +94,14 @@ export default function AddMenuItem() {
 
         if (!volumesResponse.ok) {
           const data = await volumesResponse.json();
-          alert(data.error || 'Item created but error adding volume options');
+          alert(data.error || t('Item created but error adding volume options'));
         }
       }
 
       router.push('/admin/menu');
     } catch (error) {
       console.error('Error adding item:', error);
-      alert('Error adding item');
+      alert(t('Error adding item'));
     }
     setLoading(false);
   }
@@ -136,7 +138,7 @@ export default function AddMenuItem() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/menu">
           <Button variant="ghost" size="icon">
@@ -144,20 +146,20 @@ export default function AddMenuItem() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add Menu Item</h1>
-          <p className="text-gray-500 mt-1">New menu item</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Add Menu Item')}</h1>
+          <p className="text-gray-500 mt-1">{t('New menu item')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Item Details</CardTitle>
-            <CardDescription>Fill in the item information</CardDescription>
+            <CardTitle>{t('Item Details')}</CardTitle>
+            <CardDescription>{t('Fill in the item information')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">{t('Category *')}</Label>
               <select
                 id="category"
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md"
@@ -172,50 +174,50 @@ export default function AddMenuItem() {
             </div>
 
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('Name *')}</Label>
               <Input
                 id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Orange Juice"
+                placeholder={t('Orange Juice')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('Description')}</Label>
               <Input
                 id="description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Fresh squeezed orange juice"
+                placeholder={t('Fresh squeezed orange juice')}
               />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="price">Price (₪) *</Label>
+                <Label htmlFor="price">{t('Price (₪) *')}</Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  placeholder="25"
+                  placeholder={t('25')}
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="volume">Volume/Size</Label>
+                <Label htmlFor="volume">{t('Volume/Size')}</Label>
                 <Input
                   id="volume"
                   value={form.volume}
                   onChange={(e) => setForm({ ...form, volume: e.target.value })}
-                  placeholder="0.5L"
+                  placeholder={t('0.5L')}
                 />
               </div>
               <div>
-                <Label htmlFor="discount">Discount (%)</Label>
+                <Label htmlFor="discount">{t('Discount (%)')}</Label>
                 <Input
                   id="discount"
                   type="number"
@@ -223,7 +225,7 @@ export default function AddMenuItem() {
                   max="100"
                   value={form.discount_percent}
                   onChange={(e) => setForm({ ...form, discount_percent: e.target.value })}
-                  placeholder="0"
+                  placeholder={t('0')}
                 />
               </div>
             </div>
@@ -236,22 +238,22 @@ export default function AddMenuItem() {
                 onChange={(e) => setForm({ ...form, is_available: e.target.checked })}
                 className="w-4 h-4"
               />
-              <Label htmlFor="available">Available for order</Label>
+              <Label htmlFor="available">{t('Available for order')}</Label>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Item Image</CardTitle>
-            <CardDescription>Upload or add an image URL</CardDescription>
+            <CardTitle>{t('Item Image')}</CardTitle>
+            <CardDescription>{t('Upload or add an image URL')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ImageUpload
               value={form.image}
               onChange={(url) => setForm({ ...form, image: url })}
               folder="menu"
-              label="Product Image"
+              label={t('Product Image')}
             />
           </CardContent>
         </Card>
@@ -260,9 +262,9 @@ export default function AddMenuItem() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Volume Options</CardTitle>
+                <CardTitle>{t('Volume Options')}</CardTitle>
                 <CardDescription>
-                  Define multiple volume/size options for this item. Customers can choose from these when ordering.
+                  {t('Define multiple volume/size options for this item. Customers can choose from these when ordering.')}
                 </CardDescription>
               </div>
               <Button
@@ -273,50 +275,50 @@ export default function AddMenuItem() {
                 className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Volume
+                {t('Add Volume')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {volumeOptions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <p>No volume options defined.</p>
-                <p className="text-sm mt-2">Click "Add Volume" to create volume options for this item.</p>
+                <p>{t('No volume options defined.')}</p>
+                <p className="text-sm mt-2">{t('Click "Add Volume" to create volume options for this item.')}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {volumeOptions.map((vol, index) => (
                   <div key={index} className="grid grid-cols-12 gap-4 p-4 border rounded-lg bg-gray-50">
                     <div className="col-span-4">
-                      <Label htmlFor={`vol-${index}`}>Volume/Size *</Label>
+                      <Label htmlFor={`vol-${index}`}>{t('Volume/Size *')}</Label>
                       <Input
                         id={`vol-${index}`}
                         value={vol.volume}
                         onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
-                        placeholder="0.5L"
+                        placeholder={t('0.5L')}
                         required
                       />
                     </div>
                     <div className="col-span-3">
-                      <Label htmlFor={`price-${index}`}>Price (₪) *</Label>
+                      <Label htmlFor={`price-${index}`}>{t('Price (₪) *')}</Label>
                       <Input
                         id={`price-${index}`}
                         type="number"
                         step="0.01"
                         value={vol.price}
                         onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
-                        placeholder="25"
+                        placeholder={t('25')}
                         required
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label htmlFor={`sort-${index}`}>Sort Order</Label>
+                      <Label htmlFor={`sort-${index}`}>{t('Sort Order')}</Label>
                       <Input
                         id={`sort-${index}`}
                         type="number"
                         value={vol.sort_order}
                         onChange={(e) => updateVolumeOption(index, 'sort_order', parseInt(e.target.value) || 0)}
-                        placeholder="0"
+                        placeholder={t('0')}
                       />
                     </div>
                     <div className="col-span-2 flex items-end">
@@ -329,7 +331,7 @@ export default function AddMenuItem() {
                           className="w-4 h-4"
                         />
                         <Label htmlFor={`default-${index}`} className="cursor-pointer text-sm">
-                          Default
+                          {t('Default')}
                         </Label>
                       </div>
                     </div>
@@ -357,10 +359,10 @@ export default function AddMenuItem() {
             disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            {loading ? 'Adding...' : 'Add Item'}
+            {loading ? t('Adding...') : t('Add Item')}
           </Button>
           <Link href="/admin/menu">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
         </div>
       </form>

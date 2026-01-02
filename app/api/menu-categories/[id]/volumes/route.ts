@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { translateObject } from '@/lib/translations';
 
 export async function GET(
   request: NextRequest,
@@ -28,7 +29,8 @@ export async function GET(
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));
             return;
           }
-          resolve(NextResponse.json({ volumes: rows || [] }));
+          const translatedVolumes = (rows || []).map((vol: any) => translateObject(vol));
+          resolve(NextResponse.json({ volumes: translatedVolumes }));
         }
       );
     });

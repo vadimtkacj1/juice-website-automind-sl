@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import PageLoader from '@/components/PageLoader';
+import GlobalLoader from '@/components/GlobalLoader';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import { TextModeProvider } from '@/lib/text-mode-context';
+import { LoadingProvider } from '@/lib/loading-context';
+import CartProviderWrapper from '@/components/CartProviderWrapper';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -192,25 +195,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <TextModeProvider>
-          <PageLoader />
-          <KeyboardShortcuts />
-          <a 
-            href="#main-content" 
-            className="skip-link"
-            style={{
-              position: 'absolute',
-              left: '-10000px',
-              top: 'auto',
-              width: '1px',
-              height: '1px',
-              overflow: 'hidden',
-            }}
-          >
-            דלג לתוכן הראשי
-          </a>
-          <div id="main-content">
-            {children}
-          </div>
+          <LoadingProvider>
+            <CartProviderWrapper>
+              <PageLoader />
+              <GlobalLoader />
+              <KeyboardShortcuts />
+              <div id="main-content">
+                {children}
+              </div>
+            </CartProviderWrapper>
+          </LoadingProvider>
         </TextModeProvider>
       </body>
     </html>

@@ -14,76 +14,76 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 const categories = [
-  { name: 'Fresh Juices', description: 'Natural juices from fresh fruits and vegetables', sort_order: 1 },
-  { name: 'Shakes & Smoothies', description: 'Delicious and healthy smoothies', sort_order: 2 },
-  { name: 'Event Platters', description: 'Fruit and vegetable platters for events', sort_order: 3 },
-  { name: 'Salads', description: 'Fresh fruit and vegetable salads', sort_order: 4 },
-  { name: 'Party Sets', description: 'Special sets with drinks and snacks', sort_order: 5 },
-  { name: 'Romantic Sets', description: 'Sets for special moments', sort_order: 6 },
-  { name: 'Desserts', description: 'Sweet treats', sort_order: 7 },
+  { name: 'מיצים טריים', description: 'מיצים טבעיים מפירות וירקות טריים', sort_order: 1 },
+  { name: 'שייקים וסמוזים', description: 'סמוזים טעימים ובריאים', sort_order: 2 },
+  { name: 'צלחות לאירועים', description: 'צלחות פירות וירקות לאירועים', sort_order: 3 },
+  { name: 'סלטים', description: 'סלטי פירות וירקות טריים', sort_order: 4 },
+  { name: 'ערכות למסיבות', description: 'ערכות מיוחדות עם משקאות וחטיפים', sort_order: 5 },
+  { name: 'ערכות רומנטיות', description: 'ערכות לרגעים מיוחדים', sort_order: 6 },
+  { name: 'קינוחים', description: 'מעדנים מתוקים', sort_order: 7 },
 ];
 
 const menuItems = [
-  // Fresh Juices 0.5L
-  { category: 'Fresh Juices', name: 'Pomegranate', price: 25, volume: '0.5L' },
-  { category: 'Fresh Juices', name: 'Orange', price: 20, volume: '0.5L' },
-  { category: 'Fresh Juices', name: 'Grapefruit', price: 20, volume: '0.5L' },
-  { category: 'Fresh Juices', name: 'Carrot', price: 25, volume: '0.5L' },
-  { category: 'Fresh Juices', name: 'Apple', price: 25, volume: '0.5L' },
-  { category: 'Fresh Juices', name: 'Beetroot', price: 25, volume: '0.5L' },
-  // Fresh Juices 1L
-  { category: 'Fresh Juices', name: 'Pomegranate', price: 40, volume: '1L' },
-  { category: 'Fresh Juices', name: 'Orange', price: 40, volume: '1L' },
-  { category: 'Fresh Juices', name: 'Grapefruit', price: 40, volume: '1L' },
-  { category: 'Fresh Juices', name: 'Carrot', price: 50, volume: '1L' },
-  { category: 'Fresh Juices', name: 'Apple', price: 50, volume: '1L' },
-  { category: 'Fresh Juices', name: 'Beetroot', price: 50, volume: '1L' },
+  // מיצים טריים 0.5L
+  { category: 'מיצים טריים', name: 'רימון', price: 25, volume: '0.5 ליטר' },
+  { category: 'מיצים טריים', name: 'תפוז', price: 20, volume: '0.5 ליטר' },
+  { category: 'מיצים טריים', name: 'אשכולית', price: 20, volume: '0.5 ליטר' },
+  { category: 'מיצים טריים', name: 'גזר', price: 25, volume: '0.5 ליטר' },
+  { category: 'מיצים טריים', name: 'תפוח', price: 25, volume: '0.5 ליטר' },
+  { category: 'מיצים טריים', name: 'סלק', price: 25, volume: '0.5 ליטר' },
+  // מיצים טריים 1L
+  { category: 'מיצים טריים', name: 'רימון', price: 40, volume: '1 ליטר' },
+  { category: 'מיצים טריים', name: 'תפוז', price: 40, volume: '1 ליטר' },
+  { category: 'מיצים טריים', name: 'אשכולית', price: 40, volume: '1 ליטר' },
+  { category: 'מיצים טריים', name: 'גזר', price: 50, volume: '1 ליטר' },
+  { category: 'מיצים טריים', name: 'תפוח', price: 50, volume: '1 ליטר' },
+  { category: 'מיצים טריים', name: 'סלק', price: 50, volume: '1 ליטר' },
 
-  // Shakes & Smoothies
-  { category: 'Shakes & Smoothies', name: 'Naturally Tasty', description: 'Banana, apple, kiwi, pineapple, melon', price: 30 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Tropical', description: 'Mango, pineapple, banana, blueberry', price: 30 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Sweet', description: 'Banana, pineapple, strawberry + chocolate', price: 30 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Healthy', description: 'Banana, mango, pineapple, kiwi, strawberry', price: 30 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Paradise', description: 'Banana, melon, peach, pineapple, strawberry, halva', price: 30 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Classic', description: 'Strawberry, banana, pineapple, mango', price: 45 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Refreshing', description: 'Tropical mix, banana, pineapple', price: 45 },
-  { category: 'Shakes & Smoothies', name: 'Naturally Addictive', description: 'Banana, blueberry, apple + chocolate', price: 45 },
+  // שייקים וסמוזים
+  { category: 'שייקים וסמוזים', name: 'טבעי טעים', description: 'בננה, תפוח, קיווי, אננס, מלון', price: 30 },
+  { category: 'שייקים וסמוזים', name: 'טבעי טרופי', description: 'מנגו, אננס, בננה, אוכמניות', price: 30 },
+  { category: 'שייקים וסמוזים', name: 'טבעי מתוק', description: 'בננה, אננס, תות + שוקולד', price: 30 },
+  { category: 'שייקים וסמוזים', name: 'טבעי בריא', description: 'בננה, מנגו, אננס, קיווי, תות', price: 30 },
+  { category: 'שייקים וסמוזים', name: 'טבעי גן עדן', description: 'בננה, מלון, אפרסק, אננס, תות, חלבה', price: 30 },
+  { category: 'שייקים וסמוזים', name: 'טבעי קלאסי', description: 'תות, בננה, אננס, מנגו', price: 45 },
+  { category: 'שייקים וסמוזים', name: 'טבעי מרענן', description: 'תערובת טרופית, בננה, אננס', price: 45 },
+  { category: 'שייקים וסמוזים', name: 'טבעי ממכר', description: 'בננה, אוכמניות, תפוח + שוקולד', price: 45 },
 
-  // Event Platters
-  { category: 'Event Platters', name: 'Naturally Sparkling (Large)', description: 'Fruits', price: 300, volume: 'Large' },
-  { category: 'Event Platters', name: 'Naturally Sparkling (Medium)', description: 'Fruits', price: 200, volume: 'Medium' },
-  { category: 'Event Platters', name: 'Naturally Healthy (Large)', description: 'Vegetables', price: 200, volume: 'Large' },
-  { category: 'Event Platters', name: 'Naturally Healthy (Medium)', description: 'Vegetables', price: 150, volume: 'Medium' },
+  // צלחות לאירועים
+  { category: 'צלחות לאירועים', name: 'טבעי מבעבע (גדול)', description: 'פירות', price: 300, volume: 'גדול' },
+  { category: 'צלחות לאירועים', name: 'טבעי מבעבע (בינוני)', description: 'פירות', price: 200, volume: 'בינוני' },
+  { category: 'צלחות לאירועים', name: 'טבעי בריא (גדול)', description: 'ירקות', price: 200, volume: 'גדול' },
+  { category: 'צלחות לאירועים', name: 'טבעי בריא (בינוני)', description: 'ירקות', price: 150, volume: 'בינוני' },
 
-  // Salads
-  { category: 'Salads', name: 'Fruit Salad (Large)', price: 160, volume: 'Large' },
-  { category: 'Salads', name: 'Fruit Salad (Medium)', price: 140, volume: 'Medium' },
-  { category: 'Salads', name: 'Vegetable Salad (Large)', price: 120, volume: 'Large' },
-  { category: 'Salads', name: 'Vegetable Salad (Medium)', price: 100, volume: 'Medium' },
+  // סלטים
+  { category: 'סלטים', name: 'סלט פירות (גדול)', price: 160, volume: 'גדול' },
+  { category: 'סלטים', name: 'סלט פירות (בינוני)', price: 140, volume: 'בינוני' },
+  { category: 'סלטים', name: 'סלט ירקות (גדול)', price: 120, volume: 'גדול' },
+  { category: 'סלטים', name: 'סלט ירקות (בינוני)', price: 100, volume: 'בינוני' },
 
-  // Party Sets
-  { category: 'Party Sets', name: 'Naturally Friendly', description: '6 XL + vodka/arak + fruits', price: 480 },
-  { category: 'Party Sets', name: 'Naturally Joyful', description: '6 XL + vodka/arak + nuts', price: 440 },
-  { category: 'Party Sets', name: 'Naturally Weekend', description: '6 XL + vodka/arak + 6 malabi', price: 400 },
-  { category: 'Party Sets', name: 'Naturally Together', description: '6 XL + vodka/arak + gummies', price: 400 },
-  { category: 'Party Sets', name: 'Naturally Allowed', description: '6 Cola/Zero + nuts', price: 200 },
-  { category: 'Party Sets', name: 'Naturally Right', description: '6 Cola/Zero + gummies', price: 200 },
-  { category: 'Party Sets', name: 'Naturally Salty', description: '6 Cola/Zero + 6 snacks', price: 200 },
+  // ערכות למסיבות
+  { category: 'ערכות למסיבות', name: 'טבעי ידידותי', description: '6 XL + וודקה/ערק + פירות', price: 480 },
+  { category: 'ערכות למסיבות', name: 'טבעי שמח', description: '6 XL + וודקה/ערק + אגוזים', price: 440 },
+  { category: 'ערכות למסיבות', name: 'טבעי סוף שבוע', description: '6 XL + וודקה/ערק + 6 מלבי', price: 400 },
+  { category: 'ערכות למסיבות', name: 'טבעי ביחד', description: '6 XL + וודקה/ערק + גומי', price: 400 },
+  { category: 'ערכות למסיבות', name: 'טבעי מותר', description: '6 קולה/זירו + אגוזים', price: 200 },
+  { category: 'ערכות למסיבות', name: 'טבעי נכון', description: '6 קולה/זירו + גומי', price: 200 },
+  { category: 'ערכות למסיבות', name: 'טבעי מלוח', description: '6 קולה/זירו + 6 חטיפים', price: 200 },
 
-  // Romantic Sets
-  { category: 'Romantic Sets', name: 'Naturally Spoiling', description: 'Wine + chocolate', price: 300 },
-  { category: 'Romantic Sets', name: 'Naturally For Two', description: 'Wine + nuts', price: 300 },
-  { category: 'Romantic Sets', name: 'Naturally Winking', description: 'Wine + fruits for two', price: 350 },
-  { category: 'Romantic Sets', name: 'Naturally Encouraging', description: 'Wine + gummies', price: 320 },
-  { category: 'Romantic Sets', name: 'Naturally Pleasant', description: 'Wine + flowers + chocolate', price: 400 },
-  { category: 'Romantic Sets', name: 'Naturally Warm', description: 'Wine + flowers + fruits', price: 400 },
-  { category: 'Romantic Sets', name: 'Naturally Luxury', description: 'Wine + 8 desserts', price: 350 },
+  // ערכות רומנטיות
+  { category: 'ערכות רומנטיות', name: 'טבעי מפנק', description: 'יין + שוקולד', price: 300 },
+  { category: 'ערכות רומנטיות', name: 'טבעי לשניים', description: 'יין + אגוזים', price: 300 },
+  { category: 'ערכות רומנטיות', name: 'טבעי קורץ', description: 'יין + פירות לשניים', price: 350 },
+  { category: 'ערכות רומנטיות', name: 'טבעי מעודד', description: 'יין + גומי', price: 320 },
+  { category: 'ערכות רומנטיות', name: 'טבעי נעים', description: 'יין + פרחים + שוקולד', price: 400 },
+  { category: 'ערכות רומנטיות', name: 'טבעי חם', description: 'יין + פרחים + פירות', price: 400 },
+  { category: 'ערכות רומנטיות', name: 'טבעי יוקרה', description: 'יין + 8 קינוחים', price: 350 },
 
-  // Desserts
-  { category: 'Desserts', name: '6 Desserts Set', description: 'Malabi / Bavaria / Mousse / Kadaif', price: 100 },
-  { category: 'Desserts', name: 'Family Refreshing Platter', description: '8 different desserts', price: 140 },
-  { category: 'Desserts', name: 'Naturally Tasty (Dessert)', description: '2 waffles + dessert', price: 80 },
-  { category: 'Desserts', name: 'Naturally Healthy (Dessert)', description: '2 waffles + fruits', price: 80 },
+  // קינוחים
+  { category: 'קינוחים', name: 'ערכת 6 קינוחים', description: 'מלבי / בוואריה / מוס / כנאפה', price: 100 },
+  { category: 'קינוחים', name: 'צלחת מרעננת למשפחה', description: '8 קינוחים שונים', price: 140 },
+  { category: 'קינוחים', name: 'טבעי טעים (קינוח)', description: '2 וופלים + קינוח', price: 80 },
+  { category: 'קינוחים', name: 'טבעי בריא (קינוח)', description: '2 וופלים + פירות', price: 80 },
 ];
 
 // Insert categories first

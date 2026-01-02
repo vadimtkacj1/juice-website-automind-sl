@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Newspaper } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import { useParams } from 'next/navigation';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface NewsItem {
   id: number;
@@ -22,6 +23,7 @@ interface NewsItem {
 }
 
 export default function EditNewsItem() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const params = useParams();
   const { id } = params;
@@ -104,12 +106,12 @@ export default function EditNewsItem() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit News Item</h1>
-          <p className="text-gray-500 mt-1">Modify an existing news article</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Edit News Item')}</h1>
+          <p className="text-gray-500 mt-1">{t('Modify an existing news article')}</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" dir={language}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* News Details */}
           <Card>
@@ -117,30 +119,30 @@ export default function EditNewsItem() {
               <div className="flex items-center gap-2">
                 <Newspaper className="h-5 w-5 text-purple-600" />
                 <div>
-                  <CardTitle>News Details</CardTitle>
-                  <CardDescription>Basic information about the news item</CardDescription>
+                  <CardTitle>{t('News Details')}</CardTitle>
+                  <CardDescription>{t('Basic information about the news item')}</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title *</Label>
+                <Label htmlFor="title">{t('Title *')}</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Exciting New Flavors!"
+                  placeholder={t('e.g., Exciting New Flavors!')}
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="content">Content *</Label>
+                <Label htmlFor="content">{t('Content *')}</Label>
                 <Textarea
                   id="content"
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Write the news content here..."
+                  placeholder={t('Write the news content here...')}
                   rows={5}
                   required
                 />
@@ -151,15 +153,15 @@ export default function EditNewsItem() {
           {/* Media & Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Media & Visibility</CardTitle>
-              <CardDescription>News image and display status</CardDescription>
+              <CardTitle>{t('Media & Visibility')}</CardTitle>
+              <CardDescription>{t('News image and display status')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <ImageUpload
                 value={formData.image || ''}
                 onChange={(url) => setFormData({ ...formData, image: url })}
                 folder="news"
-                label="News Image"
+                label={t('News Image')}
               />
 
               <div className="flex items-center gap-3 pt-4 border-t">
@@ -171,7 +173,7 @@ export default function EditNewsItem() {
                   className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
                 <Label htmlFor="is_active" className="cursor-pointer">
-                  Show this news item on the website
+                  {t('Show this news item on the website')}
                 </Label>
               </div>
             </CardContent>
@@ -180,10 +182,10 @@ export default function EditNewsItem() {
 
         <div className="flex justify-end gap-4">
           <Link href="/admin/news">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
           <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
-            {loading ? 'Updating...' : 'Update News Item'}
+            {loading ? t('Updating...') : t('Update News Item')}
           </Button>
         </div>
       </form>

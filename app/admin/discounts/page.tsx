@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,8 +18,8 @@ export default function DiscountsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Discount Dialog
-  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  // Discount Form
+  const [showDiscountForm, setShowDiscountForm] = useState(false);
   const [discountForm, setDiscountForm] = useState({
     id: null,
     name: '',
@@ -32,8 +31,8 @@ export default function DiscountsPage() {
     end_date: ''
   });
 
-  // Promo Code Dialog
-  const [showPromoDialog, setShowPromoDialog] = useState(false);
+  // Promo Code Form
+  const [showPromoForm, setShowPromoForm] = useState(false);
   const [promoForm, setPromoForm] = useState({
     id: null,
     code: '',
@@ -100,7 +99,7 @@ export default function DiscountsPage() {
 
       if (response.ok) {
         fetchData();
-        setShowDiscountDialog(false);
+        setShowDiscountForm(false);
         resetDiscountForm();
       }
     } catch (error) {
@@ -125,7 +124,7 @@ export default function DiscountsPage() {
 
       if (response.ok) {
         fetchData();
-        setShowPromoDialog(false);
+        setShowPromoForm(false);
         resetPromoForm();
       } else {
         const data = await response.json();
@@ -213,9 +212,17 @@ export default function DiscountsPage() {
                   <CardTitle>{t('Product Discounts')}</CardTitle>
                   <CardDescription>{t('Manage discounts for products')}</CardDescription>
                 </div>
-                <Button onClick={() => { resetDiscountForm(); setShowDiscountDialog(true); }} className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Button onClick={() => { 
+                  if (showDiscountForm) {
+                    setShowDiscountForm(false);
+                    resetDiscountForm();
+                  } else {
+                    resetDiscountForm();
+                    setShowDiscountForm(true);
+                  }
+                }} className="bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="mr-2 h-4 w-4" />
-                  {t('Add Discount')}
+                  {showDiscountForm ? t('Cancel') : t('Add Discount')}
                 </Button>
               </div>
             </CardHeader>
@@ -279,9 +286,18 @@ export default function DiscountsPage() {
                   <CardTitle>{t('Promo Codes')}</CardTitle>
                   <CardDescription>{t('Manage promotional codes for customers')}</CardDescription>
                 </div>
-                <Button onClick={() => { resetPromoForm(); generatePromoCode(); setShowPromoDialog(true); }} className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Button onClick={() => { 
+                  if (showPromoForm) {
+                    setShowPromoForm(false);
+                    resetPromoForm();
+                  } else {
+                    resetPromoForm();
+                    generatePromoCode();
+                    setShowPromoForm(true);
+                  }
+                }} className="bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="mr-2 h-4 w-4" />
-                  {t('Generate Promo Code')}
+                  {showPromoForm ? t('Cancel') : t('Generate Promo Code')}
                 </Button>
               </div>
             </CardHeader>
@@ -340,13 +356,14 @@ export default function DiscountsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Discount Dialog */}
-      <Dialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
-        <DialogContent dir={language}>
-          <DialogHeader>
-            <DialogTitle>{discountForm.id ? t('Edit') : t('Add')} {t('Discount')}</DialogTitle>
-            <DialogDescription>{t('Configure discount settings')}</DialogDescription>
-          </DialogHeader>
+      {/* Discount Form */}
+      {showDiscountForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{discountForm.id ? t('Edit') : t('Add')} {t('Discount')}</CardTitle>
+            <CardDescription>{t('Configure discount settings')}</CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-4">
             <div>
               <Label htmlFor="discount-name">{t('Discount Name')}</Label>
@@ -408,22 +425,27 @@ export default function DiscountsPage() {
               <Label htmlFor="discount-active">{t('Active')}</Label>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDiscountDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => {
+              setShowDiscountForm(false);
+              resetDiscountForm();
+            }}>
               {t('Cancel')}
             </Button>
             <Button onClick={saveDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">{t('Save Discount')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Promo Code Dialog */}
-      <Dialog open={showPromoDialog} onOpenChange={setShowPromoDialog}>
-        <DialogContent dir={language}>
-          <DialogHeader>
-            <DialogTitle>{promoForm.id ? t('Edit') : t('Generate')} {t('Promo Code')}</DialogTitle>
-            <DialogDescription>{t('Configure promo code settings')}</DialogDescription>
-          </DialogHeader>
+      {/* Promo Code Form */}
+      {showPromoForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{promoForm.id ? t('Edit') : t('Generate')} {t('Promo Code')}</CardTitle>
+            <CardDescription>{t('Configure promo code settings')}</CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-4">
             <div>
               <Label htmlFor="promo-code">{t('Promo Code')}</Label>
@@ -432,7 +454,7 @@ export default function DiscountsPage() {
                   id="promo-code"
                   value={promoForm.code}
                   onChange={(e) => setPromoForm({ ...promoForm, code: e.target.value.toUpperCase() })}
-                  placeholder="SUMMER2024"
+                  placeholder={t('SUMMER2024')}
                   className="font-mono"
                 />
                 <Button variant="outline" size="icon" onClick={generatePromoCode}>
@@ -485,14 +507,18 @@ export default function DiscountsPage() {
               <Label htmlFor="promo-active">{t('Active')}</Label>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPromoDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => {
+              setShowPromoForm(false);
+              resetPromoForm();
+            }}>
               {t('Cancel')}
             </Button>
             <Button onClick={savePromoCode} className="bg-purple-600 hover:bg-purple-700 text-white">{t('Save Promo Code')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

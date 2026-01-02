@@ -59,7 +59,9 @@ const tables = [
     sql: `CREATE TABLE IF NOT EXISTS contacts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,
-      value TEXT NOT NULL
+      value TEXT NOT NULL,
+      label TEXT,
+      description TEXT
     )`
   },
   {
@@ -170,6 +172,49 @@ const tables = [
       start_date DATETIME,
       end_date DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
+  },
+  {
+    name: 'order_prompts',
+    sql: `CREATE TABLE IF NOT EXISTS order_prompts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT,
+      prompt_type TEXT NOT NULL DEFAULT 'additional_items',
+      is_active BOOLEAN DEFAULT 1,
+      sort_order INTEGER DEFAULT 0,
+      show_on_all_products BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
+  },
+  {
+    name: 'order_prompt_products',
+    sql: `CREATE TABLE IF NOT EXISTS order_prompt_products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      prompt_id INTEGER NOT NULL,
+      menu_item_id INTEGER,
+      product_name TEXT,
+      product_price REAL DEFAULT 0,
+      volume_option TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (prompt_id) REFERENCES order_prompts (id) ON DELETE CASCADE,
+      FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE
+    )`
+  },
+  {
+    name: 'menu_item_additional_items',
+    sql: `CREATE TABLE IF NOT EXISTS menu_item_additional_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      menu_item_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL NOT NULL,
+      is_available BOOLEAN DEFAULT 1,
+      sort_order INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE
     )`
   }
 ];

@@ -7,6 +7,7 @@ import { ShoppingBag, Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { translateToHebrew } from '@/lib/translations';
+import navbarStyles from './Navbar.module.css';
 
 const navLinks = [
   { href: '/', label: translateToHebrew('Home') },
@@ -88,17 +89,6 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
         </text>
       </svg>
       
-      <style jsx>{`
-        .brand-logo {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: transform 0.3s ease;
-        }
-        .brand-logo:hover {
-          transform: scale(1.05);
-        }
-      `}</style>
     </div>
   );
 }
@@ -136,20 +126,20 @@ function NavBarShell({
           ))}
           <button
             onClick={openCart}
-            className="menu-item cart-button"
+            className={`menu-item ${navbarStyles['cart-button']}`}
             aria-label={translateToHebrew('Shopping cart')}
           >
             <div className="roll-inner">
-              <span className="cart-icon-wrapper">
+              <span className={navbarStyles['cart-icon-wrapper']}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className="cart-badge">{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
                 )}
               </span>
-              <span className="hvr cart-icon-wrapper">
+              <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className="cart-badge">{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
                 )}
               </span>
             </div>
@@ -157,15 +147,15 @@ function NavBarShell({
         </div>
 
         {/* Mobile Actions */}
-        <div className="mobile-actions">
+        <div className={navbarStyles['mobile-actions']}>
           <button
             onClick={openCart}
-            className="mobile-cart-btn"
+            className={navbarStyles['mobile-cart-btn']}
             aria-label={translateToHebrew('Shopping cart')}
           >
             <ShoppingBag size={22} />
             {itemCount > 0 && (
-              <span className="mobile-cart-badge">{itemCount}</span>
+              <span className={navbarStyles['mobile-cart-badge']}>{itemCount}</span>
             )}
           </button>
           <button
@@ -173,92 +163,13 @@ function NavBarShell({
               console.log('Burger menu button clicked');
               setMobileMenuOpen(!mobileMenuOpen);
             }}
-            className="mobile-menu-btn"
+            className={navbarStyles['mobile-menu-btn']}
             aria-label={mobileMenuOpen ? translateToHebrew('Close menu') : translateToHebrew('Open menu')}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </nav>
-      <style jsx>{`
-        .cart-button {
-          background: none;
-          border: none;
-          cursor: pointer;
-        }
-        .cart-icon-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-          margin: 0 auto;
-        }
-        .cart-badge {
-          position: absolute;
-          top: -8px;
-          right: -8px;
-          background: var(--pink);
-          color: var(--primary);
-          font-size: 11px;
-          font-weight: 900;
-          min-width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0 4px;
-        }
-        .mobile-actions {
-          display: none;
-          align-items: center;
-          gap: 8px;
-        }
-        .mobile-cart-btn,
-        .mobile-menu-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #1d1a40;
-          transition: background 0.2s ease;
-        }
-        .mobile-cart-btn:hover,
-        .mobile-menu-btn:hover {
-          background: rgba(29, 26, 64, 0.1);
-        }
-        .mobile-cart-btn {
-          position: relative;
-        }
-        .mobile-cart-badge {
-          position: absolute;
-          top: 4px;
-          right: 4px;
-          background: var(--pink);
-          color: var(--primary);
-          font-size: 10px;
-          font-weight: 900;
-          min-width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        /* Burger menu only on smaller screens (mobile/tablet) */
-        @media (max-width: 768px) {
-          .mobile-actions {
-            display: flex;
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -360,10 +271,31 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setSticky(window.scrollY > 100);
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+          const shouldBeSticky = scrollY > 50;
+          setSticky(shouldBeSticky);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    // Check initial scroll position
     handleScroll();
+    
+    // Add scroll listener to both window and document
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // Memoize the close function to prevent unnecessary re-renders
@@ -379,7 +311,7 @@ export default function Navbar() {
         setMobileMenuOpen={setMobileMenuOpen}
       />
       <NavBarShell 
-        className={`nav-sticky ${sticky ? 'is-active' : ''}`} 
+        className={`nav-sticky${sticky ? ' is-active' : ''}`}
         compact 
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}

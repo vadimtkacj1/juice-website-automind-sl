@@ -1,0 +1,151 @@
+/**
+ * Website/public pages translations
+ */
+import { commonTranslations } from '../common';
+
+export const websiteTranslations: Record<string, string> = {
+  ...commonTranslations,
+  
+  // Navigation & General
+  'reviva': 'ראביבה',
+  'reviva logo': 'לוגו ראביבה',
+  'close menu': 'סגור תפריט',
+  'open menu': 'פתח תפריט',
+  
+  // Home Page
+  'our menu': 'התפריט שלנו',
+  'who we are': 'מי אנחנו',
+  'what we do': 'מה אנחנו עושים',
+  'our values': 'הערכים שלנו',
+  'visit us': 'בואו לבקר אותנו',
+  'find us at multiple locations': 'מצא אותנו במיקומים מרובים',
+  'fresh juices and smoothies await you': 'מיצים טריים וסמוזים מחכים לך',
+  'view all locations': 'צפה בכל המיקומים',
+  'our locations': 'המיקומים שלנו',
+  'find us at a location near you!': 'מצא אותנו במיקום קרוב אליך',
+  'loading locations...': 'טוען מיקומים',
+  'view on map': 'צפה במפה',
+  
+  // Menu Page
+  'loading delicious menu': 'טוען תפריט טעים',
+  'failed to load menu': 'נכשל לטעון תפריט',
+  'menu is empty': 'תפריט ריק',
+  'delicious items coming soon': 'פריטים טעימים יגיעו בקרוב',
+  'loading more items': 'טוען פריטים נוספים',
+  'select volume': 'בחר נפח',
+  'add ingredients': 'הוסף מרכיבים',
+  'choose additional ingredients': 'בחר מרכיבים נוספים',
+  'select add-ons': 'בחר תוספות',
+  'add ingredients?': 'הוסף מרכיבים',
+  'would you like to add these ingredients to this juice?': 'האם תרצה להוסיף את המרכיבים האלה למיץ הזה',
+  'no, skip': 'לא, דלג',
+  'yes, add all': 'כן, הוסף הכל',
+  'choose one': 'בחר אחד',
+  
+  // Cart & Checkout
+  'cart is empty': 'עגלה ריקה',
+  'add items from the menu': 'הוסף פריטים מהתפריט',
+  'browse menu': 'עיין בתפריט',
+  'continue to checkout': 'המשך לתשלום',
+  'contact details': 'פרטי קשר',
+  'please provide your contact details': 'אנא ספק את פרטי הקשר שלך',
+  'please provide your contact details so we can send you the order confirmation and reach out if needed.': 'אנא ספק את פרטי הקשר שלך כדי שנוכל לשלוח לך את אישור ההזמנה ולהיות בקשר במידת הצורך.',
+  'phone number': 'מספר טלפון',
+  'email address': 'כתובת אימייל',
+  'delivery address': 'כתובת משלוח',
+  'place order': 'הזמן הזמנה',
+  'order summary': 'סיכום הזמנה',
+  'with': 'עם',
+  'without': 'בלי',
+  'phone number is required': 'נדרש מספר טלפון',
+  'please enter a valid phone number': 'אנא הזן מספר טלפון תקין',
+  'email is required': 'נדרש אימייל',
+  'please enter a valid email': 'אנא הזן אימייל תקין',
+  'failed to start checkout': 'נכשל להתחיל תשלום',
+  'please try again': 'נסה שוב',
+  'try again': 'נסה שוב',
+  
+  // Order Confirmation
+  "thank you for your order. we've received your order": "תודה על ההזמנה שלך. קיבלנו את ההזמנה שלך",
+  "and will start preparing your items right away": 'נתחיל להכין את הפריטים שלך מיד',
+  "you will receive a confirmation email shortly": 'תקבל אימייל אישור בקרוב',
+  'back to home': 'חזרה לבית',
+  'order more': 'הזמן עוד',
+  'order confirmed': 'הזמנה אושרה',
+  'thank you for your order': 'תודה על ההזמנה',
+  'order number': 'מספר הזמנה',
+  
+  // Contact Page
+  'contact us': 'צור קשר',
+  'send message': 'שלח הודעה',
+  'subject': 'נושא',
+  'your message': 'הודעה שלך',
+  'message sent': 'הודעה נשלחה',
+  "we'll get back to you soon": 'נחזור אליך בקרוב',
+  'have a question or feedback? we\'d love to hear from you!': 'יש לך שאלה או משוב? נשמח לשמוע ממך',
+  'your name': 'השם שלך',
+  'how can we help?': 'איך נוכל לעזור',
+  "tell us what you're thinking...": 'ספר לנו מה אתה חושב',
+  'sending': 'שולח',
+  
+  // Placeholders
+  'John Doe': 'ישראל ישראלי',
+  'john@example.com': 'israel@example.com',
+  'your@email.com': 'your@email.com',
+  'Your email address': 'כתובת האימייל שלך',
+  'Enter full delivery address (street, building, apartment, etc.)': 'הזן כתובת משלוח מלאה (רחוב, בניין, דירה וכו\')',
+  'Enter full delivery address': 'הזן כתובת משלוח מלאה',
+  
+  // News Section
+  'latest news': 'חדשות אחרונות',
+  'latest': 'אחרונות',
+  'view all': 'צפה בכל',
+  'view all news': 'צפה בכל החדשות',
+  'read more': 'קרא עוד',
+  'no news available at the moment.': 'אין חדשות זמינות כרגע',
+  'No news available': 'אין חדשות זמינות',
+  'Check back soon for exciting updates!': 'חזור בקרוב לעדכונים מרגשים!',
+  'Latest News & Updates': 'חדשות ועדכונים אחרונים',
+  'Stay updated with our latest juice blends, health tips, and company news': 'הישאר מעודכן עם תערובות המיצים האחרונות שלנו, טיפים בריאותיים וחדשות החברה',
+  'Loading news...': 'טוען חדשות...',
+  'Failed to load news. Please try again later.': 'נכשל בטעינת החדשות. אנא נסה שוב מאוחר יותר.',
+  'Stay in touch!': 'הישאר בקשר!',
+  'Latest offers, news, & goodies to your inbox.': 'הצעות אחרונות, חדשות וטובין לתיבת הדואר שלך.',
+  'Subscribe': 'הירשם',
+  
+  // About Section
+  'experience the perfect blend of quality and taste. made with care using only the finest natural ingredients to bring you an exceptional experience.': 'חוויה מושלמת של איכות וטעם. עשוי בקפידה תוך שימוש רק במרכיבים הטבעיים הטובים ביותר כדי להביא לך חוויה יוצאת דופן',
+  'at reviva, we are passionate about bringing you the freshest, most nutritious juices crafted from the finest ingredients. our journey began with a simple mission: to make healthy living accessible and delicious for everyone.': 'בראביבה, אנו נלהבים להביא לכם את המיצים הטריים והמזינים ביותר המיוצרים מהמרכיבים הטובים ביותר. המסע שלנו החל במשימה פשוטה: להפוך את החיים הבריאים לנגישים וטעימים לכולם',
+  'we source our fruits and vegetables from trusted local farms, ensuring that every bottle of juice is packed with natural vitamins, minerals, and antioxidants. our team of expert juicemakers carefully blend each recipe to perfection, creating flavors that delight your taste buds while nourishing your body.': 'אנו מקבלים את הפירות והירקות שלנו מחוות מקומיות מהימנות, ומבטיחים שכל בקבוק מיץ מלא בוויטמינים, מינרלים ונוגדי חמצון טבעיים. הצוות שלנו של מומחי מיצים מערבב בקפידה כל מתכון לשלמות, יוצר טעמים שמשמחים את בלוטות הטעם שלך תוך הזנת הגוף שלך',
+  'natural juices from fresh fruits and vegetables': 'מיצים טבעיים מפירות וירקות טריים',
+  'fresh juices': 'מיצים טריים',
+  'welcome to reviva - your destination for fresh, natural, and delicious fruit products! we are a premium shop specializing in fresh fruit products, smoothies, natural juices, fruit salads, and healthy plates.': 'ברוכים הבאים לרוויבה - היעד שלכם למוצרי פירות טריים, טבעיים וטעימים! אנו חנות פרמיום המתמחה במוצרי פירות טריים, סמוזים, מיצים טבעיים, סלטי פירות וצלחות בריאות.',
+  'every day, we prepare our products from the freshest fruits and vegetables, sourced directly from trusted local farms. whether you\'re looking for a refreshing smoothie, a nutritious juice, a colorful fruit salad, or a complete healthy plate - we have exactly what you need to nourish your body and delight your taste buds.': 'כל יום, אנו מכינים את המוצרים שלנו מהפירות והירקות הטריים ביותר, שמקורם ישירות מחוות מקומיות מהימנות. בין אם אתם מחפשים סמוזי מרענן, מיץ מזין, סלט פירות צבעוני, או צלחת בריאה מלאה - יש לנו בדיוק מה שאתם צריכים להזין את הגוף שלכם ולשמח את בלוטות הטעם שלכם.',
+  'what we offer': 'מה אנחנו מציעים',
+  'at reviva, we offer a complete range of fresh fruit products:': 'ברוויבה, אנו מציעים מגוון מלא של מוצרי פירות טריים:',
+  'fresh natural juices - prepared daily from the finest fruits and vegetables': 'מיצים טבעיים טריים - מוכנים מדי יום מהפירות והירקות הטובים ביותר',
+  'delicious smoothies - creamy and refreshing blends packed with vitamins': 'סמוזים טעימים - תערובות קרמיות ומרעננות עמוסות בוויטמינים',
+  'colorful fruit salads - fresh seasonal fruits cut and prepared to order': 'סלטי פירות צבעוניים - פירות עונתיים טריים חתוכים ומוכנים לפי הזמנה',
+  'healthy plates - complete nutritious meals with fruits, vegetables, and more': 'צלחות בריאות - ארוחות מזינות מלאות עם פירות, ירקות ועוד',
+  'fresh fruit products - premium quality fruits ready to take home': 'מוצרי פירות טריים - פירות באיכות פרמיום מוכנים לקחת הביתה',
+  'everything is prepared fresh daily, with no preservatives or artificial additives. just pure, natural goodness that your body will love!': 'הכל מוכן טרי מדי יום, ללא חומרים משמרים או תוספים מלאכותיים. פשוט טוב טבעי טהור שהגוף שלכם יאהב!',
+  'we specialize in creating premium, cold-pressed juices that preserve the maximum nutritional value of fresh produce. our innovative extraction process ensures that every sip delivers the full spectrum of vitamins and enzymes your body needs.': 'אנו מתמחים ביצירת מיצים פרמיום, סחוטים בקור, המשמרים את הערך התזונתי המקסימלי של תוצרת טרייה. תהליך החילוץ החדשני שלנו מבטיח שכל לגימה מספקת את המגוון המלא של ויטמינים ואנזימים שגופך צריך',
+  "from revitalizing morning blends to detoxifying green juices, we offer a wide range of flavors to suit every palate and lifestyle. whether you're looking to boost your energy, support your immune system, or simply enjoy a refreshing drink, we have the perfect juice for you.": 'מתערובות בוקר ממריצות ועד מיצים ירוקים מטהרים, אנו מציעים מגוון רחב של טעמים המתאימים לכל חיך ואורח חיים. בין אם אתם מחפשים להגביר את האנרגיה שלכם, לתמוך במערכת החיסון שלכם, או פשוט ליהנות ממשקה מרענן, יש לנו את המיץ המושלם עבורכם.',
+  '100% natural': '100% טבעי',
+  'we use only fresh, organic ingredients with no artificial additives or preservatives.': 'אנו משתמשים רק במרכיבים טריים ואורגניים ללא תוספים מלאכותיים או חומרים משמרים',
+  'health first': 'בריאות קודמת',
+  'every recipe is designed to support your wellness journey and nourish your body.': 'כל מתכון מעוצב לתמוך במסע הבריאות שלך ולהזין את הגוף שלך',
+  'community focused': 'ממוקד בקהילה',
+  "we're committed to supporting local farmers and building a healthier community.": 'אנו מחויבים לתמוך בחקלאים מקומיים ולבנות קהילה בריאה יותר',
+  'premium quality': 'איכות פרמיום',
+  'we maintain the highest standards in every step of our production process.': 'אנו שומרים על הסטנדרטים הגבוהים ביותר בכל שלב בתהליך הייצור שלנו',
+  
+  // Footer
+  'privacy policy': 'מדיניות פרטיות',
+  'terms & conditions': 'תנאים והגבלות',
+  
+  // Errors
+  'failed to fetch contacts': 'נכשל בטעינת אנשי קשר',
+  'error fetching phone number:': 'שגיאה בטעינת מספר טלפון',
+};
+

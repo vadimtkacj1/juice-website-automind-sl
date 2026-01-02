@@ -52,7 +52,7 @@ export default function IngredientsSection({
   return (
     <div className={styles['modal-section']}>
       <h3 className={styles['section-title']}>{translateToHebrew('Add Ingredients')}</h3>
-      <p style={{ fontSize: '14px', color: '#70758c', marginBottom: '16px' }}>
+      <p className={styles['ingredient-description']}>
         {translateToHebrew('Choose additional ingredients to customize your juice')}
       </p>
       {Object.entries(groupedIngredients).map(([category, categoryIngredients]) => {
@@ -75,7 +75,6 @@ export default function IngredientsSection({
                   <label 
                     key={ingredient.id} 
                     className={`${styles['ingredient-item']} ${isSelected ? styles['ingredient-item-selected'] || '' : ''}`}
-                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
                   >
                     <input
                       type={isSingleSelection ? 'radio' : 'checkbox'}

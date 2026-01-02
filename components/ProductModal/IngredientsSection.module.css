@@ -1,0 +1,13 @@
+.ingredient-description {
+  font-size: 14px;
+  color: #70758c;
+  margin-bottom: 16px;
+}
+
+.ingredient-item-label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+

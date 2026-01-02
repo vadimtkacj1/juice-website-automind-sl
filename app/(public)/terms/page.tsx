@@ -2,18 +2,19 @@
 
 import HeroSection from '@/components/HeroSection';
 import { translateToHebrew } from '@/lib/translations';
+import styles from './terms.module.css';
 
 export default function TermsAndConditionsPage() {
   return (
-    <div className="legal-page">
+    <div className={styles['legal-page']}>
       <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080">
         <h1 className="hero-title">{translateToHebrew('Terms and Conditions')}</h1>
       </HeroSection>
 
-      <div className="legal-content" dir="rtl">
-        <div className="container">
-          <div className="legal-section">
-            <p className="last-updated">{translateToHebrew('Last Updated:')} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <div className={styles['legal-content']} dir="rtl">
+        <div className={styles.container}>
+          <div className={styles['legal-section']}>
+            <p className={styles['last-updated']}>{translateToHebrew('Last Updated:')} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
             <section>
               <h2>1. {translateToHebrew('Acceptance of Terms')}</h2>
@@ -184,105 +185,6 @@ export default function TermsAndConditionsPage() {
             </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .legal-page {
-          min-height: 100vh;
-        }
-
-        .legal-content {
-          padding: 80px 20px;
-          background: #f8f9fa;
-        }
-
-        .container {
-          max-width: 900px;
-          margin: 0 auto;
-        }
-
-        .legal-section {
-          background: white;
-          padding: 60px;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        .last-updated {
-          color: #70758c;
-          font-size: 14px;
-          margin-bottom: 40px;
-          padding-bottom: 20px;
-          border-bottom: 1px solid #eaedf6;
-        }
-
-        .legal-section section {
-          margin-bottom: 40px;
-        }
-
-        .legal-section h2 {
-          font-family: "Heebo", sans-serif;
-          font-weight: 800;
-          font-size: 28px;
-          color: #1d1a40;
-          margin: 0 0 20px 0;
-          line-height: 1.3;
-        }
-
-        .legal-section h3 {
-          font-family: "Heebo", sans-serif;
-          font-weight: 700;
-          font-size: 20px;
-          color: #1d1a40;
-          margin: 24px 0 12px 0;
-        }
-
-        .legal-section p {
-          font-size: 16px;
-          line-height: 1.8;
-          color: #1d1a40;
-          margin: 0 0 16px 0;
-        }
-
-        .legal-section ul {
-          margin: 16px 0;
-          padding-left: 24px;
-        }
-
-        .legal-section li {
-          font-size: 16px;
-          line-height: 1.8;
-          color: #1d1a40;
-          margin-bottom: 12px;
-        }
-
-        .legal-section strong {
-          font-weight: 700;
-          color: #7322ff;
-        }
-
-        @media (max-width: 768px) {
-          .legal-content {
-            padding: 40px 16px;
-          }
-
-          .legal-section {
-            padding: 40px 24px;
-          }
-
-          .legal-section h2 {
-            font-size: 24px;
-          }
-
-          .legal-section h3 {
-            font-size: 18px;
-          }
-
-          .legal-section p,
-          .legal-section li {
-            font-size: 15px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

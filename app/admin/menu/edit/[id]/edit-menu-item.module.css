@@ -1,0 +1,80 @@
+/* Menu Edit Item Page Styles */
+.editMenuItemContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editMenuItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.editMenuItemTitle {
+  font-size: 30px;
+  font-weight: 700;
+  color: rgba(112, 117, 140, 0.85);
+  margin: 0;
+}
+
+.editMenuItemSubtitle {
+  color: rgba(112, 117, 140, 0.7);
+  margin-top: 4px;
+}
+
+.editMenuItemForm {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .editMenuItemForm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.volumeOptionsCard {
+  grid-column: 1 / -1;
+}
+
+.volumeOptionsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.volumeOptionsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.volumeOptionRow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+}
+
+.volumeOptionEmpty {
+  text-align: center;
+  padding: 32px 20px;
+  color: rgba(112, 117, 140, 0.7);
+}
+
+.volumeOptionEmptyText {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 16px;
+}
+
