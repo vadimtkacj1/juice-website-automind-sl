@@ -28,15 +28,8 @@ export default function ProductModalFooter({
         className={styles['modal-add-btn']}
         onClick={onAddToCart}
       >
-        <span style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          gap: '10px'
-        }}>
-          <ShoppingCart size={22} />
-          {translateToHebrew('Add to Cart')}
-        </span>
+        <ShoppingCart size={22} />
+        <span>{translateToHebrew('Add to Cart')}</span>
       </button>
     </>
   );

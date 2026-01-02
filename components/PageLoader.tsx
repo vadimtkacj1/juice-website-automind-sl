@@ -41,25 +41,6 @@ export default function PageLoader() {
   if (!isLoading && !isNavigating) return null;
 
   return (
-<<<<<<< HEAD
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.98)',
-      backdropFilter: 'blur(8px)',
-      zIndex: 9999999,
-      transition: 'opacity 0.3s ease-out',
-    }}>
-      <LoadingSpinner size="lg" text={isNavigating ? 'Загрузка...' : ''} />
-=======
     <div 
       className="global-loader-overlay"
       style={{
@@ -81,7 +62,6 @@ export default function PageLoader() {
       }}
     >
       <LoadingSpinner size="lg" />
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
     </div>
   );
 }

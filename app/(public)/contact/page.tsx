@@ -270,14 +270,6 @@ export default function ContactPage() {
                 <ArrowRight size={16} />
               </a>
             </div>
-
-            {/* Fun Fact */}
-            <div className={`${styles['fun-fact']} reveal`} style={{ ['--delay' as string]: '0.5s' }}>
-              <div className={styles['fun-fact-content']}>
-                <span className={styles['fun-fact-emoji']}>🍊</span>
-                <p>We squeeze over <strong>1000 oranges</strong> daily to bring you the freshest juice!</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,62 @@
+/* ============================================
+   LOCATION CARDS
+   ============================================ */
+.location-card-content {
+  font-family: 'Heebo', sans-serif;
+}
+
+.location-card-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.location-card-country {
+  font-size: 32px;
+  font-weight: 900;
+  color: rgba(112, 117, 140, 0.8);
+  margin: 8px 0 0 0;
+}
+
+.location-card-text {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.location-card-address {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  line-height: 1.6;
+}
+
+.location-card-hours {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  line-height: 1.6;
+}
+
+.location-card-phone {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  text-decoration: none;
+}
+
+.location-card-email {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  text-decoration: none;
+}
+
+.location-card-map-link {
+  font-size: 28px;
+  font-weight: 900;
+  color: #7322ff;
+  text-decoration: none;
+}
+

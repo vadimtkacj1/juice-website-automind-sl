@@ -70,7 +70,7 @@
 }
 
 .loading-text {
-  font-family: "Inter", sans-serif;
+  font-family: "Heebo", sans-serif;
   font-size: 16px; /* Slightly larger text */
   font-weight: 600; /* Bolder text */
   color: var(--text-gray, #70758c);

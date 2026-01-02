@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from '../ProductModal.module.css';
 import { CartAddon, CartCustomIngredient } from '@/lib/cart-context';
 import ProductModalHeader from './ProductModalHeader';
@@ -65,13 +66,25 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [selectedIngredientsByCategory, setSelectedIngredientsByCategory] = useState<Map<string, number>>(new Map());
   const [selectedAdditionalItems, setSelectedAdditionalItems] = useState<Set<number>>(new Set());
-  const [showIngredientPrompt, setShowIngredientPrompt] = useState(false);
-  const [pendingAddToCart, setPendingAddToCart] = useState(false);
-  const [hasShownPrompt, setHasShownPrompt] = useState(false);
   const [orderPrompts, setOrderPrompts] = useState<OrderPrompt[]>([]);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [showOrderPrompt, setShowOrderPrompt] = useState(false);
   const [selectedPromptProducts, setSelectedPromptProducts] = useState<Set<number>>(new Set());
+
+  // Reset modal state when item changes
+  useEffect(() => {
+    if (item) {
+      // Reset all selections when a new item is selected
+      setSelectedVolume(null);
+      setSelectedAddons(new Map());
+      setSelectedIngredients(new Set());
+      setSelectedIngredientsByCategory(new Map());
+      setSelectedAdditionalItems(new Set());
+      setShowOrderPrompt(false);
+      setSelectedPromptProducts(new Set());
+      setCurrentPromptIndex(0);
+    }
+  }, [item?.id]); // Reset when item ID changes
 
   // Debug: Log when ingredients change
   useEffect(() => {
@@ -94,19 +107,66 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     }
   }, [volumeOptions, selectedVolume]);
 
-  // Prevent body scroll when modal is open and scroll to top
+  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (isOpen) {
-      // Scroll to top when modal opens
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (!isOpen) return;
+    
+    // Store current scroll position BEFORE any changes
+    const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Prevent body scroll - use simpler approach that doesn't affect viewport
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalBodyPosition = document.body.style.position;
+    const originalBodyTop = document.body.style.top;
+    const originalBodyLeft = document.body.style.left;
+    const originalBodyRight = document.body.style.right;
+    const originalBodyWidth = document.body.style.width;
+    
+    // Lock scroll
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    
+    // Store for cleanup
+    (document.body as any).__modalScrollY = scrollY;
+    (document.body as any).__modalOriginalStyles = {
+      bodyOverflow: originalBodyOverflow,
+      htmlOverflow: originalHtmlOverflow,
+      bodyPosition: originalBodyPosition,
+      bodyTop: originalBodyTop,
+      bodyLeft: originalBodyLeft,
+      bodyRight: originalBodyRight,
+      bodyWidth: originalBodyWidth,
+    };
+    
     return () => {
-      document.body.style.overflow = 'unset';
+      // Restore original styles
+      const stored = (document.body as any).__modalOriginalStyles;
+      const scrollY = (document.body as any).__modalScrollY || 0;
+      
+      document.body.style.position = stored?.bodyPosition || '';
+      document.body.style.top = stored?.bodyTop || '';
+      document.body.style.left = stored?.bodyLeft || '';
+      document.body.style.right = stored?.bodyRight || '';
+      document.body.style.width = stored?.bodyWidth || '';
+      document.body.style.overflow = stored?.bodyOverflow || '';
+      document.documentElement.style.overflow = stored?.htmlOverflow || '';
+      
+      // Restore scroll position
+      if (scrollY) {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollY);
+        });
+      }
+      
+      delete (document.body as any).__modalScrollY;
+      delete (document.body as any).__modalOriginalStyles;
     };
   }, [isOpen]);
 
@@ -119,18 +179,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  // Show ingredient prompt when modal opens and ingredients are available
-  useEffect(() => {
-    if (isOpen && customIngredients.length > 0 && selectedIngredients.size === 0 && !hasShownPrompt) {
-      // Only show prompt if there are ingredients, none are selected yet, and we haven't shown it already
-      // Add a small delay to ensure modal is fully rendered
-      const timer = setTimeout(() => {
-        setShowIngredientPrompt(true);
-        setHasShownPrompt(true);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, customIngredients.length, selectedIngredients.size, hasShownPrompt]);
 
   // Fetch order prompts when modal opens
   useEffect(() => {
@@ -169,9 +217,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       setSelectedIngredients(new Set());
       setSelectedIngredientsByCategory(new Map());
       setSelectedVolume(null);
-      setShowIngredientPrompt(false);
-      setPendingAddToCart(false);
-      setHasShownPrompt(false);
       setOrderPrompts([]);
       setCurrentPromptIndex(0);
       setShowOrderPrompt(false);
@@ -331,9 +376,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     console.log('Cart item has ingredients?', cartItem.customIngredients && cartItem.customIngredients.length > 0);
     
     // Close all dialogs and modals first
-    setShowIngredientPrompt(false);
     setShowOrderPrompt(false);
-    setPendingAddToCart(false);
     
     // Close modal
     onClose();
@@ -345,53 +388,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     }, 300);
   };
 
-  const handleAddIngredients = () => {
-    // Get all unselected ingredients
-    const unselectedIngredients = customIngredients.filter(
-      ing => !selectedIngredients.has(ing.id)
-    );
-    
-    console.log('handleAddIngredients - unselectedIngredients:', unselectedIngredients);
-    console.log('handleAddIngredients - current selectedIngredients:', Array.from(selectedIngredients));
-    
-    // Update selected ingredients state for UI consistency
-    setSelectedIngredients(prev => {
-      const newSet = new Set(prev);
-      unselectedIngredients.forEach(ing => {
-        newSet.add(ing.id);
-      });
-      console.log('handleAddIngredients - updated selectedIngredients:', Array.from(newSet));
-      return newSet;
-    });
-
-    // Also update selectedIngredientsByCategory for single selection types
-    setSelectedIngredientsByCategory(prev => {
-      const newMap = new Map(prev);
-      unselectedIngredients.forEach(ing => {
-        if (ing.selection_type === 'single') {
-          const category = ing.ingredient_category || 'fruits';
-          newMap.set(category, ing.id);
-        }
-      });
-      return newMap;
-    });
-    
-    setShowIngredientPrompt(false);
-    setPendingAddToCart(false);
-    
-    // Proceed with add to cart, passing the additional ingredient IDs
-    // We combine current selectedIngredients with the new ones to ensure all are included
-    const additionalIngredientIds = unselectedIngredients.map(ing => ing.id);
-    const allIngredientIds = new Set([...Array.from(selectedIngredients), ...additionalIngredientIds]);
-    console.log('handleAddIngredients - allIngredientIds to add:', Array.from(allIngredientIds));
-    proceedWithAddToCart(Array.from(allIngredientIds));
-  };
-
-  const handleSkipIngredients = () => {
-    setShowIngredientPrompt(false);
-    setPendingAddToCart(false);
-    proceedWithAddToCart();
-  };
 
   // Handle order prompt product selection
   const handleTogglePromptProduct = (productId: number) => {
@@ -501,23 +497,21 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     ? basePrice * (1 - item.discount_percent / 100) 
     : basePrice;
 
-  return (
+  // Render modal content
+  const modalContent = (
     <>
       {/* Backdrop */}
       <div className={styles['modal-backdrop']} onClick={onClose} />
 
       {/* Modal */}
       <div className={styles['product-modal']}>
-        <div className={styles['modal-container']}>
+        <div className={styles['modal-container']} onClick={(e) => e.stopPropagation()}>
           {/* Close Button */}
           <button className={styles['modal-close']} onClick={onClose}>
             <X size={24} />
           </button>
 
-          {/* Image */}
-          <ProductModalImage image={item.image} name={item.name} />
-
-          {/* Content */}
+          {/* Content - Left Side */}
           <div className={styles['modal-content']}>
             {/* Header */}
             <ProductModalHeader
@@ -584,62 +578,11 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               onAddToCart={handleAddToCartClick}
             />
           </div>
+
+          {/* Image - Right Side */}
+          <ProductModalImage image={item.image} name={item.name} />
         </div>
       </div>
-
-      {/* Ingredient Prompt Dialog */}
-      <Dialog 
-        open={showIngredientPrompt} 
-        onOpenChange={(open) => {
-          setShowIngredientPrompt(open);
-          if (!open) {
-            setPendingAddToCart(false);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{translateToHebrew('Add Ingredients?')}</DialogTitle>
-            <DialogDescription>
-              {translateToHebrew('Would you like to add these ingredients to this juice?')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="space-y-2">
-              {customIngredients
-                .filter(ing => !selectedIngredients.has(ing.id))
-                .map(ingredient => {
-                  const price = ingredient.price_override !== undefined && ingredient.price_override !== null
-                    ? ingredient.price_override
-                    : ingredient.price;
-                  return (
-                    <div key={ingredient.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium">{translateToHebrew(ingredient.name)}</span>
-                      {price > 0 && (
-                        <span className="text-sm text-gray-600">+₪{price.toFixed(0)}</span>
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={handleSkipIngredients}
-              className="w-full sm:w-auto"
-            >
-              {translateToHebrew('No, Skip')}
-            </Button>
-            <Button
-              onClick={handleAddIngredients}
-              className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
-            >
-              {translateToHebrew('Yes, Add All')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Order Prompt Dialog */}
       {orderPrompts.length > 0 && (
@@ -731,5 +674,13 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       )}
     </>
   );
+
+  // Use Portal to render modal directly in body, bypassing any parent containers
+  if (typeof window !== 'undefined' && document.body) {
+    return createPortal(modalContent, document.body);
+  }
+
+  // Fallback for SSR
+  return null;
 }
 

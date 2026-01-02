@@ -32,13 +32,15 @@ export default function MenuItemCard({
   onItemClick,
   getDiscountedPrice,
 }: MenuItemCardProps) {
+  const handleClick = () => {
+    onItemClick({ ...item, category_id: item.category_id || categoryId });
+  };
+
   return (
     <div
       className={`${styles.productCard} reveal`}
       style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
-      onClick={() => {
-        onItemClick({ ...item, category_id: item.category_id || categoryId });
-      }}
+      onClick={handleClick}
     >
       {/* Discount Badge */}
       {item.discount_percent > 0 && (
@@ -93,7 +95,7 @@ export default function MenuItemCard({
             className={styles.addBtn}
             onClick={(e) => {
               e.stopPropagation();
-              onItemClick({ ...item, category_id: item.category_id || categoryId });
+              handleClick();
             }}
             aria-label={`Add ${item.name} to cart`}
           >

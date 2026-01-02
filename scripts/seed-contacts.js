@@ -14,27 +14,27 @@ const fallbackContacts = [
   {
     id: 1,
     type: 'email',
-    value: 'info@juicewebsite.com'
+    value: 'info@naturli.co.il'
   },
   {
     id: 2,
     type: 'phone',
-    value: '+1 (555) 123-4567'
+    value: '03-1234567'
   },
   {
     id: 3,
     type: 'address',
-    value: '123 Main St, Anytown, USA'
+    value: 'דב הוז 63, חולון, ישראל'
   },
   {
     id: 4,
     type: 'whatsapp',
-    value: '+1 (555) 987-6543'
+    value: '+972-50-123-4567'
   }
 ];
 
 db.serialize(() => {
-  console.log('Seeding fallback contacts...');
+  console.log('🌐 Seeding fallback contacts in Hebrew...');
 
   const stmt = db.prepare(`INSERT OR IGNORE INTO contacts (
     id, type, value
@@ -58,7 +58,7 @@ db.serialize(() => {
   });
 
   stmt.finalize(() => {
-    console.log('Fallback contacts seeding complete.');
+    console.log('✅ Fallback contacts seeding complete - all in Hebrew!');
     db.close((err) => {
       if (err) {
         console.error('Error closing database:', err.message);

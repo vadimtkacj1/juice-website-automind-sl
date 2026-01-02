@@ -13,30 +13,30 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const fallbackNews = [
   {
     id: 1,
-    title: 'Exciting New Juice Flavors Launched!',
-    content: 'We are thrilled to announce the launch of our new line of refreshing juice flavors. Come and try them today!',
+    title: 'טעמים חדשים מרגשים של מיצים!',
+    content: 'אנו שמחים להודיע על השקת קו המיצים המרעננים החדש שלנו. בואו לנסות אותם היום!',
     image: 'https://framerusercontent.com/images/5c3PIy4m4YvRO0MIbc1NeBfMaXU.jpg',
     is_active: true,
     created_at: '2023-10-26 10:00:00'
   },
   {
     id: 2,
-    title: 'Grand Opening in Downtown City!',
-    content: 'Our newest branch is now open in the heart of Downtown City! Visit us for special opening offers and enjoy our delicious juices.',
+    title: 'פתיחה גדולה במרכז העיר!',
+    content: 'הסניף החדש שלנו נפתח בלב מרכז העיר! בואו לבקר אותנו להצעות פתיחה מיוחדות ותהנו מהמיצים הטעימים שלנו.',
     is_active: true,
     created_at: '2023-10-20 09:30:00'
   },
   {
     id: 3,
-    title: 'Healthy Living Tips with Juice Website',
-    content: 'Discover how our natural and fresh juices can boost your health and wellness. Read our latest blog post for tips and recipes.',
+    title: 'טיפים לחיים בריאים עם נטורליי מרענן',
+    content: 'גלו כיצד המיצים הטבעיים והטריים שלנו יכולים לשפר את הבריאות והרווחה שלכם. קראו את הפוסט האחרון שלנו לקבלת טיפים ומתכונים.',
     is_active: true,
     created_at: '2023-10-15 11:45:00'
   },
   {
     id: 4,
-    title: 'Seasonal Specials Are Here!',
-    content: 'Don\'t miss out on our limited-time seasonal juice blends, crafted with the freshest ingredients of the season.',
+    title: 'מבצעים עונתיים כאן!',
+    content: 'אל תפספסו את תערובות המיצים העונתיות שלנו לזמן מוגבל, מעוצבות עם המרכיבים הטריים ביותר של העונה.',
     image: 'https://framerusercontent.com/images/5SrlAPZTOT6JPRKJyGo6o4Zfxog.jpg',
     is_active: true,
     created_at: '2023-10-01 14:00:00'
@@ -44,7 +44,7 @@ const fallbackNews = [
 ];
 
 db.serialize(() => {
-  console.log('Seeding fallback news items...');
+  console.log('🌐 Seeding fallback news items in Hebrew...');
 
   const stmt = db.prepare(`INSERT OR IGNORE INTO news (
     id, title, content, image, is_active, created_at
@@ -71,7 +71,7 @@ db.serialize(() => {
   });
 
   stmt.finalize(() => {
-    console.log('Fallback news items seeding complete.');
+    console.log('✅ Fallback news items seeding complete - all in Hebrew!');
     db.close((err) => {
       if (err) {
         console.error('Error closing database:', err.message);

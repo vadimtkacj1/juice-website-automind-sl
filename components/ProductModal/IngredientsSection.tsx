@@ -60,22 +60,9 @@ export default function IngredientsSection({
 
   return (
     <div className={styles['modal-section']}>
-<<<<<<< HEAD
-      <h3 className={styles['section-title']}>
-        {translateToHebrew('Customize Your Order')}
-      </h3>
-      <p style={{ 
-        fontSize: '14px', 
-        color: '#70758c', 
-        marginBottom: '20px',
-        fontWeight: 500
-      }}>
-        {translateToHebrew('Add your favorite ingredients')}
-=======
       <h3 className={styles['section-title']}>{translateToHebrew('Add Ingredients')}</h3>
       <p className={styles['ingredient-description']}>
         {translateToHebrew('Choose additional ingredients to customize your juice')}
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
       </p>
       
       {Object.entries(groupedIngredients).map(([category, categoryIngredients]) => {
@@ -104,11 +91,7 @@ export default function IngredientsSection({
                 return (
                   <label 
                     key={ingredient.id} 
-<<<<<<< HEAD
-                    className={`${styles['ingredient-item']} ${isSelected ? styles['ingredient-item-selected'] : ''}`}
-=======
                     className={`${styles['ingredient-item']} ${isSelected ? styles['ingredient-item-selected'] || '' : ''}`}
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
                   >
                     <input
                       type={isSingleSelection ? 'radio' : 'checkbox'}

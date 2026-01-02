@@ -1,0 +1,154 @@
+/* ============================================
+   NAVIGATION - DOUBLE NAVBAR SYSTEM
+   ============================================ */
+.nav-main {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: calc(100% - 30px);
+  z-index: 100;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
+
+/* Hide main navbar when sticky navbar is active */
+body:has(.nav-sticky.is-active) .nav-main {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.nav-sticky {
+  position: fixed !important;
+  top: var(--spacing-sm) !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(-160%) !important;
+  width: calc(100% - 48px) !important;
+  max-width: 600px !important;
+  z-index: 2000 !important;
+  transition: transform 0.5s var(--spring-ease), opacity 0.3s ease !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+  visibility: hidden !important;
+}
+
+.nav-sticky.is-active {
+  transform: translateX(-50%) translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+.nav-content {
+  background-color: var(--secondary);
+  border-radius: var(--radius-full);
+  padding: 12px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(29, 26, 64, 0.1);
+  gap: 20px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.logo img {
+  height: 36px;
+  width: auto;
+}
+
+/* Menu Item Roll Animation */
+.menu-item {
+  height: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.roll-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s var(--spring-ease);
+  transform-origin: center center;
+  height: 48px;
+  justify-content: flex-start;
+}
+
+.roll-inner span {
+  display: block;
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 24px;
+  height: 24px;
+  color: #1d1a40 !important;
+  letter-spacing: -0.01em;
+  transition: opacity 0.3s ease, transform 0.5s var(--spring-ease);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.roll-inner .hvr {
+  color: #7322ff !important;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.menu-item:hover .roll-inner {
+  transform: translateY(-24px);
+}
+
+.menu-item:hover .roll-inner span:first-child {
+  opacity: 0;
+  transform: translateY(-24px);
+}
+
+.menu-item:hover .roll-inner .hvr {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cart Button */
+.menu-item.cart-button {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.menu-item.cart-button .roll-inner {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.menu-item.cart-button .cart-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.menu-item.cart-button .roll-inner .hvr.cart-icon-wrapper {
+  position: relative;
+  margin: 0 auto;
+}
+

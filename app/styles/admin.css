@@ -1,0 +1,62 @@
+/* ============================================
+   ADMIN PANEL TEXT IMPROVEMENTS
+   ============================================ */
+/* Base text color for admin */
+#admin-layout-root {
+  color: #0f172a; /* Slate 900 */
+}
+
+/* Improve contrast for muted/gray text while keeping hierarchy */
+#admin-layout-root .text-muted-foreground,
+#admin-layout-root .text-gray-500,
+#admin-layout-root .text-gray-400 {
+  color: #475569 !important; /* Slate 600 */
+}
+
+#admin-layout-root .text-gray-600,
+#admin-layout-root .text-gray-700 {
+  color: #334155 !important; /* Slate 700 */
+}
+
+#admin-layout-root .text-gray-800,
+#admin-layout-root .text-gray-900 {
+  color: #0f172a !important; /* Slate 900 */
+}
+
+/* Darken card content text in admin */
+#admin-layout-root .card .text-muted-foreground,
+#admin-layout-root .card .text-gray-500,
+#admin-layout-root .card .text-gray-400 {
+  color: #475569 !important;
+}
+
+/* Darken table text in admin */
+#admin-layout-root table .text-muted-foreground,
+#admin-layout-root table .text-gray-500,
+#admin-layout-root table .text-gray-400 {
+  color: #475569 !important;
+}
+
+#admin-layout-root table th {
+  color: #1e293b !important; /* Slate 800 */
+  font-weight: 700;
+}
+
+/* Darken description and helper text in admin */
+#admin-layout-root .text-xs.text-muted-foreground,
+#admin-layout-root .text-sm.text-muted-foreground,
+#admin-layout-root .text-xs.text-gray-500,
+#admin-layout-root .text-sm.text-gray-500 {
+  color: #475569 !important;
+}
+
+/* Navigation text */
+#admin-layout-root aside .text-gray-700,
+#admin-layout-root nav .text-gray-700 {
+  color: #334155 !important;
+}
+
+#admin-layout-root aside .text-gray-500 {
+  color: #64748b !important; /* Slate 500 */
+}
+

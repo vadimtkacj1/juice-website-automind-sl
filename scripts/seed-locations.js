@@ -13,12 +13,12 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const fallbackLocations = [
   {
     id: 1,
-    country: 'United States',
-    city: 'NYC',
-    address: '123 Coffee Lane, Brewtown, USA',
-    hours: 'All week: 7:00 AM - 7:00 PM',
-    phone: '(123) 456-7890',
-    email: 'info@brewhaven.com',
+    country: 'ישראל',
+    city: 'חולון',
+    address: 'דב הוז 63, חולון',
+    hours: 'כל השבוע: 07:00 - 19:00',
+    phone: '03-1234567',
+    email: 'info@naturli.co.il',
     image: 'https://framerusercontent.com/images/gakEm7WCvBQQ6GSJlSC9ShflfA.jpg',
     map_url: '#',
     is_active: true,
@@ -26,12 +26,12 @@ const fallbackLocations = [
   },
   {
     id: 2,
-    country: 'United Arab Emirates',
-    city: 'Dubai',
-    address: '123 Coffee Lane, Brewtown, UAE',
-    hours: 'All week: 7:00 AM - 7:00 PM',
-    phone: '(123) 456-7890',
-    email: 'info@brewhaven.com',
+    country: 'ישראל',
+    city: 'ירושלים',
+    address: 'רחוב בן יהודה 45, ירושלים',
+    hours: 'כל השבוע: 07:00 - 19:00',
+    phone: '02-1234567',
+    email: 'info@naturli.co.il',
     image: 'https://framerusercontent.com/images/aVOTw1y5jS9oXVCRtqku7RKlsY.jpg',
     map_url: '#',
     is_active: true,
@@ -39,12 +39,12 @@ const fallbackLocations = [
   },
   {
     id: 3,
-    country: 'Japan',
-    city: 'Tokyo',
-    address: '123 Coffee Lane, Brewtown, Japan',
-    hours: 'All week: 7:00 AM - 7:00 PM',
-    phone: '(123) 456-7890',
-    email: 'info@brewhaven.com',
+    country: 'ישראל',
+    city: 'חיפה',
+    address: 'שדרות הנשיא 78, חיפה',
+    hours: 'כל השבוע: 07:00 - 19:00',
+    phone: '04-1234567',
+    email: 'info@naturli.co.il',
     image: 'https://framerusercontent.com/images/qoRKXQRcjmvLIFjDKH6B27sSRMc.jpg',
     map_url: '#',
     is_active: true,
@@ -53,7 +53,7 @@ const fallbackLocations = [
 ];
 
 db.serialize(() => {
-  console.log('Seeding fallback locations...');
+  console.log('🌐 Seeding fallback locations in Hebrew...');
 
   const stmt = db.prepare(`INSERT OR IGNORE INTO locations (
     id, country, city, address, hours, phone, email, image, map_url, is_active, sort_order
@@ -85,7 +85,7 @@ db.serialize(() => {
   });
 
   stmt.finalize(() => {
-    console.log('Fallback locations seeding complete.');
+    console.log('✅ Fallback locations seeding complete - all in Hebrew!');
     db.close((err) => {
       if (err) {
         console.error('Error closing database:', err.message);

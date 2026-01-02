@@ -130,24 +130,14 @@ function NavBarShell({
             aria-label={translateToHebrew('Shopping cart')}
           >
             <div className="roll-inner">
-<<<<<<< HEAD
-              <span className="cart-icon-wrapper">
-                <ShoppingBag size={20} />
-=======
               <span className={navbarStyles['cart-icon-wrapper']}>
                 <ShoppingBag size={24} />
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
                 {itemCount > 0 && (
                   <span className={navbarStyles['cart-badge']}>{itemCount}</span>
                 )}
               </span>
-<<<<<<< HEAD
-              <span className="hvr cart-icon-wrapper">
-                <ShoppingBag size={20} />
-=======
               <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
                 <ShoppingBag size={24} />
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
                 {itemCount > 0 && (
                   <span className={navbarStyles['cart-badge']}>{itemCount}</span>
                 )}

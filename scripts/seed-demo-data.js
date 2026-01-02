@@ -3,29 +3,29 @@ const path = require('path');
 
 const db = new sqlite3.Database(path.join(__dirname, '../juice_website.db'));
 
-console.log('🌱 Seeding demo data...\n');
+console.log('🌱 Seeding demo data in Hebrew...\n');
 
-// Demo products
+// Demo products (in Hebrew)
 const products = [
-  { name: 'Orange Juice', description: 'Fresh squeezed orange juice', price: 4.99, image: '/images/orange-juice.jpg', availability: 1 },
-  { name: 'Apple Juice', description: 'Crisp apple juice', price: 4.49, image: '/images/apple-juice.jpg', availability: 1 },
-  { name: 'Carrot Juice', description: 'Healthy carrot juice', price: 5.49, image: '/images/carrot-juice.jpg', availability: 1 },
-  { name: 'Mixed Berry Smoothie', description: 'Blend of berries', price: 6.99, image: '/images/berry-smoothie.jpg', availability: 1 },
-  { name: 'Green Detox', description: 'Spinach, apple, and lemon', price: 7.49, image: '/images/green-detox.jpg', availability: 0 },
+  { name: 'מיץ תפוזים', description: 'מיץ תפוזים טרי סחוט', price: 20, image: '/images/orange-juice.jpg', availability: 1 },
+  { name: 'מיץ תפוחים', description: 'מיץ תפוחים פריך', price: 25, image: '/images/apple-juice.jpg', availability: 1 },
+  { name: 'מיץ גזר', description: 'מיץ גזר בריא', price: 25, image: '/images/carrot-juice.jpg', availability: 1 },
+  { name: 'שייק פירות יער', description: 'תערובת פירות יער', price: 30, image: '/images/berry-smoothie.jpg', availability: 1 },
+  { name: 'דטוקס ירוק', description: 'תרד, תפוח ולימון', price: 30, image: '/images/green-detox.jpg', availability: 0 },
 ];
 
-// Demo orders
+// Demo orders (in Hebrew)
 const orders = [
-  { customer_name: 'John Doe', customer_email: 'john@example.com', customer_phone: '555-0101', total_amount: 14.98, status: 'completed', payment_method: 'Card' },
-  { customer_name: 'Jane Smith', customer_email: 'jane@example.com', customer_phone: '555-0102', total_amount: 9.98, status: 'pending', payment_method: 'Cash' },
-  { customer_name: 'Bob Johnson', customer_email: 'bob@example.com', customer_phone: '555-0103', total_amount: 19.97, status: 'completed', payment_method: 'Card' },
+  { customer_name: 'יוחנן לוי', customer_email: 'yohanan@example.com', customer_phone: '050-1234567', total_amount: 60, status: 'completed', payment_method: 'Card' },
+  { customer_name: 'שרה כהן', customer_email: 'sara@example.com', customer_phone: '052-7654321', total_amount: 45, status: 'pending', payment_method: 'Cash' },
+  { customer_name: 'דוד ישראלי', customer_email: 'david@example.com', customer_phone: '054-9876543', total_amount: 75, status: 'completed', payment_method: 'Card' },
 ];
 
 // Demo promo codes
 const promoCodes = [
-  { code: 'WELCOME10', discount_type: 'percentage', discount_value: 10, usage_limit: 100, is_active: 1 },
-  { code: 'SUMMER20', discount_type: 'percentage', discount_value: 20, usage_limit: 50, is_active: 1 },
-  { code: 'FREESHIP', discount_type: 'fixed', discount_value: 5, usage_limit: null, is_active: 1 },
+  { code: 'ברוכים10', discount_type: 'percentage', discount_value: 10, usage_limit: 100, is_active: 1 },
+  { code: 'קיץ20', discount_type: 'percentage', discount_value: 20, usage_limit: 50, is_active: 1 },
+  { code: 'משלוחחינם', discount_type: 'fixed', discount_value: 5, usage_limit: null, is_active: 1 },
 ];
 
 // Insert products
@@ -62,11 +62,11 @@ setTimeout(() => {
           // Add order items (demo: 2 items per order)
           db.run(
             'INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)',
-            [this.lastID, 1, 'Orange Juice', 2, 4.99]
+            [this.lastID, 1, 'מיץ תפוזים', 2, 20]
           );
           db.run(
             'INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)',
-            [this.lastID, 2, 'Apple Juice', 1, 4.49]
+            [this.lastID, 2, 'מיץ תפוחים', 1, 25]
           );
         }
       }
@@ -94,7 +94,7 @@ setTimeout(() => {
 }, 1000);
 
 setTimeout(() => {
-  console.log('\n✨ Demo data seeding complete!');
+  console.log('\n✨ Demo data seeding complete - all in Hebrew!');
   db.close();
 }, 1500);
 

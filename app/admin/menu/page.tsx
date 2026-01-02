@@ -379,19 +379,19 @@ export default function AdminMenu() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t('Name')}</TableHead>
-                      <TableHead>{t('Category')}</TableHead>
-                      <TableHead>{t('Price')}</TableHead>
-                      <TableHead>{t('Discount')}</TableHead>
-                      <TableHead>{t('Status')}</TableHead>
-                      <TableHead>{t('Actions')}</TableHead>
+                      <TableHead className="text-right">{t('Name')}</TableHead>
+                      <TableHead className="text-right">{t('Category')}</TableHead>
+                      <TableHead className="text-center">{t('Price')}</TableHead>
+                      <TableHead className="text-center">{t('Discount')}</TableHead>
+                      <TableHead className="text-center">{t('Status')}</TableHead>
+                      <TableHead className="text-left">{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
+                        <TableCell className="text-right">
+                          <div className="flex items-center gap-3 flex-row-reverse">
                             {item.image && (
                               <img
                                 src={item.image}
@@ -399,7 +399,7 @@ export default function AdminMenu() {
                                 className="w-10 h-10 object-cover rounded-full"
                               />
                             )}
-                            <div>
+                            <div className="text-right">
                               <p className="font-medium">{t(item.name)}</p>
                               {item.volume && (
                                 <p className="text-xs text-gray-500">{item.volume}</p>
@@ -407,24 +407,24 @@ export default function AdminMenu() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           <span className="text-sm text-gray-600">{t(item.category_name)}</span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           <span className="font-bold">₪{item.price}</span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => openDiscountDialog(item)}
                             className={item.discount_percent > 0 ? 'text-red-600' : ''}
                           >
-                            {item.discount_percent > 0 ? `-${item.discount_percent}%` : t('None')}
+                            {item.discount_percent > 0 ? `-${item.discount_percent}%` : '0%'}
                             <Percent className="ml-1 h-3 w-3" />
                           </Button>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           <button
                             onClick={() => toggleItemAvailability(item)}
                             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -436,7 +436,7 @@ export default function AdminMenu() {
                             {item.is_available ? t('Available') : t('Unavailable')}
                           </button>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-left">
                           <div className="flex gap-2">
                             <Link href={`/admin/menu/edit/${item.id}`}>
                               <Button variant="ghost" size="sm">

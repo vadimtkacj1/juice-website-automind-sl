@@ -345,9 +345,19 @@ export default function AdminIngredients() {
   }
 
   async function handleOpenCategoryConfigDialog(category: MenuCategory) {
-    setSelectedCategory(category);
-    await fetchCategoryConfigs(category.id);
-    setShowCategoryConfigForm(true);
+    try {
+      setSelectedCategory(category);
+      await fetchCategoryConfigs(category.id);
+      setShowCategoryConfigForm(true);
+    } catch (error) {
+      console.error('Error opening category config dialog:', error);
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        message: 'Failed to open configuration dialog. Please try again.',
+        type: 'error',
+      });
+    }
   }
 
   function addCategoryVolume() {
@@ -566,60 +576,72 @@ export default function AdminIngredients() {
   }
 
   async function handleAddIngredientToCategory(ingredient: Ingredient) {
-    if (!selectedCategory) {
+    try {
+      if (!selectedCategory) {
+        setAlertDialog({
+          open: true,
+          title: 'Error',
+          message: 'No category selected. Please select a category first.',
+          type: 'error',
+        });
+        return;
+      }
+      
+      const existing = categoryConfigs.find(c => c.ingredient_id === ingredient.id);
+      if (existing) {
+        setAlertDialog({
+          open: true,
+          title: 'Already Added',
+          message: `${ingredient.name} is already attached to this category.`,
+          type: 'info',
+        });
+        return;
+      }
+      
+      // Fetch volume options for this ingredient
+      let volumes: VolumeOption[] = [];
+      try {
+        const volRes = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
+        const volData = await volRes.json();
+        volumes = volData.volumes || [];
+        setIngredientVolumes(prev => ({
+          ...prev,
+          [ingredient.id]: volumes
+        }));
+      } catch (error) {
+        console.error('Error fetching volumes:', error);
+      }
+      
+      // Initialize volume_prices for this ingredient based on category volumes
+      const initialVolumePrices: Record<string, number> = {};
+      categoryVolumes.forEach(vol => {
+        if (vol.volume) {
+          initialVolumePrices[vol.volume] = ingredient.price; // Use ingredient base price as default
+        }
+      });
+
+      // Add ingredient with multiple selection by default (allows customers to select multiple ingredients)
+      setCategoryConfigs([
+        ...categoryConfigs,
+        {
+          category_id: selectedCategory.id,
+          category_name: selectedCategory.name,
+          ingredient_id: ingredient.id,
+          ingredient_name: ingredient.name,
+          selection_type: 'multiple', // Default to multiple so customers can select many ingredients
+          price_override: undefined,
+          volume_prices: Object.keys(initialVolumePrices).length > 0 ? initialVolumePrices : undefined,
+        },
+      ]);
+    } catch (error: any) {
+      console.error('Error adding ingredient to category:', error);
       setAlertDialog({
         open: true,
         title: 'Error',
-        message: 'No category selected. Please select a category first.',
+        message: error.message || 'Failed to add ingredient. Please try again.',
         type: 'error',
       });
-      return;
     }
-    
-    const existing = categoryConfigs.find(c => c.ingredient_id === ingredient.id);
-    if (existing) {
-      setAlertDialog({
-        open: true,
-        title: 'Already Added',
-        message: `${ingredient.name} is already attached to this category.`,
-        type: 'info',
-      });
-      return;
-    }
-    
-    // Fetch volume options for this ingredient
-    let volumes: VolumeOption[] = [];
-    try {
-      const volRes = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
-      const volData = await volRes.json();
-      volumes = volData.volumes || [];
-      setIngredientVolumes(prev => ({
-        ...prev,
-        [ingredient.id]: volumes
-      }));
-    } catch (error) {
-      console.error('Error fetching volumes:', error);
-    }
-    
-    // Initialize volume_prices for this ingredient based on category volumes
-    const initialVolumePrices: Record<string, number> = {};
-    categoryVolumes.forEach(vol => {
-      initialVolumePrices[vol.volume] = ingredient.price; // Use ingredient base price as default
-    });
-
-    // Add ingredient with multiple selection by default (allows customers to select multiple ingredients)
-    setCategoryConfigs([
-      ...categoryConfigs,
-      {
-        category_id: selectedCategory.id,
-        category_name: selectedCategory.name,
-        ingredient_id: ingredient.id,
-        ingredient_name: ingredient.name,
-        selection_type: 'multiple', // Default to multiple so customers can select many ingredients
-        price_override: undefined,
-        volume_prices: Object.keys(initialVolumePrices).length > 0 ? initialVolumePrices : undefined,
-      },
-    ]);
   }
 
   function handleRemoveIngredientFromCategory(ingredientId: number) {

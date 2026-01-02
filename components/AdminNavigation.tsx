@@ -16,12 +16,9 @@ import {
   Newspaper,
   ChefHat,
   MessageSquare,
-<<<<<<< HEAD
-  Sparkles
-=======
   Clock,
-  ShoppingBag
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
+  ShoppingBag,
+  Sparkles
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';

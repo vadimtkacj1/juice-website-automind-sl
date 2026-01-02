@@ -1,0 +1,46 @@
+/* ============================================
+   TICKER / MARQUEE
+   ============================================ */
+.ticker-wrap {
+  background: var(--pink);
+  padding-block: var(--spacing-md);
+  transform: rotate(-2deg);
+  overflow: hidden;
+  display: flex;
+  margin-block: var(--spacing-xl);
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
+
+/* Container for ticker to prevent overflow */
+.ticker-container {
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
+
+.track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 25s linear infinite;
+}
+
+.track span {
+  font-family: 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 48px;
+  color: var(--primary);
+  padding-inline-end: var(--spacing-xl);
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+

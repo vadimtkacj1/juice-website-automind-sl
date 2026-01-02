@@ -1,0 +1,50 @@
+/* ============================================
+   CSS VARIABLES - DESIGN SYSTEM
+   ============================================ */
+:root {
+  /* Primary Colors */
+  --primary: #7322ff;
+  --primary-dark: #5a1acc;
+  --secondary: #93f3aa;
+  --pink: #fe7bff;
+  
+  /* Blue Theme for Header/Footer */
+  --deep-blue: #1a365d;
+  --deep-blue-light: #2a4a7f;
+  --deep-blue-dark: #0f2341;
+  
+  /* Neutral Colors */
+  --dark: #1d1a40;
+  --gray-bg: #eaedf6;
+  --white: #ffffff;
+  --text-gray: #70758c;
+  
+  /* Animation Easings */
+  --spring-ease: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --fast-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --smooth-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --spacing-xl: 60px;
+  --spacing-2xl: 100px;
+  
+  /* Border Radius */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 30px;
+  --radius-xl: 40px;
+  --radius-full: 100px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --primary: #5500cc;
+    --text-gray: #333333;
+  }
+}
+

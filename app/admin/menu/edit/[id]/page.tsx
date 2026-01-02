@@ -39,15 +39,6 @@ interface VolumeOption {
   sort_order: number;
 }
 
-interface AdditionalItem {
-  id?: number;
-  name: string;
-  description?: string;
-  price: number;
-  is_available: boolean;
-  sort_order: number;
-}
-
 export default function EditMenuItem() {
   const router = useRouter();
   const params = useParams();
@@ -57,7 +48,6 @@ export default function EditMenuItem() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
-  const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
   const [form, setForm] = useState({
     category_id: '',
     name: '',
@@ -90,10 +80,9 @@ export default function EditMenuItem() {
   async function fetchMenuItem(itemId: number) {
     setInitialLoading(true);
     try {
-      const [itemResponse, volumesResponse, additionalItemsResponse] = await Promise.all([
+      const [itemResponse, volumesResponse] = await Promise.all([
         fetch(`/api/menu-items/${itemId}`),
-        fetch(`/api/menu-items/${itemId}/volumes`),
-        fetch(`/api/menu-items/${itemId}/additional-items`)
+        fetch(`/api/menu-items/${itemId}/volumes`)
       ]);
       
       if (!itemResponse.ok) {
@@ -127,10 +116,6 @@ export default function EditMenuItem() {
       }
 
       // Fetch additional items
-      if (additionalItemsResponse.ok) {
-        const additionalItemsData = await additionalItemsResponse.json();
-        setAdditionalItems(additionalItemsData.additionalItems || []);
-      }
     } catch (error) {
       console.error('Error fetching menu item:', error);
       alert(t('Error loading menu item'));
@@ -183,30 +168,6 @@ export default function EditMenuItem() {
         return;
       }
 
-      // Save additional items (delete all and recreate)
-      // First, delete all existing additional items
-      const existingItems = additionalItems.filter(item => item.id);
-      for (const item of existingItems) {
-        await fetch(`/api/menu-items/${id}/additional-items/${item.id}`, {
-          method: 'DELETE'
-        });
-      }
-
-      // Then create new ones
-      for (const item of additionalItems) {
-        await fetch(`/api/menu-items/${id}/additional-items`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: item.name,
-            description: item.description || null,
-            price: item.price,
-            is_available: item.is_available,
-            sort_order: item.sort_order
-          })
-        });
-      }
-
       router.push('/admin/menu');
     } catch (error) {
       console.error('Error updating item:', error);
@@ -246,32 +207,6 @@ export default function EditMenuItem() {
     setVolumeOptions(newVolumes);
   }
 
-  const addAdditionalItem = useCallback((e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setAdditionalItems(prev => {
-      const newItem = {
-        name: '',
-        description: '',
-        price: 0,
-        is_available: true,
-        sort_order: prev.length
-      };
-      return [...prev, newItem];
-    });
-  }, []);
-
-  function removeAdditionalItem(index: number) {
-    setAdditionalItems(additionalItems.filter((_, i) => i !== index));
-  }
-
-  function updateAdditionalItem(index: number, field: keyof AdditionalItem, value: any) {
-    const newItems = [...additionalItems];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setAdditionalItems(newItems);
-  }
 
   if (initialLoading) {
     return (
@@ -504,116 +439,6 @@ export default function EditMenuItem() {
                       >
                         <Trash className="h-4 w-4" />
                       </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>{t('Additional Items')}</CardTitle>
-                <CardDescription>
-                  {t('Add optional items like "Bigger Glass" or "More KG" that customers can select when buying this item.')}
-                </CardDescription>
-              </div>
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  addAdditionalItem(e);
-                }}
-                variant="outline"
-                size="sm"
-                className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
-                formNoValidate
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {t('Add Item')}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {additionalItems.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>{t('No additional items defined.')}</p>
-                <p className="text-sm mt-2">{t('Click "Add Item" to create additional options for this item.')}</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {additionalItems.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 p-4 border rounded-lg bg-gray-50">
-                    <div className="col-span-4">
-                      <Label htmlFor={`add-name-${index}`}>{t('Name *')}</Label>
-                      <Input
-                        id={`add-name-${index}`}
-                        value={item.name}
-                        onChange={(e) => updateAdditionalItem(index, 'name', e.target.value)}
-                        placeholder={t('Bigger Glass')}
-                        required
-                      />
-                    </div>
-                    <div className="col-span-3">
-                      <Label htmlFor={`add-price-${index}`}>{t('Price (₪) *')}</Label>
-                      <Input
-                        id={`add-price-${index}`}
-                        type="number"
-                        step="0.01"
-                        value={item.price}
-                        onChange={(e) => updateAdditionalItem(index, 'price', parseFloat(e.target.value) || 0)}
-                        placeholder={t('5')}
-                        required
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label htmlFor={`add-sort-${index}`}>{t('Sort Order')}</Label>
-                      <Input
-                        id={`add-sort-${index}`}
-                        type="number"
-                        value={item.sort_order}
-                        onChange={(e) => updateAdditionalItem(index, 'sort_order', parseInt(e.target.value) || 0)}
-                        placeholder={t('0')}
-                      />
-                    </div>
-                    <div className="col-span-2 flex items-end">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id={`add-available-${index}`}
-                          checked={item.is_available}
-                          onChange={(e) => updateAdditionalItem(index, 'is_available', e.target.checked)}
-                          className="w-4 h-4"
-                        />
-                        <Label htmlFor={`add-available-${index}`} className="text-sm">
-                          {t('Available')}
-                        </Label>
-                      </div>
-                    </div>
-                    <div className="col-span-1 flex items-end">
-                      <Button
-                        type="button"
-                        onClick={() => removeAdditionalItem(index)}
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="col-span-12">
-                      <Label htmlFor={`add-desc-${index}`}>{t('Description')}</Label>
-                      <Input
-                        id={`add-desc-${index}`}
-                        value={item.description || ''}
-                        onChange={(e) => updateAdditionalItem(index, 'description', e.target.value)}
-                        placeholder={t('Optional description')}
-                      />
                     </div>
                   </div>
                 ))}

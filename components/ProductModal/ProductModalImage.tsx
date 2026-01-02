@@ -12,11 +12,16 @@ export default function ProductModalImage({ image, name }: ProductModalImageProp
   return (
     <div className={styles['modal-image']}>
       {image ? (
-        <img 
-          src={image} 
-          alt={name}
-          loading="eager"
-        />
+        <>
+          <img 
+            src={image} 
+            alt={name}
+            loading="eager"
+          />
+          <div className={styles['image-disclaimer']}>
+            <p>התמונה להמחשה בלבד. ייתכנו הבדלים בצבע, צורה או מראה בין המוצר בפועל לבין המוצר המוצג בתמונה.</p>
+          </div>
+        </>
       ) : (
         <div className={styles['modal-image-placeholder']}>
           <div style={{ 

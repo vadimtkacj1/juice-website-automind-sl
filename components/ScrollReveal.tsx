@@ -37,15 +37,12 @@ export default function ScrollReveal() {
     const heroTitle = document.querySelector('.hero-title');
     if (heroTitle && heroTitle.textContent) {
       const text = heroTitle.textContent;
-      // Clear existing content safely
-      while (heroTitle.firstChild) {
-        if (heroTitle.firstChild.parentNode) {
-          heroTitle.removeChild(heroTitle.firstChild);
-        } else {
-          heroTitle.firstChild.remove();
-        }
-      }
-      text.split('').forEach((char, index) => {
+      // Clear existing content safely - use textContent to avoid DOM manipulation issues
+      // Store the text first, then clear and rebuild
+      const letters = text.split('');
+      heroTitle.textContent = ''; // Clear all content at once
+      
+      letters.forEach((char, index) => {
         const span = document.createElement('span');
         span.className = 'letter';
         span.textContent = char === ' ' ? '\u00A0' : char;

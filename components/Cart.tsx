@@ -505,7 +505,6 @@ export default function Cart() {
           )}
         </div>
       </div>
-<<<<<<< HEAD
 
       <style jsx>{`
         .cart-backdrop {
@@ -1131,8 +1130,6 @@ export default function Cart() {
           }
         }
       `}</style>
-=======
->>>>>>> a3f884021453c8610336941a5262c83c3212d934
     </>
   );
 }
