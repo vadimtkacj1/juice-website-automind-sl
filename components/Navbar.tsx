@@ -17,7 +17,7 @@ const navLinks = [
 
 // Custom Logo Component - Natural Refreshing theme
 function BrandLogo({ compact = false }: { compact?: boolean }) {
-  const size = compact ? 45 : 55;
+  const size = compact ? 38 : 48;
   
   return (
     <div className="brand-logo" style={{ width: size, height: size }}>
@@ -141,13 +141,13 @@ function NavBarShell({
           >
             <div className="roll-inner">
               <span className="cart-icon-wrapper">
-                <ShoppingBag size={24} />
+                <ShoppingBag size={20} />
                 {itemCount > 0 && (
                   <span className="cart-badge">{itemCount}</span>
                 )}
               </span>
               <span className="hvr cart-icon-wrapper">
-                <ShoppingBag size={24} />
+                <ShoppingBag size={20} />
                 {itemCount > 0 && (
                   <span className="cart-badge">{itemCount}</span>
                 )}

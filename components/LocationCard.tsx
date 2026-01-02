@@ -12,6 +12,7 @@ interface Location {
   email?: string;
   image?: string;
   map_url?: string;
+  show_map_button?: boolean;
   is_active: boolean;
   sort_order: number;
 }
@@ -83,7 +84,7 @@ export default function LocationCard({ location }: LocationCardProps) {
             </div>
           )}
 
-          {location.map_url && (
+          {location.map_url && location.show_map_button !== false && (
             <div className="pt-2">
               <a
                 href={location.map_url}

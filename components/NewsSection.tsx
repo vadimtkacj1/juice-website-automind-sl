@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ArrowLeft } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
 
 interface NewsItem {
   id: number;
@@ -58,7 +59,7 @@ const NewsSection = () => {
         
         {loading ? (
           <div className="news-loading" role="status" aria-label="טוען חדשות">
-            <div className="loading-spinner"></div>
+            <LoadingSpinner size="lg" text="טוען חדשות..." />
           </div>
         ) : newsItems.length === 0 ? (
           <div className="news-empty">

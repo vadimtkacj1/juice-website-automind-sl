@@ -1,21 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function PageLoader() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const pathname = usePathname();
 
+  // Handle route changes
   useEffect(() => {
-    // Handle initial page load
+    setIsNavigating(true);
+    const timer = setTimeout(() => {
+      setIsNavigating(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  // Handle initial page load
+  useEffect(() => {
     const handleLoad = () => {
-      // Small delay to ensure smooth transition
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     };
 
-    // Check if page is already loaded
     if (document.readyState === 'complete') {
       handleLoad();
     } else {
@@ -27,7 +37,8 @@ export default function PageLoader() {
     };
   }, []);
 
-  if (!isLoading) return null;
+  // Show loader if either initial loading or navigating
+  if (!isLoading && !isNavigating) return null;
 
   return (
     <div style={{
@@ -36,16 +47,17 @@ export default function PageLoader() {
       left: 0,
       right: 0,
       bottom: 0,
-      width: '100%',
-      height: '100%',
+      width: '100vw',
+      height: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgb(255, 255, 255)',
-      zIndex: 99999,
+      backgroundColor: 'rgba(255, 255, 255, 0.98)',
+      backdropFilter: 'blur(8px)',
+      zIndex: 9999999,
       transition: 'opacity 0.3s ease-out',
     }}>
-      <LoadingSpinner size="lg" />
+      <LoadingSpinner size="lg" text={isNavigating ? 'Загрузка...' : ''} />
     </div>
   );
 }

@@ -21,6 +21,7 @@ interface Location {
   email?: string;
   image?: string;
   map_url?: string;
+  show_map_button?: boolean;
   is_active: boolean;
   sort_order: number;
 }
@@ -40,6 +41,7 @@ export default function EditLocation() {
     email: '',
     image: '',
     map_url: '',
+    show_map_button: true,
     is_active: true,
     sort_order: 0,
   });
@@ -230,7 +232,20 @@ export default function EditLocation() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t">
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  type="checkbox"
+                  id="show_map_button"
+                  checked={formData.show_map_button !== false}
+                  onChange={(e) => setFormData({ ...formData, show_map_button: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <Label htmlFor="show_map_button" className="cursor-pointer">
+                  Show "View on Map" button
+                </Label>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2 border-t">
                 <input
                   type="checkbox"
                   id="is_active"

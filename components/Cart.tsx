@@ -474,8 +474,9 @@ export default function Cart() {
           inset: 0;
           background: rgba(29, 26, 64, 0.6);
           backdrop-filter: blur(4px);
-          z-index: 9998;
+          z-index: 999998;
           animation: fadeIn 0.3s ease-out;
+          will-change: opacity;
         }
 
         .cart-modal {
@@ -484,9 +485,10 @@ export default function Cart() {
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 9999;
+          z-index: 999999;
           padding: 20px;
-          pointer-events: none;
+          pointer-events: auto;
+          will-change: transform, opacity;
         }
 
         .cart-container {

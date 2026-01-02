@@ -1,3 +1,5 @@
+'use client';
+
 import styles from '../ProductModal.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
@@ -20,7 +22,16 @@ export default function ProductModalHeader({
     <div className={styles['modal-header']}>
       <h2 className={styles['modal-title']}>{translateToHebrew(name)}</h2>
       {selectedVolume && (
-        <p className={styles['modal-subtitle']}>{translateToHebrew(selectedVolume)}</p>
+        <p className={styles['modal-subtitle']}>
+          <span style={{ 
+            width: '6px', 
+            height: '6px', 
+            borderRadius: '50%', 
+            background: 'linear-gradient(135deg, #7322ff 0%, #93f3aa 100%)',
+            display: 'inline-block'
+          }} />
+          {translateToHebrew(selectedVolume)}
+        </p>
       )}
       <div className={styles['modal-price']}>
         {discountPercent > 0 && (
@@ -28,10 +39,11 @@ export default function ProductModalHeader({
         )}
         <span className={styles['price-main']}>₪{discountedPrice.toFixed(0)}</span>
         {discountPercent > 0 && (
-          <span className={styles['discount-tag']}>-{discountPercent}%</span>
+          <span className={styles['discount-tag']}>
+            {translateToHebrew('Save')} {discountPercent}%
+          </span>
         )}
       </div>
     </div>
   );
 }
-

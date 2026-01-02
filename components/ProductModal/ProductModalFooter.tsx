@@ -1,3 +1,6 @@
+'use client';
+
+import { ShoppingCart, Check } from 'lucide-react';
 import styles from '../ProductModal.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
@@ -14,7 +17,9 @@ export default function ProductModalFooter({
     <>
       {/* Total Price */}
       <div className={styles['modal-total']}>
-        <span className={styles['total-label']}>{translateToHebrew('Total')}:</span>
+        <span className={styles['total-label']}>
+          {translateToHebrew('Total')}:
+        </span>
         <span className={styles['total-price']}>₪{totalPrice.toFixed(0)}</span>
       </div>
 
@@ -23,9 +28,16 @@ export default function ProductModalFooter({
         className={styles['modal-add-btn']}
         onClick={onAddToCart}
       >
-        {translateToHebrew('Add to Cart')}
+        <span style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '10px'
+        }}>
+          <ShoppingCart size={22} />
+          {translateToHebrew('Add to Cart')}
+        </span>
       </button>
     </>
   );
 }
-

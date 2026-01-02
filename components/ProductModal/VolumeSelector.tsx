@@ -1,3 +1,6 @@
+'use client';
+
+import { Package } from 'lucide-react';
 import styles from '../ProductModal.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
@@ -29,31 +32,42 @@ export default function VolumeSelector({
 
   return (
     <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>{translateToHebrew('Select Volume')}</h3>
-      <div className={styles['ingredients-list']}>
-        {volumeOptions.map((vol) => {
+      <h3 className={styles['section-title']}>
+        {translateToHebrew('Select Size')}
+      </h3>
+      <div className={styles['volume-grid']}>
+        {volumeOptions.map((vol, index) => {
           const isSelected = selectedVolume === vol.volume;
           const volPrice = discountPercent > 0
             ? vol.price * (1 - discountPercent / 100)
             : vol.price;
+          
           return (
-            <label key={vol.volume} className={styles['ingredient-item']}>
+            <div key={vol.volume} className={styles['volume-option']}>
               <input
                 type="radio"
+                id={`volume-${index}`}
                 name="volume-selection"
                 checked={isSelected}
                 onChange={() => onVolumeChange(vol.volume)}
-                className={styles['ingredient-checkbox']}
               />
-              <div className={styles['ingredient-info']}>
-                <span className={styles['ingredient-name']}>{translateToHebrew(vol.volume)}</span>
-                <span className={styles['ingredient-price']}>₪{volPrice.toFixed(0)}</span>
+              <div className={styles['volume-card']}>
+                {vol.is_default && (
+                  <span className={styles['volume-badge']}>
+                    {translateToHebrew('Popular')}
+                  </span>
+                )}
+                <span className={styles['volume-label']}>
+                  {translateToHebrew(vol.volume)}
+                </span>
+                <span className={styles['volume-price']}>
+                  ₪{volPrice.toFixed(0)}
+                </span>
               </div>
-            </label>
+            </div>
           );
         })}
       </div>
     </div>
   );
 }
-

@@ -1,4 +1,6 @@
-import { ShoppingBag } from 'lucide-react';
+'use client';
+
+import { ShoppingBag, Droplets } from 'lucide-react';
 import styles from '../ProductModal.module.css';
 
 interface ProductModalImageProps {
@@ -10,13 +12,41 @@ export default function ProductModalImage({ image, name }: ProductModalImageProp
   return (
     <div className={styles['modal-image']}>
       {image ? (
-        <img src={image} alt={name} />
+        <img 
+          src={image} 
+          alt={name}
+          loading="eager"
+        />
       ) : (
         <div className={styles['modal-image-placeholder']}>
-          <ShoppingBag size={80} />
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            gap: '16px' 
+          }}>
+            <div style={{
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(115, 34, 255, 0.1) 0%, rgba(147, 243, 170, 0.1) 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Droplets size={60} style={{ opacity: 0.5 }} />
+            </div>
+            <span style={{ 
+              fontSize: '16px', 
+              fontWeight: 600, 
+              color: '#70758c',
+              opacity: 0.7 
+            }}>
+              {name}
+            </span>
+          </div>
         </div>
       )}
     </div>
   );
 }
-

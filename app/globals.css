@@ -128,7 +128,7 @@ main {
    ============================================ */
 .nav-main {
   position: absolute;
-  top: 35px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
@@ -141,11 +141,11 @@ main {
 
 .nav-sticky {
   position: fixed;
-  top: var(--spacing-sm);
+  top: 12px;
   left: 50%;
   transform: translateX(-50%) translateY(-160%);
   width: calc(100% - 48px);
-  max-width: 600px;
+  max-width: 520px;
   z-index: 2000;
   transition: transform 0.5s var(--spring-ease), opacity 0.2s;
   opacity: 0;
@@ -163,7 +163,7 @@ main {
 .nav-content {
   background-color: var(--secondary);
   border-radius: var(--radius-full);
-  padding: 14px var(--spacing-lg);
+  padding: 10px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -172,18 +172,18 @@ main {
 
 .nav-links {
   display: flex;
-  gap: 25px;
+  gap: 18px;
   align-items: center;
 }
 
 .logo img {
-  height: 40px;
+  height: 36px;
   width: auto;
 }
 
 /* Menu Item Roll Animation */
 .menu-item {
-  height: 24px;
+  height: 20px;
   overflow: hidden;
   text-decoration: none;
   cursor: pointer;
@@ -195,16 +195,16 @@ main {
   flex-direction: column;
   transition: transform 0.5s var(--spring-ease);
   transform-origin: center center;
-  height: 48px;
+  height: 40px;
   justify-content: flex-start;
 }
 
 .roll-inner span {
   display: block;
   font-weight: 900;
-  font-size: 42px;
-  line-height: 24px;
-  height: 24px;
+  font-size: 18px;
+  line-height: 20px;
+  height: 20px;
   color: #1d1a40 !important;
   letter-spacing: -0.01em;
   transition: opacity 0.3s ease, transform 0.5s var(--spring-ease);
@@ -219,7 +219,7 @@ main {
 }
 
 .menu-item:hover .roll-inner {
-  transform: translateY(-24px);
+  transform: translateY(-20px);
 }
 
 .menu-item:hover .roll-inner span:first-child {
@@ -234,7 +234,7 @@ main {
 
 /* Cart Button */
 .menu-item.cart-button {
-  height: 24px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,7 +242,7 @@ main {
 }
 
 .menu-item.cart-button .roll-inner {
-  height: 24px;
+  height: 20px;
   display: flex;
   align-items: center;
   width: 100%;
@@ -253,8 +253,8 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   position: relative;
   margin: 0 auto;
 }
@@ -2369,48 +2369,47 @@ main {
 }
 
 /* ============================================
-   ADMIN PANEL TEXT DARKENING
+   ADMIN PANEL TEXT IMPROVEMENTS
    ============================================ */
-/* Target admin layout specifically */
-#admin-layout-root .text-gray-500,
+/* Base text color for admin */
+#admin-layout-root {
+  color: #0f172a; /* Slate 900 */
+}
+
+/* Improve contrast for muted/gray text while keeping hierarchy */
 #admin-layout-root .text-muted-foreground,
-#admin-layout-root .text-gray-400,
-#admin-layout-root .text-gray-600,
-#admin-layout-root .text-gray-700,
-#admin-layout-root .text-gray-800 {
-  color: #1d1a40 !important;
-}
-
-#admin-layout-root .text-muted-foreground {
-  opacity: 0.9;
-}
-
+#admin-layout-root .text-gray-500,
 #admin-layout-root .text-gray-400 {
-  opacity: 0.85;
+  color: #475569 !important; /* Slate 600 */
 }
 
-/* Target admin main content area */
-#admin-main-content .text-gray-500,
-#admin-main-content .text-muted-foreground,
-#admin-main-content .text-gray-400,
-#admin-main-content .text-gray-600,
-#admin-main-content .text-gray-700 {
-  color: #1d1a40 !important;
+#admin-layout-root .text-gray-600,
+#admin-layout-root .text-gray-700 {
+  color: #334155 !important; /* Slate 700 */
+}
+
+#admin-layout-root .text-gray-800,
+#admin-layout-root .text-gray-900 {
+  color: #0f172a !important; /* Slate 900 */
 }
 
 /* Darken card content text in admin */
 #admin-layout-root .card .text-muted-foreground,
 #admin-layout-root .card .text-gray-500,
 #admin-layout-root .card .text-gray-400 {
-  color: #1d1a40 !important;
-  opacity: 0.9;
+  color: #475569 !important;
 }
 
 /* Darken table text in admin */
 #admin-layout-root table .text-muted-foreground,
 #admin-layout-root table .text-gray-500,
 #admin-layout-root table .text-gray-400 {
-  color: #1d1a40 !important;
+  color: #475569 !important;
+}
+
+#admin-layout-root table th {
+  color: #1e293b !important; /* Slate 800 */
+  font-weight: 700;
 }
 
 /* Darken description and helper text in admin */
@@ -2418,14 +2417,17 @@ main {
 #admin-layout-root .text-sm.text-muted-foreground,
 #admin-layout-root .text-xs.text-gray-500,
 #admin-layout-root .text-sm.text-gray-500 {
-  color: #1d1a40 !important;
-  opacity: 0.9;
+  color: #475569 !important;
 }
 
-/* Darken navigation text */
+/* Navigation text */
 #admin-layout-root aside .text-gray-700,
 #admin-layout-root nav .text-gray-700 {
-  color: #1d1a40 !important;
+  color: #334155 !important;
+}
+
+#admin-layout-root aside .text-gray-500 {
+  color: #64748b !important; /* Slate 500 */
 }
 
 /* ============================================
