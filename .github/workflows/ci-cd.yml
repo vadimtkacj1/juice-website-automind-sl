@@ -199,9 +199,11 @@ jobs:
             else
               echo '✓ docker-compose.yml found'
             fi && \
-            # Create required directories
+            # Create required directories with proper permissions
+            echo 'Creating data directories...' && \
             mkdir -p data public/uploads && \
-            chmod 755 data public/uploads && \
+            chmod -R 777 data public/uploads && \
+            echo '✓ Data directories created' && \
             # Create/update .env file
             echo 'Creating .env file...' && \
             printf '%s\n' \
@@ -248,16 +250,27 @@ jobs:
             if [ ! -f 'data/juice_website.db' ]; then \
               echo 'Database not found, initializing...' && \
               docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container' && \
-              docker exec juice-website mkdir -p /app/data || true && \
+              echo 'Verifying data directory is writable...' && \
+              docker exec juice-website sh -c 'test -w /app/data && echo "✓ Directory is writable" || echo "⚠ Directory not writable, fixing permissions..." && chmod 777 /app/data' && \
               echo 'Creating database tables...' && \
               docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
                 echo '⚠ Database initialization failed, trying alternative method...' && \
-                docker exec juice-website touch /app/data/juice_website.db && \
-                docker exec juice-website chmod 666 /app/data/juice_website.db && \
-                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js; \
+                docker exec juice-website sh -c 'chmod 777 /app/data && touch /app/data/juice_website.db && chmod 666 /app/data/juice_website.db' && \
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
+                  echo '⚠ Still failing, trying with root user to fix permissions...' && \
+                  docker exec -u root juice-website sh -c 'chmod -R 777 /app/data' && \
+                  docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
+                    echo '❌ Database initialization failed after all attempts' && \
+                    echo 'Checking directory permissions:' && \
+                    docker exec juice-website ls -la /app/ | grep data && \
+                    exit 1; \
+                  }; \
+                }; \
               } && \
               echo 'Creating admin user...' && \
               docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists' && \
+              echo 'Verifying database file was created...' && \
+              docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"' && \
               echo '✅ Database initialized successfully!'; \
             else \
               echo '✓ Database already exists, skipping initialization'; \
