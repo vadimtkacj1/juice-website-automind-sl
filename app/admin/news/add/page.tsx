@@ -10,8 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Newspaper } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AddNewsItem() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,18 +40,18 @@ export default function AddNewsItem() {
         router.push('/admin/news');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to add news item');
+        alert(data.error || t('Failed to add news item'));
       }
     } catch (error) {
       console.error('Error adding news item:', error);
-      alert('An error occurred');
+      alert(t('An error occurred'));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/news">
           <Button variant="ghost" size="icon">
@@ -57,8 +59,8 @@ export default function AddNewsItem() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add New News Item</h1>
-          <p className="text-gray-500 mt-1">Create a new news article</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('Add New News Item')}</h1>
+          <p className="text-gray-500 mt-1">{t('Create a new news article')}</p>
         </div>
       </div>
 
@@ -70,30 +72,30 @@ export default function AddNewsItem() {
               <div className="flex items-center gap-2">
                 <Newspaper className="h-5 w-5 text-purple-600" />
                 <div>
-                  <CardTitle>News Details</CardTitle>
-                  <CardDescription>Basic information about the news item</CardDescription>
+                  <CardTitle>{t('News Details')}</CardTitle>
+                  <CardDescription>{t('Basic information about the news item')}</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title *</Label>
+                <Label htmlFor="title">{t('Title *')}</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Exciting New Flavors!"
+                  placeholder={t('e.g., Exciting New Flavors!')}
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="content">Content *</Label>
+                <Label htmlFor="content">{t('Content *')}</Label>
                 <Textarea
                   id="content"
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Write the news content here..."
+                  placeholder={t('Write the news content here...')}
                   rows={5}
                   required
                 />
@@ -104,15 +106,15 @@ export default function AddNewsItem() {
           {/* Media & Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Media & Visibility</CardTitle>
-              <CardDescription>News image and display status</CardDescription>
+              <CardTitle>{t('Media & Visibility')}</CardTitle>
+              <CardDescription>{t('News image and display status')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <ImageUpload
                 value={formData.image}
                 onChange={(url) => setFormData({ ...formData, image: url })}
                 folder="news"
-                label="News Image"
+                label={t('News Image')}
               />
 
               <div className="flex items-center gap-3 pt-4 border-t">
@@ -124,7 +126,7 @@ export default function AddNewsItem() {
                   className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
                 <Label htmlFor="is_active" className="cursor-pointer">
-                  Show this news item on the website
+                  {t('Show this news item on the website')}
                 </Label>
               </div>
             </CardContent>
@@ -133,10 +135,10 @@ export default function AddNewsItem() {
 
         <div className="flex justify-end gap-4">
           <Link href="/admin/news">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </Link>
           <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
-            {loading ? 'Creating...' : 'Create News Item'}
+            {loading ? t('Creating...') : t('Create News Item')}
           </Button>
         </div>
       </form>

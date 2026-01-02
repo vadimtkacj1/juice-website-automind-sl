@@ -1,0 +1,88 @@
+/**
+ * Common admin panel translations
+ */
+import { commonTranslations } from '../common';
+
+export const adminCommonTranslations: Record<string, string> = {
+  ...commonTranslations,
+  
+  // Admin Navigation
+  'admin panel': 'פאנל ניהול',
+  'Admin Panel': 'פאנל ניהול',
+  'Dashboard': 'לוח בקרה',
+  'Menu': 'תפריט',
+  'Orders': 'הזמנות',
+  'Ingredients': 'מרכיבים',
+  'News': 'חדשות',
+  'Locations': 'מיקומים',
+  'Contacts': 'אנשי קשר',
+  'Logout': 'התנתקות',
+  'Telegram Delivery': 'משלוח טלגרם',
+  'telegram delivery': 'משלוח טלגרם',
+  'Discounts & Promos': 'הנחות וקופונים',
+  'discounts & promos': 'הנחות וקופונים',
+  
+  // Login
+  'login': 'התחברות',
+  'Login': 'התחבר',
+  'logout': 'התנתקות',
+  'password': 'סיסמה',
+  'Password': 'סיסמה',
+  'username': 'שם משתמש',
+  'Username': 'שם משתמש',
+  'enter your credentials to access the admin dashboard': 'הזן את פרטי ההתחברות שלך כדי לגשת ללוח הבקרה',
+  'Enter your username': 'הזן את שם המשתמש שלך',
+  'enter your username': 'הזן את שם המשתמש שלך',
+  'Enter your password': 'הזן את הסיסמה שלך',
+  'enter your password': 'הזן את הסיסמה שלך',
+  'Loading...': 'טוען...',
+  
+  // Placeholders
+  '+972 50 123 4567': '+972 50 123 4567',
+  'e.g., contact@example.com': 'למשל, contact@example.com',
+  'e.g., United States': 'למשל, ישראל',
+  'e.g., NYC': 'למשל, תל אביב',
+  'e.g., 123 Coffee Lane, Brewtown, USA': 'למשל, רחוב רוטשילד 1, תל אביב',
+  'e.g., All week: 7:00 AM - 7:00 PM': 'למשל, כל השבוע: 07:00 - 19:00',
+  'e.g., (123) 456-7890': 'למשל, 03-1234567',
+  'e.g., store@example.com': 'למשל, store@example.com',
+  'e.g., Monday - Friday, Weekend, Sunday': 'למשל, ראשון-חמישי, סוף שבוע, ראשון',
+  'e.g., Exciting New Flavors!': 'למשל, טעמים חדשים מרגשים!',
+  'Write the news content here...': 'כתוב את תוכן החדשות כאן...',
+  'Orange Juice': 'מיץ תפוזים',
+  'Fresh squeezed orange juice': 'מיץ תפוזים טרי סחוט',
+  '0.5L': '0.5 ליטר',
+  'Fresh Juices': 'מיצים טריים',
+  'Category description (optional)': 'תיאור קטגוריה (אופציונלי)',
+  'e.g., Strawberry, Protein Powder, Chia Seeds': 'למשל, תות, אבקת חלבון, זרעי צ\'יה',
+  'Optional description': 'תיאור אופציונלי',
+  'Image URL or use upload below': 'כתובת תמונה או השתמש בהעלאה למטה',
+  'e.g., 100g, 250g, 1kg': 'למשל, 100גרם, 250גרם, 1ק"ג',
+  'Summer Sale': 'מבצע קיץ',
+  'SUMMER2024': 'קיץ2024',
+  'Leave empty for unlimited': 'השאר ריק ללא הגבלה',
+  'e.g., Would you like to add additional items?': 'למשל, האם תרצה להוסיף פריטים נוספים?',
+  'Optional description for the prompt': 'תיאור אופציונלי לתגובה',
+  'Product name': 'שם מוצר',
+  'e.g., 500ml, 1kg': 'למשל, 500מ"ל, 1ק"ג',
+  'e.g., John Doe': 'למשל, ישראל ישראלי',
+  'e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz': 'למשל, 123456789:ABCdefGHIjklMNOpqrsTUVwxyz',
+  'Will be auto-filled from token': 'יועלה אוטומטית מהטוקן',
+  'e.g., 123456789': 'למשל, 123456789',
+  'https://maps.google.com/...': 'https://maps.google.com/...',
+  'https://example.com/image.jpg': 'https://example.com/image.jpg',
+  'signing in...': 'מתחבר...',
+  'sign in': 'התחבר',
+  'login failed': 'התחברות נכשלה',
+  'an error occurred. please try again.': 'אירעה שגיאה. אנא נסה שוב',
+  'checking authentication...': 'בודק אימות...',
+  'Checking authentication...': 'בודק אימות...',
+  
+  // Common Actions
+  'Success': 'הצלחה',
+  'Error': 'שגיאה',
+  'Validation Error': 'שגיאת אימות',
+  'Update': 'עדכן',
+  'Create': 'צור',
+};
+

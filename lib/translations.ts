@@ -1,9 +1,18 @@
 /**
  * Translation utility to convert English text to Hebrew
  * This function translates English text to Hebrew
+ * 
+ * NOTE: Translations are now decomposed into separate files:
+ * - lib/translations/common.ts - Common translations
+ * - lib/translations/website/ - Website translations
+ * - lib/translations/admin/ - Admin translations (by page)
+ * 
+ * Import from lib/translations/index.ts for the merged translations
  */
 
-// Common English to Hebrew translations
+import { hebrewTranslations as decomposedTranslations } from './translations/index';
+
+// Merge old translations with decomposed ones (decomposed take precedence)
 const hebrewTranslations: Record<string, string> = {
   // Common words and phrases - English to Hebrew
   'home': 'בית',
@@ -669,7 +678,113 @@ const hebrewTranslations: Record<string, string> = {
   'select type': 'בחר סוג',
   'other': 'אחר',
   'create contact': 'צור איש קשר',
+  
+  // Telegram Delivery Management translations
+  'Telegram Delivery Management': 'ניהול משלוח טלגרם',
+  'Configure Telegram bot integration and manage couriers': 'הגדר אינטגרציה של בוט טלגרם ונהל שליחים',
+  'Diagnose': 'אבחון',
+  'Test Order': 'הזמנת בדיקה',
+  'Bot Settings': 'הגדרות בוט',
+  'Enter Bot ID and API Token for Telegram integration': 'הזן מזהה בוט ואסימון API לאינטגרציה של טלגרם',
+  'Bot ID': 'מזהה בוט',
+  'Not configured (will be auto-filled)': 'לא הוגדר (יועבר אוטומטית)',
+  'API Token': 'אסימון API',
+  'min.': 'דקות',
+  'No couriers. Click "Add Courier" to get started.': 'אין שליחים. לחץ על "הוסף שליח" כדי להתחיל',
+  'Telegram Bot Settings': 'הגדרות בוט טלגרם',
+  'API Token *': 'אסימון API *',
+  'Get it from @BotFather in Telegram': 'קבל אותו מ-@BotFather בטלגרם',
+  'Bot ID (auto-filled)': 'מזהה בוט (מועבר אוטומטית)',
+  'Reminder Interval (minutes)': 'מרווח תזכורת (דקות)',
+  'Enable Bot': 'הפעל בוט',
+  'Telegram ID and name are required.': 'מזהה טלגרם ושם נדרשים',
+  'Courier updated successfully!': 'שליח עודכן בהצלחה',
+  'Courier created successfully!': 'שליח נוצר בהצלחה',
+  'API Token is required. Get it from @BotFather in Telegram.': 'אסימון API נדרש. קבל אותו מ-@BotFather בטלגרם',
+  'The API token is invalid. Please check your token from @BotFather.\n\nTo get a token:\n1. Open Telegram\n2. Search for @BotFather\n3. Type /newbot\n4. Follow instructions\n5. Copy the token (format: 123456789:ABCdef...)': 'אסימון ה-API לא תקין. אנא בדוק את האסימון שלך מ-@BotFather.\n\nכדי לקבל אסימון:\n1. פתח טלגרם\n2. חפש @BotFather\n3. הקלד /newbot\n4. עקוב אחר ההוראות\n5. העתק את האסימון (פורמט: 123456789:ABCdef...)',
+  'Settings saved successfully! Bot will be initialized in the background.': 'הגדרות נשמרו בהצלחה! הבוט יאותחל ברקע',
+  'Failed to save settings': 'נכשל בשמירת הגדרות',
+  'Failed to validate token. Please check your API token.': 'נכשל באימות אסימון. אנא בדוק את אסימון ה-API שלך',
+  'Diagnostics:': 'אבחון:',
+  'Bot Configured': 'בוט מוגדר',
+  'Bot Enabled': 'בוט מופעל',
+  'Token Valid': 'אסימון תקין',
+  'Active Couriers': 'שליחים פעילים',
+  'Bot Instance Ready': 'מופע בוט מוכן',
+  'System Status: Ready': 'סטטוס מערכת: מוכן',
+  'System Status: Not Ready': 'סטטוס מערכת: לא מוכן',
+  'Diagnostic Error': 'שגיאת אבחון',
+  'Failed to run diagnostics': 'נכשל בהרצת אבחון',
+  'Test Order Created': 'הזמנת בדיקה נוצרה',
+  'Failed to create test order': 'נכשל ביצירת הזמנת בדיקה',
+  
+  // Dashboard translations
+  'Total Orders': 'סה"כ הזמנות',
+  'Products': 'מוצרים',
+  'Active Promos': 'קופונים פעילים',
+  'Total sales revenue': 'סה"כ הכנסות ממכירות',
+  'Recent Orders': 'הזמנות אחרונות',
+  'Order ID': 'מספר הזמנה',
+  'Customer': 'לקוח',
+  'Amount': 'סכום',
+  'No recent orders': 'אין הזמנות אחרונות',
+  'Business Hours': 'שעות פעילות',
+  
+  // Common admin panel action translations
+  'Success': 'הצלחה',
+  'Error': 'שגיאה',
+  'Validation Error': 'שגיאת אימות',
+  'Update': 'עדכן',
+  'Create': 'צור',
+  'Edit Courier': 'ערוך שליח',
+  'Add Courier': 'הוסף שליח',
+  'Update courier information': 'עדכן פרטי שליח',
+  
+  // Menu Add/Edit Page translations
+  'Add Menu Item': 'הוסף פריט תפריט',
+  'New menu item': 'פריט תפריט חדש',
+  'Item Details': 'פרטי פריט',
+  'Fill in the item information': 'מלא את פרטי הפריט',
+  'Category *': 'קטגוריה *',
+  'Name *': 'שם *',
+  'Description': 'תיאור',
+  'Price (₪) *': 'מחיר (₪) *',
+  'Volume/Size': 'נפח/גודל',
+  'Discount (%)': 'הנחה (%)',
+  'Available for order': 'זמין להזמנה',
+  'Item Image': 'תמונת פריט',
+  'Upload or add an image URL': 'העלה או הוסף כתובת תמונה',
+  'Product Image': 'תמונת מוצר',
+  'Volume Options': 'אפשרויות נפח',
+  'Define multiple volume/size options for this item. Customers can choose from these when ordering.': 'הגדר מספר אפשרויות נפח/גודל עבור פריט זה. לקוחות יכולים לבחור מאלה בעת הזמנה.',
+  'Add Volume': 'הוסף נפח',
+  'No volume options defined.': 'לא הוגדרו אפשרויות נפח.',
+  'Click "Add Volume" to create volume options for this item.': 'לחץ על "הוסף נפח" כדי ליצור אפשרויות נפח עבור פריט זה.',
+  'Volume/Size *': 'נפח/גודל *',
+  'Sort Order': 'סדר מיון',
+  'Default': 'ברירת מחדל',
+  'Adding...': 'מוסיף...',
+  'Add Item': 'הוסף פריט',
+  'Cancel': 'ביטול',
+  'Error adding item': 'שגיאה בהוספת פריט',
+  'Item created but error adding volume options': 'פריט נוצר אך שגיאה בהוספת אפשרויות נפח',
+  'Edit Menu Item': 'ערוך פריט תפריט',
+  'Update menu item': 'עדכן פריט תפריט',
+  'Modify menu item details': 'ערוך פרטי פריט תפריט',
+  'Update the item information': 'עדכן את פרטי הפריט',
+  'Upload or update the image URL': 'העלה או עדכן את כתובת התמונה',
+  'Updating...': 'מעדכן...',
+  'Update Item': 'עדכן פריט',
+  'Menu item not found': 'פריט תפריט לא נמצא',
+  'Error loading menu item': 'שגיאה בטעינת פריט תפריט',
+  'Error updating item': 'שגיאה בעדכון פריט',
+  'Error updating volume options': 'שגיאה בעדכון אפשרויות נפח',
+  'Loading menu item...': 'טוען פריט תפריט...',
+  'Lower numbers appear first': 'מספרים נמוכים יותר מופיעים קודם',
 };
+
+// Merge decomposed translations (they take precedence over old translations)
+Object.assign(hebrewTranslations, decomposedTranslations);
 
 // Global variable to track text mode for server-side rendering compatibility
 let currentTextMode: 'hebrew' | 'english' = 'hebrew';
@@ -805,7 +920,7 @@ export function translateObject<T extends Record<string, any>>(obj: T): T {
     'city', 'address', 'country', 'hours', 'day_of_week', 'day',
     'customer_name', 'item_name', 'product_name', 'category_name',
     'ingredient_name', 'volume', 'type', 'phone', 'email', 'notes',
-    'status', 'payment_method', 'delivery_address'
+    'status', 'payment_method', 'delivery_address', 'day'
   ];
   
   for (const key in translated) {

@@ -1,126 +1,120 @@
-.mobile-menu-overlay {
+/* Mobile Menu Styles */
+
+.mobileMenuOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(29, 26, 64, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  background: rgba(29, 26, 64, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9996;
   animation: fadeIn 0.3s ease-out;
 }
-.mobile-menu {
+
+.mobileMenuOverlay.closing {
+  animation: fadeOut 0.3s ease-out;
+}
+
+.mobileMenu {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 80%;
-  max-width: 320px;
-  background: var(--secondary);
-  z-index: 1001;
-  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-  display: flex;
-  flex-direction: column;
+  width: 85%;
+  max-width: 400px;
+  background: white;
+  z-index: 9997;
+  padding: var(--spacing-md);
+  box-shadow: -10px 0 40px rgba(29, 26, 64, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.4s var(--spring-ease);
+  overflow-y: auto;
 }
-.mobile-menu-close {
+
+.mobileMenu:not(.closing) {
+  transform: translateX(0);
+}
+
+.mobileMenu.closing {
+  transform: translateX(100%);
+}
+
+.mobileMenuClose {
   position: absolute;
   top: 20px;
-  right: 20px;
+  left: 20px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
   background: rgba(29, 26, 64, 0.1);
   border: none;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--dark);
-  transition: all 0.2s ease;
+  color: rgba(112, 117, 140, 0.8);
+  transition: all 0.3s var(--spring-ease);
   z-index: 10;
 }
-.mobile-menu-close:hover {
+
+.mobileMenuClose:hover {
   background: rgba(29, 26, 64, 0.2);
-  transform: scale(1.1);
+  transform: rotate(90deg) scale(1.1);
 }
-.mobile-menu-content {
+
+.mobileMenuContent {
   display: flex;
   flex-direction: column;
-  padding: 100px 32px 40px;
+  padding: 80px 32px 40px;
   gap: 8px;
-  flex: 1;
 }
-.mobile-menu-link {
-  font-family: "Heebo", sans-serif;
-  font-size: 32px;
+
+.mobileMenuLink {
+  display: block;
+  padding-block: 20px;
+  font-size: 56px;
   font-weight: 900;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   text-decoration: none;
-  padding: 16px 0;
   border-bottom: 2px solid rgba(29, 26, 64, 0.1);
   opacity: 0;
-  transform: translateX(20px);
-  animation: slideInLink 0.4s ease-out forwards;
-  transition: all 0.2s ease;
+  transform: translateX(30px);
+  animation: slideInRight 0.4s var(--spring-ease) forwards;
+  transition: all 0.3s ease;
 }
-.mobile-menu-link:hover,
-.mobile-menu-link.active {
+
+.mobileMenuLink.active {
   color: var(--primary);
-  transform: translateX(8px);
 }
-.mobile-menu-cart {
+
+.mobileMenuLink:hover {
+  color: var(--primary);
+  transform: translateX(10px);
+}
+
+.mobileMenuCart {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: "Heebo", sans-serif;
-  font-size: 32px;
+  font-size: 56px;
   font-weight: 900;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   background: none;
   border: none;
-  padding: 16px 0;
-  cursor: pointer;
+  padding-block: 20px;
   opacity: 0;
-  transform: translateX(20px);
-  animation: slideInLink 0.4s ease-out forwards;
-  transition: all 0.2s ease;
-  text-align: left;
+  transform: translateX(30px);
+  animation: slideInRight 0.4s var(--spring-ease) forwards;
 }
-.mobile-menu-cart:hover {
-  color: var(--primary);
-  transform: translateX(8px);
-}
-.mobile-menu-cart-count {
-  background: var(--pink);
-  color: var(--dark);
-  font-size: 14px;
-  font-weight: 900;
-  min-width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-@keyframes slideInLink {
-  to { 
-    opacity: 1; 
-    transform: translateX(0); 
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* Closing animations */
-.mobile-menu-overlay.closing {
-  animation: fadeOut 0.3s ease-out forwards;
-}
-
-.mobile-menu.closing {
-  animation: slideOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeOut {
@@ -128,7 +122,14 @@
   to { opacity: 0; }
 }
 
-@keyframes slideOut {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
+/* Responsive */
+@media (max-width: 480px) {
+  .mobileMenu {
+    width: 90%;
+  }
+
+  .mobileMenuLink,
+  .mobileMenuCart {
+    font-size: 48px;
+  }
 }

@@ -15,6 +15,12 @@ export interface CartCustomIngredient {
   price: number;
 }
 
+export interface CartAdditionalItem {
+  id: number;
+  name: string;
+  price: number;
+}
+
 export interface CartItem {
   id: number;
   name: string;
@@ -24,6 +30,7 @@ export interface CartItem {
   volume?: string; // Selected volume (e.g., "0.5L", "1L")
   addons?: CartAddon[];
   customIngredients?: CartCustomIngredient[]; // Array of custom ingredient objects
+  additionalItems?: CartAdditionalItem[]; // Array of additional items (e.g., bigger glass, more kg)
 }
 
 interface CartContextType {
@@ -71,13 +78,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addToCart = (item: Omit<CartItem, 'quantity'>) => {
     console.log('addToCart called with:', item);
     console.log('customIngredients:', item.customIngredients);
+    console.log('additionalItems:', item.additionalItems);
     setCart((prevCart) => {
-      // Create a unique key for this item based on id, volume, addons, and custom ingredients
+      // Create a unique key for this item based on id, volume, addons, custom ingredients, and additional items
       const itemKey = JSON.stringify({
         id: item.id,
         volume: item.volume || null,
         addons: item.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
-        customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || []
+        customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
+        additionalItems: item.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
       });
 
         const existingItem = prevCart.find((cartItem) => {
@@ -85,7 +94,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             id: cartItem.id,
             volume: cartItem.volume || null,
             addons: cartItem.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
-            customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || []
+            customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
+            additionalItems: cartItem.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
           });
           return cartItemKey === itemKey;
         });
@@ -96,7 +106,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             id: cartItem.id,
             volume: cartItem.volume || null,
             addons: cartItem.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
-            customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || []
+            customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
+            additionalItems: cartItem.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
           });
           return cartItemKey === itemKey
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
@@ -118,7 +129,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       id: item.id,
       volume: item.volume || null,
       addons: item.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
-      customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || []
+      customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
+      additionalItems: item.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
     });
   };
 

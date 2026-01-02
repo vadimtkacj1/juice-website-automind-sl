@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch'; // Assuming you have a Switch component
+import { Switch } from '@/components/ui/switch';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AddBusinessHour() {
+  const { t, language } = useAdminLanguage();
   const router = useRouter();
   const [formData, setFormData] = useState({
     day_of_week: '',
@@ -55,48 +57,48 @@ export default function AddBusinessHour() {
       router.push('/admin/business-hours');
     } catch (error: any) {
       console.error('Error adding business hour:', error);
-      alert('Failed to add business hour.');
+      alert(t('Failed to add business hour.'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8" dir={language}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Add New Business Hour</CardTitle>
-          <CardDescription>Enter the details for a new business hour entry.</CardDescription>
+          <CardTitle className="text-2xl font-bold">{t('Add New Business Hour')}</CardTitle>
+          <CardDescription>{t('Enter the details for a new business hour entry.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="day_of_week">Day(s) of Week</Label>
+                <Label htmlFor="day_of_week">{t('Day(s) of Week')}</Label>
                 <Input
                   id="day_of_week"
                   name="day_of_week"
                   value={formData.day_of_week}
                   onChange={handleChange}
-                  placeholder="e.g., Monday - Friday, Weekend, Sunday"
+                  placeholder={t('e.g., Monday - Friday, Weekend, Sunday')}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sort_order">Sort Order</Label>
+                <Label htmlFor="sort_order">{t('Sort Order')}</Label>
                 <Input
                   id="sort_order"
                   name="sort_order"
                   type="number"
                   value={formData.sort_order}
                   onChange={handleChange}
-                  placeholder="e.g., 0"
+                  placeholder={t('0')}
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="open_time">Open Time</Label>
+                <Label htmlFor="open_time">{t('Open Time')}</Label>
                 <Input
                   id="open_time"
                   name="open_time"
@@ -107,7 +109,7 @@ export default function AddBusinessHour() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="close_time">Close Time</Label>
+                <Label htmlFor="close_time">{t('Close Time')}</Label>
                 <Input
                   id="close_time"
                   name="close_time"
@@ -125,14 +127,14 @@ export default function AddBusinessHour() {
                 checked={formData.is_active}
                 onCheckedChange={handleSwitchChange}
               />
-              <Label htmlFor="is_active">Is Active</Label>
+              <Label htmlFor="is_active">{t('Is Active')}</Label>
             </div>
             <div className="flex justify-end gap-2">
               <Link href="/admin/business-hours">
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline">{t('Cancel')}</Button>
               </Link>
               <Button type="submit" disabled={submitting}>
-                {submitting ? 'Adding...' : 'Add Business Hour'}
+                {submitting ? t('Adding...') : t('Add Business Hour')}
               </Button>
             </div>
           </form>

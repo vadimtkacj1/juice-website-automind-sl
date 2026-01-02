@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Cookie } from 'lucide-react';
 import Link from 'next/link';
+import styles from './CookieConsent.module.css';
 
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
@@ -67,51 +68,51 @@ export default function CookieConsent() {
   // Always render the component structure, but control visibility with CSS
   // This ensures the component is in the DOM
 
+  if (!isVisible) return null;
+
   return (
     <>
-      {isVisible && (
-        <>
-          <div className="cookie-consent-overlay" aria-hidden="true" />
-          <div className="cookie-consent" role="dialog" aria-labelledby="cookie-title" aria-modal="true" style={{ display: isVisible ? 'block' : 'none' }}>
-        <div className="cookie-consent-header">
-          <div className="cookie-consent-icon">
+      <div className={styles.cookieConsentOverlay} aria-hidden="true" />
+      <div className={styles.cookieConsent} role="dialog" aria-labelledby="cookie-title" aria-modal="true">
+        <div className={styles.cookieConsentHeader}>
+          <div className={styles.cookieConsentIcon}>
             <Cookie size={24} />
           </div>
-          <h2 id="cookie-title" className="cookie-consent-title">
+          <h2 id="cookie-title" className={styles.cookieConsentTitle}>
             עוגיות באתר
           </h2>
           <button
             onClick={() => setIsVisible(false)}
-            className="cookie-consent-close"
+            className={styles.cookieConsentClose}
             aria-label="סגור"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="cookie-consent-content">
+        <div className={styles.cookieConsentContent}>
           {!isExpanded ? (
             <>
-              <p className="cookie-consent-text">
+              <p className={styles.cookieConsentText}>
                 אנו משתמשים בעוגיות כדי לשפר את החוויה שלך באתר, לנתח את השימוש באתר ולעזור לנו בשיווק.
                 על ידי המשך השימוש באתר, אתה מסכים לשימוש בעוגיות בהתאם למדיניות הפרטיות שלנו.
               </p>
-              <div className="cookie-consent-actions">
+              <div className={styles.cookieConsentActions}>
                 <button
                   onClick={acceptAll}
-                  className="cookie-consent-btn cookie-consent-btn-primary"
+                  className={`${styles.cookieConsentBtn} ${styles.cookieConsentBtnPrimary}`}
                 >
                   קבל הכל
                 </button>
                 <button
                   onClick={acceptNecessary}
-                  className="cookie-consent-btn cookie-consent-btn-secondary"
+                  className={`${styles.cookieConsentBtn} ${styles.cookieConsentBtnSecondary}`}
                 >
                   רק הכרחיות
                 </button>
                 <button
                   onClick={customizePreferences}
-                  className="cookie-consent-btn cookie-consent-btn-link"
+                  className={`${styles.cookieConsentBtn} ${styles.cookieConsentBtnLink}`}
                 >
                   התאם העדפות
                 </button>
@@ -119,58 +120,58 @@ export default function CookieConsent() {
             </>
           ) : (
             <>
-              <p className="cookie-consent-text">
+              <p className={styles.cookieConsentText}>
                 בחר את סוגי העוגיות שאתה מאפשר:
               </p>
-              <div className="cookie-consent-preferences">
-                <div className="cookie-preference-item">
-                  <div className="cookie-preference-info">
+              <div className={styles.cookieConsentPreferences}>
+                <div className={styles.cookiePreferenceItem}>
+                  <div className={styles.cookiePreferenceInfo}>
                     <h3>עוגיות הכרחיות</h3>
                     <p>עוגיות אלה נחוצות לפעולת האתר ואי אפשר לבטל אותן.</p>
                   </div>
-                  <div className="cookie-preference-toggle disabled">
-                    <span className="cookie-toggle-slider"></span>
+                  <div className={`${styles.cookiePreferenceToggle} ${styles.disabled}`}>
+                    <span className={styles.cookieToggleSlider}></span>
                   </div>
                 </div>
-                <div className="cookie-preference-item">
-                  <div className="cookie-preference-info">
+                <div className={styles.cookiePreferenceItem}>
+                  <div className={styles.cookiePreferenceInfo}>
                     <h3>עוגיות אנליטיקה</h3>
                     <p>עוזרות לנו להבין איך מבקרים משתמשים באתר.</p>
                   </div>
-                  <label className="cookie-preference-toggle">
+                  <label className={styles.cookiePreferenceToggle}>
                     <input
                       type="checkbox"
                       checked={analyticsEnabled}
                       onChange={(e) => setAnalyticsEnabled(e.target.checked)}
                     />
-                    <span className="cookie-toggle-slider"></span>
+                    <span className={styles.cookieToggleSlider}></span>
                   </label>
                 </div>
-                <div className="cookie-preference-item">
-                  <div className="cookie-preference-info">
+                <div className={styles.cookiePreferenceItem}>
+                  <div className={styles.cookiePreferenceInfo}>
                     <h3>עוגיות שיווק</h3>
                     <p>משמשות להצגת פרסומות מותאמות אישית.</p>
                   </div>
-                  <label className="cookie-preference-toggle">
+                  <label className={styles.cookiePreferenceToggle}>
                     <input
                       type="checkbox"
                       checked={marketingEnabled}
                       onChange={(e) => setMarketingEnabled(e.target.checked)}
                     />
-                    <span className="cookie-toggle-slider"></span>
+                    <span className={styles.cookieToggleSlider}></span>
                   </label>
                 </div>
               </div>
-              <div className="cookie-consent-actions">
+              <div className={styles.cookieConsentActions}>
                 <button
                   onClick={saveCustomPreferences}
-                  className="cookie-consent-btn cookie-consent-btn-primary"
+                  className={`${styles.cookieConsentBtn} ${styles.cookieConsentBtnPrimary}`}
                 >
                   שמור העדפות
                 </button>
                 <Link
                   href="/privacy"
-                  className="cookie-consent-link"
+                  className={styles.cookieConsentLink}
                   onClick={() => setIsVisible(false)}
                 >
                   קרא עוד במדיניות הפרטיות
@@ -179,9 +180,7 @@ export default function CookieConsent() {
             </>
           )}
         </div>
-          </div>
-        </>
-      )}
+      </div>
     </>
   );
 }

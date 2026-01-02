@@ -35,9 +35,16 @@ export default function ScrollReveal() {
 
     // Animate letters in hero title
     const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle) {
-      const text = heroTitle.textContent || '';
-      heroTitle.innerHTML = '';
+    if (heroTitle && heroTitle.textContent) {
+      const text = heroTitle.textContent;
+      // Clear existing content safely
+      while (heroTitle.firstChild) {
+        if (heroTitle.firstChild.parentNode) {
+          heroTitle.removeChild(heroTitle.firstChild);
+        } else {
+          heroTitle.firstChild.remove();
+        }
+      }
       text.split('').forEach((char, index) => {
         const span = document.createElement('span');
         span.className = 'letter';

@@ -16,7 +16,12 @@ import {
   Newspaper,
   ChefHat,
   MessageSquare,
+<<<<<<< HEAD
   Sparkles
+=======
+  Clock,
+  ShoppingBag
+>>>>>>> a3f884021453c8610336941a5262c83c3212d934
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -52,6 +57,8 @@ export default function AdminNavigation() {
     { name: t('Discounts & Promos'), href: '/admin/discounts', icon: Tag },
     { name: t('Locations'), href: '/admin/locations', icon: MapPin },
     { name: t('Contacts'), href: '/admin/contacts', icon: Users },
+    { name: t('Business Hours'), href: '/admin/business-hours', icon: Clock },
+    { name: t('Order Prompts'), href: '/admin/order-prompts', icon: ShoppingBag },
   ];
 
   return (

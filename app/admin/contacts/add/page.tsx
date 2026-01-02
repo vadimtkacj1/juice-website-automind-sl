@@ -89,7 +89,7 @@ export default function AddContact() {
                 id="value"
                 value={formData.value}
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                placeholder="e.g., contact@example.com"
+                placeholder={t('e.g., contact@example.com')}
                 required
               />
             </div>

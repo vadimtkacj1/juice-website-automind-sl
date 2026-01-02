@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,10 +40,10 @@ export default function AdminMenu() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [showDiscountForm, setShowDiscountForm] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [newDiscount, setNewDiscount] = useState('');
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [categoryForm, setCategoryForm] = useState({ 
     name: '', 
     description: '', 
@@ -185,9 +184,15 @@ export default function AdminMenu() {
   }
 
   function openDiscountDialog(item: MenuItem) {
-    setSelectedItem(item);
-    setNewDiscount(item.discount_percent.toString());
-    setShowDiscountDialog(true);
+    if (showDiscountForm && selectedItem?.id === item.id) {
+      setShowDiscountForm(false);
+      setSelectedItem(null);
+      setNewDiscount('');
+    } else {
+      setSelectedItem(item);
+      setNewDiscount(item.discount_percent.toString());
+      setShowDiscountForm(true);
+    }
   }
 
   async function updateDiscount() {
@@ -201,7 +206,9 @@ export default function AdminMenu() {
       });
       if (response.ok) {
         fetchData();
-        setShowDiscountDialog(false);
+        setShowDiscountForm(false);
+        setSelectedItem(null);
+        setNewDiscount('');
       }
     } catch (error) {
       console.error('Error updating discount:', error);
@@ -226,7 +233,7 @@ export default function AdminMenu() {
         is_active: true
       });
     }
-    setShowCategoryDialog(true);
+    setShowCategoryForm(true);
   }
 
   async function saveCategory() {
@@ -261,7 +268,8 @@ export default function AdminMenu() {
       
       if (response.ok) {
         fetchData();
-        setShowCategoryDialog(false);
+        setShowCategoryForm(false);
+        setEditingCategory(null);
         setAlertDialog({
           open: true,
           title: t('Success'),
@@ -534,126 +542,137 @@ export default function AdminMenu() {
         </TabsContent>
       </Tabs>
 
-      {/* Discount Dialog */}
-      <Dialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
-        <DialogContent dir={language}>
-          <DialogHeader>
-            <DialogTitle>{t('Set Discount')}</DialogTitle>
-            <DialogDescription>
+      {/* Discount Form */}
+      {showDiscountForm && selectedItem && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{t('Set Discount')}</CardTitle>
+            <CardDescription>
               {t('Discount for:')} {selectedItem?.name ? t(selectedItem.name) : ''}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="current-price">{t('Current Price')}</Label>
-              <p className="text-2xl font-bold">₪{selectedItem?.price}</p>
-            </div>
-            <div>
-              <Label htmlFor="discount">{t('Discount (%)')}</Label>
-              <Input
-                id="discount"
-                type="number"
-                min="0"
-                max="100"
-                value={newDiscount}
-                onChange={(e) => setNewDiscount(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            {parseFloat(newDiscount) > 0 && selectedItem && (
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
               <div>
-                <Label>{t('Discounted Price')}</Label>
-                <p className="text-2xl font-bold text-red-600">
-                  ₪{(selectedItem.price * (1 - parseFloat(newDiscount) / 100)).toFixed(0)}
-                </p>
+                <Label htmlFor="current-price">{t('Current Price')}</Label>
+                <p className="text-2xl font-bold">₪{selectedItem?.price}</p>
               </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDiscountDialog(false)}>
-              {t('Cancel')}
-            </Button>
-            <Button onClick={updateDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">
-              {t('Save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Category Dialog */}
-      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent className="max-w-md" dir={language}>
-          <DialogHeader>
-            <DialogTitle>
-              {editingCategory ? t('Edit Category') : t('New Category')}
-            </DialogTitle>
-            <DialogDescription>
-              {editingCategory 
-                ? t('Update category information')
-                : t('Create a new menu category')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="cat-name">{t('Name')} *</Label>
-              <Input
-                id="cat-name"
-                value={categoryForm.name}
-                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                placeholder={t('Fresh Juices')}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="cat-desc">{t('Description')}</Label>
-              <Input
-                id="cat-desc"
-                value={categoryForm.description}
-                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                placeholder={t('Category description (optional)')}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="cat-sort">{t('Sort Order')}</Label>
+                <Label htmlFor="discount">{t('Discount (%)')}</Label>
                 <Input
-                  id="cat-sort"
+                  id="discount"
                   type="number"
-                  value={categoryForm.sort_order}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
-                  placeholder="0"
                   min="0"
+                  max="100"
+                  value={newDiscount}
+                  onChange={(e) => setNewDiscount(e.target.value)}
+                  placeholder="0"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  {t('Lower numbers appear first')}
-                </p>
               </div>
-              {editingCategory && (
-                <div className="flex items-center gap-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="cat-active"
-                    checked={categoryForm.is_active}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })}
-                    className="w-4 h-4"
-                  />
-                  <Label htmlFor="cat-active" className="cursor-pointer">
-                    {t('Active')}
-                  </Label>
+              {parseFloat(newDiscount) > 0 && selectedItem && (
+                <div>
+                  <Label>{t('Discounted Price')}</Label>
+                  <p className="text-2xl font-bold text-red-600">
+                    ₪{(selectedItem.price * (1 - parseFloat(newDiscount) / 100)).toFixed(0)}
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCategoryDialog(false)}>
-              {t('Cancel')}
-            </Button>
-            <Button onClick={saveCategory} className="bg-purple-600 hover:bg-purple-700 text-white">
-              {editingCategory ? t('Update') : t('Create')} {t('Category')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => {
+                setShowDiscountForm(false);
+                setSelectedItem(null);
+                setNewDiscount('');
+              }}>
+                {t('Cancel')}
+              </Button>
+              <Button onClick={updateDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">
+                {t('Save')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Category Form */}
+      {showCategoryForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>
+              {editingCategory ? t('Edit Category') : t('New Category')}
+            </CardTitle>
+            <CardDescription>
+              {editingCategory 
+                ? t('Update category information')
+                : t('Create a new menu category')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="cat-name">{t('Name')} *</Label>
+                <Input
+                  id="cat-name"
+                  value={categoryForm.name}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                  placeholder={t('Fresh Juices')}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="cat-desc">{t('Description')}</Label>
+                <Input
+                  id="cat-desc"
+                  value={categoryForm.description}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                  placeholder={t('Category description (optional)')}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="cat-sort">{t('Sort Order')}</Label>
+                  <Input
+                    id="cat-sort"
+                    type="number"
+                    value={categoryForm.sort_order}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {t('Lower numbers appear first')}
+                  </p>
+                </div>
+                {editingCategory && (
+                  <div className="flex items-center gap-2 pt-6">
+                    <input
+                      type="checkbox"
+                      id="cat-active"
+                      checked={categoryForm.is_active}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="cat-active" className="cursor-pointer">
+                      {t('Active')}
+                    </Label>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => {
+                setShowCategoryForm(false);
+                setEditingCategory(null);
+              }}>
+                {t('Cancel')}
+              </Button>
+              <Button onClick={saveCategory} className="bg-purple-600 hover:bg-purple-700 text-white">
+                {editingCategory ? t('Update') : t('Create')} {t('Category')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Confirmation Dialog */}
       <ConfirmDialog

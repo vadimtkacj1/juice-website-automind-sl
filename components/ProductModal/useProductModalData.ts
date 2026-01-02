@@ -27,6 +27,15 @@ interface VolumeOption {
   sort_order: number;
 }
 
+interface AdditionalItem {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  is_available: boolean;
+  sort_order: number;
+}
+
 interface ProductModalItem {
   id: number;
   category_id?: number;
@@ -37,12 +46,14 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
   const [addons, setAddons] = useState<Addon[]>([]);
   const [customIngredients, setCustomIngredients] = useState<CustomIngredient[]>([]);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
+  const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
 
   useEffect(() => {
     if (!isOpen || !item) {
       setAddons([]);
       setCustomIngredients([]);
       setVolumeOptions([]);
+      setAdditionalItems([]);
       return;
     }
 
@@ -175,8 +186,18 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
         })
         .catch(err => console.error('Error fetching item category:', err));
     }
+
+    // Fetch additional items for this menu item
+    fetch(`/api/menu-items/${item.id}/additional-items`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.additionalItems) {
+          setAdditionalItems(data.additionalItems);
+        }
+      })
+      .catch(err => console.error('Error fetching additional items:', err));
   }, [isOpen, item]);
 
-  return { addons, customIngredients, volumeOptions };
+  return { addons, customIngredients, volumeOptions, additionalItems };
 }
 

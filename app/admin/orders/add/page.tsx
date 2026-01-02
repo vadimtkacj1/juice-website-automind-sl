@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 export default function AddOrderPage() {
   const router = useRouter();
+  const { t } = useAdminLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     customer_name: '',
@@ -172,7 +174,7 @@ export default function AddOrderPage() {
                 onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 rows={3}
-                placeholder="Enter full delivery address"
+                placeholder={t('Enter full delivery address')}
               />
             </div>
             <div>

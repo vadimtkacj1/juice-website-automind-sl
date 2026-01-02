@@ -1,0 +1,107 @@
+'use client';
+
+import { ShoppingBag } from 'lucide-react';
+import { translateToHebrew } from '@/lib/translations';
+import styles from '../menu.module.css';
+
+export interface MenuItem {
+  id: number;
+  category_id: number;
+  name: string;
+  description?: string;
+  price: number;
+  volume?: string;
+  image?: string;
+  discount_percent: number;
+  is_available: boolean;
+  categoryVolumes?: Array<{ volume: string; is_default: boolean; sort_order: number }>;
+}
+
+interface MenuItemCardProps {
+  item: MenuItem;
+  categoryId: number;
+  itemIndex: number;
+  onItemClick: (item: MenuItem) => void;
+  getDiscountedPrice: (price: number, discountPercent: number) => number;
+}
+
+export default function MenuItemCard({
+  item,
+  categoryId,
+  itemIndex,
+  onItemClick,
+  getDiscountedPrice,
+}: MenuItemCardProps) {
+  return (
+    <div
+      className={`${styles.productCard} reveal`}
+      style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
+      onClick={() => {
+        onItemClick({ ...item, category_id: item.category_id || categoryId });
+      }}
+    >
+      {/* Discount Badge */}
+      {item.discount_percent > 0 && (
+        <div className={styles.discountBadge}>-{item.discount_percent}%</div>
+      )}
+
+      {/* Image */}
+      <div className={styles.productImage}>
+        {item.image ? (
+          <img src={item.image} alt={item.name} />
+        ) : (
+          <div className={styles.productImagePlaceholder}>
+            <ShoppingBag size={40} />
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className={styles.productInfo}>
+        <div className={styles.productText}>
+          <h3 className={styles.productName}>{translateToHebrew(item.name)}</h3>
+          {item.description && (
+            <p className={styles.productDesc}>{translateToHebrew(item.description)}</p>
+          )}
+        </div>
+
+        <div className={styles.productFooter}>
+          {item.categoryVolumes && item.categoryVolumes.length > 0 ? (
+            <div className={styles.volumesList}>
+              {item.categoryVolumes.map((vol, volIdx) => {
+                const volPrice = getDiscountedPrice(item.price, item.discount_percent);
+                return (
+                  <div key={volIdx} className={styles.volumeBadge}>
+                    <span className={styles.volumeLabel}>{translateToHebrew(vol.volume)}</span>
+                    <span className={styles.volumeSeparator}>•</span>
+                    <span className={styles.volumePrice}>₪{volPrice.toFixed(0)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={styles.priceBadge}>
+              {item.discount_percent > 0 && (
+                <span className={styles.priceOld}>₪{item.price.toFixed(0)}</span>
+              )}
+              <span className={styles.priceCurrent}>
+                ₪{getDiscountedPrice(item.price, item.discount_percent).toFixed(0)}
+              </span>
+            </div>
+          )}
+          <button
+            className={styles.addBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onItemClick({ ...item, category_id: item.category_id || categoryId });
+            }}
+            aria-label={`Add ${item.name} to cart`}
+          >
+            <span>+</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+

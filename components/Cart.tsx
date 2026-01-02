@@ -4,6 +4,7 @@ import { useCart } from '@/lib/cart-context';
 import { X, Minus, Plus, ShoppingBag, Trash2, Loader2, Phone, Mail, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { translateToHebrew } from '@/lib/translations';
+import styles from './Cart.module.css';
 
 export default function Cart() {
   const {
@@ -101,6 +102,7 @@ export default function Cart() {
             image: item.image,
             addons: item.addons,
             customIngredients: item.customIngredients || [],
+            additionalItems: item.additionalItems || [],
           })),
           customer: {
             phone: phone.trim(),
@@ -132,10 +134,20 @@ export default function Cart() {
     }
   }
 
-  // Prevent body scroll when cart is open
+  // Prevent body scroll when cart is open and scroll to top
   useEffect(() => {
     if (isCartOpen) {
+      // Scroll to top when cart opens
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Prevent body scroll
       document.body.style.overflow = 'hidden';
+      
+      // Ensure cart is visible by bringing it to front
+      const cartElement = document.querySelector('[class*="cartModal"]');
+      if (cartElement) {
+        (cartElement as HTMLElement).style.zIndex = '10051';
+      }
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -158,29 +170,29 @@ export default function Cart() {
   return (
     <>
       {/* Backdrop */}
-      <div className="cart-backdrop" onClick={closeCart} />
+      <div className={styles.cartBackdrop} onClick={closeCart} />
 
       {/* Cart Modal */}
-      <div className="cart-modal">
-        <div className="cart-container">
+      <div className={styles.cartModal}>
+        <div className={styles.cartContainer}>
           {/* Header */}
-          <div className="cart-header">
-            <div className="cart-header-title">
+          <div className={styles.cartHeader}>
+            <div className={styles.cartHeaderTitle}>
               {step === 'contact' ? (
-                <button className="cart-back-btn" onClick={handleBackToCart}>
+                <button className={styles.cartBackBtn} onClick={handleBackToCart}>
                   <ArrowLeft size={24} />
                 </button>
               ) : (
-                <div className="cart-icon-wrap">
+                <div className={styles.cartIconWrap}>
                   <ShoppingBag className="cart-icon" />
                   {getTotalItems() > 0 && (
-                    <span className="cart-count">{getTotalItems()}</span>
+                    <span className={styles.cartCount}>{getTotalItems()}</span>
                   )}
                 </div>
               )}
               <h2>{step === 'cart' ? translateToHebrew('Your Cart') : translateToHebrew('Contact Details')}</h2>
             </div>
-            <button onClick={closeCart} className="cart-close-btn">
+            <button onClick={closeCart} className={styles.cartCloseBtn}>
               <X size={24} />
             </button>
           </div>
@@ -188,43 +200,46 @@ export default function Cart() {
           {step === 'cart' ? (
             <>
               {/* Cart Items */}
-              <div className="cart-items">
+              <div className={styles.cartItems}>
                 {cart.length === 0 ? (
-                  <div className="cart-empty">
-                    <div className="cart-empty-icon">
+                  <div className={styles.cartEmpty}>
+                    <div className={styles.cartEmptyIcon}>
                       <ShoppingBag size={64} />
                     </div>
                     <h3>{translateToHebrew('Your cart is empty')}</h3>
                     <p>{translateToHebrew('Add some items from the menu!')}</p>
-                    <button onClick={closeCart} className="cart-browse-btn">
+                    <button onClick={closeCart} className={styles.cartBrowseBtn}>
                       {translateToHebrew('Browse Menu')}
                     </button>
                   </div>
                 ) : (
-                  <div className="cart-items-list">
+                  <div className={styles.cartItemsList}>
                     {cart.map((item, index) => {
-                      // Calculate item total including addons and custom ingredients
+                      // Calculate item total including addons, custom ingredients, and additional items
                       const addonsTotal = (item.addons || []).reduce((total, addon) => 
                         total + addon.price * addon.quantity, 0
                       );
                       const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                         total + ingredient.price, 0
                       );
-                      const itemTotal = item.price + addonsTotal + ingredientsTotal;
+                      const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
+                        total + addItem.price, 0
+                      );
+                      const itemTotal = item.price + addonsTotal + ingredientsTotal + additionalItemsTotal;
                       
                       return (
-                        <div key={`${item.id}-${index}`} className="cart-item">
+                        <div key={`${item.id}-${index}`} className={styles.cartItem}>
                           {item.image ? (
-                            <div className="cart-item-image">
+                            <div className={styles.cartItemImage}>
                               <img src={item.image} alt={item.name} />
                             </div>
                           ) : (
-                            <div className="cart-item-placeholder">
+                            <div className={styles.cartItemPlaceholder}>
                               <ShoppingBag size={24} />
                             </div>
                           )}
 
-                          <div className="cart-item-info">
+                          <div className={styles.cartItemInfo}>
                             <h4>
                               {item.name}
                               {item.volume && <span className="cart-item-volume"> - {item.volume}</span>}
@@ -232,13 +247,13 @@ export default function Cart() {
                             
                             {/* Addons */}
                             {item.addons && item.addons.length > 0 && (
-                              <div className="cart-item-addons">
+                              <div className={styles.cartItemAddons}>
                                 {item.addons.map(addon => (
-                                  <div key={addon.id} className="cart-item-addon">
-                                    <span className="cart-item-addon-name">
+                                  <div key={addon.id} className={styles.cartItemAddon}>
+                                    <span className={styles.cartItemAddonName}>
                                       + {translateToHebrew(addon.name)} (x{addon.quantity})
                                     </span>
-                                    <span className="cart-item-addon-price">
+                                    <span className={styles.cartItemAddonPrice}>
                                       +₪{(addon.price * addon.quantity).toFixed(0)}
                                     </span>
                                   </div>
@@ -248,9 +263,9 @@ export default function Cart() {
 
                             {/* Custom Ingredients */}
                             {item.customIngredients && item.customIngredients.length > 0 && (
-                              <div className="cart-item-ingredients">
-                                <span className="cart-item-ingredients-label">{translateToHebrew('With')}: </span>
-                                <span className="cart-item-ingredients-list">
+                              <div className={styles.cartItemIngredients}>
+                                <span className={styles.cartItemIngredientsLabel}>{translateToHebrew('With')}: </span>
+                                <span className={styles.cartItemIngredientsList}>
                                   {item.customIngredients.map((ingredient, idx) => (
                                     <span key={ingredient.id}>
                                       {ingredient.name}
@@ -262,30 +277,46 @@ export default function Cart() {
                               </div>
                             )}
 
-                            <p className="cart-item-price">
+                            {/* Additional Items */}
+                            {item.additionalItems && item.additionalItems.length > 0 && (
+                              <div className={styles.cartItemAddons}>
+                                {item.additionalItems.map(addItem => (
+                                  <div key={addItem.id} className={styles.cartItemAddon}>
+                                    <span className={styles.cartItemAddonName}>
+                                      + {translateToHebrew(addItem.name)}
+                                    </span>
+                                    <span className={styles.cartItemAddonPrice}>
+                                      +₪{addItem.price.toFixed(0)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            <p className={styles.cartItemPrice}>
                               ₪{itemTotal.toFixed(0)} {item.quantity > 1 && `× ${item.quantity}`}
                             </p>
                           </div>
 
-                          <div className="cart-item-controls">
-                            <div className="cart-qty-controls">
+                          <div className={styles.cartItemControls}>
+                            <div className={styles.cartQtyControls}>
                               <button
                                 onClick={() => updateQuantity(item.id, item.quantity - 1, getItemKey(item))}
-                                className="cart-qty-btn"
+                                className={styles.cartQtyBtn}
                               >
                                 <Minus size={16} />
                               </button>
-                              <span className="cart-qty">{item.quantity}</span>
+                              <span className={styles.cartQty}>{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.id, item.quantity + 1, getItemKey(item))}
-                                className="cart-qty-btn"
+                                className={styles.cartQtyBtn}
                               >
                                 <Plus size={16} />
                               </button>
                             </div>
                             <button
                               onClick={() => removeFromCart(item.id, getItemKey(item))}
-                              className="cart-remove-btn"
+                              className={styles.cartRemoveBtn}
                             >
                               <Trash2 size={18} />
                             </button>
@@ -299,13 +330,13 @@ export default function Cart() {
 
               {/* Footer - Cart Step */}
               {cart.length > 0 && (
-                <div className="cart-footer">
-                  <div className="cart-total">
+                <div className={styles.cartFooter}>
+                  <div className={styles.cartTotal}>
                     <span>{translateToHebrew('Total')}</span>
-                    <span className="cart-total-price">₪{getTotalPrice().toFixed(0)}</span>
+                    <span className={styles.cartTotalPrice}>₪{getTotalPrice().toFixed(0)}</span>
                   </div>
                   <button 
-                    className="cart-checkout-btn"
+                    className={styles.cartCheckoutBtn}
                     onClick={handleProceedToContact}
                   >
                     {translateToHebrew('Continue to Checkout')}
@@ -316,13 +347,13 @@ export default function Cart() {
           ) : (
             <>
               {/* Contact Form */}
-              <div className="cart-items">
-                  <div className="contact-form">
-                  <div className="contact-info-text">
+              <div className={styles.cartItems}>
+                  <div className={styles.contactForm}>
+                  <div className={styles.contactInfoText}>
                     <p>{translateToHebrew('Please provide your contact details so we can send you the order confirmation and reach out if needed.')}</p>
                   </div>
 
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="phone">
                       <Phone size={18} />
                       {translateToHebrew('Phone Number')} *
@@ -330,18 +361,18 @@ export default function Cart() {
                     <input
                       type="tel"
                       id="phone"
-                      placeholder="+972 50 123 4567"
+                      placeholder={translateToHebrew('+972 50 123 4567')}
                       value={phone}
                       onChange={(e) => {
                         setPhone(e.target.value);
                         if (phoneError) setPhoneError('');
                       }}
-                      className={phoneError ? 'error' : ''}
+                      className={phoneError ? styles.error : ''}
                     />
-                    {phoneError && <span className="field-error">{phoneError}</span>}
+                    {phoneError && <span className={styles.fieldError}>{phoneError}</span>}
                   </div>
 
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="email">
                       <Mail size={18} />
                       {translateToHebrew('Email Address')} *
@@ -349,68 +380,63 @@ export default function Cart() {
                     <input
                       type="email"
                       id="email"
-                      placeholder="your@email.com"
+                      placeholder={translateToHebrew('your@email.com')}
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
                         if (emailError) setEmailError('');
                       }}
-                      className={emailError ? 'error' : ''}
+                      className={emailError ? styles.error : ''}
                     />
-                    {emailError && <span className="field-error">{emailError}</span>}
+                    {emailError && <span className={styles.fieldError}>{emailError}</span>}
                   </div>
 
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="deliveryAddress">
                       📍 {translateToHebrew('Delivery Address')} *
                     </label>
                     <textarea
                       id="deliveryAddress"
-                      placeholder="Enter full delivery address (street, building, apartment, etc.)"
+                      placeholder={translateToHebrew('Enter full delivery address (street, building, apartment, etc.)')}
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       rows={3}
                       required
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
-                        fontSize: '16px',
-                        fontFamily: 'inherit',
-                        resize: 'vertical',
-                      }}
+                      className={styles.deliveryAddressTextarea}
                     />
                   </div>
 
                   {/* Order Summary */}
-                  <div className="order-summary">
+                  <div className={styles.orderSummary}>
                     <h4>{translateToHebrew('Order Summary')}</h4>
-                    <div className="summary-items">
+                    <div className={styles.summaryItems}>
                       {cart.map((item, itemIndex) => {
                         console.log(`Order Summary - Item ${itemIndex}:`, item.name, 'customIngredients:', item.customIngredients);
-                        // Calculate item total including addons and ingredients
+                        // Calculate item total including addons, ingredients, and additional items
                         const addonsTotal = (item.addons || []).reduce((total, addon) => 
                           total + addon.price * addon.quantity, 0
                         );
                         const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                           total + ingredient.price, 0
                         );
-                        const itemTotal = item.price + addonsTotal + ingredientsTotal;
+                        const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
+                          total + addItem.price, 0
+                        );
+                        const itemTotal = item.price + addonsTotal + ingredientsTotal + additionalItemsTotal;
                         const itemTotalWithQuantity = itemTotal * item.quantity;
                         
                         return (
-                          <div key={`${item.id}-${itemIndex}`} className="summary-item-group">
-                            <div className="summary-item">
+                          <div key={`${item.id}-${itemIndex}`} className={styles.summaryItemGroup}>
+                            <div className={styles.summaryItem}>
                               <span>{item.quantity}x {item.name}{item.volume ? ` (${item.volume})` : ''}</span>
                               <span>₪{itemTotalWithQuantity.toFixed(0)}</span>
                             </div>
                             
                             {/* Addons as sub-items */}
                             {item.addons && item.addons.length > 0 && (
-                              <div className="summary-sub-items">
+                              <div className={styles.summarySubItems}>
                                 {item.addons.map((addon) => (
-                                  <div key={addon.id} className="summary-sub-item">
+                                  <div key={addon.id} className={styles.summarySubItem}>
                                     <span>  + {addon.name} (x{addon.quantity})</span>
                                     <span>+₪{(addon.price * addon.quantity * item.quantity).toFixed(0)}</span>
                                   </div>
@@ -420,11 +446,23 @@ export default function Cart() {
                             
                             {/* Custom Ingredients as sub-items */}
                             {item.customIngredients && item.customIngredients.length > 0 && (
-                              <div className="summary-sub-items">
+                              <div className={styles.summarySubItems}>
                                 {item.customIngredients.map((ingredient) => (
-                                  <div key={ingredient.id} className="summary-sub-item">
+                                  <div key={ingredient.id} className={styles.summarySubItem}>
                                     <span>  + {translateToHebrew(ingredient.name)}</span>
                                     <span>+₪{(ingredient.price * item.quantity).toFixed(0)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Additional Items as sub-items */}
+                            {item.additionalItems && item.additionalItems.length > 0 && (
+                              <div className={styles.summarySubItems}>
+                                {item.additionalItems.map((addItem) => (
+                                  <div key={addItem.id} className={styles.summarySubItem}>
+                                    <span>  + {translateToHebrew(addItem.name)}</span>
+                                    <span>+₪{(addItem.price * item.quantity).toFixed(0)}</span>
                                   </div>
                                 ))}
                               </div>
@@ -438,24 +476,24 @@ export default function Cart() {
               </div>
 
               {/* Footer - Contact Step */}
-              <div className="cart-footer">
+              <div className={styles.cartFooter}>
                 {error && (
-                  <div className="cart-error">
+                  <div className={styles.cartError}>
                     {error}
                   </div>
                 )}
-                <div className="cart-total">
+                <div className={styles.cartTotal}>
                   <span>{translateToHebrew('Total')}</span>
-                  <span className="cart-total-price">₪{getTotalPrice().toFixed(0)}</span>
+                  <span className={styles.cartTotalPrice}>₪{getTotalPrice().toFixed(0)}</span>
                 </div>
                 <button 
-                  className="cart-checkout-btn"
+                  className={styles.cartCheckoutBtn}
                   onClick={handleCheckout}
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="cart-spinner" size={20} />
+                      <Loader2 className={styles.cartSpinner} size={20} />
                       {translateToHebrew('Processing')}...
                     </>
                   ) : (
@@ -467,6 +505,7 @@ export default function Cart() {
           )}
         </div>
       </div>
+<<<<<<< HEAD
 
       <style jsx>{`
         .cart-backdrop {
@@ -1092,6 +1131,8 @@ export default function Cart() {
           }
         }
       `}</style>
+=======
+>>>>>>> a3f884021453c8610336941a5262c83c3212d934
     </>
   );
 }

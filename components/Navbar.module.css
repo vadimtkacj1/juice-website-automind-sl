@@ -1,0 +1,86 @@
+/* Cart Button Styles */
+.cart-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cart-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--pink);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-cart-btn,
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d1a40;
+  transition: background 0.2s ease;
+}
+
+.mobile-cart-btn:hover,
+.mobile-menu-btn:hover {
+  background: rgba(29, 26, 64, 0.1);
+}
+
+.mobile-cart-btn {
+  position: relative;
+}
+
+.mobile-cart-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--pink);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Burger menu only on smaller screens (mobile/tablet) */
+@media (max-width: 768px) {
+  .mobile-actions {
+    display: flex;
+  }
+}

@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -139,8 +138,8 @@ export default function AdminIngredients() {
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'boosters' | 'fruits' | 'toppings'>('fruits');
-  const [showIngredientDialog, setShowIngredientDialog] = useState(false);
-  const [showCategoryConfigDialog, setShowCategoryConfigDialog] = useState(false);
+  const [showIngredientForm, setShowIngredientForm] = useState(false);
+  const [showCategoryConfigForm, setShowCategoryConfigForm] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
   const [categoryConfigs, setCategoryConfigs] = useState<CategoryIngredientConfig[]>([]);
@@ -311,7 +310,7 @@ export default function AdminIngredients() {
       });
       setVolumeOptions([]);
     }
-    setShowIngredientDialog(true);
+    setShowIngredientForm(true);
   }
 
   function addVolumeOption() {
@@ -348,7 +347,7 @@ export default function AdminIngredients() {
   async function handleOpenCategoryConfigDialog(category: MenuCategory) {
     setSelectedCategory(category);
     await fetchCategoryConfigs(category.id);
-    setShowCategoryConfigDialog(true);
+    setShowCategoryConfigForm(true);
   }
 
   function addCategoryVolume() {
@@ -464,7 +463,7 @@ export default function AdminIngredients() {
         }
       }
 
-      setShowIngredientDialog(false);
+      setShowIngredientForm(false);
       setEditingIngredient(null);
       setVolumeOptions([]);
       fetchData();
@@ -548,7 +547,7 @@ export default function AdminIngredients() {
         ...prev,
         [selectedCategory.id]: categoryConfigs.length
       }));
-      setShowCategoryConfigDialog(false);
+      setShowCategoryConfigForm(false);
       fetchData();
       setAlertDialog({
         open: true,
@@ -735,11 +734,19 @@ export default function AdminIngredients() {
           </p>
         </div>
         <Button 
-          onClick={() => handleOpenIngredientDialog()}
+          onClick={() => {
+            if (showIngredientForm) {
+              setShowIngredientForm(false);
+              setEditingIngredient(null);
+              setVolumeOptions([]);
+            } else {
+              handleOpenIngredientDialog();
+            }
+          }}
           className="bg-purple-600 hover:bg-purple-700 text-white"
         >
           <Plus className="ml-2 h-4 w-4" />
-          {t('Add Ingredient')}
+          {showIngredientForm ? t('Cancel') : t('Add Ingredient')}
         </Button>
       </div>
 
@@ -963,45 +970,56 @@ export default function AdminIngredients() {
         </CardContent>
       </Card>
 
-      {/* Ingredient Dialog */}
-      <Dialog open={showIngredientDialog} onOpenChange={setShowIngredientDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+      {/* Ingredient Form */}
+      {showIngredientForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">
               {editingIngredient ? t('Edit Ingredient') : t('Add New Ingredient')}
-            </DialogTitle>
-            <DialogDescription>
+            </CardTitle>
+            <CardDescription className="text-base">
               {editingIngredient
                 ? t('Update ingredient details')
                 : t('Create a new ingredient')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">{t('Name')} *</Label>
-              <Input
-                id="name"
-                value={ingredientForm.name}
-                onChange={(e) =>
-                  setIngredientForm({ ...ingredientForm, name: e.target.value })
-                }
-                placeholder="e.g., Strawberry, Protein Powder, Chia Seeds"
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">{t('Description')}</Label>
-              <Textarea
-                id="description"
-                value={ingredientForm.description}
-                onChange={(e) =>
-                  setIngredientForm({ ...ingredientForm, description: e.target.value })
-                }
-                placeholder={t('Optional description')}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+          <div className="space-y-6 py-4">
+            {/* Basic Information Section */}
+            <div className="space-y-4 pb-4 border-b">
+              <h3 className="text-lg font-semibold">{t('Basic Information')}</h3>
               <div>
-                <Label htmlFor="price">{t('Base Price ($)')}</Label>
+                <Label htmlFor="name" className="text-base font-medium">{t('Name')} *</Label>
+                <Input
+                  id="name"
+                  value={ingredientForm.name}
+                  onChange={(e) =>
+                    setIngredientForm({ ...ingredientForm, name: e.target.value })
+                  }
+                  placeholder={t('e.g., Strawberry, Protein Powder, Chia Seeds')}
+                  className="mt-2 h-11"
+                />
+              </div>
+              <div>
+                <Label htmlFor="description" className="text-base font-medium">{t('Description')}</Label>
+                <Textarea
+                  id="description"
+                  value={ingredientForm.description}
+                  onChange={(e) =>
+                    setIngredientForm({ ...ingredientForm, description: e.target.value })
+                  }
+                  placeholder={t('Optional description')}
+                  className="mt-2 min-h-[100px]"
+                />
+              </div>
+            </div>
+
+            {/* Pricing & Category Section */}
+            <div className="space-y-4 pb-4 border-b">
+              <h3 className="text-lg font-semibold">{t('Pricing & Category')}</h3>
+              <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price" className="text-base font-medium">{t('Base Price ($)')}</Label>
                 <Input
                   id="price"
                   type="number"
@@ -1010,13 +1028,14 @@ export default function AdminIngredients() {
                   onChange={(e) =>
                     setIngredientForm({ ...ingredientForm, price: e.target.value })
                   }
+                  className="mt-2 h-11"
                 />
               </div>
               <div>
-                <Label htmlFor="category">{t('Ingredient Category')}</Label>
+                <Label htmlFor="category" className="text-base font-medium">{t('Ingredient Category')}</Label>
                 <select
                   id="category"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background mt-2"
                   value={ingredientForm.ingredient_category}
                   onChange={(e) =>
                     setIngredientForm({
@@ -1029,14 +1048,13 @@ export default function AdminIngredients() {
                   <option value="boosters">{t('Boosters')}</option>
                   <option value="toppings">{t('Toppings')}</option>
                 </select>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   {t('You can change this anytime. This only affects how ingredients are grouped in the admin panel. You can still attach any ingredient to any menu category.')}
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sort_order">{t('Sort Order')}</Label>
+                <Label htmlFor="sort_order" className="text-base font-medium">{t('Sort Order')}</Label>
                 <Input
                   id="sort_order"
                   type="number"
@@ -1045,12 +1063,13 @@ export default function AdminIngredients() {
                     setIngredientForm({ ...ingredientForm, sort_order: e.target.value })
                   }
                   placeholder="0"
+                  className="mt-2 h-11"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   {t('Lower numbers appear first. Controls display order in customer selection.')}
                 </p>
               </div>
-              <div className="flex items-center space-x-2 pt-8">
+              <div className="flex items-center gap-3 pt-8">
                 <input
                   type="checkbox"
                   id="is_available"
@@ -1061,36 +1080,44 @@ export default function AdminIngredients() {
                       is_available: e.target.checked,
                     })
                   }
-                  className="h-4 w-4"
+                  className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer flex-shrink-0"
                 />
-                <Label htmlFor="is_available">{t('Available')}</Label>
+                <Label htmlFor="is_available" className="text-base font-medium cursor-pointer">{t('Available')}</Label>
               </div>
             </div>
-            <div>
-              <Label htmlFor="image">{t('Image URL')}</Label>
-              <Input
-                id="image"
-                value={ingredientForm.image}
-                onChange={(e) =>
-                  setIngredientForm({ ...ingredientForm, image: e.target.value })
-                }
-                placeholder={t('Image URL or use upload below')}
-              />
-              <ImageUpload
-                value={ingredientForm.image}
-                onChange={(url) =>
-                  setIngredientForm({ ...ingredientForm, image: url })
-                }
-                folder="ingredients"
-              />
+
+            {/* Image Section */}
+            <div className="space-y-4 pb-4 border-b">
+              <h3 className="text-lg font-semibold">{t('Image')}</h3>
+              <div>
+                <Label htmlFor="image" className="text-base font-medium">{t('Image URL')}</Label>
+                <Input
+                  id="image"
+                  value={ingredientForm.image}
+                  onChange={(e) =>
+                    setIngredientForm({ ...ingredientForm, image: e.target.value })
+                  }
+                  placeholder={t('Image URL or use upload below')}
+                  className="mt-2 h-11"
+                />
+                <div className="mt-3">
+                  <ImageUpload
+                    value={ingredientForm.image}
+                    onChange={(url) =>
+                      setIngredientForm({ ...ingredientForm, image: url })
+                    }
+                    folder="ingredients"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Volume/Weight Options */}
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t('Volume/Weight Options')}</Label>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <h3 className="text-lg font-semibold mb-2">{t('Volume/Weight Options')}</h3>
+                  <p className="text-sm text-muted-foreground">
                     {t('Define volume or weight options (e.g., 100g, 250g, 1kg, 0.5L). Customers can choose from these when selecting this ingredient.')}
                   </p>
                 </div>
@@ -1099,33 +1126,33 @@ export default function AdminIngredients() {
                   onClick={addVolumeOption}
                   variant="outline"
                   size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+                  className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 h-10 px-4"
                 >
-                  <Plus className="h-4 w-4 ml-2" />
+                  <Plus className="h-4 w-4 mr-2" />
                   {t('Add Volume')}
                 </Button>
               </div>
               {volumeOptions.length === 0 ? (
-                <div className="text-center py-6 text-sm text-muted-foreground border rounded-md">
-                  <p>{t('No volume options defined.')}</p>
-                  <p className="text-xs mt-1">{t('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
+                <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed rounded-lg bg-gray-50">
+                  <p className="font-medium">{t('No volume options defined.')}</p>
+                  <p className="text-xs mt-2">{t('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {volumeOptions.map((vol, index) => (
-                    <div key={index} className="grid grid-cols-12 gap-3 p-3 border rounded-lg bg-gray-50">
+                    <div key={index} className="grid grid-cols-12 gap-3 p-4 border rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
                       <div className="col-span-4">
-                        <Label htmlFor={`vol-${index}`} className="text-xs">{t('Volume/Weight')} *</Label>
+                        <Label htmlFor={`vol-${index}`} className="text-sm font-medium">{t('Volume/Weight')} *</Label>
                         <Input
                           id={`vol-${index}`}
                           value={vol.volume}
                           onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
                           placeholder={t('e.g., 100g, 250g, 1kg')}
-                          className="h-9"
+                          className="mt-1.5 h-10"
                         />
                       </div>
                       <div className="col-span-3">
-                        <Label htmlFor={`vol-price-${index}`} className="text-xs">{t('Price ($)')} *</Label>
+                        <Label htmlFor={`vol-price-${index}`} className="text-sm font-medium">{t('Price ($)')} *</Label>
                         <Input
                           id={`vol-price-${index}`}
                           type="number"
@@ -1133,41 +1160,41 @@ export default function AdminIngredients() {
                           value={vol.price}
                           onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
-                          className="h-9"
+                          className="mt-1.5 h-10"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor={`vol-sort-${index}`} className="text-xs">{t('Sort Order')}</Label>
+                        <Label htmlFor={`vol-sort-${index}`} className="text-sm font-medium">{t('Sort Order')}</Label>
                         <Input
                           id={`vol-sort-${index}`}
                           type="number"
                           value={vol.sort_order}
                           onChange={(e) => updateVolumeOption(index, 'sort_order', parseInt(e.target.value) || 0)}
                           placeholder="0"
-                          className="h-9"
+                          className="mt-1.5 h-10"
                         />
                       </div>
-                      <div className="col-span-2 flex items-end">
-                        <div className="flex items-center gap-2">
+                      <div className="col-span-2 flex items-end pb-1">
+                        <div className="flex items-center gap-2.5">
                           <input
                             type="checkbox"
                             id={`vol-default-${index}`}
                             checked={vol.is_default}
                             onChange={(e) => updateVolumeOption(index, 'is_default', e.target.checked)}
-                            className="w-4 h-4"
+                            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
                           />
-                          <Label htmlFor={`vol-default-${index}`} className="text-xs cursor-pointer">
+                          <Label htmlFor={`vol-default-${index}`} className="text-sm font-medium cursor-pointer ml-1">
                             {t('Default')}
                           </Label>
                         </div>
                       </div>
-                      <div className="col-span-1 flex items-end">
+                      <div className="col-span-1 flex items-end pb-1">
                         <Button
                           type="button"
                           onClick={() => removeVolumeOption(index)}
                           variant="ghost"
                           size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-9"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-10 w-10 p-0"
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
@@ -1178,26 +1205,32 @@ export default function AdminIngredients() {
               )}
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowIngredientDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => {
+              setShowIngredientForm(false);
+              setEditingIngredient(null);
+              setVolumeOptions([]);
+            }}>
               {t('Cancel')}
             </Button>
             <Button onClick={handleSaveIngredient}>
               {editingIngredient ? t('Update') : t('Create')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Category Configuration Dialog */}
-      <Dialog open={showCategoryConfigDialog} onOpenChange={setShowCategoryConfigDialog}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{t('Configure Ingredients for')} {t(selectedCategory?.name || '')}</DialogTitle>
-            <DialogDescription>
+      {/* Category Configuration Form */}
+      {showCategoryConfigForm && selectedCategory && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{t('Configure Ingredients for')} {t(selectedCategory?.name || '')}</CardTitle>
+            <CardDescription>
               {t('Attach ingredients to this category and configure their settings.')}
-            </DialogDescription>
-          </DialogHeader>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -1415,14 +1448,18 @@ export default function AdminIngredients() {
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCategoryConfigDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => {
+              setShowCategoryConfigForm(false);
+              setSelectedCategory(null);
+            }}>
               {t('Cancel')}
             </Button>
             <Button onClick={handleSaveCategoryConfig}>{t('Save Configuration')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
 
       <ConfirmDialog
         open={confirmDialog.open}

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Pencil, Trash, Settings, Bot, Users, TestTube, Activity } from 'lucide-react';
@@ -37,8 +36,8 @@ export default function TelegramDeliveryPage() {
   });
   const [couriers, setCouriers] = useState<Courier[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [showCourierDialog, setShowCourierDialog] = useState(false);
+  const [showSettingsForm, setShowSettingsForm] = useState(false);
+  const [showCourierForm, setShowCourierForm] = useState(false);
   const [editingCourier, setEditingCourier] = useState<Courier | null>(null);
   const [courierForm, setCourierForm] = useState({
     telegram_id: '',
@@ -144,7 +143,7 @@ export default function TelegramDeliveryPage() {
           });
         }
 
-        setShowSettingsDialog(false);
+        setShowSettingsForm(false);
         fetchData();
         setAlertDialog({
           open: true,
@@ -256,7 +255,7 @@ export default function TelegramDeliveryPage() {
         is_active: true
       });
     }
-    setShowCourierDialog(true);
+    setShowCourierForm(true);
   }
 
   async function handleSaveCourier() {
@@ -288,7 +287,8 @@ export default function TelegramDeliveryPage() {
         throw new Error(error.error || 'Failed to save courier');
       }
 
-      setShowCourierDialog(false);
+      setShowCourierForm(false);
+      setEditingCourier(null);
       setEditingCourier(null);
       fetchData();
       setAlertDialog({
@@ -372,7 +372,13 @@ export default function TelegramDeliveryPage() {
                 {t('Enter Bot ID and API Token for Telegram integration')}
               </CardDescription>
             </div>
-            <Button onClick={() => setShowSettingsDialog(true)}>
+            <Button onClick={() => {
+              if (showSettingsForm) {
+                setShowSettingsForm(false);
+              } else {
+                setShowSettingsForm(true);
+              }
+            }}>
               <Settings className="mr-2 h-4 w-4" />
               {t('Configure')}
             </Button>
@@ -419,9 +425,16 @@ export default function TelegramDeliveryPage() {
                 {t('Manage the list of couriers who receive order notifications')}
               </CardDescription>
             </div>
-            <Button onClick={() => handleOpenCourierDialog()}>
+            <Button onClick={() => {
+              if (showCourierForm) {
+                setShowCourierForm(false);
+                setEditingCourier(null);
+              } else {
+                handleOpenCourierDialog();
+              }
+            }}>
               <Plus className="mr-2 h-4 w-4" />
-              {t('Add Courier')}
+              {showCourierForm ? t('Cancel') : t('Add Courier')}
             </Button>
           </div>
         </CardHeader>
@@ -482,15 +495,16 @@ export default function TelegramDeliveryPage() {
         </CardContent>
       </Card>
 
-      {/* Settings Dialog */}
-      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t('Telegram Bot Settings')}</DialogTitle>
-            <DialogDescription>
+      {/* Settings Form */}
+      {showSettingsForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{t('Telegram Bot Settings')}</CardTitle>
+            <CardDescription>
               {t('Enter Bot ID and API Token. You can get them from @BotFather in Telegram.')}
-            </DialogDescription>
-          </DialogHeader>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-4">
             <div>
               <Label htmlFor="api_token">{t('API Token')} *</Label>
@@ -547,30 +561,32 @@ export default function TelegramDeliveryPage() {
               <Label htmlFor="is_enabled">{t('Enable Bot')}</Label>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => setShowSettingsForm(false)}>
               {t('Cancel')}
             </Button>
             <Button onClick={handleSaveSettings}>
               {t('Save')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Courier Dialog */}
-      <Dialog open={showCourierDialog} onOpenChange={setShowCourierDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      {/* Courier Form */}
+      {showCourierForm && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>
               {editingCourier ? t('Edit Courier') : t('Add Courier')}
-            </DialogTitle>
-            <DialogDescription>
+            </CardTitle>
+            <CardDescription>
               {editingCourier
                 ? t('Update courier information')
                 : t('Add a new courier to the system')}
-            </DialogDescription>
-          </DialogHeader>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-4">
             <div>
               <Label htmlFor="courier_telegram_id">{t('Telegram ID')} *</Label>
@@ -604,16 +620,20 @@ export default function TelegramDeliveryPage() {
               <Label htmlFor="courier_is_active">{t('Active')}</Label>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCourierDialog(false)}>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => {
+              setShowCourierForm(false);
+              setEditingCourier(null);
+            }}>
               {t('Cancel')}
             </Button>
             <Button onClick={handleSaveCourier}>
               {editingCourier ? t('Update') : t('Create')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          </CardContent>
+        </Card>
+      )}
 
       <AlertDialog
         open={alertDialog.open}

@@ -1,0 +1,250 @@
+/* About Section Styles */
+
+.aboutSection {
+  background-color: var(--white);
+  border-radius: var(--radius-xl);
+  margin: 20px var(--spacing-sm);
+  padding: 80px 20px;
+  width: calc(100% - 32px);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+.aboutBlock {
+  margin-block-end: 80px;
+}
+
+.aboutBlock:last-of-type {
+  margin-block-end: 60px;
+}
+
+.aboutContent {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.aboutText {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.aboutTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0 0 32px 0;
+  line-height: 1.1;
+  text-align: right;
+  letter-spacing: -0.02em;
+}
+
+.aboutDescription {
+  font-size: 28px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.aboutList {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.aboutList li {
+  font-size: 22px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  padding-inline-start: 28px;
+  position: relative;
+  font-weight: 700;
+}
+
+.aboutList li::before {
+  content: '•';
+  position: absolute;
+  right: 0;
+  color: var(--primary);
+  font-weight: 900;
+  font-size: 24px;
+}
+
+/* Section Titles */
+.sectionTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  text-align: center;
+  color: #1d1a40;
+  margin-block-end: var(--spacing-lg);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: #1d1a40;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-block-end: var(--spacing-xl);
+  line-height: 1.6;
+  font-size: 90px;
+  font-weight: 900;
+}
+
+/* Values Grid */
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 1000px;
+  margin: var(--spacing-xl) auto 0;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.valueCard {
+  background: var(--gray-bg);
+  border-radius: var(--radius-md);
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s var(--spring-ease);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.valueCard:hover {
+  background: var(--secondary);
+  transform: translateY(-5px);
+}
+
+.valueIconWrapper {
+  width: 70px;
+  height: 70px;
+  background: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: var(--primary);
+  transition: all 0.3s var(--spring-ease);
+}
+
+.valueCard:hover .valueIconWrapper {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.valueTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin-block-end: 12px;
+}
+
+.valueDescription {
+  font-size: 22px;
+  line-height: 1.6;
+  color: var(--text-gray);
+  font-weight: 900;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .aboutTitle {
+    font-size: 70px;
+  }
+
+  .sectionTitle {
+    font-size: 70px;
+  }
+
+  .sectionSubtitle {
+    font-size: 80px;
+  }
+
+  .valueTitle {
+    font-size: 24px;
+  }
+
+  .valueDescription {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .aboutSection {
+    margin: 12px;
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+
+  .aboutTitle {
+    font-size: 60px;
+  }
+
+  .sectionTitle {
+    font-size: 60px;
+  }
+
+  .sectionSubtitle {
+    font-size: 70px;
+  }
+
+  .aboutDescription {
+    font-size: 24px;
+  }
+
+  .aboutList li {
+    padding-inline-start: 20px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .valueTitle {
+    font-size: 22px;
+  }
+
+  .valueDescription {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutTitle {
+    font-size: 50px;
+  }
+
+  .sectionTitle {
+    font-size: 50px;
+  }
+
+  .sectionSubtitle {
+    font-size: 60px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
