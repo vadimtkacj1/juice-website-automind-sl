@@ -55,6 +55,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install su-exec for user switching and shadow for chmod/chown
+RUN apk add --no-cache su-exec shadow
+
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -71,12 +74,20 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Ensure server.js exists (it's in the standalone output)
 RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)
 
+# Copy entrypoint script
+COPY --chown=root:root docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Create data directory for database
 RUN mkdir -p /app/data /app/public/uploads && \
     chown -R nextjs:nodejs /app/data /app/public/uploads
 
-# Switch to non-root user
-USER nextjs
+# Set entrypoint (will switch to nextjs user inside the script)
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Default to root user so entrypoint can fix permissions
+# Entrypoint will switch to nextjs user before starting the app
+USER root
 
 # Expose port
 EXPOSE 80

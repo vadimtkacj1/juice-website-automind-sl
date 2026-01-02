@@ -1,9 +1,21 @@
 const bcrypt = require('bcryptjs');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
 async function createAdmin() {
-  const db = new sqlite3.Database(path.join(__dirname, '../juice_website.db'));
+  // Support environment variable for database path (useful for Docker)
+  const dbPath = process.env.DATABASE_PATH 
+    ? process.env.DATABASE_PATH 
+    : path.join(__dirname, '../juice_website.db');
+  
+  // Ensure directory exists
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+  
+  const db = new sqlite3.Database(dbPath);
 
   // Check if admin exists
   db.get('SELECT COUNT(*) as count FROM admins', async (err, result) => {
