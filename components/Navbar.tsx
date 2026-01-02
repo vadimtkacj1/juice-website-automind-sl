@@ -34,8 +34,8 @@ function NavBarShell({
   return (
     <div className={className}>
       <nav className="nav-content">
-        <Link href="/" className="logo" aria-label="Reviva">
-          <img src={logoSrc} alt="Reviva logo" width={compact ? 40 : 50} height={compact ? 40 : 50} />
+        <Link href="/" className="logo" aria-label="נטורליי מרענן">
+          <img src={logoSrc} alt="לוגו נטורליי מרענן" width={compact ? 40 : 50} height={compact ? 40 : 50} />
         </Link>
         
         {/* Desktop Navigation */}
@@ -162,7 +162,8 @@ function NavBarShell({
           align-items: center;
           justify-content: center;
         }
-        @media (max-width: 980px) {
+        /* Burger menu only on smaller screens (mobile/tablet) */
+        @media (max-width: 768px) {
           .mobile-actions {
             display: flex;
           }

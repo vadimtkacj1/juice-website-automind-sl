@@ -19,8 +19,8 @@ module.exports = {
         'desktop': '1050px',
       },
       fontFamily: {
-        sans: ['Horev CLM', 'Arial', 'sans-serif'],
-        display: ['Horev CLM', 'Arial', 'sans-serif'],
+        sans: ['Heebo', 'sans-serif'],
+        display: ['Heebo', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

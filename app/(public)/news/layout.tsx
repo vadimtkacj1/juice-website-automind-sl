@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Latest News & Updates | Reviva',
+  title: 'Latest News & Updates | naturalay refreshing',
   description: 'Stay updated with our latest juice blends, health tips, company news, and exciting updates. Discover fresh insights about nutrition, wellness, and premium beverages.',
   keywords: [
     'juice news',
@@ -10,19 +10,19 @@ export const metadata: Metadata = {
     'fresh juice',
     'beverage news',
     'wellness articles',
-    'reviva news',
+    'naturalay refreshing news',
     'juice blog',
     'health blog',
   ],
   openGraph: {
     type: 'website',
-    title: 'Latest News & Updates | Reviva',
+    title: 'Latest News & Updates | naturalay refreshing',
     description: 'Stay updated with our latest juice blends, health tips, and company news.',
-    siteName: 'Reviva',
+    siteName: 'naturalay refreshing',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Latest News & Updates | Reviva',
+    title: 'Latest News & Updates | naturalay refreshing',
     description: 'Stay updated with our latest juice blends, health tips, and company news.',
   },
   alternates: {

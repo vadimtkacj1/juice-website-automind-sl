@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   if (!newsItem) {
     return {
-      title: 'News Not Found | Reviva',
+      title: 'News Not Found | naturalay refreshing',
       description: 'The news article you are looking for could not be found.',
     };
   }
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     : newsItem.content;
 
   return {
-    title: `${newsItem.title} | Reviva News`,
+    title: `${newsItem.title} | naturalay refreshing News`,
     description: excerpt,
     keywords: [
       'juice',
@@ -71,18 +71,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       'health',
       'nutrition',
       'beverages',
-      'reviva',
+      'naturalay refreshing',
       'news',
       'updates',
       ...newsItem.title.toLowerCase().split(' '),
     ],
-    authors: [{ name: 'Reviva' }],
+    authors: [{ name: 'naturalay refreshing' }],
     openGraph: {
       type: 'article',
       title: newsItem.title,
       description: excerpt,
       url: url,
-      siteName: 'Reviva',
+      siteName: 'naturalay refreshing',
       images: [
         {
           url: imageUrl,
@@ -158,11 +158,11 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
     dateModified: newsItem.created_at,
     author: {
       '@type': 'Organization',
-      name: 'Reviva',
+      name: 'naturalay refreshing',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Reviva',
+      name: 'naturalay refreshing',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/images/logo.png`,

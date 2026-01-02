@@ -167,7 +167,7 @@ export default function PrivacyPolicyPage() {
         }
 
         .legal-section h2 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 800;
           font-size: 28px;
           color: #1d1a40;
@@ -176,7 +176,7 @@ export default function PrivacyPolicyPage() {
         }
 
         .legal-section h3 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 700;
           font-size: 20px;
           color: #1d1a40;

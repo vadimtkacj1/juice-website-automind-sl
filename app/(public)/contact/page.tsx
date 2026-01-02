@@ -305,7 +305,7 @@ export default function ContactPage() {
         }
 
         .contact-hero-title {
-          font-family: 'Archivo', sans-serif;
+          font-family: 'Heebo', sans-serif;
           font-size: clamp(48px, 8vw, 96px);
           font-weight: 900;
           color: #ffffff;
@@ -322,7 +322,7 @@ export default function ContactPage() {
         }
 
         .contact-hero-subtitle {
-          font-family: 'Archivo', sans-serif;
+          font-family: 'Heebo', sans-serif;
           font-size: clamp(20px, 3vw, 32px);
           font-weight: 900;
           color: #ffffff;
@@ -404,7 +404,7 @@ export default function ContactPage() {
         }
 
         .contact-card-info h3 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 800;
           font-size: 18px;
           color: var(--dark, #1d1a40);
@@ -450,7 +450,7 @@ export default function ContactPage() {
         }
 
         .contact-form-header h2 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 900;
           font-size: 32px;
           color: var(--dark, #1d1a40);
@@ -618,7 +618,7 @@ export default function ContactPage() {
         }
 
         .info-card-header h3 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 800;
           font-size: 20px;
           color: var(--dark, #1d1a40);

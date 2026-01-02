@@ -357,6 +357,78 @@ export default function MenuPage() {
 const styles = `
   .menu-page {
     padding-bottom: 80px;
+    position: relative;
+  }
+
+  .menu-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 3px
+      );
+    background-size: 4px 4px;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+  }
+
+  .category-section {
+    padding: 60px 16px;
+    margin-bottom: 60px;
+    background: var(--primary, #7322ff);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 3px
+      );
+    background-size: 3px 3px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .category-section > * {
+    position: relative;
+    z-index: 1;
   }
 
   /* Loading, Error, Empty States */
@@ -391,8 +463,45 @@ const styles = `
 
   /* Category Section */
   .category-section {
-    padding: 0 16px;
+    padding: 60px 16px;
     margin-bottom: 60px;
+    background: var(--primary, #7322ff);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 3px
+      );
+    background-size: 3px 3px;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .category-section > * {
+    position: relative;
+    z-index: 1;
   }
 
   .category-header {
@@ -401,16 +510,18 @@ const styles = `
   }
 
   .category-title {
-    font-family: "Archivo", sans-serif;
+    font-family: "Heebo", sans-serif;
     font-weight: 900;
-    font-size: 42px;
-    color: var(--dark, #1d1a40);
+    font-size: 175px;
+    color: white;
     margin: 0 0 12px;
   }
 
   .category-desc {
-    font-size: 16px;
-    color: var(--text-gray, #70758c);
+    font-family: "Heebo", sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
     max-width: 500px;
     margin: 0 auto;
@@ -432,8 +543,9 @@ const styles = `
     overflow: hidden;
     position: relative;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-    box-shadow: 0 4px 20px rgba(29, 26, 64, 0.06);
+    box-shadow: 0 4px 20px rgba(29, 26, 64, 0.2);
     cursor: pointer;
+    z-index: 1;
   }
 
   .product-card:hover {
@@ -493,7 +605,7 @@ const styles = `
   }
 
   .product-name {
-    font-family: "Archivo", sans-serif;
+    font-family: "Heebo", sans-serif;
     font-weight: 800;
     font-size: 18px;
     color: var(--dark, #1d1a40);
@@ -537,7 +649,7 @@ const styles = `
   }
 
   .price-current {
-    font-family: "Archivo", sans-serif;
+    font-family: "Heebo", sans-serif;
     font-weight: 800;
     font-size: 16px;
     color: var(--dark, #1d1a40);
@@ -578,19 +690,19 @@ const styles = `
 
   .volume-label {
     color: var(--dark, #1d1a40);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.02em;
   }
 
   .volume-separator {
     color: var(--text-gray, #70758c);
-    font-weight: 300;
+    font-weight: 700;
     opacity: 0.5;
   }
 
   .volume-price {
-    font-family: "Archivo", sans-serif;
+    font-family: "Heebo", sans-serif;
     font-weight: 800;
     font-size: 15px;
     color: var(--primary, #7322ff);
@@ -605,7 +717,7 @@ const styles = `
     background: var(--primary, #7322ff);
     color: white;
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -651,7 +763,7 @@ const styles = `
     }
 
     .category-title {
-      font-size: 32px;
+      font-size: 175px;
     }
 
     .product-footer {

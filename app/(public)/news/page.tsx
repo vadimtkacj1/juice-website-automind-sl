@@ -140,7 +140,7 @@ export default function NewsPage() {
         }
 
         .news-hero-title {
-          font-family: 'Archivo', sans-serif;
+          font-family: 'Heebo', sans-serif;
           font-size: clamp(48px, 8vw, 96px);
           font-weight: 900;
           margin-bottom: 24px;
@@ -210,7 +210,7 @@ export default function NewsPage() {
         }
 
         .news-card-title {
-          font-family: 'Archivo', sans-serif;
+          font-family: 'Heebo', sans-serif;
           font-size: 28px;
           font-weight: 900;
           color: var(--dark);
@@ -250,7 +250,7 @@ export default function NewsPage() {
         }
 
         .news-empty h2 {
-          font-family: 'Archivo', sans-serif;
+          font-family: 'Heebo', sans-serif;
           font-size: 48px;
           color: var(--dark);
           margin-bottom: 16px;

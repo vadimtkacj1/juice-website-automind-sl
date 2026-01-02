@@ -519,7 +519,7 @@ export default function Cart() {
         }
 
         .cart-header-title h2 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 900;
           font-size: 28px;
           color: var(--dark, #1d1a40);
@@ -687,7 +687,7 @@ export default function Cart() {
         }
 
         .order-summary h4 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 700;
           font-size: 16px;
           color: var(--dark, #1d1a40);
@@ -762,7 +762,7 @@ export default function Cart() {
         }
 
         .cart-empty h3 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-size: 24px;
           font-weight: 700;
           color: var(--dark, #1d1a40);
@@ -989,7 +989,7 @@ export default function Cart() {
         }
 
         .cart-total-price {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 900;
           font-size: 36px;
           color: var(--dark, #1d1a40);

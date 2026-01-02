@@ -16,7 +16,7 @@ const legalLinks = [
 export default function Footer() {
   return (
     <footer className="footer-main">
-      <div className="footer-brand">REVIVA</div>
+      <div className="footer-brand">נטורליי מרענן</div>
 
       <div className="footer-links">
         {footerLinks.map((link) => (

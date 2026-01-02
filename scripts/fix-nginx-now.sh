@@ -32,9 +32,9 @@ server {
         root /var/www/html;
     }
     
-    # Proxy to Docker container
+    # Proxy to Docker container (Docker exposes on port 3000)
     location / {
-        proxy_pass http://localhost:80;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         
         # Headers for Next.js
@@ -61,7 +61,7 @@ server {
     
     # Health check endpoint
     location /api/health {
-        proxy_pass http://localhost:80/api/health;
+        proxy_pass http://localhost:3000/api/health;
         proxy_set_header Host $host;
         access_log off;
     }
@@ -116,11 +116,22 @@ echo ""
 # Test connection
 echo "7. Testing connection..."
 sleep 2
-if curl -f http://localhost/api/health 2>/dev/null; then
-  echo "✓ Application is responding!"
+echo "Testing Docker container on port 3000..."
+if curl -f http://localhost:3000/api/health 2>/dev/null; then
+  echo "✓ Docker container is responding on port 3000"
 else
-  echo "⚠ Application is not responding on port 80"
+  echo "⚠ Docker container is not responding on port 3000"
+  echo "Check container status: docker ps | grep juice-website"
   echo "Check container logs: docker logs juice-website"
+fi
+echo ""
+echo "Testing nginx proxy..."
+if curl -f http://localhost/api/health 2>/dev/null; then
+  echo "✓ Application is responding through nginx!"
+else
+  echo "⚠ Application is not responding through nginx"
+  echo "Check nginx status: systemctl status nginx"
+  echo "Check nginx logs: tail -f /var/log/nginx/error.log"
 fi
 echo ""
 

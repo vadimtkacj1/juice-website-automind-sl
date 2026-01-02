@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
-import ShopSection from '@/components/ShopSection';
 import NewsSection from '@/components/NewsSection';
 import AboutSection from '@/components/AboutSection';
 import { translateToHebrew } from '@/lib/translations';
@@ -39,7 +38,7 @@ export default function HomePage() {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Reviva",
+    "name": "naturalay refreshing",
     "url": "https://www.reviva.com", // Replace with your actual website URL
     "logo": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg", // Replace with your actual logo URL
     "sameAs": [
@@ -63,7 +62,7 @@ export default function HomePage() {
         />
       )}
       <HeroSection>
-        <h1 className="hero-title">{translateToHebrew('REVIVA')}</h1>
+        <h1 className="hero-title">נטורליי מרענן</h1>
       </HeroSection>
       <AboutSection />
       <NewsSection />

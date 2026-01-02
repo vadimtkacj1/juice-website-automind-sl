@@ -48,7 +48,7 @@
   flex: 1;
 }
 .mobile-menu-link {
-  font-family: "Archivo", sans-serif;
+  font-family: "Heebo", sans-serif;
   font-size: 32px;
   font-weight: 900;
   color: var(--dark);
@@ -69,7 +69,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: "Archivo", sans-serif;
+  font-family: "Heebo", sans-serif;
   font-size: 32px;
   font-weight: 900;
   color: var(--dark);

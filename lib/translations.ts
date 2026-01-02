@@ -175,6 +175,18 @@ const hebrewTranslations: Record<string, string> = {
   'terms & conditions': 'תנאים והגבלות',
   'at reviva, we are passionate about bringing you the freshest, most nutritious juices crafted from the finest ingredients. our journey began with a simple mission: to make healthy living accessible and delicious for everyone.': 'בראביבה, אנו נלהבים להביא לכם את המיצים הטריים והמזינים ביותר המיוצרים מהמרכיבים הטובים ביותר. המסע שלנו החל במשימה פשוטה: להפוך את החיים הבריאים לנגישים וטעימים לכולם',
   'we source our fruits and vegetables from trusted local farms, ensuring that every bottle of juice is packed with natural vitamins, minerals, and antioxidants. our team of expert juicemakers carefully blend each recipe to perfection, creating flavors that delight your taste buds while nourishing your body.': 'אנו מקבלים את הפירות והירקות שלנו מחוות מקומיות מהימנות, ומבטיחים שכל בקבוק מיץ מלא בוויטמינים, מינרלים ונוגדי חמצון טבעיים. הצוות שלנו של מומחי מיצים מערבב בקפידה כל מתכון לשלמות, יוצר טעמים שמשמחים את בלוטות הטעם שלך תוך הזנת הגוף שלך',
+  'natural juices from fresh fruits and vegetables': 'מיצים טבעיים מפירות וירקות טריים',
+  'fresh juices': 'מיצים טריים',
+  'welcome to reviva - your destination for fresh, natural, and delicious fruit products! we are a premium shop specializing in fresh fruit products, smoothies, natural juices, fruit salads, and healthy plates.': 'ברוכים הבאים לרוויבה - היעד שלכם למוצרי פירות טריים, טבעיים וטעימים! אנו חנות פרמיום המתמחה במוצרי פירות טריים, סמוזים, מיצים טבעיים, סלטי פירות וצלחות בריאות.',
+  'every day, we prepare our products from the freshest fruits and vegetables, sourced directly from trusted local farms. whether you\'re looking for a refreshing smoothie, a nutritious juice, a colorful fruit salad, or a complete healthy plate - we have exactly what you need to nourish your body and delight your taste buds.': 'כל יום, אנו מכינים את המוצרים שלנו מהפירות והירקות הטריים ביותר, שמקורם ישירות מחוות מקומיות מהימנות. בין אם אתם מחפשים סמוזי מרענן, מיץ מזין, סלט פירות צבעוני, או צלחת בריאה מלאה - יש לנו בדיוק מה שאתם צריכים להזין את הגוף שלכם ולשמח את בלוטות הטעם שלכם.',
+  'what we offer': 'מה אנחנו מציעים',
+  'at reviva, we offer a complete range of fresh fruit products:': 'ברוויבה, אנו מציעים מגוון מלא של מוצרי פירות טריים:',
+  'fresh natural juices - prepared daily from the finest fruits and vegetables': 'מיצים טבעיים טריים - מוכנים מדי יום מהפירות והירקות הטובים ביותר',
+  'delicious smoothies - creamy and refreshing blends packed with vitamins': 'סמוזים טעימים - תערובות קרמיות ומרעננות עמוסות בוויטמינים',
+  'colorful fruit salads - fresh seasonal fruits cut and prepared to order': 'סלטי פירות צבעוניים - פירות עונתיים טריים חתוכים ומוכנים לפי הזמנה',
+  'healthy plates - complete nutritious meals with fruits, vegetables, and more': 'צלחות בריאות - ארוחות מזינות מלאות עם פירות, ירקות ועוד',
+  'fresh fruit products - premium quality fruits ready to take home': 'מוצרי פירות טריים - פירות באיכות פרמיום מוכנים לקחת הביתה',
+  'everything is prepared fresh daily, with no preservatives or artificial additives. just pure, natural goodness that your body will love!': 'הכל מוכן טרי מדי יום, ללא חומרים משמרים או תוספים מלאכותיים. פשוט טוב טבעי טהור שהגוף שלכם יאהב!',
   'we specialize in creating premium, cold-pressed juices that preserve the maximum nutritional value of fresh produce. our innovative extraction process ensures that every sip delivers the full spectrum of vitamins and enzymes your body needs.': 'אנו מתמחים ביצירת מיצים פרמיום, סחוטים בקור, המשמרים את הערך התזונתי המקסימלי של תוצרת טרייה. תהליך החילוץ החדשני שלנו מבטיח שכל לגימה מספקת את המגוון המלא של ויטמינים ואנזימים שגופך צריך',
   "from revitalizing morning blends to detoxifying green juices, we offer a wide range of flavors to suit every palate and lifestyle. whether you're looking to boost your energy, support your immune system, or simply enjoy a refreshing drink, we have the perfect juice for you.": 'מתערובות בוקר ממריצות ועד מיצים ירוקים מטהרים, אנו מציעים מגוון רחב של טעמים המתאימים לכל חיך ואורח חיים. בין אם אתם מחפשים להגביר את האנרגיה שלכם, לתמוך במערכת החיסון שלכם, או פשוט ליהנות ממשקה מרענן, יש לנו את המיץ המושלם עבורכם.',
   '100% natural': '100% טבעי',
@@ -186,7 +198,8 @@ const hebrewTranslations: Record<string, string> = {
   'premium quality': 'איכות פרמיום',
   'we maintain the highest standards in every step of our production process.': 'אנו שומרים על הסטנדרטים הגבוהים ביותר בכל שלב בתהליך הייצור שלנו',
   'latest news': 'חדשות אחרונות',
-  'view all': 'צפה בהכל',
+  'latest': 'אחרונות',
+  'view all': 'צפה בכל',
   'view all news': 'צפה בכל החדשות',
   'read more': 'קרא עוד',
   'no news available at the moment.': 'אין חדשות זמינות כרגע',
@@ -631,13 +644,43 @@ const hebrewTranslations: Record<string, string> = {
   'create contact': 'צור איש קשר',
 };
 
+// Global variable to track text mode for server-side rendering compatibility
+let currentTextMode: 'hebrew' | 'english' = 'hebrew';
+
+// Listen for text mode changes if in browser
+if (typeof window !== 'undefined') {
+  window.addEventListener('textModeChanged', ((event: CustomEvent) => {
+    currentTextMode = event.detail.mode;
+    (window as any).__textMode = event.detail.mode;
+  }) as EventListener);
+  
+  // Initialize from document attribute or window variable on load
+  if (document.documentElement) {
+    const mode = document.documentElement.getAttribute('data-text-mode') || (window as any).__textMode;
+    if (mode === 'hebrew' || mode === 'english') {
+      currentTextMode = mode;
+      (window as any).__textMode = mode;
+    }
+  }
+}
+
 /**
  * Translates English text to Hebrew
  * @param text - The text to translate (English text)
- * @returns The translated text in Hebrew
+ * @returns The translated text in Hebrew or English based on text mode
  */
 export function translateToHebrew(text: string | null | undefined): string {
   if (!text) return '';
+  
+  // Check current text mode from document attribute (for client-side) or global variable (for SSR)
+  const textMode = typeof document !== 'undefined' 
+    ? (document.documentElement.getAttribute('data-text-mode') as 'hebrew' | 'english') || currentTextMode
+    : currentTextMode;
+  
+  // If mode is English, return original text (no translation)
+  if (textMode === 'english') {
+    return text;
+  }
   
   // Check if text already contains Hebrew characters (Unicode range 0590-05FF)
   const hasHebrew = /[\u0590-\u05FF]/.test(text);
@@ -757,8 +800,11 @@ export function translateObject<T extends Record<string, any>>(obj: T): T {
 
 /**
  * Hook for React components to translate text
+ * This version will cause re-renders when text mode changes
  */
 export function useTranslation() {
+  // Import useTextMode dynamically to avoid circular dependencies
+  // Components using this hook should import useTextMode directly if they need reactivity
   return {
     t: translateToHebrew,
     translate: translateToHebrew,

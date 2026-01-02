@@ -134,7 +134,7 @@ function CheckoutSuccessContent() {
         }
 
         h1 {
-          font-family: "Archivo", sans-serif;
+          font-family: "Heebo", sans-serif;
           font-weight: 900;
           font-size: 36px;
           color: var(--dark, #1d1a40);

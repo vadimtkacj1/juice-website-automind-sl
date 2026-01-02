@@ -266,6 +266,17 @@ jobs:
             if command -v nginx &> /dev/null; then \
               echo '✓ Nginx is installed' && \
               mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && \
+              # Wait for container to be ready
+              echo 'Waiting for container to be ready...' && \
+              sleep 15 && \
+              # Test if container is responding on port 3000
+              if curl -f http://localhost:3000/api/health 2>/dev/null; then \
+                echo '✓ Container is responding on port 3000'; \
+              else \
+                echo '⚠ Container not responding yet on port 3000, checking status...'; \
+                docker ps | grep juice-website || echo 'Container not running!'; \
+                docker logs juice-website --tail 20 || echo 'Could not get logs'; \
+              fi && \
               if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then \
                 echo '✓ SSL certificates found, configuring HTTPS...' && \
                 printf '%s\n' \
@@ -335,8 +346,8 @@ jobs:
                 printf '%s\n' \
                   '# HTTP server - proxy to Docker container' \
                   'server {' \
-                  '    listen 80;' \
-                  '    listen [::]:80;' \
+                  '    listen 80 default_server;' \
+                  '    listen [::]:80 default_server;' \
                   '    server_name _;' \
                   '    location /.well-known/acme-challenge/ { root /var/www/html; }' \
                   '    location / {' \
@@ -363,10 +374,31 @@ jobs:
                   '    }' \
                   '}' > /etc/nginx/sites-available/juice-website; \
               fi && \
-              rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/juice-website && \
+              # Disable default nginx site \
+              echo 'Disabling default nginx site...' && \
+              rm -f /etc/nginx/sites-enabled/default && \
+              # Enable our site \
+              echo 'Enabling juice-website site...' && \
+              rm -f /etc/nginx/sites-enabled/juice-website && \
               ln -sf /etc/nginx/sites-available/juice-website /etc/nginx/sites-enabled/juice-website && \
-              nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo '⚠ Could not reload nginx' && \
-              echo '✓ Nginx configured'; \
+              # Test nginx configuration \
+              echo 'Testing nginx configuration...' && \
+              if nginx -t 2>&1; then \
+                echo '✓ Nginx configuration is valid'; \
+                systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo '⚠ Could not reload nginx'; \
+                echo '✓ Nginx configured and reloaded'; \
+                # Verify nginx is serving our site \
+                sleep 2 && \
+                if curl -f http://localhost/api/health 2>/dev/null || curl -f http://localhost:3000/api/health 2>/dev/null; then \
+                  echo '✓ Application is accessible through nginx'; \
+                else \
+                  echo '⚠ Application may not be accessible yet, but nginx is configured'; \
+                fi; \
+              else \
+                echo '❌ Nginx configuration has errors!'; \
+                nginx -t; \
+                exit 1; \
+              fi; \
             else \
               echo '⚠ Nginx not installed, skipping nginx configuration'; \
             fi && \
