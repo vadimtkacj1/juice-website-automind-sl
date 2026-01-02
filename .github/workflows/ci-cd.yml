@@ -245,6 +245,11 @@ jobs:
           echo 'Using docker-compose.yml from:'
           pwd
           ls -la docker-compose.yml
+          # Create data directory on host with proper permissions
+          echo 'Creating data directory on host...'
+          mkdir -p data public/uploads
+          chmod 755 data public/uploads
+          echo '✓ Data directories ready'
           # Use explicit file path
           docker-compose -f docker-compose.yml pull nextjs-app || true
           docker-compose -f docker-compose.yml up -d nextjs-app

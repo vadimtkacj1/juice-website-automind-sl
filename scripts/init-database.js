@@ -2,9 +2,19 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-const dbPath = path.join(__dirname, '../juice_website.db');
+// Support environment variable for database path (useful for Docker)
+const dbPath = process.env.DATABASE_PATH 
+  ? process.env.DATABASE_PATH 
+  : path.join(__dirname, '../juice_website.db');
+
+// Ensure directory exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
 
 console.log('🗄️  Initializing database...\n');
+console.log(`📁 Database path: ${dbPath}\n`);
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -177,7 +187,7 @@ tables.forEach((table) => {
     
     if (completed === tables.length) {
       console.log('\n✨ Database initialization complete!');
-      console.log('📁 Database file: juice_website.db');
+      console.log(`📁 Database file: ${dbPath}`);
       console.log('\n📝 Next steps:');
       console.log('   1. npm run create-admin');
       console.log('   2. npm run seed-menu (seed menu data)');
