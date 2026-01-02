@@ -572,7 +572,6 @@ const hebrewTranslations: Record<string, string> = {
   // Additional missing translations
   'enter your username': 'הזן את שם המשתמש שלך',
   'enter your password': 'הזן את הסיסמה שלך',
-  'fresh juices': 'מיצים טריים',
   'category description (optional)': 'תיאור קטגוריה (אופציונלי)',
   'no categories yet': 'אין עדיין קטגוריות',
   'active promos': 'קופונים פעילים',
