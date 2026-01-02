@@ -164,17 +164,18 @@ jobs:
 
       - name: Verify docker-compose.yml was copied
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ secrets.APP_PATH || '/opt/juice-website' }} && \
-            if [ -f 'docker-compose.yml' ]; then
-              echo '✓ docker-compose.yml found on server'
-              ls -lh docker-compose.yml
-            else
-              echo '❌ docker-compose.yml NOT found on server!'
-              echo 'Files in directory:'
-              ls -la
-              exit 1
-            fi"
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -c "
+            cd ${{ secrets.APP_PATH || '/opt/juice-website' }} && \
+            if [ -f 'docker-compose.yml' ]; then \
+              echo '✓ docker-compose.yml found on server' && \
+              ls -lh docker-compose.yml; \
+            else \
+              echo '❌ docker-compose.yml NOT found on server!' && \
+              echo 'Files in directory:' && \
+              ls -la && \
+              exit 1; \
+            fi
+          "
 
       - name: Deploy to Hetzner Server
         env:
