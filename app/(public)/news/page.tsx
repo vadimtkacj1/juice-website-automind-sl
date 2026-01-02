@@ -131,7 +131,7 @@ export default function NewsPage() {
         }
 
         .news-hero {
-          background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+          background: #7322ff;
           padding: 120px 20px 80px;
           text-align: center;
           color: var(--white);
@@ -141,14 +141,15 @@ export default function NewsPage() {
 
         .news-hero-title {
           font-family: 'Heebo', sans-serif;
-          font-size: clamp(48px, 8vw, 96px);
+          font-size: 120px;
           font-weight: 900;
+          color: white;
           margin-bottom: 24px;
           line-height: 1.1;
         }
 
         .news-hero-subtitle {
-          font-size: clamp(18px, 3vw, 24px);
+          font-size: 32px;
           opacity: 0.95;
           max-width: 700px;
           margin: 0 auto;

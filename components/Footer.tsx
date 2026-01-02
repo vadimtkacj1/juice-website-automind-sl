@@ -51,7 +51,7 @@ export default function Footer() {
 
       <style jsx>{`
         .footer-copyright {
-          color: rgba(29, 26, 64, 0.6);
+          color: rgba(255, 255, 255, 0.8);
           font-size: clamp(12px, 1vw, 14px);
           font-weight: 500;
           margin-block-start: 20px;

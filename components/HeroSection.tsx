@@ -6,6 +6,7 @@ import Image from 'next/image';
 interface HeroSectionProps {
   children: React.ReactNode;
   backgroundImage?: string;
+  showFloatingOranges?: boolean;
 }
 
 // Floating orange configuration
@@ -30,7 +31,7 @@ const floatingOranges = [
   },
   { 
     id: 4, 
-    src: '/oranges/orange-slice-3.jpg', 
+    src: '/oranges/orange-slice-2.png', 
     alt: 'תפוז טרי מהטבע', 
     className: 'floating-orange-4' 
   },
@@ -48,7 +49,7 @@ const floatingOranges = [
   },
 ];
 
-export default function HeroSection({ children, backgroundImage }: HeroSectionProps) {
+export default function HeroSection({ children, backgroundImage, showFloatingOranges = false }: HeroSectionProps) {
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -91,49 +92,55 @@ export default function HeroSection({ children, backgroundImage }: HeroSectionPr
       ref={heroRef}
       className={`hero ${isVisible ? 'active' : ''}`}
       id="hero"
-      style={backgroundImage ? {
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      } : undefined}
+      style={{
+        backgroundColor: '#7322ff',
+        ...(backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundBlendMode: 'overlay'
+        } : {})
+      }}
       aria-label="אזור ראשי - נטורליי מרענן"
     >
       {/* Animated background gradient overlay */}
       <div className="hero-gradient-overlay" aria-hidden="true"></div>
       
-      {/* Floating Oranges Container */}
-      <div className="floating-oranges-container" aria-hidden="true">
-        {floatingOranges.map((orange, index) => {
-          // Calculate parallax offset based on index for varied speeds
-          const parallaxSpeed = 0.1 + (index * 0.05);
-          const parallaxOffset = scrollY * parallaxSpeed;
-          
-          return (
-            <div
-              key={orange.id}
-              className={`floating-orange ${orange.className}`}
-              style={{
-                transform: `translateY(${parallaxOffset}px)`,
-              }}
-            >
-              <Image
-                src={orange.src}
-                alt={orange.alt}
-                width={200}
-                height={200}
-                style={{ 
-                  width: '100%', 
-                  height: 'auto',
-                  objectFit: 'contain'
+      {/* Floating Oranges Container - Only on home page */}
+      {showFloatingOranges && (
+        <div className="floating-oranges-container" aria-hidden="true">
+          {floatingOranges.map((orange, index) => {
+            // Calculate parallax offset based on index for varied speeds
+            const parallaxSpeed = 0.1 + (index * 0.05);
+            const parallaxOffset = scrollY * parallaxSpeed;
+            
+            return (
+              <div
+                key={orange.id}
+                className={`floating-orange ${orange.className}`}
+                style={{
+                  transform: `translateY(${parallaxOffset}px)`,
                 }}
-                priority={index < 2}
-                loading={index < 2 ? 'eager' : 'lazy'}
-              />
-            </div>
-          );
-        })}
-      </div>
+              >
+                <Image
+                  src={orange.src}
+                  alt={orange.alt}
+                  width={200}
+                  height={200}
+                  style={{ 
+                    width: '100%', 
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }}
+                  priority={index < 2}
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
       
       {/* Main Content */}
       <div className="title-container">

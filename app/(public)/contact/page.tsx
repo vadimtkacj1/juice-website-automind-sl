@@ -123,14 +123,12 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page">
-      <div className="contact-hero-section">
-        <div className="contact-hero-blue">
+      <section className="contact-hero">
+        <div className="container">
           <h1 className="contact-hero-title">{translateToHebrew('CONTACT US')}</h1>
-        </div>
-        <div className="contact-hero-purple">
           <p className="contact-hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
         </div>
-      </div>
+      </section>
 
       {/* Main Content */}
       <div className="contact-content">
@@ -286,69 +284,109 @@ export default function ContactPage() {
       <style jsx>{`
         .contact-page {
           padding-bottom: 60px;
+          overflow-x: hidden;
+          width: 100%;
+          max-width: 100vw;
         }
 
         /* Contact Hero Section */
-        .contact-hero-section {
+        .contact-hero {
+          background: #7322ff;
+          padding: 120px 20px 80px;
+          text-align: center;
+          color: white;
+          margin: 16px;
+          border-radius: 40px;
           position: relative;
-          width: 100%;
-          margin-top: 100px;
-          margin-bottom: 60px;
+          overflow: hidden;
+          width: calc(100% - 32px);
+          max-width: calc(100vw - 32px);
+          box-sizing: border-box;
         }
 
-        .contact-hero-blue {
-          background: #0066ff;
-          padding: 80px 40px;
-          position: relative;
-          border-left: 20px solid #7322ff;
-          border-bottom: 20px solid #7322ff;
+        .contact-hero .container {
+          max-width: 1200px;
+          margin: 0 auto;
         }
 
         .contact-hero-title {
           font-family: 'Heebo', sans-serif;
-          font-size: clamp(48px, 8vw, 96px);
+          font-size: 120px;
           font-weight: 900;
-          color: #ffffff;
-          margin: 0;
+          color: white;
+          margin: 0 0 24px 0;
           text-align: center;
           text-transform: uppercase;
           letter-spacing: 2px;
-        }
-
-        .contact-hero-purple {
-          background: #7322ff;
-          padding: 30px 40px;
-          border-left: 20px solid #7322ff;
+          line-height: 1.1;
         }
 
         .contact-hero-subtitle {
           font-family: 'Heebo', sans-serif;
-          font-size: clamp(20px, 3vw, 32px);
+          font-size: 40px;
           font-weight: 900;
-          color: #ffffff;
+          color: rgba(255, 255, 255, 0.95);
           margin: 0;
-          text-align: right;
+          text-align: center;
           line-height: 1.4;
+          max-width: 800px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        @media (max-width: 768px) {
-          .contact-hero-blue {
-            padding: 60px 24px;
-            border-left: 12px solid #7322ff;
-            border-bottom: 12px solid #7322ff;
-          }
-
-          .contact-hero-purple {
-            padding: 24px;
-            border-left: 12px solid #7322ff;
+        @media (max-width: 1024px) {
+          .contact-hero {
+            padding: 100px 20px 70px;
+            margin: 12px;
+            border-radius: 32px;
+            width: calc(100% - 24px);
+            max-width: calc(100vw - 24px);
           }
 
           .contact-hero-title {
-            font-size: clamp(36px, 10vw, 64px);
+            font-size: 100px;
           }
 
           .contact-hero-subtitle {
-            font-size: clamp(18px, 4vw, 24px);
+            font-size: 36px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .contact-hero {
+            padding: 80px 20px 60px;
+            margin: 10px;
+            border-radius: 24px;
+            width: calc(100% - 20px);
+            max-width: calc(100vw - 20px);
+          }
+
+          .contact-hero-title {
+            font-size: 80px;
+            margin: 0 0 20px 0;
+          }
+
+          .contact-hero-subtitle {
+            font-size: 32px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .contact-hero {
+            padding: 60px 16px 40px;
+            margin: 8px;
+            border-radius: 20px;
+            width: calc(100% - 16px);
+            max-width: calc(100vw - 16px);
+          }
+
+          .contact-hero-title {
+            font-size: 64px;
+            margin: 0 0 16px 0;
+          }
+
+          .contact-hero-subtitle {
+            font-size: 28px;
           }
         }
 
@@ -357,6 +395,8 @@ export default function ContactPage() {
           padding: 0 16px;
           max-width: 1400px;
           margin: 0 auto;
+          width: 100%;
+          box-sizing: border-box;
         }
 
         /* Contact Cards */

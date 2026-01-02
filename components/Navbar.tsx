@@ -141,13 +141,13 @@ function NavBarShell({
           >
             <div className="roll-inner">
               <span className="cart-icon-wrapper">
-                <ShoppingBag size={20} />
+                <ShoppingBag size={24} />
                 {itemCount > 0 && (
                   <span className="cart-badge">{itemCount}</span>
                 )}
               </span>
               <span className="hvr cart-icon-wrapper">
-                <ShoppingBag size={20} />
+                <ShoppingBag size={24} />
                 {itemCount > 0 && (
                   <span className="cart-badge">{itemCount}</span>
                 )}
@@ -190,6 +190,10 @@ function NavBarShell({
           position: relative;
           display: flex;
           align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          margin: 0 auto;
         }
         .cart-badge {
           position: absolute;
@@ -223,7 +227,7 @@ function NavBarShell({
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--dark);
+          color: #1d1a40;
           transition: background 0.2s ease;
         }
         .mobile-cart-btn:hover,

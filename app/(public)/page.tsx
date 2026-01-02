@@ -89,9 +89,8 @@ export default function HomePage() {
       )}
       
       {/* Hero Section with Floating Oranges */}
-      <HeroSection>
+      <HeroSection showFloatingOranges={true}>
         <h1 className="hero-title">נטורליי מרענן</h1>
-        <p className="hero-subtitle">מיצים טבעיים טריים • סמוזי • סלטי פירות • צלחות בריאות</p>
       </HeroSection>
       
       {/* About Section */}

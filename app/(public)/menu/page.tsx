@@ -392,7 +392,7 @@ const styles = `
   .category-section {
     padding: 60px 16px;
     margin-bottom: 60px;
-    background: var(--primary, #7322ff);
+    background: var(--white);
     border-radius: 24px;
     position: relative;
     overflow: hidden;
@@ -408,20 +408,20 @@ const styles = `
     background-image: 
       repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.03) 0px,
         transparent 1px,
         transparent 2px,
-        rgba(0, 0, 0, 0.15) 3px
+        rgba(0, 0, 0, 0.03) 3px
       ),
       repeating-linear-gradient(
         90deg,
-        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.03) 0px,
         transparent 1px,
         transparent 2px,
-        rgba(0, 0, 0, 0.15) 3px
+        rgba(0, 0, 0, 0.03) 3px
       );
     background-size: 3px 3px;
-    opacity: 0.8;
+    opacity: 0.4;
     pointer-events: none;
     z-index: 0;
   }
@@ -447,7 +447,7 @@ const styles = `
   .retry-btn {
     margin-top: 20px;
     padding: 14px 32px;
-    background: var(--primary, #7322ff);
+    background: var(--dark);
     color: white;
     border: none;
     border-radius: 100px;
@@ -458,14 +458,14 @@ const styles = `
 
   .retry-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(115, 34, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(29, 26, 64, 0.3);
   }
 
   /* Category Section */
   .category-section {
     padding: 60px 16px;
     margin-bottom: 60px;
-    background: var(--primary, #7322ff);
+    background: var(--white);
     border-radius: 24px;
     position: relative;
     overflow: hidden;
@@ -481,20 +481,20 @@ const styles = `
     background-image: 
       repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.03) 0px,
         transparent 1px,
         transparent 2px,
-        rgba(0, 0, 0, 0.1) 3px
+        rgba(0, 0, 0, 0.03) 3px
       ),
       repeating-linear-gradient(
         90deg,
-        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.03) 0px,
         transparent 1px,
         transparent 2px,
-        rgba(0, 0, 0, 0.1) 3px
+        rgba(0, 0, 0, 0.03) 3px
       );
     background-size: 3px 3px;
-    opacity: 0.6;
+    opacity: 0.4;
     pointer-events: none;
     z-index: 0;
   }
@@ -512,16 +512,16 @@ const styles = `
   .category-title {
     font-family: "Heebo", sans-serif;
     font-weight: 900;
-    font-size: 175px;
-    color: white;
+    font-size: clamp(120px, 25vw, 220px);
+    color: #1d1a40;
     margin: 0 0 12px;
   }
 
   .category-desc {
     font-family: "Heebo", sans-serif;
     font-weight: 900;
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(22px, 2.5vw, 28px);
+    color: #1d1a40;
     margin: 0;
     max-width: 500px;
     margin: 0 auto;
@@ -562,8 +562,8 @@ const styles = `
     color: white;
     padding: 6px 14px;
     border-radius: 100px;
-    font-size: 13px;
-    font-weight: 800;
+    font-size: clamp(14px, 1.3vw, 16px);
+    font-weight: 900;
     z-index: 2;
   }
 
@@ -592,7 +592,7 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-gray, #70758c);
+    color: #1d1a40;
   }
 
   /* Product Info */
@@ -606,22 +606,23 @@ const styles = `
 
   .product-name {
     font-family: "Heebo", sans-serif;
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--dark, #1d1a40);
+    font-weight: 900;
+    font-size: clamp(24px, 2.8vw, 32px);
+    color: #1d1a40;
     margin: 0 0 6px;
     line-height: 1.3;
   }
 
   .product-desc {
-    font-size: 14px;
-    color: var(--text-gray, #70758c);
+    font-size: clamp(18px, 1.8vw, 24px);
+    color: #1d1a40;
     margin: 0;
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    font-weight: 900;
   }
 
   /* Product Footer */
@@ -643,22 +644,24 @@ const styles = `
   }
 
   .price-old {
-    font-size: 14px;
-    color: var(--text-gray, #70758c);
+    font-size: clamp(18px, 1.8vw, 22px);
+    color: #1d1a40;
     text-decoration: line-through;
+    font-weight: 900;
   }
 
   .price-current {
     font-family: "Heebo", sans-serif;
-    font-weight: 800;
-    font-size: 16px;
-    color: var(--dark, #1d1a40);
+    font-weight: 900;
+    font-size: clamp(22px, 2.4vw, 28px);
+    color: #1d1a40;
   }
 
   .price-volume {
-    font-size: 12px;
-    color: var(--text-gray, #70758c);
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: #1d1a40;
     margin-left: 4px;
+    font-weight: 900;
   }
 
   .volumes-list {
@@ -676,36 +679,37 @@ const styles = `
     background: linear-gradient(135deg, #f8f9fa 0%, #eaedf6 100%);
     padding: 10px 16px;
     border-radius: 12px;
-    font-size: 13px;
-    border: 1px solid rgba(115, 34, 255, 0.1);
+    font-size: clamp(15px, 1.4vw, 17px);
+    border: 1px solid rgba(29, 26, 64, 0.1);
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    font-weight: 900;
   }
 
   .volume-badge:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(115, 34, 255, 0.12);
-    border-color: rgba(115, 34, 255, 0.2);
+    box-shadow: 0 4px 8px rgba(29, 26, 64, 0.12);
+    border-color: rgba(29, 26, 64, 0.2);
   }
 
   .volume-label {
-    color: var(--dark, #1d1a40);
-    font-weight: 700;
-    font-size: 13px;
+    color: #1d1a40;
+    font-weight: 900;
+    font-size: clamp(17px, 1.8vw, 21px);
     letter-spacing: 0.02em;
   }
 
   .volume-separator {
-    color: var(--text-gray, #70758c);
+    color: #1d1a40;
     font-weight: 700;
     opacity: 0.5;
   }
 
   .volume-price {
     font-family: "Heebo", sans-serif;
-    font-weight: 800;
-    font-size: 15px;
-    color: var(--primary, #7322ff);
+    font-weight: 900;
+    font-size: clamp(18px, 2vw, 24px);
+    color: #1d1a40;
     letter-spacing: -0.01em;
   }
 
@@ -714,7 +718,7 @@ const styles = `
     height: 44px;
     border-radius: 50%;
     border: none;
-    background: var(--primary, #7322ff);
+    background: var(--dark);
     color: white;
     font-size: 24px;
     font-weight: 700;
@@ -762,9 +766,9 @@ const styles = `
       padding: 0 12px;
     }
 
-    .category-title {
-      font-size: 175px;
-    }
+      .category-title {
+        font-size: clamp(100px, 20vw, 200px);
+      }
 
     .product-footer {
       flex-direction: column;

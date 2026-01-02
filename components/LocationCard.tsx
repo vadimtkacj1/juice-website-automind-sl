@@ -35,27 +35,27 @@ export default function LocationCard({ location }: LocationCardProps) {
           />
         </div>
       )}
-      <div className="p-6">
+      <div className="p-6 location-card-content">
         <div className="flex items-start gap-3 mb-4">
           <MapPin className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{translateToHebrew(location.city)}</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <h3 className="location-card-title">{translateToHebrew(location.city)}</h3>
+            <p className="location-card-country flex items-center gap-1">
               <Globe className="h-3 w-3" />
               {translateToHebrew(location.country)}
             </p>
           </div>
         </div>
 
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3 location-card-text">
           <div>
-            <p className="text-gray-600">{translateToHebrew(location.address)}</p>
+            <p className="location-card-address">{translateToHebrew(location.address)}</p>
           </div>
 
           {location.hours && (
             <div className="flex items-start gap-2">
               <Clock className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-              <p className="text-gray-600">{translateToHebrew(location.hours)}</p>
+              <p className="location-card-hours">{translateToHebrew(location.hours)}</p>
             </div>
           )}
 
@@ -64,7 +64,7 @@ export default function LocationCard({ location }: LocationCardProps) {
               <Phone className="h-4 w-4 text-purple-600 flex-shrink-0" />
               <a
                 href={`tel:${location.phone}`}
-                className="text-gray-600 hover:text-purple-600 transition-colors"
+                className="location-card-phone hover:text-purple-600 transition-colors"
               >
                 {location.phone}
               </a>
@@ -76,7 +76,7 @@ export default function LocationCard({ location }: LocationCardProps) {
               <Mail className="h-4 w-4 text-purple-600 flex-shrink-0" />
               <a
                 href={`mailto:${location.email}`}
-                className="text-gray-600 hover:text-purple-600 transition-colors break-all"
+                className="location-card-email hover:text-purple-600 transition-colors break-all"
               >
                 {location.email}
               </a>
@@ -89,7 +89,7 @@ export default function LocationCard({ location }: LocationCardProps) {
                 href={location.map_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-purple-600 hover:text-purple-700 font-medium text-sm inline-flex items-center gap-1"
+                className="location-card-map-link hover:text-purple-700 font-medium inline-flex items-center gap-1"
               >
                 <MapPin className="h-3 w-3" />
                 {translateToHebrew('View on Map')}

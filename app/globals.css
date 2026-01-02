@@ -60,16 +60,21 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 body {
   font-family: 'Heebo', 'Assistant', sans-serif;
-  font-weight: 700;
-  font-size: clamp(16px, 1.2vw, 20px);
+  font-weight: 900;
+  font-size: 24px;
   line-height: 1.6;
   background-color: var(--white);
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
   direction: rtl;
   text-align: right;
   letter-spacing: -0.01em;
@@ -95,6 +100,22 @@ button {
 /* ============================================
    CONTAINER & LAYOUT
    ============================================ */
+#main-content {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+  contain: layout style paint;
+}
+
+main {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+  contain: layout style paint;
+}
+
 .container {
   max-width: 1200px;
   margin-inline: auto;
@@ -111,8 +132,11 @@ button {
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
+  max-width: calc(100% - 30px);
   z-index: 100;
   transition: opacity 0.2s ease-out;
+  box-sizing: border-box;
+  contain: layout style paint;
 }
 
 .nav-sticky {
@@ -126,6 +150,8 @@ button {
   transition: transform 0.5s var(--spring-ease), opacity 0.2s;
   opacity: 0;
   pointer-events: none;
+  box-sizing: border-box;
+  contain: layout style paint;
 }
 
 .nav-sticky.is-active {
@@ -175,11 +201,11 @@ button {
 
 .roll-inner span {
   display: block;
-  font-weight: 700;
-  font-size: clamp(18px, 1.5vw, 22px);
+  font-weight: 900;
+  font-size: 42px;
   line-height: 24px;
   height: 24px;
-  color: var(--dark);
+  color: #1d1a40 !important;
   letter-spacing: -0.01em;
   transition: opacity 0.3s ease, transform 0.5s var(--spring-ease);
   white-space: nowrap;
@@ -212,29 +238,37 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .menu-item.cart-button .roll-inner {
   height: 24px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  position: relative;
 }
 
 .menu-item.cart-button .cart-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   position: relative;
+  margin: 0 auto;
+}
+
+.menu-item.cart-button .roll-inner .hvr.cart-icon-wrapper {
+  position: relative;
+  margin: 0 auto;
 }
 
 /* ============================================
    HERO SECTION - JUICY DESIGN
    ============================================ */
 .hero {
-  background: linear-gradient(135deg, var(--deep-blue) 0%, var(--deep-blue-dark) 100%);
+  background: #7322ff;
   border-radius: var(--radius-md);
   margin: 15px;
   position: relative;
@@ -245,6 +279,10 @@ button {
   overflow: hidden;
   min-height: 70vh;
   padding-block: 120px 80px;
+  width: calc(100% - 30px);
+  max-width: calc(100% - 30px);
+  box-sizing: border-box;
+  contain: layout style paint;
 }
 
 .hero-gradient-overlay {
@@ -272,7 +310,7 @@ button {
 
 .hero-title {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(48px, 12vw, 175px);
+  font-size: 120px;
   font-weight: 900;
   color: var(--white);
   display: flex;
@@ -291,8 +329,8 @@ button {
 
 .hero-subtitle {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(20px, 3vw, 32px);
-  font-weight: 600;
+  font-size: 130px;
+  font-weight: 900;
   color: rgba(255, 255, 255, 0.9);
   margin-block-start: 20px;
   text-align: center;
@@ -308,6 +346,8 @@ button {
   overflow: hidden;
   pointer-events: none;
   z-index: 5;
+  contain: layout style paint;
+  clip-path: inset(0);
 }
 
 .floating-orange {
@@ -457,6 +497,8 @@ button {
   top: -50px;
   right: -50px;
   animation: pulse-glow 6s ease-in-out infinite;
+  pointer-events: none;
+  clip-path: inset(-50px -50px -50px -50px);
 }
 
 .hero-decoration-2 {
@@ -467,6 +509,8 @@ button {
   left: -30px;
   animation: pulse-glow 8s ease-in-out infinite;
   animation-delay: -3s;
+  pointer-events: none;
+  clip-path: inset(-30px -30px -30px -30px);
 }
 
 @keyframes pulse-glow {
@@ -502,14 +546,86 @@ button {
 .shop-section,
 .news-section,
 .subscribe-section {
-  background-color: var(--gray-bg);
+  background-color: var(--white);
   border-radius: var(--radius-xl);
   margin: 20px var(--spacing-sm);
   padding: var(--spacing-2xl) var(--spacing-lg);
+  width: calc(100% - 32px);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style paint;
 }
 
 .about-section {
   background-color: var(--white);
+  padding: 80px 20px;
+}
+
+.about-block {
+  margin-block-end: 80px;
+}
+
+.about-block:last-of-type {
+  margin-block-end: 60px;
+}
+
+.about-content {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.about-text {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.about-title {
+  font-family: 'Heebo', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0 0 32px 0;
+  line-height: 1.1;
+  text-align: right;
+  letter-spacing: -0.02em;
+}
+
+.about-description {
+  font-size: 28px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.about-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-list li {
+  font-size: 22px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  padding-inline-start: 28px;
+  position: relative;
+  font-weight: 700;
+}
+
+.about-list li::before {
+  content: '•';
+  position: absolute;
+  right: 0;
+  color: var(--primary);
+  font-weight: 900;
+  font-size: 24px;
 }
 
 /* Section Titles */
@@ -517,10 +633,10 @@ button {
 .shop-main-title,
 .menu-category-title {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(48px, 10vw, 175px);
+  font-size: 80px;
   font-weight: 900;
   text-align: center;
-  color: var(--dark);
+  color: #1d1a40;
   margin-block-end: var(--spacing-lg);
   letter-spacing: -0.02em;
   line-height: 1;
@@ -528,11 +644,13 @@ button {
 
 .section-subtitle {
   text-align: center;
-  color: var(--text-gray);
+  color: #1d1a40;
   max-width: 720px;
   margin-inline: auto;
   margin-block-end: var(--spacing-xl);
   line-height: 1.6;
+  font-size: 90px;
+  font-weight: 900;
 }
 
 /* ============================================
@@ -591,14 +709,16 @@ button {
 
 .product-text h3 {
   margin: 0;
-  font-size: clamp(20px, 2vw, 28px);
-  font-weight: 700;
+  font-size: 48px;
+  font-weight: 900;
+  color: #1d1a40;
 }
 
 .product-text p {
   margin-block-start: 5px;
-  font-size: clamp(18px, 1.8vw, 28px);
+  font-size: 40px;
   color: var(--text-gray);
+  font-weight: 900;
 }
 
 .price-pill {
@@ -606,7 +726,7 @@ button {
   padding: 12px 24px;
   border-radius: var(--radius-full);
   font-weight: 900;
-  font-size: clamp(20px, 2vw, 28px);
+  font-size: 40px;
   transition: all 0.4s var(--spring-ease);
 }
 
@@ -621,10 +741,25 @@ button {
 .ticker-wrap {
   background: var(--pink);
   padding-block: var(--spacing-md);
-  transform: rotate(-2deg) scale(1.05);
+  transform: rotate(-2deg);
   overflow: hidden;
   display: flex;
   margin-block: var(--spacing-xl);
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
+
+/* Container for ticker to prevent overflow */
+.ticker-container {
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  contain: layout style paint;
 }
 
 .track {
@@ -636,7 +771,7 @@ button {
 .track span {
   font-family: 'Heebo', sans-serif;
   font-weight: 900;
-  font-size: clamp(24px, 3vw, 36px);
+  font-size: 48px;
   color: var(--primary);
   padding-inline-end: var(--spacing-xl);
 }
@@ -647,10 +782,10 @@ button {
 }
 
 /* ============================================
-   FOOTER - GREEN/MINT THEME (Original)
+   FOOTER - PURPLE THEME
    ============================================ */
 .footer-main {
-  background-color: var(--secondary);
+  background-color: #7322ff;
   margin: var(--spacing-sm);
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl) 20px;
@@ -659,14 +794,19 @@ button {
   align-items: center;
   gap: var(--spacing-xl);
   text-align: center;
+  width: calc(100% - 32px);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style paint;
 }
 
 .footer-brand {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(40px, 10vw, 140px);
+  font-size: 120px;
   font-weight: 900;
   line-height: 1.1;
-  color: var(--dark);
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: -0.02em;
   text-align: center;
@@ -688,36 +828,36 @@ button {
   flex-wrap: wrap;
   margin-block-start: 20px;
   padding-block-start: var(--spacing-lg);
-  border-top: 1px solid rgba(29, 26, 64, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .legal-link {
-  color: rgba(29, 26, 64, 0.7);
-  font-size: clamp(16px, 1.5vw, 28px);
-  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 42px;
+  font-weight: 900;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .legal-link:hover {
-  color: var(--dark);
+  color: var(--white);
   text-decoration: underline;
 }
 
-/* Dark Link Variant for Footer */
+/* White Link Variant for Footer */
 .white-link .roll-inner span {
-  color: var(--dark) !important;
+  color: var(--white) !important;
 }
 
 .white-link .roll-inner .hvr {
-  color: var(--primary) !important;
+  color: var(--secondary) !important;
 }
 
 /* ============================================
    SUBSCRIBE SECTION
    ============================================ */
 .subscribe-section {
-  background: var(--secondary);
+  background: var(--white);
 }
 
 .sub-content {
@@ -737,9 +877,10 @@ button {
   padding: 26px 30px;
   border-radius: var(--radius-full);
   border: none;
-  font-size: clamp(18px, 1.5vw, 22px);
+  font-size: 32px;
   outline: none;
   font-family: inherit;
+  font-weight: 900;
 }
 
 .sub-form button {
@@ -752,7 +893,8 @@ button {
   border: none;
   padding-inline: 35px;
   border-radius: var(--radius-full);
-  font-weight: 700;
+  font-weight: 900;
+  font-size: 36px;
   transition: background 0.3s ease;
 }
 
@@ -765,10 +907,12 @@ button {
    ============================================ */
 .values-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   max-width: 1000px;
   margin: var(--spacing-xl) auto 0;
+  justify-items: stretch;
+  align-items: stretch;
 }
 
 .value-card {
@@ -777,6 +921,10 @@ button {
   padding: 32px 24px;
   text-align: center;
   transition: all 0.3s var(--spring-ease);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 }
 
 .value-card:hover {
@@ -804,38 +952,96 @@ button {
 
 .value-title {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(18px, 1.5vw, 22px);
+  font-size: 28px;
   font-weight: 900;
-  color: var(--dark);
+  color: #1d1a40;
   margin-block-end: 12px;
 }
 
 .value-description {
-  font-size: clamp(14px, 1.2vw, 16px);
+  font-size: 22px;
   line-height: 1.6;
   color: var(--text-gray);
-  font-weight: 700;
+  font-weight: 900;
 }
 
 /* ============================================
-   NEWS CARDS
+   NEWS SECTION
    ============================================ */
+.news-section {
+  background-color: var(--white);
+  border-radius: var(--radius-xl, 40px);
+  margin: 20px 16px;
+  padding: 100px 40px;
+}
+
+.news-container {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.news-header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  margin-block-end: 80px;
+}
+
+.news-title-top {
+  font-family: 'Heebo', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.news-title-bottom {
+  font-family: 'Heebo', sans-serif;
+  font-size: 90px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.news-view-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
+  margin-block: 10px;
+}
+
+.news-view-all:hover {
+  gap: 12px;
+  color: var(--dark);
+}
+
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 32px;
 }
 
 .news-card {
   background: var(--white);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 30px);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
   display: flex;
   flex-direction: column;
   box-shadow: 0 12px 40px rgba(29, 26, 64, 0.08);
-  transition: all 0.4s var(--spring-ease);
+  transition: all 0.4s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
 .news-card:hover {
@@ -846,21 +1052,30 @@ button {
 .news-card-image {
   position: relative;
   width: 100%;
-  height: 240px;
+  height: 320px;
   overflow: hidden;
 }
 
 .news-card-content {
-  padding: var(--spacing-md);
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   flex: 1;
+}
+
+.news-card-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--text-gray);
+  font-weight: 900;
 }
 
 .news-card-title {
   font-family: 'Heebo', sans-serif;
-  font-size: clamp(20px, 2vw, 24px);
+  font-size: 28px;
   font-weight: 900;
   color: var(--dark);
   margin: 0;
@@ -870,6 +1085,82 @@ button {
 
 .news-card:hover .news-card-title {
   color: var(--primary);
+}
+
+.news-card-excerpt {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-gray);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 900;
+}
+
+.news-card-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-block-start: auto;
+  transition: gap 0.3s ease;
+}
+
+.news-card:hover .news-card-link {
+  gap: 12px;
+}
+
+.news-loading,
+.news-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.news-empty p {
+  font-size: 18px;
+  color: var(--text-gray);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--gray-bg);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.news-view-all-mobile {
+  text-align: center;
+  margin-block-start: 40px;
+}
+
+.news-view-all-mobile a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
+}
+
+.news-view-all-mobile a:hover {
+  gap: 12px;
+  color: var(--dark);
 }
 
 /* ============================================
@@ -1008,7 +1299,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   transition: all 0.3s var(--spring-ease);
   z-index: 10;
 }
@@ -1028,9 +1319,9 @@ button {
 .mobile-menu-link {
   display: block;
   padding-block: 20px;
-  font-size: clamp(24px, 5vw, 32px);
+  font-size: 56px;
   font-weight: 900;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   text-decoration: none;
   border-bottom: 2px solid rgba(29, 26, 64, 0.1);
   opacity: 0;
@@ -1052,9 +1343,9 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: clamp(24px, 5vw, 32px);
+  font-size: 56px;
   font-weight: 900;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   background: none;
   border: none;
   padding-block: 20px;
@@ -1088,9 +1379,9 @@ button {
   padding: 6px 12px;
   border-radius: var(--radius-full);
   background: var(--gray-bg);
-  color: var(--dark);
-  font-weight: 700;
-  font-size: clamp(14px, 1.2vw, 18px);
+  color: rgba(112, 117, 140, 0.8);
+  font-weight: 900;
+  font-size: 36px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1177,7 +1468,7 @@ button {
 .cookie-consent-title {
   color: white;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 28px;
 }
 
 .cookie-consent-content {
@@ -1185,9 +1476,9 @@ button {
 }
 
 .cookie-consent-text {
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1.6;
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
   margin-block-end: 20px;
 }
 
@@ -1200,8 +1491,8 @@ button {
 .cookie-consent-btn {
   padding: 14px 24px;
   border-radius: var(--radius-sm);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 900;
   border: none;
   transition: all 0.2s ease;
 }
@@ -1218,7 +1509,7 @@ button {
 
 .cookie-consent-btn-secondary {
   background: var(--gray-bg);
-  color: var(--dark);
+  color: rgba(112, 117, 140, 0.8);
 }
 
 .cookie-consent-btn-secondary:hover {
@@ -1242,28 +1533,355 @@ button {
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
+@media (max-width: 1200px) {
+  .hero {
+    margin: 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+  
+  .nav-main {
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+  
+  .about-section,
+  .shop-section,
+  .news-section,
+  .subscribe-section {
+    margin: 15px;
+    width: calc(100% - 30px);
+    max-width: calc(100% - 30px);
+  }
+  
+  .footer-main {
+    margin: 15px;
+    width: calc(100% - 30px);
+    max-width: calc(100% - 30px);
+  }
+}
+
 @media (max-width: 1024px) {
+  body {
+    font-size: clamp(18px, 1.6vw, 24px);
+  }
+  
   .hero {
     min-height: 60vh;
-    padding-block: 100px 60px;
+    padding-block: 80px 50px;
+    margin: 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+  
+  .hero-title {
+    font-size: 80px;
+    padding-inline: 15px;
+  }
+  
+  .hero-subtitle {
+    font-size: 90px;
+  }
+  
+  .section-title,
+  .shop-main-title,
+  .menu-category-title {
+    font-size: 70px;
+  }
+  
+  .section-subtitle {
+    font-size: 80px;
+  }
+  
+  .about-title {
+    font-size: 70px;
+  }
+  
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    max-width: 800px;
+    margin-inline: auto;
+  }
+  
+  .about-section {
+    padding: 60px 16px;
+  }
+
+  .about-block {
+    margin-block-end: 50px;
+  }
+
+  .about-title {
+    margin-block-end: 24px;
+  }
+
+  .about-list li {
+    padding-inline-start: 24px;
+  }
+  
+  .nav-content {
+    padding: 12px var(--spacing-md);
+  }
+  
+  .roll-inner span {
+    font-size: 36px;
   }
   
   .floating-orange-5,
   .floating-orange-6 {
     display: none;
   }
+  
+  .card-img-wrapper {
+    height: 360px;
+  }
+  
+  .product-text h3 {
+    font-size: 40px;
+  }
+  
+  .product-text p {
+    font-size: 36px;
+  }
+  
+  .price-pill {
+    font-size: 36px;
+    padding: 10px 20px;
+  }
+  
+  .footer-brand {
+    font-size: 100px;
+  }
+  
+  .value-title {
+    font-size: 26px;
+  }
+  
+  .value-description {
+    font-size: 20px;
+  }
+  
+  .news-card-image {
+    height: 220px;
+  }
+  
+  .news-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  .news-section {
+    margin: 16px;
+    padding: 60px 24px;
+  }
+
+  .news-header-section {
+    margin-block-end: 60px;
+  }
+
+  .news-title-top {
+    font-size: 70px;
+  }
+
+  .news-title-bottom {
+    font-size: 80px;
+  }
+
+  .news-card-title {
+    font-size: 26px;
+  }
+
+  .news-card-excerpt {
+    font-size: 17px;
+  }
+
+  .news-card-date {
+    font-size: 15px;
+  }
+
+  .news-card-link {
+    font-size: 17px;
+  }
+
+  .news-view-all {
+    display: none;
+  }
+  
+  .cookie-consent-title {
+    font-size: 24px;
+  }
+  
+  .cookie-consent-text {
+    font-size: 20px;
+  }
+  
+  .legal-link {
+    font-size: 36px;
+  }
+  
+  .sub-form button {
+    font-size: 32px;
+  }
+  
+  .sub-form input {
+    font-size: 32px;
+  }
+  
+  .pill {
+    font-size: 32px;
+  }
 }
 
 @media (max-width: 768px) {
+  body {
+    font-size: clamp(16px, 1.5vw, 22px);
+  }
+  
+  html, body, #main-content, main {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
   .nav-links {
     display: none;
+  }
+  
+  .nav-main {
+    top: 25px;
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+  
+  .ticker-wrap {
+    margin-block: var(--spacing-md);
+    transform: rotate(-1deg);
+  }
+  
+  .ticker-container {
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .nav-content {
+    padding: 10px var(--spacing-sm);
+  }
+  
+  .logo img {
+    height: 32px;
   }
   
   .hero {
     margin: 10px;
     border-radius: var(--radius-md);
     min-height: 50vh;
-    padding-block: 80px 50px;
+    padding-block: 60px 40px;
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+  
+  .hero-title {
+    font-size: 64px;
+    padding-inline: 12px;
+  }
+  
+  .hero-subtitle {
+    font-size: 72px;
+    margin-block-start: 15px;
+  }
+  
+  .section-title,
+  .shop-main-title,
+  .menu-category-title {
+    font-size: 60px;
+  }
+  
+  .section-subtitle {
+    font-size: 70px;
+  }
+  
+  .about-title {
+    font-size: 60px;
+  }
+  
+  .about-section {
+    padding: 40px 12px;
+  }
+
+  .about-block {
+    margin-block-end: 40px;
+  }
+
+  .about-title {
+    font-size: 80px;
+    margin-block-end: 20px;
+  }
+  
+  .value-title {
+    font-size: 24px;
+  }
+  
+  .value-description {
+    font-size: 18px;
+  }
+  
+  .news-section {
+    margin: 12px;
+    padding: 40px 16px;
+    border-radius: var(--radius-lg, 30px);
+  }
+
+  .news-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .news-title-top {
+    font-size: 60px;
+  }
+
+  .news-title-bottom {
+    font-size: 70px;
+  }
+
+  .news-card-title {
+    font-size: 24px;
+  }
+
+  .news-card-excerpt {
+    font-size: 16px;
+  }
+
+  .news-card-date {
+    font-size: 14px;
+  }
+
+  .news-card-link {
+    font-size: 16px;
+  }
+
+  .news-card-image {
+    height: 280px;
+  }
+  
+  .product-text h3 {
+    font-size: 36px;
+  }
+  
+  .footer-brand {
+    font-size: 80px;
+  }
+  
+  .mobile-menu-link {
+    font-size: 48px;
+  }
+  
+  .mobile-menu-cart {
+    font-size: 48px;
+  }
+
+  .about-list li {
+    padding-inline-start: 20px;
   }
   
   .floating-orange-3,
@@ -1272,13 +1890,13 @@ button {
   }
   
   .floating-orange-1 {
-    width: 100px;
+    width: 80px;
     top: 5%;
     right: 3%;
   }
   
   .floating-orange-2 {
-    width: 120px;
+    width: 100px;
     bottom: 10%;
     left: 3%;
   }
@@ -1287,73 +1905,527 @@ button {
   .shop-section,
   .news-section,
   .subscribe-section {
-    margin: var(--spacing-sm);
-    padding: var(--spacing-xl) var(--spacing-md);
+    margin: 12px;
+    padding: var(--spacing-lg) var(--spacing-md);
     border-radius: var(--radius-lg);
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
   }
   
   .footer-main {
-    margin: var(--spacing-sm);
-    padding: var(--spacing-xl) var(--spacing-sm);
+    margin: 12px;
+    padding: var(--spacing-lg) var(--spacing-md);
     border-radius: var(--radius-lg);
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+  }
+  
+  .footer-brand {
+    font-size: clamp(32px, 8vw, 100px);
+    padding-inline: 15px;
   }
   
   .footer-links {
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
   
   .values-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    max-width: 800px;
+    margin-inline: auto;
   }
   
   .shop-grid,
   .news-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .value-title {
+    font-size: 22px;
+  }
+  
+  .value-description {
+    font-size: 18px;
+  }
+  
+  .news-card-image {
+    height: 200px;
+  }
+  
+  .news-card-title {
+    font-size: 22px;
+  }
+  
+  .news-card-excerpt {
+    font-size: 15px;
+  }
+  
+  .news-card-date {
+    font-size: 13px;
+  }
+  
+  .news-card-link {
+    font-size: 15px;
+  }
+  
+  .card-img-wrapper {
+    height: 320px;
+  }
+  
+  .product-text h3 {
+    font-size: clamp(20px, 2vw, 28px);
+  }
+  
+  .product-text p {
+    font-size: clamp(16px, 1.8vw, 26px);
+  }
+  
+  .price-pill {
+    font-size: clamp(18px, 2vw, 24px);
+    padding: 8px 16px;
   }
 }
 
 @media (max-width: 480px) {
   body {
-    font-size: 16px;
+    font-size: clamp(14px, 1.4vw, 20px);
   }
   
-  .hero {
-    min-height: 45vh;
-    padding-block: 60px 40px;
+  html, body, #main-content, main {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
   
-  .hero-title {
-    font-size: clamp(36px, 10vw, 60px);
+  .nav-main {
+    top: 20px;
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+  }
+  
+  .ticker-wrap {
+    margin-block: var(--spacing-sm);
+    transform: rotate(0deg);
+  }
+  
+  .hero-decoration-1,
+  .hero-decoration-2 {
+    display: none;
   }
   
   .floating-orange-1,
   .floating-orange-2 {
-    width: 80px;
+    width: 50px;
+  }
+  
+  .nav-content {
+    padding: 8px var(--spacing-sm);
+  }
+  
+  .logo img {
+    height: 28px;
+  }
+  
+  .hero {
+    margin: 8px;
+    min-height: 45vh;
+    padding-block: 50px 30px;
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+  }
+  
+  .hero-title {
+    font-size: 64px;
+    padding-inline: 10px;
+  }
+  
+  .hero-subtitle {
+    font-size: 72px;
+    margin-block-start: 12px;
+  }
+  
+  .section-title,
+  .shop-main-title,
+  .menu-category-title {
+    font-size: 64px;
+  }
+  
+  .section-subtitle {
+    font-size: 72px;
+  }
+  
+  .about-title {
+    font-size: 52px;
+  }
+  
+  .section-title,
+  .shop-main-title,
+  .menu-category-title {
+    font-size: 52px;
+  }
+  
+  .section-subtitle {
+    font-size: 60px;
+  }
+  
+  .hero-title {
+    font-size: 56px;
+  }
+  
+  .hero-subtitle {
+    font-size: 64px;
+  }
+  
+  .about-section {
+    padding: 40px 12px;
+  }
+
+  .about-block {
+    margin-block-end: 40px;
+  }
+
+  .about-title {
+    font-size: 64px;
+    margin-block-end: 20px;
+  }
+  
+  .value-title {
+    font-size: 22px;
+  }
+  
+  .value-description {
+    font-size: 18px;
+  }
+  
+  .news-card-title {
+    font-size: 32px;
+  }
+  
+  .product-text h3 {
+    font-size: 32px;
+  }
+  
+  .footer-brand {
+    font-size: 64px;
+  }
+  
+  .mobile-menu-link {
+    font-size: 40px;
+  }
+  
+  .mobile-menu-cart {
+    font-size: 40px;
+  }
+
+  .about-list li {
+    padding-inline-start: 20px;
+  }
+  
+  .floating-orange-1,
+  .floating-orange-2 {
+    width: 60px;
   }
   
   .about-section,
   .shop-section,
   .news-section,
   .subscribe-section {
-    margin: 10px;
-    padding: var(--spacing-lg) var(--spacing-sm);
+    margin: 8px;
+    padding: var(--spacing-md) var(--spacing-sm);
     border-radius: var(--radius-md);
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
   }
   
   .footer-main {
-    margin: 10px;
-    padding: var(--spacing-lg) var(--spacing-sm);
+    margin: 8px;
+    padding: var(--spacing-md) var(--spacing-sm);
     border-radius: var(--radius-md);
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+  }
+  
+  .footer-brand {
+    font-size: 64px;
+    padding-inline: 12px;
+  }
+  
+  .footer-links {
+    gap: var(--spacing-xs);
+    flex-direction: column;
   }
   
   .card-img-wrapper {
-    height: 280px;
+    height: 240px;
   }
   
   .news-card-image {
     height: 180px;
   }
+  
+  .news-card-title {
+    font-size: 22px;
+  }
+  
+  .news-card-excerpt {
+    font-size: 15px;
+  }
+  
+  .news-card-date {
+    font-size: 13px;
+  }
+  
+  .news-card-link {
+    font-size: 15px;
+  }
+  
+  .news-card-image {
+    height: 180px;
+  }
+  
+  .value-title {
+    font-size: 20px;
+  }
+  
+  .value-description {
+    font-size: 16px;
+  }
+  
+  .cookie-consent-title {
+    font-size: 24px;
+  }
+  
+  .cookie-consent-text {
+    font-size: 20px;
+  }
+  
+  .mobile-menu-link {
+    font-size: 40px;
+  }
+  
+  .mobile-menu-cart {
+    font-size: 40px;
+  }
+  
+  .legal-link {
+    font-size: 32px;
+  }
+  
+  .sub-form button {
+    font-size: 28px;
+  }
+  
+  .sub-form input {
+    font-size: 28px;
+  }
+  
+  .pill {
+    font-size: 28px;
+  }
+  
+  .product-text h3 {
+    font-size: 32px;
+  }
+  
+  .product-text p {
+    font-size: 28px;
+  }
+  
+  .price-pill {
+    font-size: 28px;
+    padding: 6px 12px;
+  }
+  
+  .shop-grid,
+  .news-grid {
+    gap: 12px;
+  }
+  
+  .values-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    max-width: 100%;
+  }
+}
+
+/* ============================================
+   LOCATION CARDS
+   ============================================ */
+.location-card-content {
+  font-family: 'Heebo', sans-serif;
+}
+
+.location-card-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: #1d1a40;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.location-card-country {
+  font-size: 32px;
+  font-weight: 900;
+  color: rgba(112, 117, 140, 0.8);
+  margin: 8px 0 0 0;
+}
+
+.location-card-text {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.location-card-address {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  line-height: 1.6;
+}
+
+.location-card-hours {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  line-height: 1.6;
+}
+
+.location-card-phone {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  text-decoration: none;
+}
+
+.location-card-email {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1d1a40;
+  text-decoration: none;
+}
+
+.location-card-map-link {
+  font-size: 28px;
+  font-weight: 900;
+  color: #7322ff;
+  text-decoration: none;
+}
+
+@media (max-width: 1024px) {
+  .location-card-title {
+    font-size: 40px;
+  }
+  
+  .location-card-country {
+    font-size: 28px;
+  }
+  
+  .location-card-text,
+  .location-card-address,
+  .location-card-hours,
+  .location-card-phone,
+  .location-card-email,
+  .location-card-map-link {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .location-card-title {
+    font-size: 36px;
+  }
+  
+  .location-card-country {
+    font-size: 24px;
+  }
+  
+  .location-card-text,
+  .location-card-address,
+  .location-card-hours,
+  .location-card-phone,
+  .location-card-email,
+  .location-card-map-link {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .location-card-title {
+    font-size: 32px;
+  }
+  
+  .location-card-country {
+    font-size: 20px;
+  }
+  
+  .location-card-text,
+  .location-card-address,
+  .location-card-hours,
+  .location-card-phone,
+  .location-card-email,
+  .location-card-map-link {
+    font-size: 20px;
+  }
+}
+
+/* ============================================
+   ADMIN PANEL TEXT DARKENING
+   ============================================ */
+/* Target admin layout specifically */
+#admin-layout-root .text-gray-500,
+#admin-layout-root .text-muted-foreground,
+#admin-layout-root .text-gray-400,
+#admin-layout-root .text-gray-600,
+#admin-layout-root .text-gray-700,
+#admin-layout-root .text-gray-800 {
+  color: #1d1a40 !important;
+}
+
+#admin-layout-root .text-muted-foreground {
+  opacity: 0.9;
+}
+
+#admin-layout-root .text-gray-400 {
+  opacity: 0.85;
+}
+
+/* Target admin main content area */
+#admin-main-content .text-gray-500,
+#admin-main-content .text-muted-foreground,
+#admin-main-content .text-gray-400,
+#admin-main-content .text-gray-600,
+#admin-main-content .text-gray-700 {
+  color: #1d1a40 !important;
+}
+
+/* Darken card content text in admin */
+#admin-layout-root .card .text-muted-foreground,
+#admin-layout-root .card .text-gray-500,
+#admin-layout-root .card .text-gray-400 {
+  color: #1d1a40 !important;
+  opacity: 0.9;
+}
+
+/* Darken table text in admin */
+#admin-layout-root table .text-muted-foreground,
+#admin-layout-root table .text-gray-500,
+#admin-layout-root table .text-gray-400 {
+  color: #1d1a40 !important;
+}
+
+/* Darken description and helper text in admin */
+#admin-layout-root .text-xs.text-muted-foreground,
+#admin-layout-root .text-sm.text-muted-foreground,
+#admin-layout-root .text-xs.text-gray-500,
+#admin-layout-root .text-sm.text-gray-500 {
+  color: #1d1a40 !important;
+  opacity: 0.9;
+}
+
+/* Darken navigation text */
+#admin-layout-root aside .text-gray-700,
+#admin-layout-root nav .text-gray-700 {
+  color: #1d1a40 !important;
 }
 
 /* ============================================
