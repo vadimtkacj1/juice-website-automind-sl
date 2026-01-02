@@ -185,240 +185,247 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           GHCR_USER: ${{ secrets.GHCR_USER || github.actor }}
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "set -e && \
-            cd ${APP_PATH} && \
-            # Debug: Show current directory and files
-            echo 'Current directory:' && pwd && \
-            echo 'Files in directory:' && ls -la && \
-            # Ensure docker-compose.yml exists
-            if [ ! -f 'docker-compose.yml' ]; then
-              echo '❌ docker-compose.yml not found in ${APP_PATH}!'
-              echo 'Attempting to create it...'
-              exit 1
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash << DEPLOY_SCRIPT
+          set -e
+          cd ${APP_PATH}
+          # Debug: Show current directory and files
+          echo 'Current directory:'
+          pwd
+          echo 'Files in directory:'
+          ls -la
+          # Ensure docker-compose.yml exists
+          if [ ! -f 'docker-compose.yml' ]; then
+            echo '❌ docker-compose.yml not found in ${APP_PATH}!'
+            echo 'Attempting to create it...'
+            exit 1
+          else
+            echo '✓ docker-compose.yml found'
+          fi
+          # Create required directories with proper permissions
+          echo 'Creating data directories...'
+          mkdir -p data public/uploads
+          chmod -R 777 data public/uploads
+          echo '✓ Data directories created'
+          # Create/update .env file
+          echo 'Creating .env file...'
+          cat > .env << EOF
+          NODE_ENV=production
+          PORT=80
+          RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
+          RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+          PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
+          PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
+          PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
+          TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
+          GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+          DATABASE_PATH=/app/data/juice_website.db
+          EOF
+          if [ -n "${GHCR_TOKEN}" ] && [ "${GHCR_TOKEN}" != "" ]; then
+            echo 'Logging in to GitHub Container Registry...'
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u ${GHCR_USER} --password-stdin
+          else
+            echo 'GHCR_TOKEN not provided, attempting to pull without authentication (works for public packages)...'
+          fi
+          docker pull ${IMAGE_TAG}
+          export GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
+          export RAPYD_ACCESS_KEY="${{ secrets.RAPYD_ACCESS_KEY }}"
+          export RAPYD_SECRET_KEY="${{ secrets.RAPYD_SECRET_KEY }}"
+          export PAYPLUS_API_KEY="${{ secrets.PAYPLUS_API_KEY }}"
+          export PAYPLUS_SECRET_KEY="${{ secrets.PAYPLUS_SECRET_KEY }}"
+          export PAYPLUS_PAGE_UID="${{ secrets.PAYPLUS_PAGE_UID }}"
+          export TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          export SESSION_SECRET="${{ secrets.SESSION_SECRET }}"
+          export DEPLOYMENT_URL="${{ secrets.DEPLOYMENT_URL }}"
+          export PORT="${PORT:-80}"
+          # Verify docker-compose is available and file exists
+          echo 'Checking docker-compose...'
+          docker-compose --version
+          echo 'Using docker-compose.yml from:'
+          pwd
+          ls -la docker-compose.yml
+          # Use explicit file path
+          docker-compose -f docker-compose.yml pull nextjs-app || true
+          docker-compose -f docker-compose.yml up -d nextjs-app
+          sleep 5
+          # Initialize database ONLY if it doesn't exist
+          echo 'Checking if database exists...'
+          if [ ! -f 'data/juice_website.db' ]; then
+            echo 'Database not found, initializing...'
+            docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container'
+            echo 'Verifying data directory is writable...'
+            docker exec juice-website sh -c 'test -w /app/data && echo "✓ Directory is writable" || echo "⚠ Directory not writable, fixing permissions..." && chmod 777 /app/data'
+            echo 'Creating database tables...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
+              echo '⚠ Database initialization failed, trying alternative method...'
+              docker exec juice-website sh -c 'chmod 777 /app/data && touch /app/data/juice_website.db && chmod 666 /app/data/juice_website.db'
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
+                echo '⚠ Still failing, trying with root user to fix permissions...'
+                docker exec -u root juice-website sh -c 'chmod -R 777 /app/data'
+                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
+                  echo '❌ Database initialization failed after all attempts'
+                  echo 'Checking directory permissions:'
+                  docker exec juice-website ls -la /app/ | grep data
+                  exit 1
+                }
+              }
+            }
+            echo 'Creating admin user...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists'
+            echo 'Verifying database file was created...'
+            docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"'
+            echo '✅ Database initialized successfully!'
+          else
+            echo '✓ Database already exists, skipping initialization'
+          fi
+          # Configure Nginx to proxy to Docker container
+          echo 'Configuring Nginx...'
+          if command -v nginx &> /dev/null; then
+            echo '✓ Nginx is installed'
+            mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl
+            # Wait for container to be ready
+            echo 'Waiting for container to be ready...'
+            sleep 15
+            # Test if container is responding on port 3000
+            if curl -f http://localhost:3000/api/health 2>/dev/null; then
+              echo '✓ Container is responding on port 3000'
             else
-              echo '✓ docker-compose.yml found'
-            fi && \
-            # Create required directories with proper permissions
-            echo 'Creating data directories...' && \
-            mkdir -p data public/uploads && \
-            chmod -R 777 data public/uploads && \
-            echo '✓ Data directories created' && \
-            # Create/update .env file
-            echo 'Creating .env file...' && \
-            printf '%s\n' \
-              'NODE_ENV=production' \
-              'PORT=80' \
-              'RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}' \
-              'RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}' \
-              'PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}' \
-              'PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}' \
-              'PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}' \
-              'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' \
-              'SESSION_SECRET=${{ secrets.SESSION_SECRET }}' \
-              'DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}' \
-              'GITHUB_REPOSITORY=${GITHUB_REPOSITORY}' \
-              'DATABASE_PATH=/app/data/juice_website.db' > .env && \
-            if [ -n '${GHCR_TOKEN}' ] && [ '${GHCR_TOKEN}' != '' ]; then \
-              echo 'Logging in to GitHub Container Registry...' && \
-              echo '${GHCR_TOKEN}' | docker login ghcr.io -u ${GHCR_USER} --password-stdin; \
-            else \
-              echo 'GHCR_TOKEN not provided, attempting to pull without authentication (works for public packages)...'; \
-            fi && \
-            docker pull ${IMAGE_TAG} && \
-            export GITHUB_REPOSITORY='${GITHUB_REPOSITORY}' && \
-            export RAPYD_ACCESS_KEY='${{ secrets.RAPYD_ACCESS_KEY }}' && \
-            export RAPYD_SECRET_KEY='${{ secrets.RAPYD_SECRET_KEY }}' && \
-            export PAYPLUS_API_KEY='${{ secrets.PAYPLUS_API_KEY }}' && \
-            export PAYPLUS_SECRET_KEY='${{ secrets.PAYPLUS_SECRET_KEY }}' && \
-            export PAYPLUS_PAGE_UID='${{ secrets.PAYPLUS_PAGE_UID }}' && \
-            export TELEGRAM_BOT_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}' && \
-            export SESSION_SECRET='${{ secrets.SESSION_SECRET }}' && \
-            export DEPLOYMENT_URL='${{ secrets.DEPLOYMENT_URL }}' && \
-            export PORT='${PORT:-80}' && \
-            # Verify docker-compose is available and file exists
-            echo 'Checking docker-compose...' && \
-            docker-compose --version && \
-            echo 'Using docker-compose.yml from:' && pwd && \
-            ls -la docker-compose.yml && \
-            # Use explicit file path
-            docker-compose -f docker-compose.yml pull nextjs-app || true && \
-            docker-compose -f docker-compose.yml up -d nextjs-app && \
-            sleep 5 && \
-            # Initialize database ONLY if it doesn't exist
-            echo 'Checking if database exists...' && \
-            if [ ! -f 'data/juice_website.db' ]; then \
-              echo 'Database not found, initializing...' && \
-              docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container' && \
-              echo 'Verifying data directory is writable...' && \
-              docker exec juice-website sh -c 'test -w /app/data && echo "✓ Directory is writable" || echo "⚠ Directory not writable, fixing permissions..." && chmod 777 /app/data' && \
-              echo 'Creating database tables...' && \
-              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
-                echo '⚠ Database initialization failed, trying alternative method...' && \
-                docker exec juice-website sh -c 'chmod 777 /app/data && touch /app/data/juice_website.db && chmod 666 /app/data/juice_website.db' && \
-                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
-                  echo '⚠ Still failing, trying with root user to fix permissions...' && \
-                  docker exec -u root juice-website sh -c 'chmod -R 777 /app/data' && \
-                  docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || { \
-                    echo '❌ Database initialization failed after all attempts' && \
-                    echo 'Checking directory permissions:' && \
-                    docker exec juice-website ls -la /app/ | grep data && \
-                    exit 1; \
-                  }; \
-                }; \
-              } && \
-              echo 'Creating admin user...' && \
-              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists' && \
-              echo 'Verifying database file was created...' && \
-              docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"' && \
-              echo '✅ Database initialized successfully!'; \
-            else \
-              echo '✓ Database already exists, skipping initialization'; \
-            fi && \
-            # Configure Nginx to proxy to Docker container
-            echo 'Configuring Nginx...' && \
-            if command -v nginx &> /dev/null; then \
-              echo '✓ Nginx is installed' && \
-              mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && \
-              # Wait for container to be ready
-              echo 'Waiting for container to be ready...' && \
-              sleep 15 && \
-              # Test if container is responding on port 3000
-              if curl -f http://localhost:3000/api/health 2>/dev/null; then \
-                echo '✓ Container is responding on port 3000'; \
-              else \
-                echo '⚠ Container not responding yet on port 3000, checking status...'; \
-                docker ps | grep juice-website || echo 'Container not running!'; \
-                docker logs juice-website --tail 20 || echo 'Could not get logs'; \
-              fi && \
-              if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then \
-                echo '✓ SSL certificates found, configuring HTTPS...' && \
-                printf '%s\n' \
-                  '# HTTP server - proxy to Docker container' \
-                  'server {' \
-                  '    listen 80;' \
-                  '    listen [::]:80;' \
-                  '    server_name _;' \
-                  '    location /.well-known/acme-challenge/ { root /var/www/html; }' \
-                  '    location / {' \
-                  '        proxy_pass http://localhost:3000;' \
-                  '        proxy_http_version 1.1;' \
-                  '        proxy_set_header Upgrade $http_upgrade;' \
-                  '        proxy_set_header Connection "upgrade";' \
-                  '        proxy_set_header Host $host;' \
-                  '        proxy_set_header X-Real-IP $remote_addr;' \
-                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
-                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
-                  '        proxy_set_header X-Forwarded-Host $host;' \
-                  '        proxy_set_header X-Forwarded-Port $server_port;' \
-                  '        proxy_cache_bypass $http_upgrade;' \
-                  '        proxy_buffering off;' \
-                  '        proxy_connect_timeout 60s;' \
-                  '        proxy_send_timeout 60s;' \
-                  '        proxy_read_timeout 60s;' \
-                  '    }' \
-                  '    location /api/health {' \
-                  '        proxy_pass http://localhost:3000/api/health;' \
-                  '        proxy_set_header Host $host;' \
-                  '        access_log off;' \
-                  '    }' \
-                  '}' \
-                  '# HTTPS server' \
-                  'server {' \
-                  '    listen 443 ssl http2;' \
-                  '    listen [::]:443 ssl http2;' \
-                  '    server_name _;' \
-                  '    ssl_certificate /etc/nginx/ssl/cert.pem;' \
-                  '    ssl_certificate_key /etc/nginx/ssl/key.pem;' \
-                  '    ssl_protocols TLSv1.2 TLSv1.3;' \
-                  '    ssl_ciphers HIGH:!aNULL:!MD5;' \
-                  '    location / {' \
-                  '        proxy_pass http://localhost:3000;' \
-                  '        proxy_http_version 1.1;' \
-                  '        proxy_set_header Upgrade $http_upgrade;' \
-                  '        proxy_set_header Connection "upgrade";' \
-                  '        proxy_set_header Host $host;' \
-                  '        proxy_set_header X-Real-IP $remote_addr;' \
-                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
-                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
-                  '        proxy_set_header X-Forwarded-Host $host;' \
-                  '        proxy_set_header X-Forwarded-Port $server_port;' \
-                  '        proxy_cache_bypass $http_upgrade;' \
-                  '        proxy_buffering off;' \
-                  '        proxy_connect_timeout 60s;' \
-                  '        proxy_send_timeout 60s;' \
-                  '        proxy_read_timeout 60s;' \
-                  '    }' \
-                  '    location /api/health {' \
-                  '        proxy_pass http://localhost:3000/api/health;' \
-                  '        proxy_set_header Host $host;' \
-                  '        access_log off;' \
-                  '    }' \
-                  '}' > /etc/nginx/sites-available/juice-website; \
-              else \
-                echo '⚠ SSL certificates not found, configuring HTTP only...' && \
-                printf '%s\n' \
-                  '# HTTP server - proxy to Docker container' \
-                  'server {' \
-                  '    listen 80 default_server;' \
-                  '    listen [::]:80 default_server;' \
-                  '    server_name _;' \
-                  '    location /.well-known/acme-challenge/ { root /var/www/html; }' \
-                  '    location / {' \
-                  '        proxy_pass http://localhost:3000;' \
-                  '        proxy_http_version 1.1;' \
-                  '        proxy_set_header Upgrade $http_upgrade;' \
-                  '        proxy_set_header Connection "upgrade";' \
-                  '        proxy_set_header Host $host;' \
-                  '        proxy_set_header X-Real-IP $remote_addr;' \
-                  '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
-                  '        proxy_set_header X-Forwarded-Proto $scheme;' \
-                  '        proxy_set_header X-Forwarded-Host $host;' \
-                  '        proxy_set_header X-Forwarded-Port $server_port;' \
-                  '        proxy_cache_bypass $http_upgrade;' \
-                  '        proxy_buffering off;' \
-                  '        proxy_connect_timeout 60s;' \
-                  '        proxy_send_timeout 60s;' \
-                  '        proxy_read_timeout 60s;' \
-                  '    }' \
-                  '    location /api/health {' \
-                  '        proxy_pass http://localhost:3000/api/health;' \
-                  '        proxy_set_header Host $host;' \
-                  '        access_log off;' \
-                  '    }' \
-                  '}' > /etc/nginx/sites-available/juice-website; \
-              fi && \
-              # Disable default nginx site \
-              echo 'Disabling default nginx site...' && \
-              rm -f /etc/nginx/sites-enabled/default && \
-              # Enable our site \
-              echo 'Enabling juice-website site...' && \
-              rm -f /etc/nginx/sites-enabled/juice-website && \
-              ln -sf /etc/nginx/sites-available/juice-website /etc/nginx/sites-enabled/juice-website && \
-              # Test nginx configuration \
-              echo 'Testing nginx configuration...' && \
-              if nginx -t 2>&1; then \
-                echo '✓ Nginx configuration is valid'; \
-                systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo '⚠ Could not reload nginx'; \
-                echo '✓ Nginx configured and reloaded'; \
-                # Verify nginx is serving our site \
-                sleep 2 && \
-                if curl -f http://localhost/api/health 2>/dev/null || curl -f http://localhost:3000/api/health 2>/dev/null; then \
-                  echo '✓ Application is accessible through nginx'; \
-                else \
-                  echo '⚠ Application may not be accessible yet, but nginx is configured'; \
-                fi; \
-              else \
-                echo '❌ Nginx configuration has errors!'; \
-                nginx -t; \
-                exit 1; \
-              fi; \
-            else \
-              echo '⚠ Nginx not installed, skipping nginx configuration'; \
-            fi && \
-            docker image prune -f && \
-            docker-compose -f docker-compose.yml ps && \
-            echo 'Deployment completed successfully!'"
+              echo '⚠ Container not responding yet on port 3000, checking status...'
+              docker ps | grep juice-website || echo 'Container not running!'
+              docker logs juice-website --tail 20 || echo 'Could not get logs'
+            fi
+            if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then
+              echo '✓ SSL certificates found, configuring HTTPS...'
+              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CONFIG'
+              # HTTP server - proxy to Docker container
+              server {
+                  listen 80;
+                  listen [::]:80;
+                  server_name _;
+                  location /.well-known/acme-challenge/ { root /var/www/html; }
+                  location / {
+                      proxy_pass http://localhost:3000;
+                      proxy_http_version 1.1;
+                      proxy_set_header Upgrade $http_upgrade;
+                      proxy_set_header Connection "upgrade";
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_set_header X-Forwarded-Host $host;
+                      proxy_set_header X-Forwarded-Port $server_port;
+                      proxy_cache_bypass $http_upgrade;
+                      proxy_buffering off;
+                      proxy_connect_timeout 60s;
+                      proxy_send_timeout 60s;
+                      proxy_read_timeout 60s;
+                  }
+                  location /api/health {
+                      proxy_pass http://localhost:3000/api/health;
+                      proxy_set_header Host $host;
+                      access_log off;
+                  }
+              }
+              # HTTPS server
+              server {
+                  listen 443 ssl http2;
+                  listen [::]:443 ssl http2;
+                  server_name _;
+                  ssl_certificate /etc/nginx/ssl/cert.pem;
+                  ssl_certificate_key /etc/nginx/ssl/key.pem;
+                  ssl_protocols TLSv1.2 TLSv1.3;
+                  ssl_ciphers HIGH:!aNULL:!MD5;
+                  location / {
+                      proxy_pass http://localhost:3000;
+                      proxy_http_version 1.1;
+                      proxy_set_header Upgrade $http_upgrade;
+                      proxy_set_header Connection "upgrade";
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_set_header X-Forwarded-Host $host;
+                      proxy_set_header X-Forwarded-Port $server_port;
+                      proxy_cache_bypass $http_upgrade;
+                      proxy_buffering off;
+                      proxy_connect_timeout 60s;
+                      proxy_send_timeout 60s;
+                      proxy_read_timeout 60s;
+                  }
+                  location /api/health {
+                      proxy_pass http://localhost:3000/api/health;
+                      proxy_set_header Host $host;
+                      access_log off;
+                  }
+              }
+              NGINX_CONFIG
+            else
+              echo '⚠ SSL certificates not found, configuring HTTP only...'
+              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CONFIG'
+              # HTTP server - proxy to Docker container
+              server {
+                  listen 80 default_server;
+                  listen [::]:80 default_server;
+                  server_name _;
+                  location /.well-known/acme-challenge/ { root /var/www/html; }
+                  location / {
+                      proxy_pass http://localhost:3000;
+                      proxy_http_version 1.1;
+                      proxy_set_header Upgrade $http_upgrade;
+                      proxy_set_header Connection "upgrade";
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_set_header X-Forwarded-Host $host;
+                      proxy_set_header X-Forwarded-Port $server_port;
+                      proxy_cache_bypass $http_upgrade;
+                      proxy_buffering off;
+                      proxy_connect_timeout 60s;
+                      proxy_send_timeout 60s;
+                      proxy_read_timeout 60s;
+                  }
+                  location /api/health {
+                      proxy_pass http://localhost:3000/api/health;
+                      proxy_set_header Host $host;
+                      access_log off;
+                  }
+              }
+              NGINX_CONFIG
+            fi
+            # Disable default nginx site
+            echo 'Disabling default nginx site...'
+            rm -f /etc/nginx/sites-enabled/default
+            # Enable our site
+            echo 'Enabling juice-website site...'
+            rm -f /etc/nginx/sites-enabled/juice-website
+            ln -sf /etc/nginx/sites-available/juice-website /etc/nginx/sites-enabled/juice-website
+            # Test nginx configuration
+            echo 'Testing nginx configuration...'
+            if nginx -t 2>&1; then
+              echo '✓ Nginx configuration is valid'
+              systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || echo '⚠ Could not reload nginx'
+              echo '✓ Nginx configured and reloaded'
+              # Verify nginx is serving our site
+              sleep 2
+              if curl -f http://localhost/api/health 2>/dev/null || curl -f http://localhost:3000/api/health 2>/dev/null; then
+                echo '✓ Application is accessible through nginx'
+              else
+                echo '⚠ Application may not be accessible yet, but nginx is configured'
+              fi
+            else
+              echo '❌ Nginx configuration has errors!'
+              nginx -t
+              exit 1
+            fi
+          else
+            echo '⚠ Nginx not installed, skipping nginx configuration'
+          fi
+          docker image prune -f
+          docker-compose -f docker-compose.yml ps
+          echo 'Deployment completed successfully!'
+          DEPLOY_SCRIPT
 
       - name: Verify Deployment
         continue-on-error: true
