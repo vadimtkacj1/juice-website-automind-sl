@@ -302,102 +302,102 @@ jobs:
             fi
             if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then
               echo '✓ SSL certificates found, configuring HTTPS...'
-              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CONFIG_HTTPS'
-              # HTTP server - proxy to Docker container
-              server {
-                  listen 80;
-                  listen [::]:80;
-                  server_name _;
-                  location /.well-known/acme-challenge/ { root /var/www/html; }
-                  location / {
-                      proxy_pass http://localhost:3000;
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                      proxy_set_header Host $host;
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                      proxy_set_header X-Forwarded-Host $host;
-                      proxy_set_header X-Forwarded-Port $server_port;
-                      proxy_cache_bypass $http_upgrade;
-                      proxy_buffering off;
-                      proxy_connect_timeout 60s;
-                      proxy_send_timeout 60s;
-                      proxy_read_timeout 60s;
-                  }
-                  location /api/health {
-                      proxy_pass http://localhost:3000/api/health;
-                      proxy_set_header Host $host;
-                      access_log off;
-                  }
-              }
-              # HTTPS server
-              server {
-                  listen 443 ssl http2;
-                  listen [::]:443 ssl http2;
-                  server_name _;
-                  ssl_certificate /etc/nginx/ssl/cert.pem;
-                  ssl_certificate_key /etc/nginx/ssl/key.pem;
-                  ssl_protocols TLSv1.2 TLSv1.3;
-                  ssl_ciphers HIGH:!aNULL:!MD5;
-                  location / {
-                      proxy_pass http://localhost:3000;
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                      proxy_set_header Host $host;
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                      proxy_set_header X-Forwarded-Host $host;
-                      proxy_set_header X-Forwarded-Port $server_port;
-                      proxy_cache_bypass $http_upgrade;
-                      proxy_buffering off;
-                      proxy_connect_timeout 60s;
-                      proxy_send_timeout 60s;
-                      proxy_read_timeout 60s;
-                  }
-                  location /api/health {
-                      proxy_pass http://localhost:3000/api/health;
-                      proxy_set_header Host $host;
-                      access_log off;
-                  }
-              }
-              NGINX_CONFIG_HTTPS
+              {
+                echo '# HTTP server - proxy to Docker container'
+                echo 'server {'
+                echo '    listen 80;'
+                echo '    listen [::]:80;'
+                echo '    server_name _;'
+                echo '    location /.well-known/acme-challenge/ { root /var/www/html; }'
+                echo '    location / {'
+                echo '        proxy_pass http://localhost:3000;'
+                echo '        proxy_http_version 1.1;'
+                echo '        proxy_set_header Upgrade $http_upgrade;'
+                echo '        proxy_set_header Connection "upgrade";'
+                echo '        proxy_set_header Host $host;'
+                echo '        proxy_set_header X-Real-IP $remote_addr;'
+                echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;'
+                echo '        proxy_set_header X-Forwarded-Proto $scheme;'
+                echo '        proxy_set_header X-Forwarded-Host $host;'
+                echo '        proxy_set_header X-Forwarded-Port $server_port;'
+                echo '        proxy_cache_bypass $http_upgrade;'
+                echo '        proxy_buffering off;'
+                echo '        proxy_connect_timeout 60s;'
+                echo '        proxy_send_timeout 60s;'
+                echo '        proxy_read_timeout 60s;'
+                echo '    }'
+                echo '    location /api/health {'
+                echo '        proxy_pass http://localhost:3000/api/health;'
+                echo '        proxy_set_header Host $host;'
+                echo '        access_log off;'
+                echo '    }'
+                echo '}'
+                echo '# HTTPS server'
+                echo 'server {'
+                echo '    listen 443 ssl http2;'
+                echo '    listen [::]:443 ssl http2;'
+                echo '    server_name _;'
+                echo '    ssl_certificate /etc/nginx/ssl/cert.pem;'
+                echo '    ssl_certificate_key /etc/nginx/ssl/key.pem;'
+                echo '    ssl_protocols TLSv1.2 TLSv1.3;'
+                echo '    ssl_ciphers HIGH:!aNULL:!MD5;'
+                echo '    location / {'
+                echo '        proxy_pass http://localhost:3000;'
+                echo '        proxy_http_version 1.1;'
+                echo '        proxy_set_header Upgrade $http_upgrade;'
+                echo '        proxy_set_header Connection "upgrade";'
+                echo '        proxy_set_header Host $host;'
+                echo '        proxy_set_header X-Real-IP $remote_addr;'
+                echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;'
+                echo '        proxy_set_header X-Forwarded-Proto $scheme;'
+                echo '        proxy_set_header X-Forwarded-Host $host;'
+                echo '        proxy_set_header X-Forwarded-Port $server_port;'
+                echo '        proxy_cache_bypass $http_upgrade;'
+                echo '        proxy_buffering off;'
+                echo '        proxy_connect_timeout 60s;'
+                echo '        proxy_send_timeout 60s;'
+                echo '        proxy_read_timeout 60s;'
+                echo '    }'
+                echo '    location /api/health {'
+                echo '        proxy_pass http://localhost:3000/api/health;'
+                echo '        proxy_set_header Host $host;'
+                echo '        access_log off;'
+                echo '    }'
+                echo '}'
+              } > /etc/nginx/sites-available/juice-website
             else
               echo '⚠ SSL certificates not found, configuring HTTP only...'
-              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CONFIG_HTTP'
-              # HTTP server - proxy to Docker container
-              server {
-                  listen 80 default_server;
-                  listen [::]:80 default_server;
-                  server_name _;
-                  location /.well-known/acme-challenge/ { root /var/www/html; }
-                  location / {
-                      proxy_pass http://localhost:3000;
-                      proxy_http_version 1.1;
-                      proxy_set_header Upgrade $http_upgrade;
-                      proxy_set_header Connection "upgrade";
-                      proxy_set_header Host $host;
-                      proxy_set_header X-Real-IP $remote_addr;
-                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                      proxy_set_header X-Forwarded-Proto $scheme;
-                      proxy_set_header X-Forwarded-Host $host;
-                      proxy_set_header X-Forwarded-Port $server_port;
-                      proxy_cache_bypass $http_upgrade;
-                      proxy_buffering off;
-                      proxy_connect_timeout 60s;
-                      proxy_send_timeout 60s;
-                      proxy_read_timeout 60s;
-                  }
-                  location /api/health {
-                      proxy_pass http://localhost:3000/api/health;
-                      proxy_set_header Host $host;
-                      access_log off;
-                  }
-              }
-              NGINX_CONFIG_HTTP
+              {
+                echo '# HTTP server - proxy to Docker container'
+                echo 'server {'
+                echo '    listen 80 default_server;'
+                echo '    listen [::]:80 default_server;'
+                echo '    server_name _;'
+                echo '    location /.well-known/acme-challenge/ { root /var/www/html; }'
+                echo '    location / {'
+                echo '        proxy_pass http://localhost:3000;'
+                echo '        proxy_http_version 1.1;'
+                echo '        proxy_set_header Upgrade $http_upgrade;'
+                echo '        proxy_set_header Connection "upgrade";'
+                echo '        proxy_set_header Host $host;'
+                echo '        proxy_set_header X-Real-IP $remote_addr;'
+                echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;'
+                echo '        proxy_set_header X-Forwarded-Proto $scheme;'
+                echo '        proxy_set_header X-Forwarded-Host $host;'
+                echo '        proxy_set_header X-Forwarded-Port $server_port;'
+                echo '        proxy_cache_bypass $http_upgrade;'
+                echo '        proxy_buffering off;'
+                echo '        proxy_connect_timeout 60s;'
+                echo '        proxy_send_timeout 60s;'
+                echo '        proxy_read_timeout 60s;'
+                echo '    }'
+                echo '    location /api/health {'
+                echo '        proxy_pass http://localhost:3000/api/health;'
+                echo '        proxy_set_header Host $host;'
+                echo '        access_log off;'
+                echo '    }'
+                echo '}'
+              } > /etc/nginx/sites-available/juice-website
             fi
             # Disable default nginx site
             echo 'Disabling default nginx site...'
