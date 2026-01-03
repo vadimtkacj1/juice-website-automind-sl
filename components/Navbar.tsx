@@ -13,7 +13,7 @@ const navLinks = [
   { href: '/', label: translateToHebrew('Home') },
   { href: '/menu', label: translateToHebrew('Menu') },
   { href: '/locations', label: translateToHebrew('Locations') },
-  { href: '/contact', label: translateToHebrew('Contact') },
+  { href: '/contact', label: translateToHebrew('Contact'), icon: 'C', badge: 2 },
 ];
 
 // Custom Logo Component - Natural Refreshing theme
@@ -119,8 +119,27 @@ function NavBarShell({
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="menu-item">
               <div className="roll-inner">
-                <span>{link.label}</span>
-                <span className="hvr">{link.label}</span>
+                {link.icon ? (
+                  <>
+                    <span className={navbarStyles['contact-icon-wrapper']}>
+                      <span className={navbarStyles['contact-icon-letter']}>{link.icon}</span>
+                      {link.badge && link.badge > 0 && (
+                        <span className={navbarStyles['contact-badge']}>{link.badge}</span>
+                      )}
+                    </span>
+                    <span className={`hvr ${navbarStyles['contact-icon-wrapper']}`}>
+                      <span className={navbarStyles['contact-icon-letter']}>{link.icon}</span>
+                      {link.badge && link.badge > 0 && (
+                        <span className={navbarStyles['contact-badge']}>{link.badge}</span>
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>{link.label}</span>
+                    <span className="hvr">{link.label}</span>
+                  </>
+                )}
               </div>
             </Link>
           ))}
