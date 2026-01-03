@@ -161,21 +161,49 @@ function seedData() {
 
 // Function to insert menu items
 function insertMenuItems() {
-  // First check if items already exist
-  db.get('SELECT COUNT(*) as count FROM menu_items', [], (err, itemResult) => {
+  // Check if items exist and are properly linked to active categories
+  db.get(`
+    SELECT COUNT(*) as count 
+    FROM menu_items mi
+    INNER JOIN menu_categories mc ON mi.category_id = mc.id
+    WHERE mi.is_available = 1 AND mc.is_active = 1
+  `, [], (err, itemResult) => {
     if (err) {
       console.error('❌ Error checking menu items:', err.message);
       db.close();
       process.exit(1);
     }
     
-    if (itemResult && itemResult.count > 0) {
-      console.log(`⚠️  Found ${itemResult.count} existing menu items`);
-      console.log('   To reseed, delete existing items first or use reseed-menu.js');
+    // Check if we have a reasonable number of items (at least 10)
+    if (itemResult && itemResult.count >= 10) {
+      console.log(`✅ Found ${itemResult.count} existing menu items linked to active categories`);
+      console.log('   Menu appears to be seeded. Use reseed-menu.js to force reseed.');
       db.close();
       return;
     }
     
+    // If we have items but not enough, or items not linked properly, reseed
+    if (itemResult && itemResult.count > 0 && itemResult.count < 10) {
+      console.log(`⚠️  Found only ${itemResult.count} items linked to active categories`);
+      console.log('   This seems incomplete. Reseeding menu items...');
+      // Delete existing items first
+      db.run('DELETE FROM menu_items', (err) => {
+        if (err) {
+          console.error('❌ Error deleting existing items:', err.message);
+        } else {
+          console.log('   Cleared existing items, now inserting new ones...');
+        }
+        // Continue to insert items below
+        insertItemsNow();
+      });
+      return;
+    }
+    
+    // No items or very few items, proceed with insertion
+    insertItemsNow();
+  });
+  
+  function insertItemsNow() {
     // Fetch categories
     db.all('SELECT id, name FROM menu_categories', [], (err, cats) => {
       if (err) {
@@ -235,9 +263,15 @@ function insertMenuItems() {
       insertItem.finalize(() => {
         console.log('\n✨ Menu seeding complete!');
         console.log(`📝 Added ${inserted} menu items (${errors} errors)`);
+        if (inserted === 0 && errors > 0) {
+          console.log('\n⚠️  No items were inserted. Check the errors above.');
+          console.log('   Common issues:');
+          console.log('   - Category names in menuItems array don\'t match database category names');
+          console.log('   - Database connection issues');
+        }
         db.close();
       });
     });
     });
-  });
+  }
 }
