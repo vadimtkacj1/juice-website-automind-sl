@@ -2,24 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
 import { generatePayPlusLink } from '@/lib/payplus';
+import { CartItem } from '@/lib/cart-context';
 import crypto from 'crypto';
-
-interface CartAddon {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  addons?: CartAddon[];
-  customIngredients?: Array<{ id: number; name: string; price: number }>; // Array of ingredient objects with name
-}
 
 interface CustomerInfo {
   phone: string;

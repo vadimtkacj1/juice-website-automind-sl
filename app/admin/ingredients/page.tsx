@@ -147,6 +147,23 @@ export default function AdminIngredients() {
   const [activeTab, setActiveTab] = useState<'boosters' | 'fruits' | 'toppings'>('fruits');
   const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
   const [categoryIngredientCounts, setCategoryIngredientCounts] = useState<Record<number, number>>({});
+  const [categoryVolumes, setCategoryVolumes] = useState<VolumeOption[]>([]);
+  const [categoryConfigs, setCategoryConfigs] = useState<CategoryIngredientConfig[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
+  const [showCategoryConfigForm, setShowCategoryConfigForm] = useState(false);
+  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
+  const [ingredientForm, setIngredientForm] = useState({
+    name: '',
+    description: '',
+    price: '0',
+    image: '',
+    ingredient_category: 'fruits' as 'boosters' | 'fruits' | 'toppings',
+    is_available: true,
+    sort_order: '0',
+  });
+  const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
+  const [showIngredientForm, setShowIngredientForm] = useState(false);
+  const [ingredientVolumes, setIngredientVolumes] = useState<Record<number, VolumeOption[]>>({});
   const isFetchingRef = useRef(false);
   const hasInitialFetchRef = useRef(false);
 

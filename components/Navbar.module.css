@@ -1,44 +1,71 @@
 /* Cart Button Styles */
 .cart-button {
-  background: none;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   cursor: pointer;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .cart-icon-wrapper {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin: 0 auto;
+  width: 42px;
+  height: 42px;
   background: #1d1a40;
   border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.15);
+}
+
+.cart-icon-wrapper:hover {
+  background: #2a2550;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.25);
 }
 
 .cart-icon-wrapper :global(svg) {
   color: white;
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+  stroke-width: 2.5;
 }
 
 .cart-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -5px;
+  right: -5px;
   background: #ff00ff;
-  color: white;
+  color: #1d1a40;
   font-size: 11px;
   font-weight: 900;
-  min-width: 20px;
-  height: 20px;
+  line-height: 1;
+  min-width: 21px;
+  height: 21px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  border: 2px solid white;
+  padding: 0 5px;
+  border: 2.5px solid white;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(255, 0, 255, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .mobile-actions {
@@ -71,70 +98,40 @@
   position: relative;
   background: #1d1a40 !important;
   color: white !important;
+  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.15);
+  transition: all 0.2s ease;
 }
 
 .mobile-cart-btn :global(svg) {
   color: white;
+  stroke-width: 2.5;
 }
 
 .mobile-cart-btn:hover {
   background: #2a2550 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.25);
 }
 
 .mobile-cart-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  background: #ff00ff;
-  color: white;
-  font-size: 10px;
-  font-weight: 900;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid white;
-}
-
-/* Contact Icon Styles */
-.contact-icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin: 0 auto;
-  background: #a8e6cf;
-  border-radius: 50%;
-  border: 2px solid #1d1a40;
-}
-
-.contact-icon-letter {
-  font-size: 24px;
-  font-weight: 900;
-  color: #1d1a40;
-  line-height: 1;
-}
-
-.contact-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -5px;
+  right: -5px;
   background: #ff00ff;
   color: #1d1a40;
   font-size: 11px;
   font-weight: 900;
-  min-width: 20px;
-  height: 20px;
+  line-height: 1;
+  min-width: 21px;
+  height: 21px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  border: 2px solid white;
+  padding: 0 5px;
+  border: 2.5px solid white;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(255, 0, 255, 0.3);
 }
 
 /* Burger menu only on smaller screens (mobile/tablet) */

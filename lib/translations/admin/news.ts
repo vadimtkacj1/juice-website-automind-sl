@@ -42,7 +42,6 @@ export const adminNewsTranslations: Record<string, string> = {
   'Media & Visibility': 'מדיה ותצוגה',
   'News image and display status': 'תמונת חדשות וסטטוס תצוגה',
   'News Image': 'תמונת חדשות',
-  'Show this news item on the website': 'הצג פריט חדשות זה באתר',
   'Creating...': 'יוצר...',
   'Create News Item': 'צור פריט חדשות',
   'Failed to add news item': 'נכשל בהוספת פריט חדשות',

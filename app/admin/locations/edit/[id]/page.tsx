@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
+import { useAdminLanguage } from '@/lib/admin-language-context';
 
 interface Location {
   id: number;
