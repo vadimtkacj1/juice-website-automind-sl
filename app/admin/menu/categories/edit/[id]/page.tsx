@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 
@@ -18,6 +18,13 @@ interface MenuCategory {
   description?: string;
   sort_order: number;
   is_active: boolean;
+}
+
+interface VolumeOption {
+  volume: string;
+  price: number;
+  is_default: boolean;
+  sort_order: number;
 }
 
 export default function EditCategory() {
@@ -33,6 +40,7 @@ export default function EditCategory() {
     sort_order: '0',
     is_active: true
   });
+  const [categoryVolumes, setCategoryVolumes] = useState<VolumeOption[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -43,16 +51,20 @@ export default function EditCategory() {
   async function fetchCategory(categoryId: number) {
     setInitialLoading(true);
     try {
-      const response = await fetch(`/api/menu-categories/${categoryId}`);
-      if (!response.ok) {
-        if (response.status === 404) {
+      const [categoryRes, volumesRes] = await Promise.all([
+        fetch(`/api/menu-categories/${categoryId}`),
+        fetch(`/api/menu-categories/${categoryId}/volumes`)
+      ]);
+      
+      if (!categoryRes.ok) {
+        if (categoryRes.status === 404) {
           alert(t('Category not found'));
           router.push('/admin/menu');
           return;
         }
         throw new Error('Failed to fetch category');
       }
-      const data = await response.json();
+      const data = await categoryRes.json();
       const category: MenuCategory = data.category;
       
       setForm({
@@ -61,12 +73,65 @@ export default function EditCategory() {
         sort_order: (category.sort_order || 0).toString(),
         is_active: category.is_active !== undefined ? category.is_active : true
       });
+
+      if (volumesRes.ok) {
+        const volumesData = await volumesRes.json();
+        setCategoryVolumes(volumesData.volumes || []);
+      }
     } catch (error) {
       console.error('Error fetching category:', error);
       alert(t('Error loading category'));
       router.push('/admin/menu');
     } finally {
       setInitialLoading(false);
+    }
+  }
+
+  function addCategoryVolume() {
+    setCategoryVolumes([...categoryVolumes, {
+      volume: '',
+      price: 0,
+      is_default: categoryVolumes.length === 0,
+      sort_order: categoryVolumes.length
+    }]);
+  }
+
+  function removeCategoryVolume(index: number) {
+    const newVolumes = categoryVolumes.filter((_, i) => i !== index);
+    if (newVolumes.length > 0 && categoryVolumes[index].is_default) {
+      newVolumes[0].is_default = true;
+    }
+    setCategoryVolumes(newVolumes);
+  }
+
+  function updateCategoryVolume(index: number, field: keyof VolumeOption, value: any) {
+    const newVolumes = [...categoryVolumes];
+    if (field === 'is_default' && value) {
+      newVolumes.forEach((v, i) => {
+        v.is_default = i === index;
+      });
+    } else {
+      newVolumes[index] = { ...newVolumes[index], [field]: value };
+    }
+    setCategoryVolumes(newVolumes);
+  }
+
+  async function saveCategoryVolumes() {
+    if (!id) return;
+    
+    try {
+      const response = await fetch(`/api/menu-categories/${id}/volumes`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ volumes: categoryVolumes })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save category volumes');
+      }
+    } catch (error) {
+      console.error('Error saving category volumes:', error);
+      throw error;
     }
   }
 
@@ -81,6 +146,7 @@ export default function EditCategory() {
     setLoading(true);
 
     try {
+      // Save category first
       const response = await fetch(`/api/menu-categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -92,12 +158,17 @@ export default function EditCategory() {
         })
       });
 
-      if (response.ok) {
-        router.push('/admin/menu');
-      } else {
+      if (!response.ok) {
         const data = await response.json();
         alert(data.error || t('Error updating category'));
+        setLoading(false);
+        return;
       }
+
+      // Save category volumes
+      await saveCategoryVolumes();
+
+      router.push('/admin/menu');
     } catch (error) {
       console.error('Error updating category:', error);
       alert(t('Error updating category'));
@@ -185,6 +256,79 @@ export default function EditCategory() {
                 </Label>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('Category Volume Options')}</CardTitle>
+                <CardDescription>{t('Define volume options for this category (e.g., 0.5L, 1L)')}</CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={addCategoryVolume}
+                variant="outline"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t('Add Volume')}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {categoryVolumes.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed rounded-lg bg-gray-50">
+                <p className="font-medium">{t('No volume options defined.')}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {categoryVolumes.map((vol, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-3 p-4 border rounded-lg bg-gray-50/50">
+                    <div className="col-span-4">
+                      <Label>{t('Volume/Weight')} *</Label>
+                      <Input
+                        value={vol.volume}
+                        onChange={(e) => updateCategoryVolume(index, 'volume', e.target.value)}
+                        placeholder={t('e.g., 0.5L, 1L')}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <Label>{t('Price ($)')} *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={vol.price}
+                        onChange={(e) => updateCategoryVolume(index, 'price', parseFloat(e.target.value) || 0)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div className="col-span-3 flex items-center gap-2 pt-7">
+                      <input
+                        type="checkbox"
+                        checked={vol.is_default}
+                        onChange={(e) => updateCategoryVolume(index, 'is_default', e.target.checked)}
+                        className="h-4 w-4"
+                      />
+                      <Label className="text-sm">{t('Default')}</Label>
+                    </div>
+                    <div className="col-span-2 flex items-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeCategoryVolume(index)}
+                        className="w-full"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Package,
@@ -32,6 +32,33 @@ export default function AdminNavigation() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { t, language } = useAdminLanguage();
+  const [newOrdersCount, setNewOrdersCount] = useState(0);
+
+  useEffect(() => {
+    // Fetch new orders count (pending/processing orders)
+    const fetchNewOrdersCount = async () => {
+      try {
+        const response = await fetch('/api/orders');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            // Count orders with pending or processing status
+            const newOrders = data.filter((order: any) => 
+              order.status === 'pending' || order.status === 'processing'
+            );
+            setNewOrdersCount(newOrders.length);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch new orders count:', error);
+      }
+    };
+
+    fetchNewOrdersCount();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchNewOrdersCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -78,26 +105,42 @@ export default function AdminNavigation() {
                 </SheetHeader>
                 <nav className="flex-1 overflow-y-auto p-4">
                   <div className="flex flex-col gap-2">
-                    {navigation.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = pathname.startsWith(item.href);
-                      return (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setIsOpen(false)}
-                          className={cn(
-                            'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors',
-                            isActive
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'text-gray-700 hover:bg-gray-100'
-                          )}
-                        >
-                          <Icon className="h-5 w-5" />
-                          {item.name}
-                        </Link>
-                      );
-                    })}
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname.startsWith(item.href);
+              const isOrders = item.href === '/admin/orders';
+              const showBadge = isOrders && newOrdersCount > 0;
+              
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
+                    isActive
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  )}
+                >
+                  {isOrders ? (
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-[#1d1a40] flex items-center justify-center">
+                        <ShoppingCart className="h-5 w-5 text-white" />
+                      </div>
+                      {showBadge && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
+                          {newOrdersCount > 9 ? '9+' : newOrdersCount}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Icon className="h-5 w-5" />
+                  )}
+                  {item.name}
+                </Link>
+              );
+            })}
                   </div>
                 </nav>
                 <div className="p-4 border-t space-y-2">
@@ -136,18 +179,34 @@ export default function AdminNavigation() {
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname.startsWith(item.href);
+              const isOrders = item.href === '/admin/orders';
+              const showBadge = isOrders && newOrdersCount > 0;
+              
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors',
+                    'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
                     isActive
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   )}
                 >
-                  <Icon className="h-5 w-5" />
+                  {isOrders ? (
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-[#1d1a40] flex items-center justify-center">
+                        <ShoppingCart className="h-5 w-5 text-white" />
+                      </div>
+                      {showBadge && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
+                          {newOrdersCount > 9 ? '9+' : newOrdersCount}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Icon className="h-5 w-5" />
+                  )}
                   {item.name}
                 </Link>
               );

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -72,11 +74,13 @@ function SortableRow({
   onEdit,
   onDelete,
   t,
+  index,
 }: {
   ingredient: Ingredient;
   onEdit: (ingredient: Ingredient) => void;
   onDelete: (id: number) => void;
   t: (text: string) => string;
+  index: number;
 }) {
   const {
     attributes,
@@ -105,20 +109,22 @@ function SortableRow({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </button>
       </TableCell>
-      <TableCell className="font-medium">{ingredient.sort_order}</TableCell>
+      <TableCell className="font-medium">{index + 1}</TableCell>
       <TableCell className="font-medium">{t(ingredient.name)}</TableCell>
       <TableCell>{ingredient.description ? t(ingredient.description) : '-'}</TableCell>
       <TableCell>${ingredient.price.toFixed(2)}</TableCell>
       <TableCell>{ingredient.is_available ? t('Yes') : t('No')}</TableCell>
       <TableCell>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(ingredient)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <Link href={`/admin/ingredients/edit/${ingredient.id}`}>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </Link>
           <Button
             variant="outline"
             size="sm"
@@ -133,21 +139,14 @@ function SortableRow({
 }
 
 export default function AdminIngredients() {
+  const router = useRouter();
   const { t, language } = useAdminLanguage();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'boosters' | 'fruits' | 'toppings'>('fruits');
-  const [showIngredientForm, setShowIngredientForm] = useState(false);
-  const [showCategoryConfigForm, setShowCategoryConfigForm] = useState(false);
-  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
-  const [categoryConfigs, setCategoryConfigs] = useState<CategoryIngredientConfig[]>([]);
   const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
   const [categoryIngredientCounts, setCategoryIngredientCounts] = useState<Record<number, number>>({});
-  const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
-  const [ingredientVolumes, setIngredientVolumes] = useState<Record<number, VolumeOption[]>>({});
-  const [categoryVolumes, setCategoryVolumes] = useState<VolumeOption[]>([]); // Volumes for the selected category
   const isFetchingRef = useRef(false);
   const hasInitialFetchRef = useRef(false);
 
@@ -157,15 +156,6 @@ export default function AdminIngredients() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-  const [ingredientForm, setIngredientForm] = useState({
-    name: '',
-    description: '',
-    price: '0',
-    image: '',
-    ingredient_category: 'fruits' as 'boosters' | 'fruits' | 'toppings',
-    is_available: true,
-    sort_order: '0',
-  });
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -277,40 +267,46 @@ export default function AdminIngredients() {
   }
 
   async function handleOpenIngredientDialog(ingredient?: Ingredient) {
-    if (ingredient) {
-      setEditingIngredient(ingredient);
-      setIngredientForm({
-        name: ingredient.name,
-        description: ingredient.description || '',
-        price: ingredient.price.toString(),
-        image: ingredient.image || '',
-        ingredient_category: ingredient.ingredient_category,
-        is_available: ingredient.is_available,
-        sort_order: ingredient.sort_order.toString(),
-      });
-      // Fetch volume options for this ingredient
-      try {
-        const res = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
-        const data = await res.json();
-        setVolumeOptions(data.volumes || []);
-      } catch (error) {
-        console.error('Error fetching volumes:', error);
+    console.log('handleOpenIngredientDialog called', ingredient);
+    try {
+      if (ingredient) {
+        setEditingIngredient(ingredient);
+        setIngredientForm({
+          name: ingredient.name,
+          description: ingredient.description || '',
+          price: ingredient.price.toString(),
+          image: ingredient.image || '',
+          ingredient_category: ingredient.ingredient_category,
+          is_available: ingredient.is_available,
+          sort_order: ingredient.sort_order.toString(),
+        });
+        // Fetch volume options for this ingredient
+        try {
+          const res = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
+          const data = await res.json();
+          setVolumeOptions(data.volumes || []);
+        } catch (error) {
+          console.error('Error fetching volumes:', error);
+          setVolumeOptions([]);
+        }
+      } else {
+        setEditingIngredient(null);
+        setIngredientForm({
+          name: '',
+          description: '',
+          price: '0',
+          image: '',
+          ingredient_category: activeTab,
+          is_available: true,
+          sort_order: '0',
+        });
         setVolumeOptions([]);
       }
-    } else {
-      setEditingIngredient(null);
-      setIngredientForm({
-        name: '',
-        description: '',
-        price: '0',
-        image: '',
-        ingredient_category: activeTab,
-        is_available: true,
-        sort_order: '0',
-      });
-      setVolumeOptions([]);
+      setShowIngredientForm(true);
+      console.log('showIngredientForm set to true');
+    } catch (error) {
+      console.error('Error in handleOpenIngredientDialog:', error);
     }
-    setShowIngredientForm(true);
   }
 
   function addVolumeOption() {
@@ -345,10 +341,12 @@ export default function AdminIngredients() {
   }
 
   async function handleOpenCategoryConfigDialog(category: MenuCategory) {
+    console.log('handleOpenCategoryConfigDialog called', category);
     try {
       setSelectedCategory(category);
       await fetchCategoryConfigs(category.id);
       setShowCategoryConfigForm(true);
+      console.log('showCategoryConfigForm set to true');
     } catch (error) {
       console.error('Error opening category config dialog:', error);
       setAlertDialog({
@@ -712,27 +710,33 @@ export default function AdminIngredients() {
         });
       });
 
-      await Promise.all(updatePromises);
+      const results = await Promise.all(updatePromises);
       
-      // Update local state
-      const updatedIngredients = ingredients.map(ing => {
-        const reordered = reorderedIngredients.find(r => r.id === ing.id);
-        if (reordered) {
-          return { ...ing, sort_order: reorderedIngredients.indexOf(reordered) };
-        }
-        return ing;
+      // Check if all requests were successful
+      const failed = results.filter(r => !r.ok);
+      if (failed.length > 0) {
+        throw new Error('Some ingredients failed to update');
+      }
+      
+      // Reload data from server to ensure consistency
+      await fetchData();
+      
+      setAlertDialog({
+        open: true,
+        title: t('Success'),
+        message: t('Ingredient order updated successfully!'),
+        type: 'success',
       });
-      setIngredients(updatedIngredients);
     } catch (error: any) {
       console.error('Error updating sort order:', error);
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: 'Failed to update ingredient order. Please try again.',
+        title: t('Error'),
+        message: t('Failed to update ingredient order. Please try again.'),
         type: 'error',
       });
       // Refresh data to revert to server state
-      fetchData();
+      await fetchData();
     } finally {
       setIsUpdatingOrder(false);
     }
@@ -755,21 +759,15 @@ export default function AdminIngredients() {
             {t('Manage boosters, fruits, and toppings. Attach them to menu categories and set prices.')}
           </p>
         </div>
-        <Button 
-          onClick={() => {
-            if (showIngredientForm) {
-              setShowIngredientForm(false);
-              setEditingIngredient(null);
-              setVolumeOptions([]);
-            } else {
-              handleOpenIngredientDialog();
-            }
-          }}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
-        >
-          <Plus className="ml-2 h-4 w-4" />
-          {showIngredientForm ? t('Cancel') : t('Add Ingredient')}
-        </Button>
+        <Link href={`/admin/ingredients/add?category=${activeTab}`}>
+          <Button 
+            type="button"
+            className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+          >
+            <Plus className="ml-2 h-4 w-4" />
+            {t('Add Ingredient')}
+          </Button>
+        </Link>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
@@ -815,13 +813,14 @@ export default function AdminIngredients() {
                         items={filteredIngredients.map(i => i.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        {filteredIngredients.map((ingredient) => (
+                        {filteredIngredients.map((ingredient, index) => (
                           <SortableRow
                             key={ingredient.id}
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
                             t={t}
+                            index={index}
                           />
                         ))}
                       </SortableContext>
@@ -869,13 +868,14 @@ export default function AdminIngredients() {
                         items={filteredIngredients.map(i => i.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        {filteredIngredients.map((ingredient) => (
+                        {filteredIngredients.map((ingredient, index) => (
                           <SortableRow
                             key={ingredient.id}
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
                             t={t}
+                            index={index}
                           />
                         ))}
                       </SortableContext>
@@ -923,13 +923,14 @@ export default function AdminIngredients() {
                         items={filteredIngredients.map(i => i.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        {filteredIngredients.map((ingredient) => (
+                        {filteredIngredients.map((ingredient, index) => (
                           <SortableRow
                             key={ingredient.id}
                             ingredient={ingredient}
                             onEdit={handleOpenIngredientDialog}
                             onDelete={handleDeleteIngredient}
                             t={t}
+                            index={index}
                           />
                         ))}
                       </SortableContext>
@@ -975,14 +976,17 @@ export default function AdminIngredients() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenCategoryConfigDialog(category)}
-                      >
-                        <Settings className="ml-2 h-4 w-4" />
-                        {t('Configure')}
-                      </Button>
+                      <Link href={`/admin/ingredients/configure/${category.id}`}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer"
+                        >
+                          <Settings className="ml-2 h-4 w-4" />
+                          {t('Configure')}
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))
@@ -992,8 +996,8 @@ export default function AdminIngredients() {
         </CardContent>
       </Card>
 
-      {/* Ingredient Form */}
-      {showIngredientForm && (
+      {/* Ingredient Form - moved to separate page */}
+      {false && (
         <Card className="mt-6">
           <CardHeader>
             <CardTitle className="text-2xl">
@@ -1243,8 +1247,8 @@ export default function AdminIngredients() {
         </Card>
       )}
 
-      {/* Category Configuration Form */}
-      {showCategoryConfigForm && selectedCategory && (
+      {/* Category Configuration Form - moved to separate page */}
+      {false && (
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>{t('Configure Ingredients for')} {t(selectedCategory?.name || '')}</CardTitle>

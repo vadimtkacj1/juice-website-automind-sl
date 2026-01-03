@@ -501,14 +501,22 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const modalContent = (
     <>
       {/* Backdrop */}
-      <div className={styles['modal-backdrop']} onClick={onClose} />
+      <div 
+        className={styles['modal-backdrop']} 
+        onClick={onClose}
+        aria-label="Close modal"
+      />
 
       {/* Modal */}
       <div className={styles['product-modal']}>
         <div className={styles['modal-container']} onClick={(e) => e.stopPropagation()}>
           {/* Close Button */}
-          <button className={styles['modal-close']} onClick={onClose}>
-            <X size={24} />
+          <button 
+            className={styles['modal-close']} 
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={20} />
           </button>
 
           {/* Content - Left Side */}

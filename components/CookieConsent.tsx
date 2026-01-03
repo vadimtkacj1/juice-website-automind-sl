@@ -10,15 +10,47 @@ export default function CookieConsent() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
   const [marketingEnabled, setMarketingEnabled] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Set mounted flag to ensure we're on client side
+    setMounted(true);
+    
     // Check if user has already accepted cookies
-    // For testing: always show after a delay (remove localStorage check temporarily)
-    const consent = localStorage.getItem('cookie-consent');
-    // Show after a short delay
+    // Use try-catch to handle SSR/localStorage issues
+    let consent = null;
+    try {
+      if (typeof window !== 'undefined') {
+        consent = localStorage.getItem('cookie-consent');
+      }
+    } catch (e) {
+      console.error('Error accessing localStorage:', e);
+    }
+    
+    // Show after a short delay if no consent exists
     const timer = setTimeout(() => {
-      setIsVisible(!consent); // Only hide if consent already exists
-    }, 1000);
+      // Only show if consent doesn't exist or is invalid
+      if (!consent) {
+        console.log('No consent found, showing banner');
+        setIsVisible(true);
+      } else {
+        // Validate that consent is a valid JSON
+        try {
+          const parsed = JSON.parse(consent);
+          // Only hide if consent is valid and accepted is true
+          if (!parsed.accepted) {
+            console.log('Consent not accepted, showing banner');
+            setIsVisible(true);
+          } else {
+            console.log('Consent already accepted, hiding banner', parsed);
+          }
+        } catch (e) {
+          // Invalid JSON, show banner
+          console.log('Invalid consent JSON, showing banner', e);
+          setIsVisible(true);
+        }
+      }
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
@@ -67,7 +99,16 @@ export default function CookieConsent() {
 
   // Always render the component structure, but control visibility with CSS
   // This ensures the component is in the DOM
+  // For debugging: log visibility state
+  useEffect(() => {
+    if (isVisible) {
+      console.log('Cookie banner is now visible');
+    }
+  }, [isVisible]);
 
+  // Don't render until mounted (SSR safety)
+  if (!mounted) return null;
+  
   if (!isVisible) return null;
 
   return (
@@ -81,13 +122,6 @@ export default function CookieConsent() {
           <h2 id="cookie-title" className={styles.cookieConsentTitle}>
             עוגיות באתר
           </h2>
-          <button
-            onClick={() => setIsVisible(false)}
-            className={styles.cookieConsentClose}
-            aria-label="סגור"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         <div className={styles.cookieConsentContent}>
@@ -95,7 +129,15 @@ export default function CookieConsent() {
             <>
               <p className={styles.cookieConsentText}>
                 אנו משתמשים בעוגיות כדי לשפר את החוויה שלך באתר, לנתח את השימוש באתר ולעזור לנו בשיווק.
-                על ידי המשך השימוש באתר, אתה מסכים לשימוש בעוגיות בהתאם למדיניות הפרטיות שלנו.
+                על ידי המשך השימוש באתר, אתה מסכים לשימוש בעוגיות בהתאם ל{' '}
+                <Link href="/privacy" className={styles.cookieConsentInlineLink} target="_blank" rel="noopener noreferrer">
+                  מדיניות הפרטיות
+                </Link>
+                {' '}ול{' '}
+                <Link href="/terms" className={styles.cookieConsentInlineLink} target="_blank" rel="noopener noreferrer">
+                  תנאים והגבלות
+                </Link>
+                {' '}שלנו.
               </p>
               <div className={styles.cookieConsentActions}>
                 <button
@@ -116,6 +158,25 @@ export default function CookieConsent() {
                 >
                   התאם העדפות
                 </button>
+              </div>
+              <div className={styles.cookieConsentLegalLinks}>
+                <Link
+                  href="/privacy"
+                  className={styles.cookieConsentLegalLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  מדיניות פרטיות
+                </Link>
+                <span className={styles.cookieConsentSeparator}>|</span>
+                <Link
+                  href="/terms"
+                  className={styles.cookieConsentLegalLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  תנאים והגבלות
+                </Link>
               </div>
             </>
           ) : (
@@ -169,13 +230,25 @@ export default function CookieConsent() {
                 >
                   שמור העדפות
                 </button>
-                <Link
-                  href="/privacy"
-                  className={styles.cookieConsentLink}
-                  onClick={() => setIsVisible(false)}
-                >
-                  קרא עוד במדיניות הפרטיות
-                </Link>
+                <div className={styles.cookieConsentLegalLinks}>
+                  <Link
+                    href="/privacy"
+                    className={styles.cookieConsentLegalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    מדיניות פרטיות
+                  </Link>
+                  <span className={styles.cookieConsentSeparator}>|</span>
+                  <Link
+                    href="/terms"
+                    className={styles.cookieConsentLegalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    תנאים והגבלות
+                  </Link>
+                </div>
               </div>
             </>
           )}

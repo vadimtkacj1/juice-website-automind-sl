@@ -420,7 +420,7 @@ export default function AdminMenu() {
                             onClick={() => openDiscountDialog(item)}
                             className={item.discount_percent > 0 ? 'text-red-600' : ''}
                           >
-                            {item.discount_percent > 0 ? `-${item.discount_percent}%` : '0%'}
+                            {item.discount_percent > 0 ? `-${item.discount_percent}` : '0'}
                             <Percent className="ml-1 h-3 w-3" />
                           </Button>
                         </TableCell>

@@ -3,6 +3,7 @@ import './globals.css';
 import PageLoader from '@/components/PageLoader';
 import GlobalLoader from '@/components/GlobalLoader';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
+import CookieConsent from '@/components/CookieConsent';
 import { TextModeProvider } from '@/lib/text-mode-context';
 import { LoadingProvider } from '@/lib/loading-context';
 import CartProviderWrapper from '@/components/CartProviderWrapper';
@@ -200,6 +201,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <PageLoader />
               <GlobalLoader />
               <KeyboardShortcuts />
+              <CookieConsent />
               <div id="main-content">
                 {children}
               </div>

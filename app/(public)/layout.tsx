@@ -4,7 +4,6 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import ScrollReveal from '@/components/ScrollReveal';
 import Cart from '@/components/Cart';
-import CookieConsent from '@/components/CookieConsent';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +13,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <main>{children}</main>
       <Footer />
       <Cart />
-      <CookieConsent />
     </>
   );
 }

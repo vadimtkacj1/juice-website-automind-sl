@@ -59,9 +59,31 @@ export default function AddMenuItem() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    // Validate that at least one volume option exists
+    if (volumeOptions.length === 0) {
+      alert(t('Please add at least one price and volume option.'));
+      return;
+    }
+    
+    // Validate that all volume options have required fields
+    const invalidOptions = volumeOptions.filter(vol => !vol.volume || vol.price === undefined || vol.price === null);
+    if (invalidOptions.length > 0) {
+      alert(t('Please fill in all required fields (volume and price) for all options.'));
+      return;
+    }
+    
     setLoading(true);
 
     try {
+      // Use default volume option price if available, otherwise 0
+      const defaultPrice = volumeOptions.length > 0 && volumeOptions[0].price 
+        ? volumeOptions[0].price 
+        : 0;
+      const defaultVolume = volumeOptions.length > 0 && volumeOptions[0].volume 
+        ? volumeOptions[0].volume 
+        : null;
+
       // Create menu item first
       const response = await fetch('/api/menu-items', {
         method: 'POST',
@@ -69,7 +91,8 @@ export default function AddMenuItem() {
         body: JSON.stringify({
           ...form,
           category_id: parseInt(form.category_id),
-          price: parseFloat(form.price),
+          price: defaultPrice,
+          volume: defaultVolume,
           discount_percent: parseFloat(form.discount_percent) || 0
         })
       });
@@ -107,9 +130,14 @@ export default function AddMenuItem() {
   }
 
   function addVolumeOption() {
+    // Use price from first volume option if available, otherwise 0
+    const defaultPrice = volumeOptions.length > 0 && volumeOptions[0].price 
+      ? volumeOptions[0].price 
+      : 0;
+    
     setVolumeOptions([...volumeOptions, {
       volume: '',
-      price: parseFloat(form.price) || 0,
+      price: defaultPrice,
       is_default: volumeOptions.length === 0,
       sort_order: volumeOptions.length
     }]);
@@ -194,28 +222,7 @@ export default function AddMenuItem() {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="price">{t('Price (₪) *')}</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  placeholder={t('25')}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="volume">{t('Volume/Size')}</Label>
-                <Input
-                  id="volume"
-                  value={form.volume}
-                  onChange={(e) => setForm({ ...form, volume: e.target.value })}
-                  placeholder={t('0.5L')}
-                />
-              </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="discount">{t('Discount (%)')}</Label>
                 <Input
@@ -228,6 +235,11 @@ export default function AddMenuItem() {
                   placeholder={t('0')}
                 />
               </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                <strong>{t('Note:')}</strong> {t('Price and volume are configured in the "Volume Options" section below. Set at least one volume option with price.')}
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -262,9 +274,9 @@ export default function AddMenuItem() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{t('Volume Options')}</CardTitle>
+                <CardTitle>{t('Price & Volume Options')}</CardTitle>
                 <CardDescription>
-                  {t('Define multiple volume/size options for this item. Customers can choose from these when ordering.')}
+                  {t('Configure prices and volumes for this item. At least one option is required. Customers will choose from these when ordering.')}
                 </CardDescription>
               </div>
               <Button
@@ -275,15 +287,15 @@ export default function AddMenuItem() {
                 className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {t('Add Volume')}
+                {t('Add Option')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {volumeOptions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <p>{t('No volume options defined.')}</p>
-                <p className="text-sm mt-2">{t('Click "Add Volume" to create volume options for this item.')}</p>
+                <p className="font-medium text-red-600 mb-2">{t('At least one price and volume option is required!')}</p>
+                <p className="text-sm mt-2">{t('Click "Add Option" to create price and volume options for this item.')}</p>
               </div>
             ) : (
               <div className="space-y-4">
