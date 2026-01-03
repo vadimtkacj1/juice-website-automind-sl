@@ -6,7 +6,12 @@ export async function GET() {
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
     
+    // Log database path for debugging
+    const dbPath = process.env.DATABASE_PATH || require('path').join(process.cwd(), 'juice_website.db');
+    console.log(`[Menu API] Using database path: ${dbPath}`);
+    
     if (!db) {
+      console.error(`[Menu API] Database connection failed. Path: ${dbPath}`);
       return NextResponse.json(
         { error: 'Database connection failed' },
         { status: 500 }

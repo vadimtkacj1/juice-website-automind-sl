@@ -278,11 +278,21 @@ jobs:
             }
             echo 'Creating admin user...'
             docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists'
+            echo 'Seeding menu data...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Menu seeding failed or menu already exists'
             echo 'Verifying database file was created...'
             docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"'
             echo '✅ Database initialized successfully!'
           else
-            echo '✓ Database already exists, skipping initialization'
+            echo '✓ Database already exists, checking if menu data exists...'
+            # Check if menu categories exist, if not, seed the menu
+            MENU_COUNT=$(docker exec juice-website sh -c 'sqlite3 /app/data/juice_website.db "SELECT COUNT(*) FROM menu_categories;"' 2>/dev/null || echo "0")
+            if [ "$MENU_COUNT" = "0" ] || [ -z "$MENU_COUNT" ]; then
+              echo 'Menu data not found, seeding menu...'
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Menu seeding failed'
+            else
+              echo "✓ Menu data exists ($MENU_COUNT categories found)"
+            fi
           fi
           # Configure Nginx to proxy to Docker container
           echo 'Configuring Nginx...'
