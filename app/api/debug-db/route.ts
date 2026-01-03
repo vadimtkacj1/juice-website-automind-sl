@@ -6,10 +6,17 @@ export async function GET() {
   try {
     const getDatabase = require('@/lib/database');
     
-    // Check what database path is being used
-    const dbPath = process.env.DATABASE_PATH 
-      ? process.env.DATABASE_PATH 
-      : path.join(process.cwd(), 'juice_website.db');
+    // Check what database path is being used (same logic as database.js)
+    let dbPath;
+    if (process.env.DATABASE_PATH) {
+      dbPath = process.env.DATABASE_PATH;
+    } else if (process.env.NODE_ENV === 'production' && process.cwd() === '/app') {
+      // In Docker production, default to /app/data/juice_website.db
+      dbPath = '/app/data/juice_website.db';
+    } else {
+      // Local development
+      dbPath = path.join(process.cwd(), 'juice_website.db');
+    }
     
     const dbExists = fs.existsSync(dbPath);
     const dbSize = dbExists ? fs.statSync(dbPath).size : 0;

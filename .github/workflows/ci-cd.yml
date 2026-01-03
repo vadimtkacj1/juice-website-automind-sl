@@ -280,18 +280,39 @@ jobs:
             docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists'
             echo 'Seeding menu data...'
             docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Menu seeding failed or menu already exists'
+            echo 'Seeding locations data...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-locations.js || echo '⚠ Locations seeding failed or locations already exist'
+            echo 'Seeding contacts data...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-contacts.js || echo '⚠ Contacts seeding failed or contacts already exist'
             echo 'Verifying database file was created...'
             docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"'
             echo '✅ Database initialized successfully!'
           else
-            echo '✓ Database already exists, checking if menu data exists...'
+            echo '✓ Database already exists, checking if data exists...'
             # Check if menu categories exist, if not, seed the menu
             MENU_COUNT=$(docker exec juice-website sh -c 'sqlite3 /app/data/juice_website.db "SELECT COUNT(*) FROM menu_categories;"' 2>/dev/null || echo "0")
+            LOCATIONS_COUNT=$(docker exec juice-website sh -c 'sqlite3 /app/data/juice_website.db "SELECT COUNT(*) FROM locations;"' 2>/dev/null || echo "0")
+            CONTACTS_COUNT=$(docker exec juice-website sh -c 'sqlite3 /app/data/juice_website.db "SELECT COUNT(*) FROM contacts;"' 2>/dev/null || echo "0")
+            
             if [ "$MENU_COUNT" = "0" ] || [ -z "$MENU_COUNT" ]; then
               echo 'Menu data not found, seeding menu...'
               docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Menu seeding failed'
             else
               echo "✓ Menu data exists ($MENU_COUNT categories found)"
+            fi
+            
+            if [ "$LOCATIONS_COUNT" = "0" ] || [ -z "$LOCATIONS_COUNT" ]; then
+              echo 'Locations data not found, seeding locations...'
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-locations.js || echo '⚠ Locations seeding failed'
+            else
+              echo "✓ Locations data exists ($LOCATIONS_COUNT locations found)"
+            fi
+            
+            if [ "$CONTACTS_COUNT" = "0" ] || [ -z "$CONTACTS_COUNT" ]; then
+              echo 'Contacts data not found, seeding contacts...'
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-contacts.js || echo '⚠ Contacts seeding failed'
+            else
+              echo "✓ Contacts data exists ($CONTACTS_COUNT contacts found)"
             fi
           fi
           # Configure Nginx to proxy to Docker container

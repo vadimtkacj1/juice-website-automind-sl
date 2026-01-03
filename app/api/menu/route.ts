@@ -21,7 +21,7 @@ export async function GET() {
     return new Promise<NextResponse>((resolve) => {
           // Get all active categories
       db.all(
-        'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order',
+        'SELECT * FROM menu_categories WHERE (is_active = 1 OR is_active = true) ORDER BY sort_order',
         [],
         (err: any, categories: any[]) => {
           if (err) {
@@ -31,10 +31,17 @@ export async function GET() {
           }
 
           console.log(`[Menu API] Found ${categories.length} active categories`);
+          
+          // Debug: Check total categories (including inactive)
+          db.get('SELECT COUNT(*) as total FROM menu_categories', [], (err: any, totalCats: any) => {
+            if (!err && totalCats) {
+              console.log(`[Menu API] Total categories in DB: ${totalCats.total} (${categories.length} active)`);
+            }
+          });
 
           // Get all available menu items
           db.all(
-            'SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order',
+            'SELECT * FROM menu_items WHERE (is_available = 1 OR is_available = true) ORDER BY sort_order',
             [],
             (err: any, items: any[]) => {
               if (err) {
@@ -44,6 +51,13 @@ export async function GET() {
               }
 
               console.log(`[Menu API] Found ${items.length} available items`);
+              
+              // Debug: Check total items (including unavailable)
+              db.get('SELECT COUNT(*) as total FROM menu_items', [], (err: any, totalItems: any) => {
+                if (!err && totalItems) {
+                  console.log(`[Menu API] Total items in DB: ${totalItems.total} (${items.length} available)`);
+                }
+              });
 
               // Group items by category and translate
               const menu = categories
@@ -66,11 +80,45 @@ export async function GET() {
               console.log(`[Menu API] Returning ${menu.length} categories with items`);
               
               // Debug: If no menu but data exists, log the mismatch
-              if (menu.length === 0 && categories.length > 0 && items.length > 0) {
-                console.error('[Menu API] WARNING: Categories and items exist but no matches found!');
-                console.error('[Menu API] Category IDs:', categories.map((c: any) => ({ id: c.id, name: c.name, type: typeof c.id })));
-                const uniqueCategoryIds = Array.from(new Set(items.map((i: any) => i.category_id)));
-                console.error('[Menu API] Item category_ids:', uniqueCategoryIds.map((id: any) => ({ category_id: id, type: typeof id })));
+              if (menu.length === 0) {
+                console.error('[Menu API] WARNING: Empty menu returned!');
+                console.error(`[Menu API] Categories found: ${categories.length}`);
+                console.error(`[Menu API] Items found: ${items.length}`);
+                
+                if (categories.length > 0) {
+                  console.error('[Menu API] Category IDs:', categories.map((c: any) => ({ id: c.id, name: c.name, is_active: c.is_active, type: typeof c.id })));
+                }
+                
+                if (items.length > 0) {
+                  const uniqueCategoryIds = Array.from(new Set(items.map((i: any) => i.category_id)));
+                  console.error('[Menu API] Item category_ids:', uniqueCategoryIds.map((id: any) => ({ category_id: id, type: typeof id })));
+                  
+                  // Show sample items
+                  console.error('[Menu API] Sample items:', items.slice(0, 3).map((i: any) => ({ 
+                    id: i.id, 
+                    name: i.name, 
+                    category_id: i.category_id, 
+                    is_available: i.is_available 
+                  })));
+                }
+                
+                // Return debug info in response if menu is empty
+                resolve(NextResponse.json({ 
+                  menu: [],
+                  debug: {
+                    categoriesFound: categories.length,
+                    itemsFound: items.length,
+                    categoryIds: categories.map((c: any) => ({ id: c.id, name: c.name, is_active: c.is_active })),
+                    itemCategoryIds: Array.from(new Set(items.map((i: any) => i.category_id))),
+                    sampleItems: items.slice(0, 3).map((i: any) => ({ 
+                      id: i.id, 
+                      name: i.name, 
+                      category_id: i.category_id, 
+                      is_available: i.is_available 
+                    }))
+                  }
+                }));
+                return;
               }
               
               resolve(NextResponse.json({ menu }));
