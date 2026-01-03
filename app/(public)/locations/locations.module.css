@@ -9,6 +9,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  margin-top: 100px; /* Add space for header */
 }
 
 .locations-hero-content {
@@ -37,6 +39,7 @@
 @media (max-width: 768px) {
   .locations-hero {
     margin: 10px;
+    margin-top: 90px; /* Add space for header on mobile */
     padding: 60px 20px;
     min-height: 30vh;
   }
@@ -51,6 +54,7 @@
 @media (max-width: 480px) {
   .locations-hero {
     margin: 8px;
+    margin-top: 80px; /* Add space for header on small mobile */
     padding: 50px 16px;
     min-height: 25vh;
   }

@@ -4,16 +4,40 @@ import { translateObject } from '@/lib/translations';
 export async function GET() {
   try {
     const getDatabase = require('@/lib/database');
-    const db = getDatabase();
+    const path = require('path');
+    const fs = require('fs');
     
-    // Log database path for debugging
-    const dbPath = process.env.DATABASE_PATH || require('path').join(process.cwd(), 'juice_website.db');
-    console.log(`[Menu API] Using database path: ${dbPath}`);
+    // Calculate database path using same logic as database.js
+    let dbPath;
+    if (process.env.DATABASE_PATH) {
+      dbPath = process.env.DATABASE_PATH;
+    } else if (process.env.NODE_ENV === 'production' && process.cwd() === '/app') {
+      dbPath = '/app/data/juice_website.db';
+    } else {
+      dbPath = path.join(process.cwd(), 'juice_website.db');
+    }
+    
+    console.log(`[Menu API] Database path: ${dbPath}`);
+    console.log(`[Menu API] Database exists: ${fs.existsSync(dbPath)}`);
+    console.log(`[Menu API] DATABASE_PATH env: ${process.env.DATABASE_PATH}`);
+    console.log(`[Menu API] NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`[Menu API] cwd: ${process.cwd()}`);
+    
+    const db = getDatabase();
     
     if (!db) {
       console.error(`[Menu API] Database connection failed. Path: ${dbPath}`);
       return NextResponse.json(
-        { error: 'Database connection failed' },
+        { 
+          error: 'Database connection failed',
+          debug: {
+            dbPath,
+            dbExists: fs.existsSync(dbPath),
+            envPath: process.env.DATABASE_PATH,
+            nodeEnv: process.env.NODE_ENV,
+            cwd: process.cwd()
+          }
+        },
         { status: 500 }
       );
     }
@@ -36,8 +60,22 @@ export async function GET() {
           db.get('SELECT COUNT(*) as total FROM menu_categories', [], (err: any, totalCats: any) => {
             if (!err && totalCats) {
               console.log(`[Menu API] Total categories in DB: ${totalCats.total} (${categories.length} active)`);
+            } else if (err) {
+              console.error(`[Menu API] Error counting categories:`, err);
             }
           });
+          
+          // If no categories found, check if table exists and has any data
+          if (categories.length === 0) {
+            db.all('SELECT * FROM menu_categories LIMIT 5', [], (err: any, allCats: any[]) => {
+              if (!err) {
+                console.log(`[Menu API] All categories (including inactive): ${allCats.length}`);
+                if (allCats.length > 0) {
+                  console.log(`[Menu API] Sample categories:`, allCats.map((c: any) => ({ id: c.id, name: c.name, is_active: c.is_active })));
+                }
+              }
+            });
+          }
 
           // Get all available menu items
           db.all(

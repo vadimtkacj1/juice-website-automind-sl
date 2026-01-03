@@ -325,21 +325,21 @@
   }
   
   .hero {
-    margin: 10px;
-    border-radius: var(--radius-md);
+    margin: 0;
+    border-radius: 0;
     min-height: 50vh;
     padding-block: 60px 40px;
-    width: calc(100% - 20px);
-    max-width: calc(100% - 20px);
+    width: 100%;
+    max-width: 100%;
   }
   
   .hero-title {
-    font-size: 64px;
-    padding-inline: 12px;
+    font-size: clamp(36px, 10vw, 48px);
+    padding-inline: 15px;
   }
   
   .hero-subtitle {
-    font-size: 72px;
+    font-size: clamp(42px, 12vw, 56px);
     margin-block-start: 15px;
   }
   
