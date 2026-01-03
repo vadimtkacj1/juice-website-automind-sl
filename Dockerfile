@@ -71,6 +71,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
+# Copy scripts directory for database initialization
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
 # Ensure server.js exists (it's in the standalone output)
 RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)
 

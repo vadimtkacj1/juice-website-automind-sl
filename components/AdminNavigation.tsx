@@ -118,16 +118,12 @@ export default function AdminNavigation() {
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
-                    isActive
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    'text-gray-700 hover:bg-gray-100'
                   )}
                 >
                   {isOrders ? (
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-[#1d1a40] flex items-center justify-center">
-                        <ShoppingCart className="h-5 w-5 text-white" />
-                      </div>
+                      <ShoppingCart className="h-5 w-5" />
                       {showBadge && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
                           {newOrdersCount > 9 ? '9+' : newOrdersCount}
@@ -188,16 +184,12 @@ export default function AdminNavigation() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
-                    isActive
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    'text-gray-700 hover:bg-gray-100'
                   )}
                 >
                   {isOrders ? (
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-[#1d1a40] flex items-center justify-center">
-                        <ShoppingCart className="h-5 w-5 text-white" />
-                      </div>
+                      <ShoppingCart className="h-5 w-5" />
                       {showBadge && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
                           {newOrdersCount > 9 ? '9+' : newOrdersCount}

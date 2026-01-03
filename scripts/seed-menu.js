@@ -1,16 +1,49 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.join(__dirname, '../juice_website.db');
+// Support environment variable for database path (useful for Docker)
+const dbPath = process.env.DATABASE_PATH 
+  ? process.env.DATABASE_PATH 
+  : path.join(__dirname, '../juice_website.db');
+
+// Ensure directory exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
 
 console.log('🍹 Seeding menu data...\n');
+console.log(`📁 Database path: ${dbPath}\n`);
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('❌ Error connecting to database:', err.message);
+    console.error(`   Database path: ${dbPath}`);
     process.exit(1);
   }
   console.log('✅ Connected to database');
+  console.log(`📁 Using database: ${dbPath}\n`);
+  
+  // Verify database is accessible and has tables
+  db.all("SELECT name FROM sqlite_master WHERE type='table' AND name='menu_categories'", (err, rows) => {
+    if (err) {
+      console.error('❌ Error checking tables:', err.message);
+      console.error(`   Database path: ${dbPath}`);
+      db.close();
+      process.exit(1);
+    }
+    if (rows.length === 0) {
+      console.error('❌ Table menu_categories not found!');
+      console.error(`   Database path: ${dbPath}`);
+      console.error('   Please run: docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js');
+      db.close();
+      process.exit(1);
+    }
+    console.log('✅ Table menu_categories found');
+    // Continue with seeding
+    seedData();
+  });
 });
 
 const categories = [
@@ -86,71 +119,125 @@ const menuItems = [
   { category: 'קינוחים', name: 'טבעי בריא (קינוח)', description: '2 וופלים + פירות', price: 80 },
 ];
 
-// Insert categories first
-db.serialize(() => {
-  const insertCategory = db.prepare('INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)');
-  
-  categories.forEach((cat) => {
-    insertCategory.run(cat.name, cat.description, cat.sort_order, (err) => {
-      if (err) {
-        console.error(`❌ Error inserting category ${cat.name}:`, err.message);
-      } else {
-        console.log(`✅ Category added: ${cat.name}`);
-      }
+// Function to seed data
+function seedData() {
+  // Check if categories already exist
+  db.get('SELECT COUNT(*) as count FROM menu_categories', (err, result) => {
+    if (err) {
+      console.error('❌ Error checking categories:', err.message);
+      console.error(`   Database path: ${dbPath}`);
+      console.error('   This might mean the table doesn\'t exist. Run init-database.js first.');
+      db.close();
+      process.exit(1);
+    }
+    
+    if (result.count > 0) {
+      console.log(`⚠️  Found ${result.count} existing categories, skipping category insertion`);
+      insertMenuItems();
+      return;
+    }
+    
+    // Insert categories first
+    db.serialize(() => {
+      const insertCategory = db.prepare('INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)');
+      
+      categories.forEach((cat) => {
+        insertCategory.run(cat.name, cat.description, cat.sort_order, (err) => {
+          if (err) {
+            console.error(`❌ Error inserting category ${cat.name}:`, err.message);
+          } else {
+            console.log(`✅ Category added: ${cat.name}`);
+          }
+        });
+      });
+      
+      insertCategory.finalize(() => {
+        console.log('\n✅ Categories inserted, now inserting menu items...\n');
+        insertMenuItems();
+      });
     });
   });
-  
-  insertCategory.finalize();
-});
+}
 
-// Wait a bit then insert menu items
-setTimeout(() => {
-  db.all('SELECT id, name FROM menu_categories', [], (err, cats) => {
+// Function to insert menu items
+function insertMenuItems() {
+  // First check if items already exist
+  db.get('SELECT COUNT(*) as count FROM menu_items', [], (err, itemResult) => {
     if (err) {
-      console.error('❌ Error fetching categories:', err.message);
+      console.error('❌ Error checking menu items:', err.message);
+      db.close();
+      process.exit(1);
+    }
+    
+    if (itemResult && itemResult.count > 0) {
+      console.log(`⚠️  Found ${itemResult.count} existing menu items`);
+      console.log('   To reseed, delete existing items first or use reseed-menu.js');
       db.close();
       return;
     }
-
-    const categoryMap = {};
-    cats.forEach(cat => {
-      categoryMap[cat.name] = cat.id;
-    });
-
-    const insertItem = db.prepare(`
-      INSERT INTO menu_items (category_id, name, description, price, volume, is_available, sort_order) 
-      VALUES (?, ?, ?, ?, ?, 1, ?)
-    `);
-
-    let order = 0;
-    menuItems.forEach((item) => {
-      const categoryId = categoryMap[item.category];
-      if (!categoryId) {
-        console.error(`❌ Category not found: ${item.category}`);
-        return;
+    
+    // Fetch categories
+    db.all('SELECT id, name FROM menu_categories', [], (err, cats) => {
+      if (err) {
+        console.error('❌ Error fetching categories:', err.message);
+        db.close();
+        process.exit(1);
       }
-      order++;
-      insertItem.run(
-        categoryId,
-        item.name,
-        item.description || null,
-        item.price,
-        item.volume || null,
-        order,
-        (err) => {
-          if (err) {
-            console.error(`❌ Error inserting item ${item.name}:`, err.message);
-          } else {
-            console.log(`   ✅ Item added: ${item.name} - ₪${item.price}`);
-          }
-        }
-      );
-    });
 
-    insertItem.finalize(() => {
-      console.log('\n✨ Menu seeding complete!');
-      console.log(`📝 Added ${categories.length} categories and ${menuItems.length} menu items`);
-      db.close();
+      if (cats.length === 0) {
+        console.error('❌ No categories found! Please run init-database.js first.');
+        db.close();
+        process.exit(1);
+      }
+
+      const categoryMap = {};
+      cats.forEach(cat => {
+        categoryMap[cat.name] = cat.id;
+      });
+
+    db.serialize(() => {
+      const insertItem = db.prepare(`
+        INSERT INTO menu_items (category_id, name, description, price, volume, is_available, sort_order) 
+        VALUES (?, ?, ?, ?, ?, 1, ?)
+      `);
+
+      let order = 0;
+      let inserted = 0;
+      let errors = 0;
+
+      menuItems.forEach((item) => {
+        const categoryId = categoryMap[item.category];
+        if (!categoryId) {
+          console.error(`❌ Category not found: ${item.category}`);
+          errors++;
+          return;
+        }
+        order++;
+        insertItem.run(
+          categoryId,
+          item.name,
+          item.description || null,
+          item.price,
+          item.volume || null,
+          order,
+          (err) => {
+            if (err) {
+              console.error(`❌ Error inserting item ${item.name}:`, err.message);
+              errors++;
+            } else {
+              inserted++;
+              console.log(`   ✅ Item added: ${item.name} - ₪${item.price}`);
+            }
+          }
+        );
+      });
+
+      insertItem.finalize(() => {
+        console.log('\n✨ Menu seeding complete!');
+        console.log(`📝 Added ${inserted} menu items (${errors} errors)`);
+        db.close();
+      });
+    });
     });
   });
-}, 500);
+}

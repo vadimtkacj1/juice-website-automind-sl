@@ -133,13 +133,13 @@ function NavBarShell({
               <span className={navbarStyles['cart-icon-wrapper']}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}></span>
                 )}
               </span>
               <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}></span>
                 )}
               </span>
             </div>
@@ -155,7 +155,7 @@ function NavBarShell({
           >
             <ShoppingBag size={22} />
             {itemCount > 0 && (
-              <span className={navbarStyles['mobile-cart-badge']}>{itemCount}</span>
+              <span className={navbarStyles['mobile-cart-badge']}></span>
             )}
           </button>
           <button
