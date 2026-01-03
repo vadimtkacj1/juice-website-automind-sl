@@ -43,7 +43,14 @@ export async function GET() {
               // Group items by category and translate
               const menu = categories
                 .map((category: any) => {
-                  const categoryItems = items.filter((item: any) => item.category_id == category.id);
+                  // Convert both to numbers for proper comparison (handles string/number mismatch)
+                  const categoryId = Number(category.id);
+                  const categoryItems = items.filter((item: any) => Number(item.category_id) === categoryId);
+                  
+                  if (categoryItems.length > 0) {
+                    console.log(`[Menu API] Category "${category.name}" (ID: ${categoryId}) has ${categoryItems.length} items`);
+                  }
+                  
                   return {
                     ...translateObject(category),
                     items: categoryItems.map((item: any) => translateObject(item)),
@@ -52,6 +59,15 @@ export async function GET() {
                 .filter((category: any) => category.items && category.items.length > 0); // Only return categories with items
 
               console.log(`[Menu API] Returning ${menu.length} categories with items`);
+              
+              // Debug: If no menu but data exists, log the mismatch
+              if (menu.length === 0 && categories.length > 0 && items.length > 0) {
+                console.error('[Menu API] WARNING: Categories and items exist but no matches found!');
+                console.error('[Menu API] Category IDs:', categories.map((c: any) => ({ id: c.id, name: c.name, type: typeof c.id })));
+                const uniqueCategoryIds = Array.from(new Set(items.map((i: any) => i.category_id)));
+                console.error('[Menu API] Item category_ids:', uniqueCategoryIds.map((id: any) => ({ category_id: id, type: typeof id })));
+              }
+              
               resolve(NextResponse.json({ menu }));
             }
           );

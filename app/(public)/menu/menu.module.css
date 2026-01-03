@@ -400,9 +400,11 @@
 
 .menuEmpty h2 {
   font-family: "Heebo", sans-serif;
-  font-size: 32px;
+  font-size: clamp(48px, 8vw, 72px);
+  font-weight: 900;
   color: var(--dark, #1d1a40);
   margin: 0;
+  line-height: 1.2;
 }
 
 /* Responsive */

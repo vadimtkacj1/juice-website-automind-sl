@@ -302,7 +302,7 @@ jobs:
             fi
             if [ -f '/etc/nginx/ssl/cert.pem' ] && [ -f '/etc/nginx/ssl/key.pem' ]; then
               echo '✓ SSL certificates found, configuring HTTPS...'
-              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CFG_HTTPS'
+              cat > /etc/nginx/sites-available/juice-website << 'EOF_NGINX_HTTPS'
 # HTTP server - proxy to Docker container
 server {
     listen 80;
@@ -364,10 +364,10 @@ server {
         access_log off;
     }
 }
-NGINX_CFG_HTTPS
+EOF_NGINX_HTTPS
             else
               echo '⚠ SSL certificates not found, configuring HTTP only...'
-              cat > /etc/nginx/sites-available/juice-website << 'NGINX_CFG_HTTP'
+              cat > /etc/nginx/sites-available/juice-website << 'EOF_NGINX_HTTP'
 # HTTP server - proxy to Docker container
 server {
     listen 80 default_server;
@@ -397,7 +397,7 @@ server {
         access_log off;
     }
 }
-NGINX_CFG_HTTP
+EOF_NGINX_HTTP
             fi
             # Disable default nginx site
             echo 'Disabling default nginx site...'
