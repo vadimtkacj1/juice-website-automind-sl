@@ -47,6 +47,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.10.3",
+    "sharp": "^0.32.6",
     "sqlite3": "^5.1.7",
     "stripe": "^20.1.0",
     "tailwind-merge": "^2.0.0"

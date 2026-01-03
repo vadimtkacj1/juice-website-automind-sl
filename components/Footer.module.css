@@ -66,7 +66,7 @@
 }
 
 .whiteLink .rollInner .hvr {
-  color: var(--secondary) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .footerCopyright {

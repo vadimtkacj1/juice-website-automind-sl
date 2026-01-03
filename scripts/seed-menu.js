@@ -139,7 +139,7 @@ function seedData() {
     
     // Insert categories first
     db.serialize(() => {
-      const insertCategory = db.prepare('INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)');
+      const insertCategory = db.prepare('INSERT INTO menu_categories (name, description, sort_order, is_active) VALUES (?, ?, ?, 1)');
       
       categories.forEach((cat) => {
         insertCategory.run(cat.name, cat.description, cat.sort_order, (err) => {

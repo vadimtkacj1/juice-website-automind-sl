@@ -55,8 +55,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install su-exec for user switching and shadow for chmod/chown
-RUN apk add --no-cache su-exec shadow
+# Install dependencies needed for sharp and native modules
+RUN apk add --no-cache \
+    su-exec \
+    shadow \
+    vips-dev \
+    python3 \
+    make \
+    g++
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -73,6 +79,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Copy scripts directory for database initialization
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
+# Ensure sharp is available - copy from builder's node_modules if needed
+# The standalone build should include it, but we ensure it's there
+RUN if [ ! -d "node_modules/sharp" ]; then \
+    echo "Installing sharp in runner stage..."; \
+    npm install sharp@^0.32.6 --production --no-save || true; \
+    fi
 
 # Ensure server.js exists (it's in the standalone output)
 RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)

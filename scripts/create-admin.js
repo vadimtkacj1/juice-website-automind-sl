@@ -17,19 +17,37 @@ async function createAdmin() {
   
   const db = new sqlite3.Database(dbPath);
 
-  // Check if admin exists
-  db.get('SELECT COUNT(*) as count FROM admins', async (err, result) => {
+  // Check if admins table exists
+  db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='admins'", async (err, table) => {
     if (err) {
-      console.error('Error:', err);
+      console.error('❌ Error checking for admins table:', err.message);
+      console.error(`   Database path: ${dbPath}`);
       db.close();
       return;
     }
 
-    if (result.count > 0) {
-      console.log('❌ Admin already exists!');
+    if (!table) {
+      console.error('❌ Admins table does not exist!');
+      console.error(`   Database path: ${dbPath}`);
+      console.error('💡 Please run: node scripts/init-database.js first');
       db.close();
       return;
     }
+
+    // Check if admin exists
+    db.get('SELECT COUNT(*) as count FROM admins', async (err, result) => {
+      if (err) {
+        console.error('❌ Error checking for admin:', err.message);
+        db.close();
+        return;
+      }
+
+      if (result.count > 0) {
+        console.log('⚠️  Admin already exists!');
+        console.log('💡 To reset password, run: node scripts/reset-admin-password.js');
+        db.close();
+        return;
+      }
 
     // Create default admin
     const username = 'admin';
@@ -55,6 +73,7 @@ async function createAdmin() {
         db.close();
       }
     );
+    });
   });
 }
 

@@ -67,6 +67,6 @@
 }
 
 .white-link .roll-inner .hvr {
-  color: var(--secondary) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
