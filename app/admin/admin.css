@@ -2,6 +2,35 @@
    ADMIN PANEL STYLES
    ============================================ */
 
+/* Hide accessibility widget in admin panel */
+/* Target all possible accessibility widget elements */
+body:has(#admin-layout-root) [id*="accessibility"],
+body:has(#admin-layout-root) [class*="accessibility"],
+body:has(#admin-layout-root) [id*="sienna"],
+body:has(#admin-layout-root) [class*="sienna"],
+body:has(#admin-layout-root) .accessibility-widget-button,
+body:has(#admin-layout-root) .accessibility-widget-panel,
+body:has(#admin-layout-root) .accessibility-widget-overlay,
+html:has(#admin-layout-root) [id*="accessibility"],
+html:has(#admin-layout-root) [class*="accessibility"],
+html:has(#admin-layout-root) [id*="sienna"],
+html:has(#admin-layout-root) [class*="sienna"],
+/* Universal selector for any element with accessibility in class/id when admin panel is present */
+#admin-layout-root ~ * [id*="accessibility"],
+#admin-layout-root ~ * [class*="accessibility"],
+#admin-layout-root ~ * [id*="sienna"],
+#admin-layout-root ~ * [class*="sienna"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
 /* Admin Panel Text - Better Colors */
 /* Target admin layout specifically */
 #admin-layout-root .text-gray-400 {
@@ -131,18 +160,116 @@
   color: #000000;
 }
 
+/* Default Button (without variant) - Beautiful Gradient */
+#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]),
+#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]) {
+  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover,
+#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover {
+  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
+  color: white !important;
+  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"])::before,
+#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"])::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover::before,
+#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover::before {
+  left: 100%;
+}
+
+/* Primary Action Buttons - Beautiful Gradient Background */
 #admin-layout-root button[class*="bg-purple"],
 #admin-main-content button[class*="bg-purple"],
 #admin-layout-root button[class*="bg-purple-600"],
-#admin-main-content button[class*="bg-purple-600"] {
+#admin-main-content button[class*="bg-purple-600"],
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]),
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]) {
+  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
   color: white !important;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
+  border: none !important;
+  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 #admin-layout-root button[class*="bg-purple"]:hover,
-#admin-main-content button[class*="bg-purple"]:hover {
+#admin-main-content button[class*="bg-purple"]:hover,
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover,
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover {
+  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
   color: white !important;
+  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+#admin-layout-root button[class*="bg-purple"]:active,
+#admin-main-content button[class*="bg-purple"]:active,
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):active,
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px 0 rgba(115, 34, 255, 0.3);
+}
+
+/* Add shimmer effect on hover */
+#admin-layout-root button[class*="bg-purple"]::before,
+#admin-main-content button[class*="bg-purple"]::before,
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"])::before,
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"])::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+#admin-layout-root button[class*="bg-purple"]:hover::before,
+#admin-main-content button[class*="bg-purple"]:hover::before,
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover::before,
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover::before {
+  left: 100%;
+}
+
+/* Style buttons with Plus icon (Add buttons) */
+#admin-layout-root button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]),
+#admin-main-content button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]) {
+  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
+}
+
+#admin-layout-root button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]):hover,
+#admin-main-content button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]):hover {
+  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
+  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 #admin-layout-root button[class*="variant"]:not([class*="bg-purple"]),

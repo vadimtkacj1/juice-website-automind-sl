@@ -17,8 +17,7 @@ import {
   ChefHat,
   MessageSquare,
   Clock,
-  ShoppingBag,
-  Sparkles
+  ShoppingBag
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -74,7 +73,6 @@ export default function AdminNavigation() {
     { name: t('Dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
     { name: t('Menu'), href: '/admin/menu', icon: Package },
     { name: t('Ingredients'), href: '/admin/ingredients', icon: ChefHat },
-    { name: t('Addons'), href: '/admin/addons', icon: Sparkles },
     { name: t('Orders'), href: '/admin/orders', icon: ShoppingCart },
     { name: t('Telegram Delivery'), href: '/admin/telegram-delivery', icon: MessageSquare },
     { name: t('News'), href: '/admin/news', icon: Newspaper },

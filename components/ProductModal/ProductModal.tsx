@@ -9,7 +9,6 @@ import ProductModalHeader from './ProductModalHeader';
 import ProductModalImage from './ProductModalImage';
 import ProductModalFeatures from './ProductModalFeatures';
 import VolumeSelector from './VolumeSelector';
-import AddonsSection from './AddonsSection';
 import IngredientsSection from './IngredientsSection';
 import AdditionalItemsSection from './AdditionalItemsSection';
 import ProductModalFooter from './ProductModalFooter';
@@ -34,7 +33,7 @@ interface ProductModalProps {
   item: ProductModalItem | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (item: ProductModalItem & { volume?: string, addons?: CartAddon[], customIngredients?: CartCustomIngredient[] }) => void;
+  onAddToCart: (item: ProductModalItem & { volume?: string, customIngredients?: CartCustomIngredient[] }) => void;
 }
 
 interface OrderPrompt {
@@ -59,10 +58,9 @@ interface OrderPromptProduct {
 }
 
 export default function ProductModal({ item, isOpen, onClose, onAddToCart }: ProductModalProps) {
-  const { addons, customIngredients, volumeOptions, additionalItems } = useProductModalData(item, isOpen);
+  const { customIngredients, volumeOptions, additionalItems } = useProductModalData(item, isOpen);
   
   const [selectedVolume, setSelectedVolume] = useState<string | null>(null);
-  const [selectedAddons, setSelectedAddons] = useState<Map<number, number>>(new Map());
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [selectedIngredientsByCategory, setSelectedIngredientsByCategory] = useState<Map<string, number>>(new Map());
   const [selectedAdditionalItems, setSelectedAdditionalItems] = useState<Set<number>>(new Set());
@@ -76,7 +74,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     if (item) {
       // Reset all selections when a new item is selected
       setSelectedVolume(null);
-      setSelectedAddons(new Map());
       setSelectedIngredients(new Set());
       setSelectedIngredientsByCategory(new Map());
       setSelectedAdditionalItems(new Set());
@@ -224,19 +221,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     }
   }, [isOpen]);
 
-  const handleAddonQuantity = (addonId: number, delta: number) => {
-    setSelectedAddons(prev => {
-      const newMap = new Map(prev);
-      const currentQty = newMap.get(addonId) || 0;
-      const newQty = Math.max(0, currentQty + delta);
-      if (newQty === 0) {
-        newMap.delete(addonId);
-      } else {
-        newMap.set(addonId, newQty);
-      }
-      return newMap;
-    });
-  };
 
   const handleIngredientToggle = (ingredientId: number, selectionType: 'single' | 'multiple' = 'multiple', category?: string) => {
     console.log('handleIngredientToggle called:', { ingredientId, selectionType, category });
@@ -299,16 +283,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const proceedWithAddToCart = (additionalIngredientIds?: number[]) => {
     if (!item) return;
     
-    const addonsArray: CartAddon[] = Array.from(selectedAddons.entries()).map(([id, quantity]) => {
-      const addon = addons.find(a => a.id === id);
-      return {
-        id,
-        name: addon?.name || '',
-        price: addon?.price || 0,
-        quantity
-      };
-    });
-
     // Combine selected ingredients with any additional ones
     const allIngredientIds = new Set(selectedIngredients);
     if (additionalIngredientIds && additionalIngredientIds.length > 0) {
@@ -370,7 +344,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       image: item.image,
       discount_percent: item.discount_percent,
       volume: selectedVolume || undefined,
-      addons: addonsArray.length > 0 ? addonsArray : undefined,
       customIngredients: ingredientsArray.length > 0 ? ingredientsArray : undefined,
       additionalItems: additionalItemsArray.length > 0 ? additionalItemsArray : undefined
     };
@@ -472,11 +445,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       ? basePrice * (1 - numDiscount / 100) 
       : basePrice;
     
-    const addonsPrice = Array.from(selectedAddons.entries()).reduce((total, [id, quantity]) => {
-      const addon = addons.find(a => a.id === id);
-      return total + (addon?.price || 0) * quantity;
-    }, 0);
-
     const ingredientsPrice = Array.from(selectedIngredients).reduce((total, id) => {
       const ingredient = customIngredients.find(i => i.id === id);
       const price = ingredient?.price_override !== undefined && ingredient.price_override !== null
@@ -490,7 +458,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       return total + (additionalItem?.price || 0);
     }, 0);
 
-    return discountedPrice + addonsPrice + ingredientsPrice + additionalItemsPrice;
+    return discountedPrice + ingredientsPrice + additionalItemsPrice;
   };
 
   if (!isOpen || !item) {
@@ -567,13 +535,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               selectedVolume={selectedVolume}
               onVolumeChange={setSelectedVolume}
               discountPercent={numDiscount}
-            />
-
-            {/* Addons */}
-            <AddonsSection
-              addons={addons}
-              selectedAddons={selectedAddons}
-              onQuantityChange={handleAddonQuantity}
             />
 
             {/* Custom Ingredients */}

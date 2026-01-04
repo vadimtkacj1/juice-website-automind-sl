@@ -17,7 +17,10 @@ const dbRun = (db: any, query: string, params: any[] = []) => {
   return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
     db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
       if (err) reject(err);
-      else resolve(this);
+      else {
+        // MySQL wrapper sets 'this' to context with lastID and changes
+        resolve(this || { lastID: 0, changes: 0 });
+      }
     });
   });
 };
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
     const result = await dbRun(
       db,
       `INSERT INTO business_hours (day_of_week, open_time, close_time, sort_order, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         day_of_week,
         open_time,

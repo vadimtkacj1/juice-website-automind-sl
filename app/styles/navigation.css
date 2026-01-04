@@ -91,6 +91,12 @@ body:has(.nav-sticky.is-active) .nav-main {
   justify-content: flex-start;
 }
 
+/* Override roll-inner overflow for cart button */
+.menu-item.cart-button .roll-inner,
+.menu-item.cart-button .roll-inner span {
+  overflow: visible !important;
+}
+
 .roll-inner span {
   display: block;
   font-weight: 900;
@@ -135,7 +141,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   border: none;
   padding: 0;
   margin: 0;
-  overflow: visible; /* Allow badge to be visible outside button */
+  overflow: visible !important; /* Allow badge to be visible outside button - override menu-item overflow:hidden */
 }
 
 .menu-item.cart-button .roll-inner {
@@ -144,7 +150,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   align-items: center;
   width: 100%;
   position: relative;
-  overflow: visible; /* Allow badge to be visible */
+  overflow: visible !important; /* Allow badge to be visible - override any inherited overflow */
 }
 
 .menu-item.cart-button .cart-icon-wrapper {
@@ -162,5 +168,6 @@ body:has(.nav-sticky.is-active) .nav-main {
 .menu-item.cart-button .roll-inner .hvr.cart-icon-wrapper {
   position: relative;
   margin: 0 auto;
+  overflow: visible !important; /* Allow badge to be visible */
 }
 

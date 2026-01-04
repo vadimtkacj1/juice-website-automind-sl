@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const result = await dbRun(
       db,
       `INSERT INTO order_prompts (title, description, prompt_type, is_active, sort_order, show_on_all_products, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         title,
         description || null,

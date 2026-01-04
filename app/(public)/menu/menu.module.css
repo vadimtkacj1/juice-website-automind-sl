@@ -251,6 +251,8 @@
   background: var(--gray-bg, #eaedf6);
   padding: 10px 18px;
   border-radius: 100px;
+  max-width: fit-content;
+  min-width: fit-content;
 }
 
 .priceOld {
@@ -417,64 +419,202 @@
 @media (max-width: 700px) {
   .productsGrid {
     grid-template-columns: 1fr;
-    max-width: 400px;
+    max-width: 100%;
+    gap: 16px;
+    padding: 0 12px;
   }
 
   .categorySection {
     padding: 40px 12px;
+    margin-bottom: 40px;
+    border-radius: 16px;
   }
 
   .categoryTitle {
-    font-size: 60px;
+    font-size: clamp(36px, 12vw, 60px);
   }
 
   .categoryDesc {
-    font-size: 20px;
+    font-size: 16px;
+  }
+
+  /* Product Card Mobile */
+  .productCard {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(29, 26, 64, 0.15);
+  }
+
+  .productCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(29, 26, 64, 0.2);
+  }
+
+  .productImage {
+    aspect-ratio: 1;
+  }
+
+  .productInfo {
+    padding: 16px;
+  }
+
+  .productText {
+    margin-bottom: 12px;
   }
 
   .productName {
-    font-size: 24px;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 4px;
   }
 
   .productDesc {
-    font-size: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  /* Product Footer Mobile */
+  .productFooter {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .priceBadge {
+    padding: 8px 14px;
+    flex: 0 0 auto;
+    max-width: fit-content;
+    min-width: fit-content;
   }
 
   .priceCurrent {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .priceOld {
-    font-size: 16px;
-  }
-
-  .priceVolume {
     font-size: 14px;
   }
 
+  .priceVolume {
+    font-size: 12px;
+  }
+
+  .volumesList {
+    flex: 1;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .volumeBadge {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
   .volumeLabel {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .volumePrice {
-    font-size: 18px;
+    font-size: 16px;
+  }
+
+  .volumeSeparator {
+    font-size: 12px;
   }
 
   .discountBadge {
+    font-size: 12px;
+    padding: 4px 10px;
+    top: 12px;
+    right: 12px;
+  }
+
+  .addBtn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .addBtn:hover {
+    transform: scale(1.05) rotate(90deg);
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .productsGrid {
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .categorySection {
+    padding: 32px 8px;
+    border-radius: 12px;
+  }
+
+  .productInfo {
+    padding: 12px;
+  }
+
+  .productName {
+    font-size: 20px;
+  }
+
+  .productDesc {
     font-size: 13px;
   }
 
   .productFooter {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 6px;
   }
 
-  .volumesList {
-    width: 100%;
+  .priceBadge {
+    padding: 6px 12px;
+    flex: 0 0 auto;
+    max-width: fit-content;
+    min-width: fit-content;
+  }
+
+  .priceCurrent {
+    font-size: 18px;
+  }
+
+  .priceOld {
+    font-size: 13px;
+  }
+
+  .volumeBadge {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .volumeLabel {
+    font-size: 13px;
+  }
+
+  .volumePrice {
+    font-size: 15px;
   }
 
   .addBtn {
-    align-self: flex-end;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .discountBadge {
+    font-size: 11px;
+    padding: 3px 8px;
+    top: 8px;
+    right: 8px;
   }
 }
 

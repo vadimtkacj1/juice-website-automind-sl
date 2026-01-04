@@ -80,7 +80,7 @@ export async function PUT(
     const result = await dbRun(
       db,
       `UPDATE business_hours 
-       SET day_of_week = ?, open_time = ?, close_time = ?, sort_order = ?, is_active = ?, updated_at = datetime('now')
+       SET day_of_week = ?, open_time = ?, close_time = ?, sort_order = ?, is_active = ?, updated_at = NOW()
        WHERE id = ?`,
       [
         day_of_week,

@@ -122,10 +122,17 @@
   
   .menu-item.cart-button {
     height: 24px;
+    overflow: visible !important; /* Override overflow hidden for cart */
   }
   
   .menu-item.cart-button .roll-inner {
     height: 48px;
+    overflow: visible !important; /* Allow badge to be visible */
+  }
+  
+  .menu-item.cart-button .roll-inner span,
+  .menu-item.cart-button .cart-icon-wrapper {
+    overflow: visible !important; /* Allow badge to be visible */
   }
   
   .floating-orange-5,
@@ -314,10 +321,17 @@
   
   .menu-item.cart-button {
     height: 22px;
+    overflow: visible !important; /* Override overflow hidden for cart */
   }
   
   .menu-item.cart-button .roll-inner {
     height: 44px;
+    overflow: visible !important; /* Allow badge to be visible */
+  }
+  
+  .menu-item.cart-button .roll-inner span,
+  .menu-item.cart-button .cart-icon-wrapper {
+    overflow: visible !important; /* Allow badge to be visible */
   }
   
   .logo img {
@@ -623,10 +637,17 @@
   
   .menu-item.cart-button {
     height: 20px;
+    overflow: visible !important; /* Override overflow hidden for cart */
   }
   
   .menu-item.cart-button .roll-inner {
     height: 40px;
+    overflow: visible !important; /* Allow badge to be visible */
+  }
+  
+  .menu-item.cart-button .roll-inner span,
+  .menu-item.cart-button .cart-icon-wrapper {
+    overflow: visible !important; /* Allow badge to be visible */
   }
   
   .logo img {

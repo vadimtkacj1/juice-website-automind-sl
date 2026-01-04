@@ -14,25 +14,18 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
 }> {
   return new Promise((resolve, reject) => {
     const dbInstance = getDatabase();
-    // Calculate total including addons and custom ingredients
+    // Calculate total including custom ingredients
     const total = items.reduce((sum: number, item: any) => {
       const itemPrice = item.price * item.quantity;
-      const addonsPrice = (item.addons || []).reduce((addonTotal: number, addon: any) => 
-        addonTotal + addon.price * addon.quantity * item.quantity, 0
-      );
       const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal: number, ing: any) => 
         ingTotal + ing.price * item.quantity, 0
       );
-      return sum + itemPrice + addonsPrice + ingredientsPrice;
+      return sum + itemPrice + ingredientsPrice;
     }, 0);
     
-    // Build notes with addon and ingredient information
+    // Build notes with ingredient information
     const notesParts = [`Order: ${orderNumber}`];
     items.forEach((item: any, idx: number) => {
-      if (item.addons && item.addons.length > 0) {
-        const addonsList = item.addons.map((a: any) => `${a.name} (x${a.quantity})`).join(', ');
-        notesParts.push(`Item ${idx + 1} addons: ${addonsList}`);
-      }
       if (item.customIngredients && item.customIngredients.length > 0) {
         const ingredientsList = item.customIngredients.map((ing: any) => ing.name).join(', ');
         notesParts.push(`Item ${idx + 1} custom ingredients: ${ingredientsList}`);
@@ -60,21 +53,14 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
           }
           
           const item = items[index];
-          // Calculate item price including addons and ingredients
-          const addonsPrice = (item.addons || []).reduce((addonTotal: number, addon: any) => 
-            addonTotal + addon.price * addon.quantity, 0
-          );
+          // Calculate item price including ingredients
           const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal: number, ing: any) => 
             ingTotal + ing.price, 0
           );
-          const itemTotalPrice = item.price + addonsPrice + ingredientsPrice;
+          const itemTotalPrice = item.price + ingredientsPrice;
           
-          // Build item name with addons and ingredients info
+          // Build item name with ingredients info
           let itemName = item.name;
-          if (item.addons && item.addons.length > 0) {
-            const addonsList = item.addons.map((a: any) => `+${a.name}${a.quantity > 1 ? `(x${a.quantity})` : ''}`).join(' ');
-            itemName += ` [${addonsList}]`;
-          }
           if (item.customIngredients && item.customIngredients.length > 0) {
             const ingredientsList = item.customIngredients.map((ing: any) => ing.name).join(', ');
             itemName += ` [Ingredients: ${ingredientsList}]`;

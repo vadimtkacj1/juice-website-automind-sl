@@ -40,6 +40,11 @@ const NewsSection = () => {
     }
   }
 
+  // Don't render the section if there are no news items (after loading)
+  if (!loading && newsItems.length === 0) {
+    return null;
+  }
+
   return (
     <section className="news-section" aria-labelledby="news-title">
       <div className="news-container">
@@ -60,10 +65,6 @@ const NewsSection = () => {
         {loading ? (
           <div className="news-loading" role="status" aria-label="טוען חדשות">
             <LoadingSpinner size="lg" text="טוען חדשות..." />
-          </div>
-        ) : newsItems.length === 0 ? (
-          <div className="news-empty">
-            <p>אין חדשות זמינות כרגע.</p>
           </div>
         ) : (
           <div className="news-grid" role="list">

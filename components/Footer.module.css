@@ -60,13 +60,30 @@
   text-decoration: underline;
 }
 
-/* White Link Variant for Footer */
+/* Footer Navigation Links - Based on Menu Item Colors */
 .whiteLink .rollInner span {
-  color: #1d1a40 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .whiteLink .rollInner .hvr {
   color: #1d1a40 !important;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Enable hover effect for footer navigation */
+.whiteLink:hover .rollInner {
+  transform: translateY(-24px) !important;
+}
+
+.whiteLink:hover .rollInner span:first-child {
+  opacity: 0 !important;
+  transform: translateY(-24px) !important;
+}
+
+.whiteLink:hover .rollInner .hvr {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .footerCopyright {

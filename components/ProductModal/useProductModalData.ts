@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react';
 
-interface Addon {
-  id: number;
-  name: string;
-  description?: string;
-  price: number;
-  image?: string;
-}
-
 interface CustomIngredient {
   id: number;
   name: string;
@@ -43,29 +35,17 @@ interface ProductModalItem {
 }
 
 export function useProductModalData(item: ProductModalItem | null, isOpen: boolean) {
-  const [addons, setAddons] = useState<Addon[]>([]);
   const [customIngredients, setCustomIngredients] = useState<CustomIngredient[]>([]);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
   const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
 
   useEffect(() => {
     if (!isOpen || !item) {
-      setAddons([]);
       setCustomIngredients([]);
       setVolumeOptions([]);
       setAdditionalItems([]);
       return;
     }
-
-    // Fetch addons
-    fetch('/api/addons')
-      .then(res => res.json())
-      .then(data => {
-        if (data.addons) {
-          setAddons(data.addons);
-        }
-      })
-      .catch(err => console.error('Error fetching addons:', err));
 
     // Fetch custom ingredients for this menu item's category
     const fetchIngredients = (categoryId: number) => {
@@ -198,6 +178,6 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
       .catch(err => console.error('Error fetching additional items:', err));
   }, [isOpen, item]);
 
-  return { addons, customIngredients, volumeOptions, additionalItems };
+  return { customIngredients, volumeOptions, additionalItems };
 }
 

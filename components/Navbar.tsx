@@ -124,31 +124,23 @@ const NavBarShell = React.forwardRef<HTMLDivElement, {
               </div>
             </Link>
           ))}
-          <button
-            onClick={openCart}
-            className={`menu-item ${navbarStyles['cart-button']}`}
-            aria-label={translateToHebrew('Shopping cart')}
-          >
-            <div className="roll-inner">
-              <span className={navbarStyles['cart-icon-wrapper']}>
-                <ShoppingBag size={24} />
-                {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>
-                    {itemCount > 99 ? '99+' : itemCount}
-                  </span>
-                )}
-              </span>
-              <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
-                <ShoppingBag size={24} />
-                {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>
-                    {itemCount > 99 ? '99+' : itemCount}
-                  </span>
-                )}
-              </span>
-            </div>
-          </button>
         </div>
+        
+        {/* Cart Button - Outside nav-links to avoid overflow hidden */}
+        <button
+          onClick={openCart}
+          className={navbarStyles['cart-button']}
+          aria-label={translateToHebrew('Shopping cart')}
+        >
+          <span className={navbarStyles['cart-icon-wrapper']}>
+            <ShoppingBag size={24} />
+            {itemCount > 0 && (
+              <span className={navbarStyles['cart-badge']}>
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
+            )}
+          </span>
+        </button>
 
         {/* Mobile Actions */}
         <div className={navbarStyles['mobile-actions']}>
@@ -188,8 +180,6 @@ function MobileMenu({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const { openCart, getTotalItems } = useCart();
-  const itemCount = getTotalItems();
   const [isVisible, setIsVisible] = useState(false);
   const prevPathnameRef = useRef(pathname);
 
@@ -252,20 +242,6 @@ function MobileMenu({
               {link.label}
             </Link>
           ))}
-          <button
-            onClick={() => {
-              onClose();
-              openCart();
-            }}
-            className="mobile-menu-cart"
-            style={{ animationDelay: `${navLinks.length * 0.05}s` }}
-          >
-            <ShoppingBag size={24} />
-            <span>{translateToHebrew('Cart')}</span>
-            {itemCount > 0 && (
-              <span className="mobile-menu-cart-count">{itemCount}</span>
-            )}
-          </button>
         </div>
       </div>
     </>

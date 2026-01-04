@@ -63,10 +63,25 @@
 
 /* White Link Variant for Footer */
 .white-link .roll-inner span {
-  color: #1d1a40 !important;
+  color: white !important;
 }
 
 .white-link .roll-inner .hvr {
-  color: #1d1a40 !important;
+  color: white !important;
+}
+
+/* Remove hover effect for footer navigation */
+.white-link:hover .roll-inner {
+  transform: none !important;
+}
+
+.white-link:hover .roll-inner span:first-child {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.white-link:hover .roll-inner .hvr {
+  opacity: 0 !important;
+  transform: translateY(24px) !important;
 }
 

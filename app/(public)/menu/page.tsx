@@ -46,7 +46,7 @@ export default function MenuPage() {
   }, [fetchMenu]);
 
   function handleAddToCart(
-    item: MenuItem & { volume?: string; addons?: any[]; customIngredients?: any[] }
+    item: MenuItem & { volume?: string; customIngredients?: any[] }
   ) {
     // Ensure we have numbers (MySQL DECIMAL often returns as strings)
     const numPrice = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
@@ -68,7 +68,6 @@ export default function MenuPage() {
       price: finalPrice,
       image: item.image,
       volume: item.volume,
-      addons: item.addons,
       customIngredients: item.customIngredients,
     });
     

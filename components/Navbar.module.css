@@ -7,6 +7,21 @@
   margin: 0 !important;
   box-shadow: none !important;
   outline: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  transition: opacity 0.2s ease;
+}
+
+.cart-button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.cart-button:hover .cart-icon-wrapper :global(svg) {
+  color: #1d1a40;
 }
 
 .cart-icon-wrapper {
@@ -24,20 +39,21 @@
 }
 
 .cart-icon-wrapper :global(svg) {
-  color: inherit;
+  color: #70758c;
   width: 24px;
   height: 24px;
   flex-shrink: 0;
   stroke-width: 2.5;
+  transition: color 0.2s ease;
 }
 
 .cart-badge {
   position: absolute;
-  right: -8px;
-  top: -8px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
+  right: -6px;
+  top: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
   z-index: 100000 !important;
   background: #9333ea !important; /* Purple color */
   border-radius: 50%;
@@ -45,7 +61,7 @@
   align-items: center;
   justify-content: center;
   color: white !important;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -98,17 +114,27 @@
 }
 
 .mobile-cart-btn :global(svg) {
-  color: inherit;
+  color: #70758c;
   stroke-width: 2.5;
+  transition: color 0.2s ease;
+}
+
+.mobile-cart-btn:hover {
+  cursor: pointer;
+}
+
+.mobile-cart-btn:hover :global(svg) {
+  color: #1d1a40;
+  opacity: 1;
 }
 
 .mobile-cart-badge {
   position: absolute;
   right: -4px;
   top: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
   z-index: 100000 !important;
   background: #9333ea !important; /* Purple color */
   border-radius: 50%;
@@ -116,7 +142,7 @@
   align-items: center;
   justify-content: center;
   color: white !important;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -132,22 +158,27 @@
     display: flex;
   }
   
+  /* Hide desktop cart button on mobile */
+  .cart-button {
+    display: none !important;
+  }
+  
   .cart-badge {
     right: -4px;
     top: -4px;
-    min-width: 16px;
-    height: 16px;
-    font-size: 9px;
-    padding: 0 3px;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    padding: 0 2px;
   }
   
   .mobile-cart-badge {
     right: -2px;
     top: -2px;
-    min-width: 16px;
-    height: 16px;
-    font-size: 9px;
-    padding: 0 3px;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    padding: 0 2px;
   }
 }
 
@@ -156,18 +187,18 @@
   .cart-badge {
     right: -2px;
     top: -2px;
-    min-width: 14px;
-    height: 14px;
-    font-size: 8px;
+    min-width: 12px;
+    height: 12px;
+    font-size: 7px;
     padding: 0 2px;
   }
   
   .mobile-cart-badge {
     right: 0;
     top: 0;
-    min-width: 14px;
-    height: 14px;
-    font-size: 8px;
+    min-width: 12px;
+    height: 12px;
+    font-size: 7px;
     padding: 0 2px;
   }
 }

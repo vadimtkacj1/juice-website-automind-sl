@@ -100,7 +100,6 @@ export default function Cart() {
             price: item.price,
             quantity: item.quantity,
             image: item.image,
-            addons: item.addons,
             customIngredients: item.customIngredients || [],
             additionalItems: item.additionalItems || [],
           })),
@@ -215,17 +214,14 @@ export default function Cart() {
                 ) : (
                   <div className={styles.cartItemsList}>
                     {cart.map((item, index) => {
-                      // Calculate item total including addons, custom ingredients, and additional items
-                      const addonsTotal = (item.addons || []).reduce((total, addon) => 
-                        total + addon.price * addon.quantity, 0
-                      );
+                      // Calculate item total including custom ingredients and additional items
                       const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                         total + ingredient.price, 0
                       );
                       const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
                         total + addItem.price, 0
                       );
-                      const itemTotal = item.price + addonsTotal + ingredientsTotal + additionalItemsTotal;
+                      const itemTotal = item.price + ingredientsTotal + additionalItemsTotal;
                       
                       return (
                         <div key={`${item.id}-${index}`} className={styles.cartItem}>
@@ -245,22 +241,6 @@ export default function Cart() {
                               {item.volume && <span className="cart-item-volume"> - {item.volume}</span>}
                             </h4>
                             
-                            {/* Addons */}
-                            {item.addons && item.addons.length > 0 && (
-                              <div className={styles.cartItemAddons}>
-                                {item.addons.map(addon => (
-                                  <div key={addon.id} className={styles.cartItemAddon}>
-                                    <span className={styles.cartItemAddonName}>
-                                      + {translateToHebrew(addon.name)} (x{addon.quantity})
-                                    </span>
-                                    <span className={styles.cartItemAddonPrice}>
-                                      +₪{(addon.price * addon.quantity).toFixed(0)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
                             {/* Custom Ingredients */}
                             {item.customIngredients && item.customIngredients.length > 0 && (
                               <div className={styles.cartItemIngredients}>
@@ -412,17 +392,14 @@ export default function Cart() {
                     <div className={styles.summaryItems}>
                       {cart.map((item, itemIndex) => {
                         console.log(`Order Summary - Item ${itemIndex}:`, item.name, 'customIngredients:', item.customIngredients);
-                        // Calculate item total including addons, ingredients, and additional items
-                        const addonsTotal = (item.addons || []).reduce((total, addon) => 
-                          total + addon.price * addon.quantity, 0
-                        );
+                        // Calculate item total including ingredients and additional items
                         const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                           total + ingredient.price, 0
                         );
                         const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
                           total + addItem.price, 0
                         );
-                        const itemTotal = item.price + addonsTotal + ingredientsTotal + additionalItemsTotal;
+                        const itemTotal = item.price + ingredientsTotal + additionalItemsTotal;
                         const itemTotalWithQuantity = itemTotal * item.quantity;
                         
                         return (
@@ -431,18 +408,6 @@ export default function Cart() {
                               <span>{item.quantity}x {item.name}{item.volume ? ` (${item.volume})` : ''}</span>
                               <span>₪{itemTotalWithQuantity.toFixed(0)}</span>
                             </div>
-                            
-                            {/* Addons as sub-items */}
-                            {item.addons && item.addons.length > 0 && (
-                              <div className={styles.summarySubItems}>
-                                {item.addons.map((addon) => (
-                                  <div key={addon.id} className={styles.summarySubItem}>
-                                    <span>  + {addon.name} (x{addon.quantity})</span>
-                                    <span>+₪{(addon.price * addon.quantity * item.quantity).toFixed(0)}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
                             
                             {/* Custom Ingredients as sub-items */}
                             {item.customIngredients && item.customIngredients.length > 0 && (

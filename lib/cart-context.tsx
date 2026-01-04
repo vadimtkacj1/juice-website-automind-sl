@@ -84,13 +84,6 @@ function deleteCookie(name: string) {
   }
 }
 
-export interface CartAddon {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
 export interface CartCustomIngredient {
   id: number;
   name: string;
@@ -110,7 +103,6 @@ export interface CartItem {
   image?: string;
   quantity: number;
   volume?: string; // Selected volume (e.g., "0.5L", "1L")
-  addons?: CartAddon[];
   customIngredients?: CartCustomIngredient[]; // Array of custom ingredient objects
   additionalItems?: CartAdditionalItem[]; // Array of additional items (e.g., bigger glass, more kg)
 }
@@ -196,11 +188,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     console.log('customIngredients:', item.customIngredients);
     console.log('additionalItems:', item.additionalItems);
     setCart((prevCart) => {
-      // Create a unique key for this item based on id, volume, addons, custom ingredients, and additional items
+      // Create a unique key for this item based on id, volume, custom ingredients, and additional items
       const itemKey = JSON.stringify({
         id: item.id,
         volume: item.volume || null,
-        addons: item.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
         customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
         additionalItems: item.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
       });
@@ -209,7 +200,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const cartItemKey = JSON.stringify({
             id: cartItem.id,
             volume: cartItem.volume || null,
-            addons: cartItem.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
             customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
             additionalItems: cartItem.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
           });
@@ -221,7 +211,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const cartItemKey = JSON.stringify({
             id: cartItem.id,
             volume: cartItem.volume || null,
-            addons: cartItem.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
             customIngredients: cartItem.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
             additionalItems: cartItem.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
           });
@@ -244,7 +233,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return JSON.stringify({
       id: item.id,
       volume: item.volume || null,
-      addons: item.addons?.map(a => ({ id: a.id, quantity: a.quantity })).sort((a, b) => a.id - b.id) || [],
       customIngredients: item.customIngredients?.map(i => i.id).sort((a, b) => a - b) || [],
       additionalItems: item.additionalItems?.map(i => i.id).sort((a, b) => a - b) || []
     });
@@ -299,13 +287,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const getTotalPrice = () => {
     return cart.reduce((total, item) => {
       const itemPrice = item.price * item.quantity;
-      const addonsPrice = (item.addons || []).reduce((addonTotal, addon) => 
-        addonTotal + addon.price * addon.quantity * item.quantity, 0
-      );
       const ingredientsPrice = (item.customIngredients || []).reduce((ingredientTotal, ingredient) => 
         ingredientTotal + ingredient.price * item.quantity, 0
       );
-      return total + itemPrice + addonsPrice + ingredientsPrice;
+      return total + itemPrice + ingredientsPrice;
     }, 0);
   };
 
