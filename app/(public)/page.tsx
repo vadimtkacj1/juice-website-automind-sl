@@ -40,7 +40,7 @@ export default function HomePage() {
     "name": "נטורליי מרענן - מיצים טבעיים",
     "alternateName": "Naturalay Refreshing",
     "url": "https://www.reviva.com",
-    "logo": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg",
+    "logo": "/images/logo.png",
     "description": "חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום ללא חומרים משמרים.",
     "sameAs": [
       "https://www.facebook.com/reviva",
@@ -62,7 +62,7 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "נטורליי מרענן",
-    "image": "https://framerusercontent.com/images/K2ZYusAMck7jg9gN9jfI2FAslA.svg",
+    "image": "/og-image.jpg",
     "priceRange": "$$",
     "servesCuisine": "מיצים טבעיים, סמוזי, מזון בריא",
     "telephone": phoneNumber || "",

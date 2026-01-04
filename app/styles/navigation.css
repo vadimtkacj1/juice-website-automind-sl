@@ -25,15 +25,16 @@ body:has(.nav-sticky.is-active) .nav-main {
   position: fixed !important;
   top: var(--spacing-sm) !important;
   left: 50% !important;
-  transform: translateX(-50%) translateY(-160%) !important;
+  transform: translateX(-50%) translateY(-100%) !important;
   width: calc(100% - 48px) !important;
   max-width: 600px !important;
   z-index: 2000 !important;
-  transition: transform 0.5s var(--spring-ease), opacity 0.3s ease !important;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, visibility 0.3s ease !important;
   opacity: 0 !important;
   pointer-events: none !important;
   box-sizing: border-box !important;
   visibility: hidden !important;
+  will-change: transform, opacity, visibility;
 }
 
 .nav-sticky.is-active {
@@ -41,6 +42,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   opacity: 1 !important;
   pointer-events: auto !important;
   visibility: visible !important;
+  display: block !important;
 }
 
 .nav-content {
