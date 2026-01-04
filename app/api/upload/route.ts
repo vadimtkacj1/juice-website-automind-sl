@@ -30,11 +30,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 25MB)
-    const maxSize = 25 * 1024 * 1024; // 25MB to align with nginx
+    // Validate file size (max 100MB; aligned with nginx/client limits)
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 10MB.' },
+        { error: 'File too large. Maximum size is 100MB.' },
         { status: 400 }
       );
     }
