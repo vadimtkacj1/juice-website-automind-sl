@@ -11,12 +11,10 @@
  */
 
 const TelegramBot = require('node-telegram-bot-api');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const getDatabase = require('../lib/database');
 const http = require('http');
 
 // Configuration
-const DB_PATH = path.join(process.cwd(), 'juice_website.db');
 const SERVICE_PORT = process.env.TELEGRAM_SERVICE_PORT || 3001;
 const POLLING_INTERVAL = 1000; // 1 second
 const MAX_POLLING_ERRORS = 5;
@@ -33,15 +31,18 @@ let notificationCounts = new Map(); // Track how many times Stage 1 notification
 // Initialize database connection
 function initDatabase() {
   return new Promise((resolve, reject) => {
-    db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('[Telegram Service] Database connection error:', err.message);
-        reject(err);
+    try {
+      db = getDatabase();
+      if (!db) {
+        reject(new Error('Database connection failed'));
         return;
       }
-      console.log('[Telegram Service] Connected to database');
+      console.log('[Telegram Service] Connected to MySQL database');
       resolve();
-    });
+    } catch (err) {
+      console.error('[Telegram Service] Database connection error:', err.message);
+      reject(err);
+    }
   });
 }
 
@@ -232,7 +233,7 @@ async function handleOrderAccept(orderId, courierTelegramId) {
         // Get order details for Stage 2 reminders
         db.get(
           `SELECT o.*, 
-            GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+            GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
            FROM orders o
            LEFT JOIN order_items oi ON o.id = oi.order_id
            WHERE o.id = ?
@@ -515,7 +516,7 @@ async function sendOrderNotification(orderId) {
                           // We need to fetch order details again or store them
                           db.get(
                             `SELECT o.*, 
-                              GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+                              GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
                              FROM orders o
                              LEFT JOIN order_items oi ON o.id = oi.order_id
                              WHERE o.id = ?

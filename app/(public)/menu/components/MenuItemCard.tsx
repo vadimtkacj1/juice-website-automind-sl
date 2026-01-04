@@ -9,10 +9,10 @@ export interface MenuItem {
   category_id: number;
   name: string;
   description?: string;
-  price: number;
+  price: number | string; // Can be string from MySQL DECIMAL
   volume?: string;
   image?: string;
-  discount_percent: number;
+  discount_percent: number | string; // Can be string from MySQL DECIMAL
   is_available: boolean;
   categoryVolumes?: Array<{ volume: string; is_default: boolean; sort_order: number }>;
 }
@@ -22,7 +22,7 @@ interface MenuItemCardProps {
   categoryId: number;
   itemIndex: number;
   onItemClick: (item: MenuItem) => void;
-  getDiscountedPrice: (price: number, discountPercent: number) => number;
+  getDiscountedPrice: (price: number | string, discountPercent: number | string) => number;
 }
 
 export default function MenuItemCard({
@@ -72,11 +72,12 @@ export default function MenuItemCard({
             <div className={styles.volumesList}>
               {item.categoryVolumes.map((vol, volIdx) => {
                 const volPrice = getDiscountedPrice(item.price, item.discount_percent);
+                const numPrice = typeof volPrice === 'number' ? volPrice : parseFloat(String(volPrice)) || 0;
                 return (
                   <div key={volIdx} className={styles.volumeBadge}>
                     <span className={styles.volumeLabel}>{translateToHebrew(vol.volume)}</span>
                     <span className={styles.volumeSeparator}>•</span>
-                    <span className={styles.volumePrice}>₪{volPrice.toFixed(0)}</span>
+                    <span className={styles.volumePrice}>₪{numPrice.toFixed(0)}</span>
                   </div>
                 );
               })}
@@ -84,7 +85,9 @@ export default function MenuItemCard({
           ) : (
             <div className={styles.priceBadge}>
               {item.discount_percent > 0 && (
-                <span className={styles.priceOld}>₪{item.price.toFixed(0)}</span>
+                <span className={styles.priceOld}>₪{
+                  (typeof item.price === 'number' ? item.price : parseFloat(String(item.price)) || 0).toFixed(0)
+                }</span>
               )}
               <span className={styles.priceCurrent}>
                 ₪{getDiscountedPrice(item.price, item.discount_percent).toFixed(0)}

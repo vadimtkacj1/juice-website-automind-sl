@@ -47,7 +47,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.10.3",
-    "sqlite3": "^5.1.7",
+    "mysql2": "^3.6.5",
     "stripe": "^20.1.0",
     "tailwind-merge": "^2.0.0"
   },

@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: juice-website-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-juice_website}
+      MYSQL_USER: ${MYSQL_USER:-juice_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-juice_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - juice-network
+
   nextjs-app:
     build:
       context: .
@@ -24,14 +45,19 @@ services:
       - TELEGRAM_SERVICE_URL=${TELEGRAM_SERVICE_URL:-http://localhost:3001}
       - TELEGRAM_SERVICE_PORT=${TELEGRAM_SERVICE_PORT:-3001}
       - SESSION_SECRET=${SESSION_SECRET}
-      - DATABASE_PATH=/app/data/juice_website.db
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_USER:-juice_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-juice_password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-juice_website}
       - DEPLOYMENT_URL=${DEPLOYMENT_URL}
       - HOSTNAME=0.0.0.0
     volumes:
-      # Database persistence
-      - ./data:/app/data
       # Uploads persistence
       - ./public/uploads:/app/public/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:80/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
@@ -41,23 +67,9 @@ services:
     networks:
       - juice-network
 
-  # Optional: SQLite web interface (only for development)
-  # sqlite-web:
-  #   image: coleifer/sqlite-web:latest
-  #   container_name: sqlite-web
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./data/juice_website.db:/data/juice_website.db
-  #   environment:
-  #     - SQLITE_DATABASE=/data/juice_website.db
-  #   depends_on:
-  #     - nextjs-app
-  #   networks:
-  #     - juice-network
-  #   profiles:
-  #     - dev
+volumes:
+  mysql_data:
+    driver: local
 
 networks:
   juice-network:

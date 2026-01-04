@@ -224,7 +224,7 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
     // Get order details
     db.get(
       `SELECT o.*, 
-        GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+        GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
        FROM orders o
        LEFT JOIN order_items oi ON o.id = oi.order_id
        WHERE o.id = ?
@@ -438,7 +438,7 @@ export async function handleOrderAccept(orderId: number, courierTelegramId: stri
             // Get order details for Stage 2 message
             db.get(
               `SELECT o.*, 
-                GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+                GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
                FROM orders o
                LEFT JOIN order_items oi ON o.id = oi.order_id
                WHERE o.id = ?
@@ -494,7 +494,7 @@ export async function handleOrderAccept(orderId: number, courierTelegramId: stri
                             // Get order details for reminder
                             db.get(
                               `SELECT o.*, 
-                                GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+                                GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
                                FROM orders o
                                LEFT JOIN order_items oi ON o.id = oi.order_id
                                WHERE o.id = ?

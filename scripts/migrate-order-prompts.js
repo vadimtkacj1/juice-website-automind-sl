@@ -1,45 +1,33 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const fs = require('fs');
-
-// Support environment variable for database path (useful for Docker)
-const dbPath = process.env.DATABASE_PATH 
-  ? process.env.DATABASE_PATH 
-  : path.join(__dirname, '../juice_website.db');
+const getDatabase = require('../lib/database');
 
 console.log('🗄️  Migrating database to add order_prompts tables...\n');
-console.log(`📁 Database path: ${dbPath}\n`);
 
-if (!fs.existsSync(dbPath)) {
-  console.error('❌ Database file not found:', dbPath);
+const db = getDatabase();
+
+if (!db) {
+  console.error('❌ Error connecting to database');
   process.exit(1);
 }
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('❌ Error connecting to database:', err.message);
-    process.exit(1);
-  }
-  console.log('✅ Connected to database');
-});
+console.log('✅ Connected to database');
 
 // Create order_prompts table
 db.run(`
   CREATE TABLE IF NOT EXISTS order_prompts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
     prompt_type TEXT NOT NULL DEFAULT 'additional_items',
-    is_active BOOLEAN DEFAULT 1,
-    sort_order INTEGER DEFAULT 0,
-    show_on_all_products BOOLEAN DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
+    is_active TINYINT(1) DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    show_on_all_products TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `, (err) => {
   if (err) {
     console.error('❌ Error creating order_prompts table:', err.message);
-    db.close();
+    if (db.close) db.close();
     process.exit(1);
   } else {
     console.log('✅ Table created: order_prompts');
@@ -47,28 +35,27 @@ db.run(`
     // Create order_prompt_products table
     db.run(`
       CREATE TABLE IF NOT EXISTS order_prompt_products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        prompt_id INTEGER NOT NULL,
-        menu_item_id INTEGER,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        prompt_id INT NOT NULL,
+        menu_item_id INT,
         product_name TEXT,
-        product_price REAL DEFAULT 0,
+        product_price DECIMAL(10,2) DEFAULT 0,
         volume_option TEXT,
-        sort_order INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (prompt_id) REFERENCES order_prompts (id) ON DELETE CASCADE,
-        FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE
-      )
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (prompt_id) REFERENCES order_prompts(id) ON DELETE CASCADE,
+        FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `, (err) => {
       if (err) {
         console.error('❌ Error creating order_prompt_products table:', err.message);
-        db.close();
+        if (db.close) db.close();
         process.exit(1);
       } else {
         console.log('✅ Table created: order_prompt_products');
         console.log('\n✨ Migration complete!');
-        db.close();
+        if (db.close) db.close();
       }
     });
   }
 });
-

@@ -111,14 +111,18 @@ jobs:
             PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-            DATABASE_PATH=./juice_website.db
+            MYSQL_HOST=localhost
+            MYSQL_PORT=3306
+            MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || '' }}
+            MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE || 'juice_website' }}
             DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
             EOF
-            # Initialize database if it doesn't exist
-            if [ ! -f "juice_website.db" ] && [ -d "scripts" ]; then
-              echo "Database not found, initializing..."
-              node scripts/init-database.js || echo "Database initialization skipped"
-              node scripts/create-admin.js || echo "Admin creation skipped"
+            # Initialize database if scripts exist
+            if [ -d "scripts" ]; then
+              echo "Initializing database..."
+              node scripts/init-database.js || echo "Database initialization skipped or already initialized"
+              node scripts/create-admin.js || echo "Admin creation skipped or already exists"
             fi
             # Check if PM2 is installed
             if ! command -v pm2 &> /dev/null; then

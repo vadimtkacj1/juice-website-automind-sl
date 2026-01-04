@@ -15,7 +15,7 @@ interface MenuCategorySectionProps {
   category: MenuCategory;
   categoryIndex: number;
   onItemClick: (item: MenuItem) => void;
-  getDiscountedPrice: (price: number, discountPercent: number) => number;
+  getDiscountedPrice: (price: number | string, discountPercent: number | string) => number;
 }
 
 export default function MenuCategorySection({

@@ -1,14 +1,13 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const getDatabase = require('../lib/database');
 
-const dbPath = path.resolve(__dirname, '../juice_website.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error connecting to database:', err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
-  }
-});
+const db = getDatabase();
+
+if (!db) {
+  console.error('Error connecting to database');
+  process.exit(1);
+}
+
+console.log('Connected to the MySQL database.');
 
 const fallbackNews = [
   {
@@ -46,7 +45,7 @@ const fallbackNews = [
 db.serialize(() => {
   console.log('🌐 Seeding fallback news items in Hebrew...');
 
-  const stmt = db.prepare(`INSERT OR IGNORE INTO news (
+  const stmt = db.prepare(`INSERT IGNORE INTO news (
     id, title, content, image, is_active, created_at
   ) VALUES (?, ?, ?, ?, ?, ?)`);
 
@@ -72,12 +71,9 @@ db.serialize(() => {
 
   stmt.finalize(() => {
     console.log('✅ Fallback news items seeding complete - all in Hebrew!');
-    db.close((err) => {
-      if (err) {
-        console.error('Error closing database:', err.message);
-      } else {
-        console.log('Database connection closed.');
-      }
-    });
+    // Give a moment for any pending queries to complete
+    setTimeout(() => {
+      process.exit(0);
+    }, 500);
   });
 });

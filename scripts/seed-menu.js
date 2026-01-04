@@ -1,17 +1,15 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-
-const dbPath = path.join(__dirname, '../juice_website.db');
+const getDatabase = require('../lib/database');
 
 console.log('🍹 Seeding menu data...\n');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('❌ Error connecting to database:', err.message);
-    process.exit(1);
-  }
-  console.log('✅ Connected to database');
-});
+const db = getDatabase();
+
+if (!db) {
+  console.error('❌ Error connecting to database');
+  process.exit(1);
+}
+
+console.log('✅ Connected to database');
 
 const categories = [
   { name: 'מיצים טריים', description: 'מיצים טבעיים מפירות וירקות טריים', sort_order: 1 },
@@ -88,7 +86,7 @@ const menuItems = [
 
 // Insert categories first
 db.serialize(() => {
-  const insertCategory = db.prepare('INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)');
+  const insertCategory = db.prepare('INSERT IGNORE INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)');
   
   categories.forEach((cat) => {
     insertCategory.run(cat.name, cat.description, cat.sort_order, (err) => {
@@ -108,7 +106,7 @@ setTimeout(() => {
   db.all('SELECT id, name FROM menu_categories', [], (err, cats) => {
     if (err) {
       console.error('❌ Error fetching categories:', err.message);
-      db.close();
+      if (db.close) db.close();
       return;
     }
 
@@ -118,7 +116,7 @@ setTimeout(() => {
     });
 
     const insertItem = db.prepare(`
-      INSERT INTO menu_items (category_id, name, description, price, volume, is_available, sort_order) 
+      INSERT IGNORE INTO menu_items (category_id, name, description, price, volume, is_available, sort_order) 
       VALUES (?, ?, ?, ?, ?, 1, ?)
     `);
 
@@ -150,7 +148,12 @@ setTimeout(() => {
     insertItem.finalize(() => {
       console.log('\n✨ Menu seeding complete!');
       console.log(`📝 Added ${categories.length} categories and ${menuItems.length} menu items`);
-      db.close();
+      
+      // Give a moment for any pending queries to complete
+      setTimeout(() => {
+        // Don't explicitly close the pool - let it be garbage collected
+        process.exit(0);
+      }, 500);
     });
   });
-}, 500);
+}, 1000);

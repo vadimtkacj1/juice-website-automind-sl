@@ -8,7 +8,7 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
   return new Promise<boolean>((resolve) => {
     db.get(
       `SELECT o.*, 
-        GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+        GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
        FROM orders o
        LEFT JOIN order_items oi ON o.id = oi.order_id
        WHERE o.id = ?

@@ -220,7 +220,12 @@ jobs:
           SESSION_SECRET=${{ secrets.SESSION_SECRET }}
           DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
           GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
-          DATABASE_PATH=/app/data/juice_website.db
+          MYSQL_HOST=mysql
+          MYSQL_PORT=3306
+          MYSQL_USER=${{ secrets.MYSQL_USER || 'juice_user' }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || 'juice_password' }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE || 'juice_website' }}
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD || 'rootpassword' }}
           EOF
           if [ -n "${GHCR_TOKEN}" ] && [ "${GHCR_TOKEN}" != "" ]; then
             echo 'Logging in to GitHub Container Registry...'
@@ -247,43 +252,28 @@ jobs:
           ls -la docker-compose.yml
           # Create data directory on host with proper permissions
           echo 'Creating data directory on host...'
-          mkdir -p data public/uploads
-          chmod 755 data public/uploads
+          mkdir -p public/uploads
+          chmod 755 public/uploads
           echo '✓ Data directories ready'
+          
+          # Start MySQL first
+          echo 'Starting MySQL...'
+          docker-compose -f docker-compose.yml up -d mysql
+          sleep 10
+          
           # Use explicit file path
           docker-compose -f docker-compose.yml pull nextjs-app || true
           docker-compose -f docker-compose.yml up -d nextjs-app
           sleep 5
-          # Initialize database ONLY if it doesn't exist
-          echo 'Checking if database exists...'
-          if [ ! -f 'data/juice_website.db' ]; then
-            echo 'Database not found, initializing...'
-            docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container'
-            echo 'Verifying data directory is writable...'
-            docker exec juice-website sh -c 'test -w /app/data && echo "✓ Directory is writable" || echo "⚠ Directory not writable, fixing permissions..." && chmod 777 /app/data'
-            echo 'Creating database tables...'
-            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
-              echo '⚠ Database initialization failed, trying alternative method...'
-              docker exec juice-website sh -c 'chmod 777 /app/data && touch /app/data/juice_website.db && chmod 666 /app/data/juice_website.db'
-              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
-                echo '⚠ Still failing, trying with root user to fix permissions...'
-                docker exec -u root juice-website sh -c 'chmod -R 777 /app/data'
-                docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/init-database.js || {
-                  echo '❌ Database initialization failed after all attempts'
-                  echo 'Checking directory permissions:'
-                  docker exec juice-website ls -la /app/ | grep data
-                  exit 1
-                }
-              }
-            }
-            echo 'Creating admin user...'
-            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists'
-            echo 'Verifying database file was created...'
-            docker exec juice-website sh -c 'ls -lh /app/data/juice_website.db && echo "✓ Database file exists"'
-            echo '✅ Database initialized successfully!'
-          else
-            echo '✓ Database already exists, skipping initialization'
-          fi
+          
+          # Initialize database
+          echo 'Initializing database...'
+          docker cp scripts juice-website:/app/scripts 2>/dev/null || echo 'Scripts already in container'
+          echo 'Creating database tables...'
+          docker exec juice-website node scripts/init-database.js || echo '⚠ Database initialization failed or tables already exist'
+          echo 'Creating admin user...'
+          docker exec juice-website node scripts/create-admin.js || echo '⚠ Admin creation failed or admin already exists'
+          echo '✅ Database initialized successfully!'
           # Configure Nginx to proxy to Docker container
           echo 'Configuring Nginx...'
           if command -v nginx &> /dev/null; then

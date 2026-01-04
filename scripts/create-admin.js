@@ -1,62 +1,63 @@
 const bcrypt = require('bcryptjs');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const fs = require('fs');
+const getDatabase = require('../lib/database');
 
 async function createAdmin() {
-  // Support environment variable for database path (useful for Docker)
-  const dbPath = process.env.DATABASE_PATH 
-    ? process.env.DATABASE_PATH 
-    : path.join(__dirname, '../juice_website.db');
+  const db = getDatabase();
   
-  // Ensure directory exists
-  const dbDir = path.dirname(dbPath);
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+  if (!db) {
+    console.error('❌ Error: Could not connect to database');
+    console.error('Please check your MySQL configuration in environment variables');
+    process.exit(1);
   }
-  
-  const db = new sqlite3.Database(dbPath);
 
   // Check if admin exists
-  db.get('SELECT COUNT(*) as count FROM admins', async (err, result) => {
-    if (err) {
-      console.error('Error:', err);
-      db.close();
-      return;
-    }
+  return new Promise((resolve) => {
+    db.all('SELECT COUNT(*) as count FROM admins', [], async (err, result) => {
+      if (err) {
+        console.error('Error:', err);
+        if (db.close) db.close();
+        process.exit(1);
+        return;
+      }
 
-    if (result.count > 0) {
-      console.log('❌ Admin already exists!');
-      db.close();
-      return;
-    }
+      const count = result && result.length > 0 ? result[0].count : 0;
+      
+      if (count > 0) {
+        console.log('❌ Admin already exists!');
+        if (db.close) db.close();
+        process.exit(0);
+        return;
+      }
 
-    // Create default admin
-    const username = 'admin';
-    const password = 'admin123'; // Change this!
-    const email = 'admin@juicewebsite.com';
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
+      // Create default admin
+      const username = 'admin';
+      const password = 'admin123'; // Change this!
+      const email = 'admin@juicewebsite.com';
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.run(
-      'INSERT INTO admins (username, password, email) VALUES (?, ?, ?)',
-      [username, hashedPassword, email],
-      function(err) {
-        if (err) {
-          console.error('Error creating admin:', err);
-        } else {
+      db.run(
+        'INSERT INTO admins (username, password, email) VALUES (?, ?, ?)',
+        [username, hashedPassword, email],
+        function(err) {
+          if (err) {
+            console.error('Error creating admin:', err);
+            if (db.close) db.close();
+            process.exit(1);
+            return;
+          }
           console.log('✅ Admin created successfully!');
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log('Username: ' + username);
           console.log('Password: ' + password);
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log('⚠️  IMPORTANT: Change the password after first login!');
+          if (db.close) db.close();
+          process.exit(0);
         }
-        db.close();
-      }
-    );
+      );
+    });
   });
 }
 
 createAdmin();
-

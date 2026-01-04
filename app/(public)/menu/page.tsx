@@ -48,10 +48,16 @@ export default function MenuPage() {
   function handleAddToCart(
     item: MenuItem & { volume?: string; addons?: any[]; customIngredients?: any[] }
   ) {
+    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
+    const numPrice = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
+    const numDiscount = typeof item.discount_percent === 'string' 
+      ? parseFloat(item.discount_percent) 
+      : (item.discount_percent || 0);
+    
     const finalPrice =
-      item.discount_percent > 0
-        ? item.price * (1 - item.discount_percent / 100)
-        : item.price;
+      numDiscount > 0
+        ? numPrice * (1 - numDiscount / 100)
+        : numPrice;
 
     console.log('handleAddToCart in menu page - item:', item);
     console.log('handleAddToCart in menu page - customIngredients:', item.customIngredients);
@@ -71,11 +77,15 @@ export default function MenuPage() {
     setSelectedItem(null);
   }
 
-  function getDiscountedPrice(price: number, discountPercent: number) {
-    if (discountPercent > 0) {
-      return price * (1 - discountPercent / 100);
+  function getDiscountedPrice(price: number | string, discountPercent: number | string): number {
+    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
+    const numPrice = typeof price === 'string' ? parseFloat(price) : (price || 0);
+    const numDiscount = typeof discountPercent === 'string' ? parseFloat(discountPercent) : (discountPercent || 0);
+    
+    if (numDiscount > 0) {
+      return numPrice * (1 - numDiscount / 100);
     }
-    return price;
+    return numPrice;
   }
 
   if (loading && allMenuItems.length === 0) {
