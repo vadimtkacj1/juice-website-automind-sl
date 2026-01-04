@@ -68,5 +68,9 @@ export const adminBusinessHoursTranslations: Record<string, string> = {
   'saving...': 'שומר...',
   'Save Changes': 'שמור שינויים',
   'save changes': 'שמור שינויים',
+  'ON': 'פעיל',
+  'on': 'פעיל',
+  'OFF': 'לא פעיל',
+  'off': 'לא פעיל',
 };
 

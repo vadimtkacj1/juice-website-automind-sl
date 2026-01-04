@@ -133,13 +133,17 @@ const NavBarShell = React.forwardRef<HTMLDivElement, {
               <span className={navbarStyles['cart-icon-wrapper']}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}></span>
+                  <span className={navbarStyles['cart-badge']}>
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
                 )}
               </span>
               <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}></span>
+                  <span className={navbarStyles['cart-badge']}>
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
                 )}
               </span>
             </div>
@@ -155,7 +159,9 @@ const NavBarShell = React.forwardRef<HTMLDivElement, {
           >
             <ShoppingBag size={22} />
             {itemCount > 0 && (
-              <span className={navbarStyles['mobile-cart-badge']}></span>
+              <span className={navbarStyles['mobile-cart-badge']}>
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
             )}
           </button>
           <button

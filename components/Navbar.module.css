@@ -19,6 +19,8 @@
   background: transparent;
   border-radius: 50%;
   flex-shrink: 0;
+  overflow: visible !important; /* Ensure badge is not clipped */
+  z-index: 1; /* Ensure wrapper is above other elements */
 }
 
 .cart-icon-wrapper :global(svg) {
@@ -31,13 +33,26 @@
 
 .cart-badge {
   position: absolute;
-  left: -5px;
-  top: -5px;
-  height: 16px;
-  width: 16px;
-  z-index: 99999999;
-  background: #ff00ff;
+  right: -8px;
+  top: -8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  z-index: 100000 !important;
+  background: #9333ea !important; /* Purple color */
   border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none; /* Prevent badge from blocking clicks */
+  white-space: nowrap;
+  transform: translateZ(0); /* Force hardware acceleration */
+  isolation: isolate; /* Create new stacking context */
 }
 
 @keyframes pulse {
@@ -78,6 +93,8 @@
   position: relative;
   background: transparent !important;
   color: #1d1a40 !important;
+  overflow: visible !important; /* Allow badge to be visible */
+  z-index: 1; /* Ensure button is above other elements */
 }
 
 .mobile-cart-btn :global(svg) {
@@ -87,18 +104,70 @@
 
 .mobile-cart-badge {
   position: absolute;
-  left: -5px;
-  top: -5px;
-  height: 16px;
-  width: 16px;
-  z-index: 99999999;
-  background: #ff00ff;
+  right: -4px;
+  top: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  z-index: 100000 !important;
+  background: #9333ea !important; /* Purple color */
   border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none; /* Prevent badge from blocking clicks */
+  white-space: nowrap;
+  transform: translateZ(0); /* Force hardware acceleration */
+  isolation: isolate; /* Create new stacking context */
 }
 
 /* Burger menu only on smaller screens (mobile/tablet) */
 @media (max-width: 768px) {
   .mobile-actions {
     display: flex;
+  }
+  
+  .cart-badge {
+    right: -4px;
+    top: -4px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 9px;
+    padding: 0 3px;
+  }
+  
+  .mobile-cart-badge {
+    right: -2px;
+    top: -2px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 9px;
+    padding: 0 3px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .cart-badge {
+    right: -2px;
+    top: -2px;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    padding: 0 2px;
+  }
+  
+  .mobile-cart-badge {
+    right: 0;
+    top: 0;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    padding: 0 2px;
   }
 }

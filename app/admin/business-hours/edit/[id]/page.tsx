@@ -167,14 +167,23 @@ export default function EditBusinessHour({ params }: { params: { id: string } })
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_active"
-                name="is_active"
-                checked={formData.is_active}
-                onCheckedChange={handleSwitchChange}
-              />
-              <Label htmlFor="is_active">{t('Is Active')}</Label>
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="is_active"
+                  name="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={handleSwitchChange}
+                />
+                <Label htmlFor="is_active" className="font-medium cursor-pointer">{t('Is Active')}</Label>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                formData.is_active 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {formData.is_active ? t('ON') : t('OFF')}
+              </span>
             </div>
             <div className="flex justify-end gap-2">
               <Link href="/admin/business-hours">

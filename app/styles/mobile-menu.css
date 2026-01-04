@@ -104,6 +104,26 @@
   opacity: 0;
   transform: translateX(30px);
   animation: slideInRight 0.4s var(--spring-ease) forwards;
+  position: relative;
+}
+
+.mobile-menu-cart-count {
+  position: absolute;
+  right: 0;
+  top: 20px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: #9333ea; /* Purple color */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes slideInRight {

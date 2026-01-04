@@ -27,13 +27,23 @@ export default function ImageUpload({
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
   const [urlInput, setUrlInput] = useState(value || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isUploadingRef = useRef(false);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Prevent multiple simultaneous uploads using both state and ref
+    if (uploading || isUploadingRef.current) {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
     setError(null);
     setUploading(true);
+    isUploadingRef.current = true;
 
     try {
       const formData = new FormData();
@@ -45,20 +55,29 @@ export default function ImageUpload({
         body: formData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(errorData.error || t('Upload failed'));
+      }
+
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || t('Upload failed'));
+      // Only call onChange if we got a valid URL
+      if (data.url) {
+        onChange(data.url);
       }
-
-      onChange(data.url);
     } catch (err: any) {
       setError(err.message || t('Failed to upload image'));
+      console.error('Upload error:', err);
     } finally {
       setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      isUploadingRef.current = false;
+      // Reset file input after a small delay to prevent re-triggering
+      setTimeout(() => {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }, 100);
     }
   }
 
@@ -129,11 +148,17 @@ export default function ImageUpload({
       {/* Upload Mode */}
       {mode === 'upload' && !value && (
         <div
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!uploading && !isUploadingRef.current) {
+              fileInputRef.current?.click();
+            }
+          }}
           className={`
-            border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
+            border-2 border-dashed rounded-xl p-8 text-center
             transition-colors
-            ${uploading ? 'border-purple-300 bg-purple-50' : 'border-gray-200 hover:border-purple-400 hover:bg-purple-50'}
+            ${uploading || isUploadingRef.current 
+              ? 'border-purple-300 bg-purple-50 cursor-not-allowed' 
+              : 'border-gray-200 hover:border-purple-400 hover:bg-purple-50 cursor-pointer'}
           `}
         >
           {uploading ? (
@@ -157,6 +182,7 @@ export default function ImageUpload({
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
             onChange={handleFileChange}
+            disabled={uploading}
             className="hidden"
           />
         </div>

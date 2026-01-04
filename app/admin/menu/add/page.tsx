@@ -93,6 +93,7 @@ export default function AddMenuItem() {
           category_id: parseInt(form.category_id),
           price: defaultPrice,
           volume: defaultVolume,
+          image: form.image || null, // Explicitly include image
           discount_percent: parseFloat(form.discount_percent) || 0
         })
       });
