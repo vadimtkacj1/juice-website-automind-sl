@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'  # Version is obsolete in newer docker-compose
 
 services:
   mysql:
@@ -11,7 +11,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-juice_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-juice_password}
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "${MYSQL_EXTERNAL_PORT:-3307}:3306"  # Changed default to 3307 to avoid conflicts
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV=production
-    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/your-repo}:latest
+    # image: ghcr.io/${GITHUB_REPOSITORY:-your-username/your-repo}:latest
     container_name: juice-website
     restart: unless-stopped
     ports:
