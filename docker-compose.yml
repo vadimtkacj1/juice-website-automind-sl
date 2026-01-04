@@ -23,12 +23,12 @@ services:
       - juice-network
 
   nextjs-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV=production
-    # image: ghcr.io/${GITHUB_REPOSITORY:-your-username/your-repo}:latest
+    image: ghcr.io/${GITHUB_REPOSITORY:-vadimtkacj1/juice-website-automind-sl}:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     - NODE_ENV=production
     container_name: juice-website
     restart: unless-stopped
     ports:
