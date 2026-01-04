@@ -46,20 +46,26 @@ export async function GET() {
     }
 
     return new Promise<NextResponse>((resolve) => {
-          // First verify database connection and file
+          // First verify database connection and file - run synchronously
           db.get('SELECT COUNT(*) as total FROM menu_categories', [], (err: any, countResult: any) => {
             if (err) {
               console.error(`${requestId} [Menu API] Error checking database:`, err);
             } else {
               console.error(`${requestId} [Menu API] Database verification - Total categories in DB: ${countResult?.total || 0}`);
             }
-          });
-          
-          // Get all active categories
-      db.all(
-        'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order',
-        [],
-        (err: any, categories: any[]) => {
+            
+            // Also check items count
+            db.get('SELECT COUNT(*) as total FROM menu_items', [], (err2: any, itemsCount: any) => {
+              if (!err2 && itemsCount) {
+                console.error(`${requestId} [Menu API] Database verification - Total items in DB: ${itemsCount.total || 0}`);
+              }
+              
+              // Now run the actual queries
+              // Get all active categories
+              db.all(
+                'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order',
+                [],
+                (err: any, categories: any[]) => {
           if (err) {
             console.error(`${requestId} [Menu API] Database error:`, err);
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));
@@ -89,11 +95,22 @@ export async function GET() {
           // If no categories found, check if table exists and has any data
           if (categories.length === 0) {
             console.error(`${requestId} [Menu API] No active categories found, checking all categories...`);
-            db.all('SELECT * FROM menu_categories LIMIT 5', [], (err: any, allCats: any[]) => {
+            db.all('SELECT * FROM menu_categories LIMIT 10', [], (err: any, allCats: any[]) => {
               if (!err) {
                 console.error(`${requestId} [Menu API] All categories (including inactive): ${allCats.length}`);
                 if (allCats.length > 0) {
-                  console.error(`${requestId} [Menu API] Sample categories:`, JSON.stringify(allCats.map((c: any) => ({ id: c.id, name: c.name, is_active: c.is_active }))));
+                  console.error(`${requestId} [Menu API] Sample categories:`, JSON.stringify(allCats.map((c: any) => ({ 
+                    id: c.id, 
+                    name: c.name, 
+                    is_active: c.is_active,
+                    is_active_type: typeof c.is_active,
+                    is_active_value: c.is_active
+                  }))));
+                  
+                  // Test the WHERE clause directly
+                  console.error(`${requestId} [Menu API] Testing WHERE clause: is_active = 1`);
+                  const activeCats = allCats.filter((c: any) => c.is_active == 1 || c.is_active === 1 || c.is_active === '1');
+                  console.error(`${requestId} [Menu API] Categories matching is_active = 1: ${activeCats.length}`);
                 }
               } else {
                 console.error(`${requestId} [Menu API] Error fetching all categories:`, err);
@@ -217,8 +234,10 @@ export async function GET() {
               resolve(NextResponse.json({ menu }));
             }
           );
-        }
-      );
+              }
+            });
+          }
+        });
     });
   } catch (error: any) {
     console.error('API error:', error);

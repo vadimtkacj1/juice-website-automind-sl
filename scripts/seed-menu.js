@@ -132,8 +132,25 @@ function seedData() {
     }
     
     if (result.count > 0) {
-      console.log(`⚠️  Found ${result.count} existing categories, skipping category insertion`);
-      insertMenuItems();
+      console.log(`⚠️  Found ${result.count} existing categories`);
+      
+      // Check if any categories are inactive and activate them
+      db.get('SELECT COUNT(*) as count FROM menu_categories WHERE is_active = 0', [], (err, inactiveResult) => {
+        if (!err && inactiveResult && inactiveResult.count > 0) {
+          console.log(`   Found ${inactiveResult.count} inactive categories, activating them...`);
+          db.run('UPDATE menu_categories SET is_active = 1', (err) => {
+            if (err) {
+              console.error(`   ⚠️  Warning: Could not activate categories: ${err.message}`);
+            } else {
+              console.log(`   ✅ Activated ${inactiveResult.count} categories`);
+            }
+            insertMenuItems();
+          });
+        } else {
+          console.log(`   Skipping category insertion (categories already exist and are active)`);
+          insertMenuItems();
+        }
+      });
       return;
     }
     
@@ -185,16 +202,55 @@ function insertMenuItems() {
     // If we have items but not enough, or items not linked properly, reseed
     if (itemResult && itemResult.count > 0 && itemResult.count < 10) {
       console.log(`⚠️  Found only ${itemResult.count} items linked to active categories`);
-      console.log('   This seems incomplete. Reseeding menu items...');
-      // Delete existing items first
-      db.run('DELETE FROM menu_items', (err) => {
-        if (err) {
-          console.error('❌ Error deleting existing items:', err.message);
-        } else {
-          console.log('   Cleared existing items, now inserting new ones...');
+      console.log('   This seems incomplete. Checking for unavailable items...');
+      
+      // Check if there are unavailable items that could be activated
+      db.get('SELECT COUNT(*) as count FROM menu_items WHERE is_available = 0', [], (err, unavailableResult) => {
+        if (!err && unavailableResult && unavailableResult.count > 0) {
+          console.log(`   Found ${unavailableResult.count} unavailable items, activating them...`);
+          db.run('UPDATE menu_items SET is_available = 1', (err) => {
+            if (err) {
+              console.error(`   ⚠️  Warning: Could not activate items: ${err.message}`);
+            } else {
+              console.log(`   ✅ Activated ${unavailableResult.count} items`);
+            }
+            // Re-check after activation
+            db.get(`
+              SELECT COUNT(*) as count 
+              FROM menu_items mi
+              INNER JOIN menu_categories mc ON mi.category_id = mc.id
+              WHERE mi.is_available = 1 AND mc.is_active = 1
+            `, [], (err, newItemResult) => {
+              if (!err && newItemResult && newItemResult.count >= 10) {
+                console.log(`   ✅ Now have ${newItemResult.count} available items, menu is complete`);
+                db.close();
+                return;
+              }
+              // Still not enough, proceed with reseeding
+              console.log('   Still not enough items, clearing and reseeding...');
+              db.run('DELETE FROM menu_items', (err) => {
+                if (err) {
+                  console.error('❌ Error deleting existing items:', err.message);
+                } else {
+                  console.log('   Cleared existing items, now inserting new ones...');
+                }
+                insertItemsNow();
+              });
+            });
+          });
+          return;
         }
-        // Continue to insert items below
-        insertItemsNow();
+        
+        // No unavailable items, proceed with clearing and reseeding
+        console.log('   Clearing existing items and reseeding...');
+        db.run('DELETE FROM menu_items', (err) => {
+          if (err) {
+            console.error('❌ Error deleting existing items:', err.message);
+          } else {
+            console.log('   Cleared existing items, now inserting new ones...');
+          }
+          insertItemsNow();
+        });
       });
       return;
     }

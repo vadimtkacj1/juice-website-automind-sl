@@ -376,8 +376,11 @@ jobs:
           
           if [ "$MENU_COUNT" = "0" ] || [ "$MENU_ITEMS_COUNT" = "0" ]; then
             echo '⚠️  WARNING: Menu data is missing or incomplete!'
-            echo 'Attempting to reseed menu...'
-            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Reseed failed'
+            echo 'Attempting to reseed menu (clearing and reseeding)...'
+            docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/reseed-menu.js || {
+              echo '⚠ Reseed failed, trying regular seed...'
+              docker exec -e DATABASE_PATH=/app/data/juice_website.db juice-website node scripts/seed-menu.js || echo '⚠ Seed also failed'
+            }
           fi
           
           if [ "$LOCATIONS_COUNT" = "0" ]; then
