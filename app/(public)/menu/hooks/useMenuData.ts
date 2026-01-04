@@ -18,14 +18,14 @@ export function useMenuData() {
 
   const processAndSetMenu = useCallback(async (data: MenuCategory[]) => {
     const requestId = `[${Date.now()}]`;
-    console.log(`${requestId} [Frontend] ===== processAndSetMenu called =====`);
-    console.log(`${requestId} [Frontend] Input data: ${data.length} categories`);
+    console.error(`${requestId} [Frontend] ===== processAndSetMenu called =====`);
+    console.error(`${requestId} [Frontend] Input data: ${data.length} categories`);
     
     const newMenu: MenuCategory[] = [];
 
     // Process each category and fetch volumes
     for (const category of data) {
-      console.log(`${requestId} [Frontend] Processing category: ${category.name} (ID: ${category.id}) with ${category.items?.length || 0} items`);
+      console.error(`${requestId} [Frontend] Processing category: ${category.name} (ID: ${category.id}) with ${category.items?.length || 0} items`);
       if (category.items && category.items.length > 0) {
         // Fetch category volumes
         let categoryVolumes: any[] = [];
@@ -60,58 +60,58 @@ export function useMenuData() {
       }
     }
 
-    console.log(`${requestId} [Frontend] Final menu: ${newMenu.length} categories`);
-    console.log(`${requestId} [Frontend] Total items across all categories: ${newMenu.reduce((sum, cat) => sum + (cat.items?.length || 0), 0)}`);
+    console.error(`${requestId} [Frontend] Final menu: ${newMenu.length} categories`);
+    console.error(`${requestId} [Frontend] Total items across all categories: ${newMenu.reduce((sum, cat) => sum + (cat.items?.length || 0), 0)}`);
     
     setAllMenuItems(newMenu);
     setDisplayedMenu(
       newMenu.map((cat) => ({ ...cat, items: cat.items.slice(0, ITEMS_PER_LOAD) }))
     );
     setHasMore(newMenu.some((cat) => cat.items.length > ITEMS_PER_LOAD));
-    console.log(`${requestId} [Frontend] ===== processAndSetMenu completed =====`);
+    console.error(`${requestId} [Frontend] ===== processAndSetMenu completed =====`);
   }, []);
 
   const fetchMenu = useCallback(async () => {
     const requestId = `[${Date.now()}]`;
-    console.log(`${requestId} [Frontend] ===== fetchMenu called =====`);
+    console.error(`${requestId} [Frontend] ===== fetchMenu called =====`);
     
     setLoading(true);
     setGlobalLoading(true);
     try {
-      console.log(`${requestId} [Frontend] Fetching from /api/menu...`);
+      console.error(`${requestId} [Frontend] Fetching from /api/menu...`);
       const response = await fetch('/api/menu');
-      console.log(`${requestId} [Frontend] Response status: ${response.status} ${response.statusText}`);
+      console.error(`${requestId} [Frontend] Response status: ${response.status} ${response.statusText}`);
       
       const data = await response.json();
-      console.log(`${requestId} [Frontend] Response data:`, {
+      console.error(`${requestId} [Frontend] Response data:`, JSON.stringify({
         hasError: !!data.error,
         hasMenu: !!data.menu,
         menuLength: data.menu?.length || 0,
         debug: data.debug || null
-      });
+      }));
 
       if (data.error) {
         console.error(`${requestId} [Frontend] API returned error:`, data.error);
         if (data.debug) {
-          console.error(`${requestId} [Frontend] Debug info:`, data.debug);
+          console.error(`${requestId} [Frontend] Debug info:`, JSON.stringify(data.debug));
         }
         setError(data.error);
       } else {
-        console.log(`${requestId} [Frontend] Processing menu with ${data.menu?.length || 0} categories`);
+        console.error(`${requestId} [Frontend] Processing menu with ${data.menu?.length || 0} categories`);
         if (data.menu && data.menu.length > 0) {
-          console.log(`${requestId} [Frontend] Category breakdown:`, data.menu.map((cat: any) => ({
+          console.error(`${requestId} [Frontend] Category breakdown:`, JSON.stringify(data.menu.map((cat: any) => ({
             id: cat.id,
             name: cat.name,
             itemCount: cat.items?.length || 0
-          })));
+          }))));
         } else {
-          console.warn(`${requestId} [Frontend] WARNING: Menu array is empty!`);
+          console.error(`${requestId} [Frontend] WARNING: Menu array is empty!`);
           if (data.debug) {
-            console.warn(`${requestId} [Frontend] Debug info:`, data.debug);
+            console.error(`${requestId} [Frontend] Debug info:`, JSON.stringify(data.debug));
           }
         }
         await processAndSetMenu(data.menu || []);
-        console.log(`${requestId} [Frontend] Menu processed successfully`);
+        console.error(`${requestId} [Frontend] Menu processed successfully`);
       }
     } catch (err: any) {
       console.error(`${requestId} [Frontend] Fetch error:`, err);
@@ -123,7 +123,7 @@ export function useMenuData() {
       setTimeout(() => {
         setLoading(false);
         setGlobalLoading(false);
-        console.log(`${requestId} [Frontend] ===== fetchMenu completed =====`);
+        console.error(`${requestId} [Frontend] ===== fetchMenu completed =====`);
       }, 300);
     }
   }, [processAndSetMenu, setGlobalLoading]);
