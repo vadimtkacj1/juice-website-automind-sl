@@ -14,49 +14,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  background: #1d1a40;
+  width: 32px;
+  height: 32px;
+  background: transparent;
   border-radius: 50%;
   flex-shrink: 0;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.15);
-}
-
-.cart-icon-wrapper:hover {
-  background: #2a2550;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.25);
 }
 
 .cart-icon-wrapper :global(svg) {
-  color: white;
-  width: 21px;
-  height: 21px;
+  color: inherit;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   stroke-width: 2.5;
 }
 
 .cart-badge {
   position: absolute;
+  left: -5px;
   top: -5px;
-  right: -5px;
+  height: 16px;
+  width: 16px;
+  z-index: 99999999;
   background: #ff00ff;
-  color: #1d1a40;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  min-width: 21px;
-  height: 21px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  border: 2.5px solid white;
-  z-index: 10;
-  box-shadow: 0 2px 6px rgba(255, 0, 255, 0.3);
-  animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -89,49 +70,30 @@
   transition: background 0.2s ease;
 }
 
-.mobile-cart-btn:hover,
 .mobile-menu-btn:hover {
   background: rgba(29, 26, 64, 0.1);
 }
 
 .mobile-cart-btn {
   position: relative;
-  background: #1d1a40 !important;
-  color: white !important;
-  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.15);
-  transition: all 0.2s ease;
+  background: transparent !important;
+  color: #1d1a40 !important;
 }
 
 .mobile-cart-btn :global(svg) {
-  color: white;
+  color: inherit;
   stroke-width: 2.5;
-}
-
-.mobile-cart-btn:hover {
-  background: #2a2550 !important;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.25);
 }
 
 .mobile-cart-badge {
   position: absolute;
+  left: -5px;
   top: -5px;
-  right: -5px;
+  height: 16px;
+  width: 16px;
+  z-index: 99999999;
   background: #ff00ff;
-  color: #1d1a40;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  min-width: 21px;
-  height: 21px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  border: 2.5px solid white;
-  z-index: 10;
-  box-shadow: 0 2px 6px rgba(255, 0, 255, 0.3);
 }
 
 /* Burger menu only on smaller screens (mobile/tablet) */

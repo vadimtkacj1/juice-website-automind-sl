@@ -74,7 +74,7 @@ const NewsSection = () => {
                 className="news-card"
                 role="listitem"
               >
-                {item.image && (
+                {item.image && !item.image.includes('framerusercontent.com') && (
                   <div className="news-card-image">
                     <Image
                       src={item.image}

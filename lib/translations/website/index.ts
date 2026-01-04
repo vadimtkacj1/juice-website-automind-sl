@@ -25,6 +25,7 @@ export const websiteTranslations: Record<string, string> = {
   'find us at a location near you!': 'מצא אותנו במיקום קרוב אליך',
   'loading locations...': 'טוען מיקומים',
   'view on map': 'צפה במפה',
+  'no locations available at this time.': 'אין מיקומים זמינים כרגע.',
   
   // Menu Page
   'loading delicious menu': 'טוען תפריט טעים',

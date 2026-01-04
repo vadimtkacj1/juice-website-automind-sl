@@ -62,11 +62,11 @@
 
 /* White Link Variant for Footer */
 .whiteLink .rollInner span {
-  color: var(--white) !important;
+  color: #1d1a40 !important;
 }
 
 .whiteLink .rollInner .hvr {
-  color: var(--secondary) !important;
+  color: #1d1a40 !important;
 }
 
 .footerCopyright {

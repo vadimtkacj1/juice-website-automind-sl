@@ -86,7 +86,7 @@ export default function NewsPage() {
               {newsItems.map((item) => (
                 <article key={item.id} className={styles['news-card']}>
                   <Link href={`/news/${item.id}`} className={styles['news-card-link']}>
-                    {item.image && (
+                    {item.image && !item.image.includes('framerusercontent.com') && (
                       <div className={styles['news-card-image']}>
                         <Image
                           src={item.image}

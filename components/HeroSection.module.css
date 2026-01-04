@@ -288,20 +288,21 @@
 
 @media (max-width: 768px) {
   .hero {
-    margin: 12px;
+    margin: 0;
     min-height: 50vh;
     padding-block: 80px 50px;
-    width: calc(100% - 24px);
-    max-width: calc(100% - 24px);
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
   }
 
   .heroTitle {
-    font-size: 80px;
+    font-size: clamp(42px, 12vw, 64px);
     padding-inline: 15px;
   }
 
   .heroSubtitle {
-    font-size: 90px;
+    font-size: clamp(48px, 14vw, 72px);
   }
 
   .floatingOrange3,
@@ -324,20 +325,21 @@
 
 @media (max-width: 480px) {
   .hero {
-    margin: 10px;
+    margin: 0;
     min-height: 40vh;
     padding-block: 60px 40px;
-    width: calc(100% - 20px);
-    max-width: calc(100% - 20px);
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
   }
 
   .heroTitle {
-    font-size: 60px;
-    padding-inline: 10px;
+    font-size: clamp(36px, 10vw, 48px);
+    padding-inline: 15px;
   }
 
   .heroSubtitle {
-    font-size: 70px;
+    font-size: clamp(42px, 12vw, 56px);
   }
 }
 

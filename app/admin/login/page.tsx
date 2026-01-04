@@ -46,8 +46,7 @@ function AdminLoginContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" dir={language}>
-      <div className="w-full max-w-md mx-auto">
-        <Card className="w-full shadow-lg">
+      <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-3xl font-bold text-gray-900">{t('Admin Panel')}</CardTitle>
             <CardDescription className="text-center">
@@ -99,7 +98,6 @@ function AdminLoginContent() {
             </CardFooter>
           </form>
         </Card>
-      </div>
     </div>
   );
 }

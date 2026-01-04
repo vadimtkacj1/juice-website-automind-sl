@@ -63,10 +63,10 @@
 
 /* White Link Variant for Footer */
 .white-link .roll-inner span {
-  color: var(--white) !important;
+  color: #1d1a40 !important;
 }
 
 .white-link .roll-inner .hvr {
-  color: var(--secondary) !important;
+  color: #1d1a40 !important;
 }
 

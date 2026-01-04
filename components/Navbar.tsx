@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useCart } from '@/lib/cart-context';
 import Link from 'next/link';
 import { ShoppingBag, Menu, X } from 'lucide-react';
@@ -93,22 +93,22 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function NavBarShell({ 
+const NavBarShell = React.forwardRef<HTMLDivElement, {
+  className: string;
+  compact?: boolean;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean) => void;
+}>(({ 
   className, 
   compact, 
   mobileMenuOpen, 
   setMobileMenuOpen 
-}: { 
-  className: string; 
-  compact?: boolean;
-  mobileMenuOpen: boolean;
-  setMobileMenuOpen: (open: boolean) => void;
-}) {
+}, ref) => {
   const { getTotalItems, openCart } = useCart();
   const itemCount = getTotalItems();
 
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       <nav className="nav-content">
         <Link href="/" className="logo" aria-label="נטורליי מרענן">
           <BrandLogo compact={compact} />
@@ -133,13 +133,13 @@ function NavBarShell({
               <span className={navbarStyles['cart-icon-wrapper']}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}></span>
                 )}
               </span>
               <span className={`hvr ${navbarStyles['cart-icon-wrapper']}`}>
                 <ShoppingBag size={24} />
                 {itemCount > 0 && (
-                  <span className={navbarStyles['cart-badge']}>{itemCount}</span>
+                  <span className={navbarStyles['cart-badge']}></span>
                 )}
               </span>
             </div>
@@ -155,7 +155,7 @@ function NavBarShell({
           >
             <ShoppingBag size={22} />
             {itemCount > 0 && (
-              <span className={navbarStyles['mobile-cart-badge']}>{itemCount}</span>
+              <span className={navbarStyles['mobile-cart-badge']}></span>
             )}
           </button>
           <button
@@ -172,7 +172,7 @@ function NavBarShell({
       </nav>
     </div>
   );
-}
+});
 
 function MobileMenu({ 
   isOpen,
@@ -269,34 +269,87 @@ function MobileMenu({
 export default function Navbar() {
   const [sticky, setSticky] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const stickyNavRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let lastScrollY = 0;
     let ticking = false;
     
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-          const shouldBeSticky = scrollY > 50;
-          setSticky(shouldBeSticky);
+          // Get scroll position
+          const scrollY = window.scrollY || 
+                         window.pageYOffset || 
+                         document.documentElement.scrollTop || 
+                         0;
+          
+          // Only update if scroll position actually changed
+          if (scrollY !== lastScrollY) {
+            lastScrollY = scrollY;
+            
+            // Threshold set to 20px - once sticky, stay sticky until scroll back to top
+            const shouldBeSticky = scrollY > 20;
+            
+            setSticky(prevSticky => {
+              // Once sticky is true, keep it true unless we scroll back to top
+              if (prevSticky && scrollY > 20) {
+                return true;
+              }
+              return shouldBeSticky;
+            });
+            
+            // Directly update the DOM element class
+            const stickyElement = stickyNavRef.current;
+            if (stickyElement) {
+              if (scrollY > 20) {
+                stickyElement.classList.add('is-active');
+              } else {
+                stickyElement.classList.remove('is-active');
+              }
+            }
+          }
+          
           ticking = false;
         });
         ticking = true;
       }
     };
     
-    // Check initial scroll position
+    // Immediate check
     handleScroll();
     
-    // Add scroll listener to both window and document
+    // Check after a delay to ensure DOM is ready
+    const timeoutId = setTimeout(handleScroll, 100);
+    
+    // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Listen to resize
+    window.addEventListener('resize', handleScroll, { passive: true });
     
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
   }, []);
+  
+  // Toggle main nav visibility based on sticky state (fallback for :has() selector)
+  useEffect(() => {
+    const mainNav = document.querySelector('.nav-main') as HTMLElement;
+    if (mainNav) {
+      if (sticky) {
+        mainNav.style.opacity = '0';
+        mainNav.style.visibility = 'hidden';
+        mainNav.style.pointerEvents = 'none';
+      } else {
+        mainNav.style.opacity = '1';
+        mainNav.style.visibility = 'visible';
+        mainNav.style.pointerEvents = 'auto';
+      }
+    }
+  }, [sticky]);
 
   // Memoize the close function to prevent unnecessary re-renders
   const handleCloseMenu = useCallback(() => {
@@ -311,10 +364,11 @@ export default function Navbar() {
         setMobileMenuOpen={setMobileMenuOpen}
       />
       <NavBarShell 
-        className={`nav-sticky${sticky ? ' is-active' : ''}`}
+        className={sticky ? 'nav-sticky is-active' : 'nav-sticky'}
         compact 
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
+        ref={stickyNavRef}
       />
       <MobileMenu 
         isOpen={mobileMenuOpen} 

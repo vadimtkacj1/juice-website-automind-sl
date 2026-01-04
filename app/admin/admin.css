@@ -45,20 +45,20 @@
   color: #2d3748 !important;
 }
 
-/* Small text */
-#admin-layout-root .text-xs,
-#admin-main-content .text-xs,
-#admin-layout-root .text-sm,
-#admin-main-content .text-sm {
-  color: #1a202c !important;
+/* Small text - only if no color class specified */
+#admin-layout-root .text-xs:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
+#admin-main-content .text-xs:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
+#admin-layout-root .text-sm:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
+#admin-main-content .text-sm:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]) {
+  color: #1a202c;
 }
 
-/* Paragraph and description text */
-#admin-layout-root p,
-#admin-main-content p,
-#admin-layout-root .text-base,
-#admin-main-content .text-base {
-  color: #000000 !important;
+/* Paragraph and description text - only if no color class */
+#admin-layout-root p:not([class*="text-"]),
+#admin-main-content p:not([class*="text-"]),
+#admin-layout-root .text-base:not([class*="text-gray"]):not([class*="text-muted"]),
+#admin-main-content .text-base:not([class*="text-gray"]):not([class*="text-muted"]) {
+  color: #1a202c;
 }
 
 /* DialogDescription text */
@@ -80,36 +80,31 @@
   color: #000000 !important;
 }
 
-/* Admin Panel Headers - Remove Bold, Better Colors */
-#admin-layout-root h1,
-#admin-main-content h1,
-#admin-layout-root h2,
-#admin-main-content h2,
-#admin-layout-root h3,
-#admin-main-content h3,
-#admin-layout-root h4,
-#admin-main-content h4,
-#admin-layout-root h5,
-#admin-main-content h5,
-#admin-layout-root h6,
-#admin-main-content h6,
-#admin-layout-root .text-3xl,
-#admin-main-content .text-3xl,
-#admin-layout-root .text-2xl,
-#admin-main-content .text-2xl,
-#admin-layout-root .text-xl,
-#admin-main-content .text-xl,
-#admin-layout-root [class*="CardTitle"],
-#admin-main-content [class*="CardTitle"],
-#admin-layout-root .card-title,
-#admin-main-content .card-title,
-#admin-layout-root h1[class*="text-gray"],
-#admin-main-content h1[class*="text-gray"],
-#admin-layout-root h2[class*="text-gray"],
-#admin-main-content h2[class*="text-gray"],
-#admin-layout-root h3[class*="text-gray"],
-#admin-main-content h3[class*="text-gray"] {
-  color: #000000 !important;
+/* Admin Panel Headers - Remove Bold, Preserve Colors */
+#admin-layout-root h1:not([class*="text-"]),
+#admin-main-content h1:not([class*="text-"]),
+#admin-layout-root h2:not([class*="text-"]),
+#admin-main-content h2:not([class*="text-"]),
+#admin-layout-root h3:not([class*="text-"]),
+#admin-main-content h3:not([class*="text-"]),
+#admin-layout-root h4:not([class*="text-"]),
+#admin-main-content h4:not([class*="text-"]),
+#admin-layout-root h5:not([class*="text-"]),
+#admin-main-content h5:not([class*="text-"]),
+#admin-layout-root h6:not([class*="text-"]),
+#admin-main-content h6:not([class*="text-"]) {
+  color: #111827;
+  font-weight: 500;
+}
+
+/* Large text sizes - preserve colors */
+#admin-layout-root .text-3xl:not([class*="text-gray"]):not([class*="text-"]),
+#admin-main-content .text-3xl:not([class*="text-gray"]):not([class*="text-"]),
+#admin-layout-root .text-2xl:not([class*="text-gray"]):not([class*="text-"]),
+#admin-main-content .text-2xl:not([class*="text-gray"]):not([class*="text-"]),
+#admin-layout-root .text-xl:not([class*="text-gray"]):not([class*="text-"]),
+#admin-main-content .text-xl:not([class*="text-gray"]):not([class*="text-"]) {
+  color: #111827;
   font-weight: 500;
 }
 
@@ -237,10 +232,10 @@
   color: white !important;
 }
 
-/* Darken all text elements that don't have explicit color classes */
-#admin-layout-root span:not([class*="text-white"]):not([class*="text-purple"]):not(button *),
-#admin-main-content span:not([class*="text-white"]):not([class*="text-purple"]):not(button *) {
-  color: #000000 !important;
+/* Only darken spans that are truly uncolored (not icons, not buttons) */
+#admin-layout-root span:not([class*="text-white"]):not([class*="text-purple"]):not([class*="text-"]):not(button *):not(svg *),
+#admin-main-content span:not([class*="text-white"]):not([class*="text-purple"]):not([class*="text-"]):not(button *):not(svg *) {
+  color: #1a202c;
 }
 
 /* Darken CardDescription and similar helper text */
@@ -275,35 +270,62 @@
   font-weight: 500 !important;
 }
 
-/* Better color scheme for admin panel */
+/* Better color scheme for admin panel - preserve Tailwind color hierarchy */
 #admin-layout-root .text-gray-500,
 #admin-main-content .text-gray-500 {
-  color: #1a202c !important;
+  color: #6b7280 !important; /* Keep gray-500 as medium gray */
 }
 
 #admin-layout-root .text-gray-600,
 #admin-main-content .text-gray-600 {
-  color: #000000 !important;
+  color: #4b5563 !important; /* Keep gray-600 as darker gray */
 }
 
 #admin-layout-root .text-gray-700,
 #admin-main-content .text-gray-700 {
-  color: #000000 !important;
+  color: #374151 !important; /* Keep gray-700 as dark gray */
 }
 
 #admin-layout-root .text-gray-800,
 #admin-main-content .text-gray-800 {
-  color: #000000 !important;
+  color: #1f2937 !important; /* Keep gray-800 as very dark gray */
 }
 
 #admin-layout-root .text-gray-900,
 #admin-main-content .text-gray-900 {
-  color: #000000 !important;
+  color: #111827 !important; /* Keep gray-900 as almost black */
 }
 
 /* Improve muted foreground color */
 #admin-layout-root .text-muted-foreground,
 #admin-main-content .text-muted-foreground {
-  color: #1a202c !important;
+  color: #6b7280 !important;
+}
+
+/* Preserve status colors - don't override green, red, blue, yellow, etc. */
+#admin-layout-root .text-green-600,
+#admin-main-content .text-green-600 { color: #16a34a !important; }
+#admin-layout-root .text-green-500,
+#admin-main-content .text-green-500 { color: #22c55e !important; }
+
+#admin-layout-root .text-red-600,
+#admin-main-content .text-red-600 { color: #dc2626 !important; }
+#admin-layout-root .text-red-500,
+#admin-main-content .text-red-500 { color: #ef4444 !important; }
+
+#admin-layout-root .text-blue-600,
+#admin-main-content .text-blue-600 { color: #2563eb !important; }
+#admin-layout-root .text-blue-500,
+#admin-main-content .text-blue-500 { color: #3b82f6 !important; }
+
+#admin-layout-root .text-yellow-600,
+#admin-main-content .text-yellow-600 { color: #ca8a04 !important; }
+#admin-layout-root .text-yellow-500,
+#admin-main-content .text-yellow-500 { color: #eab308 !important; }
+
+/* Preserve icon colors - don't force color on icons */
+#admin-layout-root svg,
+#admin-main-content svg {
+  color: inherit;
 }
 

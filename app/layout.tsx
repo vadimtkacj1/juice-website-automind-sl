@@ -98,7 +98,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect to external resources for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://framerusercontent.com" />
         
         {/* Load Heebo font with all weights needed */}
         <link 

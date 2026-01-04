@@ -54,8 +54,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
   const url = `${baseUrl}/news/${params.id}`;
-  const imageUrl = newsItem.image 
-    ? (newsItem.image.startsWith('http') ? newsItem.image : `${baseUrl}${newsItem.image}`)
+  // Filter out framerusercontent.com URLs and invalid images
+  const isValidImage = newsItem.image && 
+    !newsItem.image.includes('framerusercontent.com') &&
+    newsItem.image.trim() !== '';
+  const imageUrl = isValidImage
+    ? (newsItem.image!.startsWith('http') ? newsItem.image! : `${baseUrl}${newsItem.image}`)
     : `${baseUrl}/images/default-news.jpg`;
   
   const excerpt = newsItem.content.length > 160 
@@ -210,7 +214,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
                 {newsItem.title}
               </h1>
 
-              {newsItem.image && (
+              {newsItem.image && !newsItem.image.includes('framerusercontent.com') && (
                 <div className={styles.newsArticleFeaturedImage}>
                   <Image
                     src={newsItem.image}
