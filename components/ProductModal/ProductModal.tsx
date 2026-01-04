@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from '../ProductModal.module.css';
-import { CartAddon, CartCustomIngredient } from '@/lib/cart-context';
+import { CartAdditionalItem, CartCustomIngredient } from '@/lib/cart-context';
 import ProductModalHeader from './ProductModalHeader';
 import ProductModalImage from './ProductModalImage';
 import ProductModalFeatures from './ProductModalFeatures';
@@ -210,7 +210,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   // Reset selections when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setSelectedAddons(new Map());
+      setSelectedAdditionalItems(new Set());
       setSelectedIngredients(new Set());
       setSelectedIngredientsByCategory(new Map());
       setSelectedVolume(null);

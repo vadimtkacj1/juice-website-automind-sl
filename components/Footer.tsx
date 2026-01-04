@@ -27,11 +27,8 @@ export default function Footer() {
       {/* Navigation Links */}
       <nav className={styles.footerLinks} aria-label="ניווט תחתון">
         {footerLinks.map((link) => (
-          <Link key={link.href} href={link.href} className={`menu-item ${styles.whiteLink}`}>
-            <div className="roll-inner">
-              <span>{link.label}</span>
-              <span className="hvr">{link.label}</span>
-            </div>
+          <Link key={link.href} href={link.href} className={styles.footerNavLink}>
+            {link.label}
           </Link>
         ))}
       </nav>

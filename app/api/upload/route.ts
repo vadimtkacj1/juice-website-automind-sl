@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { optimizeImage, validateImage, generatePlaceholder } from '@/lib/image-optimizer';
 
 // For Next.js 13+ App Router - increase timeout for large file uploads
 export const maxDuration = 30;
@@ -12,7 +10,9 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const folder = formData.get('folder') as string || 'general';
+    const folder = (formData.get('folder') as string) || 'general';
+    const quality = parseInt((formData.get('quality') as string) || '85');
+    const generateWebP = (formData.get('generateWebP') as string) !== 'false';
 
     if (!file) {
       return NextResponse.json(
@@ -39,30 +39,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Validate image
+    const validation = await validateImage(buffer);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error || 'Invalid image' },
+        { status: 400 }
+      );
+    }
+
     // Create unique filename
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
     const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${timestamp}-${randomString}.${extension}`;
 
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', folder);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
+    // Optimize image
+    const optimizedResult = await optimizeImage(buffer, filename, folder, {
+      quality,
+      generateWebP,
+      generateThumbnail: true,
+      maxWidth: 1920,
+      maxHeight: 1920,
+    });
 
-    // Save file
-    const filePath = path.join(uploadDir, filename);
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    // Generate placeholder for lazy loading
+    const placeholder = await generatePlaceholder(buffer);
 
-    // Return the public URL
-    const publicUrl = `/uploads/${folder}/${filename}`;
+    // Calculate compression ratio
+    const compressionRatio = ((1 - optimizedResult.size / file.size) * 100).toFixed(1);
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: optimizedResult.originalUrl,
+      webpUrl: optimizedResult.webpUrl,
+      thumbnailUrl: optimizedResult.thumbnailUrl,
+      placeholder,
+      width: optimizedResult.width,
+      height: optimizedResult.height,
+      originalSize: file.size,
+      optimizedSize: optimizedResult.size,
+      compressionRatio: `${compressionRatio}%`,
+      format: optimizedResult.format,
       filename: filename,
     });
   } catch (error: any) {

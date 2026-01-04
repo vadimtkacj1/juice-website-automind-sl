@@ -22,7 +22,8 @@
     "telegram:service": "node services/telegram-bot-service.js",
     "telegram:check": "node scripts/check-telegram-service.js",
     "telegram:dev": "concurrently \"npm run dev\" \"npm run telegram:service\"",
-    "dev:all": "concurrently \"npm run dev\" \"npm run telegram:service\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run telegram:service\"",
+    "optimize-images": "node scripts/optimize-existing-images.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -48,6 +49,7 @@
     "react-dom": "^18.2.0",
     "recharts": "^2.10.3",
     "mysql2": "^3.6.5",
+    "sharp": "^0.33.1",
     "stripe": "^20.1.0",
     "tailwind-merge": "^2.0.0"
   },

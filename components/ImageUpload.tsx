@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, X, Loader2, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Upload, X, Loader2, Image as ImageIcon, Link as LinkIcon, CheckCircle, FileImage } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useAdminLanguage } from '@/lib/admin-language-context';
@@ -14,6 +14,15 @@ interface ImageUploadProps {
   className?: string;
 }
 
+interface UploadStats {
+  originalSize: number;
+  optimizedSize: number;
+  compressionRatio: string;
+  width: number;
+  height: number;
+  format: string;
+}
+
 export default function ImageUpload({
   value,
   onChange,
@@ -23,9 +32,12 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const { t } = useAdminLanguage();
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
   const [urlInput, setUrlInput] = useState(value || '');
+  const [uploadStats, setUploadStats] = useState<UploadStats | null>(null);
+  const [showStats, setShowStats] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isUploadingRef = useRef(false);
 
@@ -43,6 +55,9 @@ export default function ImageUpload({
 
     setError(null);
     setUploading(true);
+    setUploadProgress(0);
+    setUploadStats(null);
+    setShowStats(false);
     isUploadingRef.current = true;
 
     try {
@@ -50,10 +65,21 @@ export default function ImageUpload({
       formData.append('file', file);
       formData.append('folder', folder);
 
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + 10;
+        });
+      }, 200);
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
@@ -65,6 +91,22 @@ export default function ImageUpload({
       // Only call onChange if we got a valid URL
       if (data.url) {
         onChange(data.url);
+        
+        // Store upload stats
+        if (data.originalSize && data.optimizedSize) {
+          setUploadStats({
+            originalSize: data.originalSize,
+            optimizedSize: data.optimizedSize,
+            compressionRatio: data.compressionRatio,
+            width: data.width,
+            height: data.height,
+            format: data.format,
+          });
+          setShowStats(true);
+          
+          // Hide stats after 5 seconds
+          setTimeout(() => setShowStats(false), 5000);
+        }
       }
     } catch (err: any) {
       setError(err.message || t('Failed to upload image'));
@@ -72,6 +114,7 @@ export default function ImageUpload({
     } finally {
       setUploading(false);
       isUploadingRef.current = false;
+      setUploadProgress(0);
       // Reset file input after a small delay to prevent re-triggering
       setTimeout(() => {
         if (fileInputRef.current) {
@@ -126,22 +169,65 @@ export default function ImageUpload({
 
       {/* Preview */}
       {value && (
-        <div className="relative rounded-xl overflow-hidden border-2 border-gray-100 bg-gray-50">
-          <img
-            src={value}
-            alt={t('Preview')}
-            className="w-full h-48 object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23eee" width="100" height="100"/><text fill="%23999" font-family="sans-serif" font-size="12" x="50" y="50" text-anchor="middle" dy=".3em">Image Error</text></svg>';
-            }}
-          />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-600 hover:text-red-600" />
-          </button>
+        <div className="space-y-2">
+          <div className="relative rounded-xl overflow-hidden border-2 border-gray-100 bg-gray-50 group">
+            <img
+              src={value}
+              alt={t('Preview')}
+              className="w-full h-48 object-cover transition-transform group-hover:scale-105"
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23eee" width="100" height="100"/><text fill="%23999" font-family="sans-serif" font-size="12" x="50" y="50" text-anchor="middle" dy=".3em">Image Error</text></svg>';
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-all hover:scale-110"
+            >
+              <X className="w-4 h-4 text-gray-600 hover:text-red-600" />
+            </button>
+            
+            {/* Image info overlay */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 text-white text-xs">
+                <FileImage className="w-4 h-4" />
+                <span>{value.split('/').pop()}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Upload Stats */}
+          {showStats && uploadStats && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium text-green-900">
+                    {t('Image optimized successfully!')}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
+                    <div>
+                      <span className="font-medium">{t('Size')}:</span>{' '}
+                      {(uploadStats.optimizedSize / 1024).toFixed(1)} KB
+                    </div>
+                    <div>
+                      <span className="font-medium">{t('Saved')}:</span>{' '}
+                      {uploadStats.compressionRatio}
+                    </div>
+                    <div>
+                      <span className="font-medium">{t('Dimensions')}:</span>{' '}
+                      {uploadStats.width}x{uploadStats.height}
+                    </div>
+                    <div>
+                      <span className="font-medium">{t('Format')}:</span>{' '}
+                      {uploadStats.format.toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -162,9 +248,20 @@ export default function ImageUpload({
           `}
         >
           {uploading ? (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
-              <p className="text-sm text-gray-600">{t('Uploading...')}</p>
+              <div className="w-full max-w-xs space-y-2">
+                <div className="flex justify-between text-xs text-gray-600">
+                  <span>{t('Optimizing image...')}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-purple-600 h-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">

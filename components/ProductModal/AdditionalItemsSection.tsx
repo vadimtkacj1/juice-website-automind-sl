@@ -1,3 +1,4 @@
+
 'use client';
 
 import { translateToHebrew } from '@/lib/translations';

@@ -20,7 +20,11 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
       },
     ],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 31536000, // 1 year for uploaded images
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Disable image optimization for uploaded files (already optimized by sharp)
+    unoptimized: false,
   },
 
   // Production optimizations
@@ -34,8 +38,41 @@ const nextConfig = {
   // Headers for caching and security
   async headers() {
     return [
+      // Static images - aggressive caching
       {
-        source: '/:all*(svg|jpg|png|webp|avif)',
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      // Uploaded images - long cache with revalidation
+      {
+        source: '/uploads/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, stale-while-revalidate=86400',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Accept-Ranges',
+            value: 'bytes',
+          },
+        ],
+      },
+      // All static assets
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)',
         headers: [
           {
             key: 'Cache-Control',
@@ -43,6 +80,7 @@ const nextConfig = {
           },
         ],
       },
+      // Fonts
       {
         source: '/fonts/:path*',
         headers: [
@@ -52,12 +90,21 @@ const nextConfig = {
           },
         ],
       },
+      // API routes - no cache
       {
         source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, must-revalidate',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },

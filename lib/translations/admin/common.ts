@@ -84,5 +84,24 @@ export const adminCommonTranslations: Record<string, string> = {
   'Validation Error': 'שגיאת אימות',
   'Update': 'עדכן',
   'Create': 'צור',
+  
+  // Image Upload
+  'Image': 'תמונה',
+  'Upload': 'העלאה',
+  'URL': 'כתובת',
+  'Preview': 'תצוגה מקדימה',
+  'Click to upload': 'לחץ להעלאה',
+  'PNG, JPG, WebP up to 5MB': 'PNG, JPG, WebP עד 5MB',
+  'Uploading...': 'מעלה...',
+  'Optimizing image...': 'מייעל תמונה...',
+  'Upload failed': 'העלאה נכשלה',
+  'Failed to upload image': 'העלאת התמונה נכשלה',
+  'Uploaded file': 'קובץ שהועלה',
+  'Add': 'הוסף',
+  'Image optimized successfully!': 'התמונה אותחלה בהצלחה!',
+  'Size': 'גודל',
+  'Saved': 'נשמר',
+  'Dimensions': 'מימדים',
+  'Format': 'פורמט',
 };
 
