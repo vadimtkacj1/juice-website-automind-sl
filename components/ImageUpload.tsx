@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon, Link as LinkIcon, CheckCircle, FileImage } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -40,6 +40,12 @@ export default function ImageUpload({
   const [showStats, setShowStats] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isUploadingRef = useRef(false);
+  const hasImage = Boolean(value);
+
+  // Keep manual URL input in sync when the current image changes (e.g., after replacement)
+  useEffect(() => {
+    setUrlInput(value || '');
+  }, [value]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -177,13 +183,16 @@ export default function ImageUpload({
               className="w-full h-48 object-cover transition-transform group-hover:scale-105"
               loading="lazy"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23eee" width="100" height="100"/><text fill="%23999" font-family="sans-serif" font-size="12" x="50" y="50" text-anchor="middle" dy=".3em">Image Error</text></svg>';
+                const fallbackText = encodeURIComponent(t('Image Error'));
+                (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23eee" width="100" height="100"/><text fill="%23999" font-family="sans-serif" font-size="12" x="50" y="50" text-anchor="middle" dy=".3em">${fallbackText}</text></svg>`;
               }}
             />
             <button
               type="button"
               onClick={handleRemove}
               className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-all hover:scale-110"
+              aria-label={t('Remove image')}
+              title={t('Remove image')}
             >
               <X className="w-4 h-4 text-gray-600 hover:text-red-600" />
             </button>
@@ -232,7 +241,7 @@ export default function ImageUpload({
       )}
 
       {/* Upload Mode */}
-      {mode === 'upload' && !value && (
+      {mode === 'upload' && (
         <div
           onClick={() => {
             if (!uploading && !isUploadingRef.current) {
@@ -269,8 +278,14 @@ export default function ImageUpload({
                 <Upload className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">{t('Click to upload')}</p>
-                <p className="text-xs text-gray-500">{t('PNG, JPG, WebP up to 5MB')}</p>
+                <p className="text-sm font-medium text-gray-700">
+                  {hasImage ? t('Click to replace image') : t('Click to upload')}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {hasImage
+                    ? t('The new file will replace the current image')
+                    : t('PNG, JPG, WebP up to 5MB')}
+                </p>
               </div>
             </div>
           )}
@@ -286,7 +301,7 @@ export default function ImageUpload({
       )}
 
       {/* URL Mode */}
-      {mode === 'url' && !value && (
+      {mode === 'url' && (
         <div className="flex gap-2">
           <Input
             type="url"

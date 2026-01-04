@@ -91,7 +91,9 @@ export const adminCommonTranslations: Record<string, string> = {
   'URL': 'כתובת',
   'Preview': 'תצוגה מקדימה',
   'Click to upload': 'לחץ להעלאה',
+  'Click to replace image': 'לחץ כדי להחליף תמונה',
   'PNG, JPG, WebP up to 5MB': 'PNG, JPG, WebP עד 5MB',
+  'The new file will replace the current image': 'הקובץ החדש יחליף את התמונה הנוכחית',
   'Uploading...': 'מעלה...',
   'Optimizing image...': 'מייעל תמונה...',
   'Upload failed': 'העלאה נכשלה',
@@ -103,5 +105,7 @@ export const adminCommonTranslations: Record<string, string> = {
   'Saved': 'נשמר',
   'Dimensions': 'מימדים',
   'Format': 'פורמט',
+  'Image Error': 'שגיאת תמונה',
+  'Remove image': 'הסר תמונה',
 };
 
