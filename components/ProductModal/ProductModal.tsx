@@ -22,10 +22,10 @@ interface ProductModalItem {
   id: number;
   name: string;
   description?: string;
-  price: number;
+  price: number | string; // Can be string from MySQL DECIMAL
   volume?: string;
   image?: string;
-  discount_percent: number;
+  discount_percent: number | string; // Can be string from MySQL DECIMAL
   category_id?: number;
   [key: string]: any;
 }
@@ -339,7 +339,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     });
 
     // Calculate the correct base price based on selected volume
-    let basePrice = item.price;
+    let basePrice: number | string = item.price;
     if (selectedVolume && volumeOptions.length > 0) {
       const selectedVolOption = volumeOptions.find(v => v.volume === selectedVolume);
       if (selectedVolOption) {
@@ -347,10 +347,14 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       }
     }
     
-    // Apply discount if any
-    const finalPrice = item.discount_percent > 0 
-      ? basePrice * (1 - item.discount_percent / 100) 
-      : basePrice;
+    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
+    const numPrice = typeof basePrice === 'string' ? parseFloat(basePrice) : (basePrice || 0);
+    const numDiscount = typeof item.discount_percent === 'string' 
+      ? parseFloat(item.discount_percent) 
+      : (item.discount_percent || 0);
+    const finalPrice = numDiscount > 0 
+      ? numPrice * (1 - numDiscount / 100) 
+      : numPrice;
 
     console.log('proceedWithAddToCart - selectedIngredients:', Array.from(selectedIngredients));
     console.log('proceedWithAddToCart - customIngredients available:', customIngredients);
@@ -448,16 +452,24 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const calculateTotalPrice = () => {
     if (!item) return 0;
     
-    let basePrice = item.price;
+    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
+    const numPrice = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
+    const numDiscount = typeof item.discount_percent === 'string' 
+      ? parseFloat(item.discount_percent) 
+      : (item.discount_percent || 0);
+    
+    let basePrice = numPrice;
     if (selectedVolume && volumeOptions.length > 0) {
       const selectedVolOption = volumeOptions.find(v => v.volume === selectedVolume);
       if (selectedVolOption) {
-        basePrice = selectedVolOption.price;
+        basePrice = typeof selectedVolOption.price === 'string' 
+          ? parseFloat(selectedVolOption.price) 
+          : (selectedVolOption.price || 0);
       }
     }
     
-    const discountedPrice = item.discount_percent > 0 
-      ? basePrice * (1 - item.discount_percent / 100) 
+    const discountedPrice = numDiscount > 0 
+      ? basePrice * (1 - numDiscount / 100) 
       : basePrice;
     
     const addonsPrice = Array.from(selectedAddons.entries()).reduce((total, [id, quantity]) => {
@@ -486,15 +498,23 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   }
 
   // Calculate prices for header
-  let basePrice = item.price;
+  // Ensure we have numbers (MySQL DECIMAL often returns as strings)
+  const numPrice = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
+  const numDiscount = typeof item.discount_percent === 'string' 
+    ? parseFloat(item.discount_percent) 
+    : (item.discount_percent || 0);
+  
+  let basePrice = numPrice;
   if (selectedVolume && volumeOptions.length > 0) {
     const selectedVolOption = volumeOptions.find(v => v.volume === selectedVolume);
     if (selectedVolOption) {
-      basePrice = selectedVolOption.price;
+      basePrice = typeof selectedVolOption.price === 'string' 
+        ? parseFloat(selectedVolOption.price) 
+        : (selectedVolOption.price || 0);
     }
   }
-  const discountedPrice = item.discount_percent > 0 
-    ? basePrice * (1 - item.discount_percent / 100) 
+  const discountedPrice = numDiscount > 0 
+    ? basePrice * (1 - numDiscount / 100) 
     : basePrice;
 
   // Render modal content
@@ -527,7 +547,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               selectedVolume={selectedVolume}
               basePrice={basePrice}
               discountedPrice={discountedPrice}
-              discountPercent={item.discount_percent}
+              discountPercent={numDiscount}
             />
 
             {/* Description */}
@@ -546,7 +566,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               volumeOptions={volumeOptions}
               selectedVolume={selectedVolume}
               onVolumeChange={setSelectedVolume}
-              discountPercent={item.discount_percent}
+              discountPercent={numDiscount}
             />
 
             {/* Addons */}

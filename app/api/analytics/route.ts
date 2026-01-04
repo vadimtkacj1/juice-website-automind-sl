@@ -1,7 +1,26 @@
 import { NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
-import { promisify } from 'util'; // Import promisify
 import { translateObject } from '@/lib/translations';
+
+// Promisify db.get for async/await
+const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    db.get(query, params, (err: Error | null, row: any) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
+// Promisify db.all for async/await
+const dbAll = (db: any, query: string, params: any[] = []): Promise<any[]> => {
+  return new Promise((resolve, reject) => {
+    db.all(query, params, (err: Error | null, rows: any[]) => {
+      if (err) reject(err);
+      else resolve(rows || []);
+    });
+  });
+};
 
 export async function GET() {
   const db = getDatabase();
@@ -13,21 +32,19 @@ export async function GET() {
     );
   }
 
-  const dbGet = promisify(db.get).bind(db);
-  const dbAll = promisify(db.all).bind(db);
-
   try {
     // Get total orders and revenue
-    const ordersData = await dbGet('SELECT COUNT(*) as totalOrders, SUM(total_amount) as totalRevenue FROM orders');
+    const ordersData = await dbGet(db, 'SELECT COUNT(*) as totalOrders, SUM(total_amount) as totalRevenue FROM orders');
 
     // Get total products (menu items)
-    const productsData = await dbGet('SELECT COUNT(*) as totalProducts FROM menu_items');
+    const productsData = await dbGet(db, 'SELECT COUNT(*) as totalProducts FROM menu_items');
 
     // Get active promo codes
-    const promoData = await dbGet('SELECT COUNT(*) as activePromoCodes FROM promo_codes WHERE is_active = 1');
+    const promoData = await dbGet(db, 'SELECT COUNT(*) as activePromoCodes FROM promo_codes WHERE is_active = 1');
 
     // Get recent orders
     const recentOrders = await dbAll(
+      db,
       `SELECT o.*, COUNT(oi.id) as items_count
        FROM orders o
        LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -38,23 +55,26 @@ export async function GET() {
 
     // Get orders by status
     const ordersByStatus = await dbAll(
+      db,
       'SELECT status, COUNT(*) as count FROM orders GROUP BY status'
     );
 
-    // Get revenue by month (last 6 months)
+    // Get revenue by month (last 6 months) - MySQL version
     const revenueByMonth = await dbAll(
+      db,
       `SELECT
-        strftime('%Y-%m', created_at) as month,
+        DATE_FORMAT(created_at, '%Y-%m') as month,
         SUM(total_amount) as revenue,
         COUNT(*) as orders
        FROM orders
-       WHERE created_at >= date('now', '-6 months')
+       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
        GROUP BY month
        ORDER BY month ASC`
     );
 
     // Get top selling products
     const topProducts = await dbAll(
+      db,
       `SELECT
         mi.name,
         SUM(oi.quantity) as total_sold,

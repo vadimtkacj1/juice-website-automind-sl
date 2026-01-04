@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 
+// Promisify db.get for async/await
+const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    db.get(query, params, (err: Error | null, row: any) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
 export async function GET() {
   try {
     // Check database connection
@@ -13,28 +23,21 @@ export async function GET() {
     }
 
     // Simple database query to verify connection
-    return new Promise<NextResponse>((resolve) => {
-      db.get('SELECT 1', (err: Error | null) => {
-        if (err) {
-          resolve(
-            NextResponse.json(
-              { status: 'error', message: 'Database query failed', error: err.message },
-              { status: 503 }
-            )
-          );
-          return;
-        }
-
-        resolve(
-          NextResponse.json({
-            status: 'ok',
-            timestamp: new Date().toISOString(),
-            uptime: process.uptime(),
-            environment: process.env.NODE_ENV || 'development',
-          })
-        );
+    try {
+      await dbGet(db, 'SELECT 1');
+      
+      return NextResponse.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
       });
-    });
+    } catch (err: any) {
+      return NextResponse.json(
+        { status: 'error', message: 'Database query failed', error: err.message },
+        { status: 503 }
+      );
+    }
   } catch (error: any) {
     return NextResponse.json(
       { status: 'error', message: error.message },

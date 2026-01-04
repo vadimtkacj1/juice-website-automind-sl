@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { verifyPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
-import { promisify } from 'util'; // Import promisify
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,11 +23,19 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const dbGet = promisify(db.get).bind(db); // Promisify db.get
+    // Promisify db.get for async/await
+    const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
+        return new Promise((resolve, reject) => {
+            db.get(query, params, (err: Error | null, row: any) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+    };
 
     let admin;
     try {
-        admin = await dbGet('SELECT * FROM admins WHERE username = ?', [username]);
+        admin = await dbGet(db, 'SELECT * FROM admins WHERE username = ?', [username]);
     } catch (err: any) {
         console.error('Database error:', err);
         return NextResponse.json({ error: 'Database error' }, { status: 500 });

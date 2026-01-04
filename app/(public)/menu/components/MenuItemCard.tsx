@@ -43,8 +43,8 @@ export default function MenuItemCard({
       onClick={handleClick}
     >
       {/* Discount Badge */}
-      {item.discount_percent > 0 && (
-        <div className={styles.discountBadge}>-{item.discount_percent}%</div>
+      {(typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0) > 0 && (
+        <div className={styles.discountBadge}>-{typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0}%</div>
       )}
 
       {/* Image */}
@@ -84,7 +84,7 @@ export default function MenuItemCard({
             </div>
           ) : (
             <div className={styles.priceBadge}>
-              {item.discount_percent > 0 && (
+              {(typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0) > 0 && (
                 <span className={styles.priceOld}>₪{
                   (typeof item.price === 'number' ? item.price : parseFloat(String(item.price)) || 0).toFixed(0)
                 }</span>
