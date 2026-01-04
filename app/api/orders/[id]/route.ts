@@ -2,48 +2,72 @@ import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { translateObject } from '@/lib/translations';
 
+// Promisify db.all for async/await
+const dbAll = (db: any, query: string, params: any[] = []): Promise<any[]> => {
+  return new Promise((resolve, reject) => {
+    db.all(query, params, (err: Error | null, rows: any[]) => {
+      if (err) reject(err);
+      else resolve(rows || []);
+    });
+  });
+};
+
+// Promisify db.get for async/await
+const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    db.get(query, params, (err: Error | null, row: any) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
+// Promisify db.run for async/await
+const dbRun = (db: any, query: string, params: any[] = []): Promise<{ lastID: number; changes: number }> => {
+  return new Promise((resolve, reject) => {
+    db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
+      if (err) reject(err);
+      else resolve({ lastID: this.lastID, changes: this.changes });
+    });
+  });
+};
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const db = getDatabase();
-  const { id } = await params;
-  const orderId = id;
+  try {
+    const { id } = await params;
+    const orderId = id;
+    const db = getDatabase();
 
-  return new Promise<NextResponse>((resolve) => {
-    db.get(
-      'SELECT * FROM orders WHERE id = ?',
-      [orderId],
-      (err: Error | null, order: any) => {
-        if (err) {
-          resolve(NextResponse.json({ error: 'Database error' }, { status: 500 }));
-          return;
-        }
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
 
-        if (!order) {
-          resolve(NextResponse.json({ error: 'Order not found' }, { status: 404 }));
-          return;
-        }
+    const order = await dbGet(db, 'SELECT * FROM orders WHERE id = ?', [orderId]);
 
-        // Get order items
-        db.all(
-          'SELECT * FROM order_items WHERE order_id = ?',
-          [orderId],
-          (err: Error | null, items: any[]) => {
-            if (err) {
-              resolve(NextResponse.json({ error: 'Database error' }, { status: 500 }));
-              return;
-            }
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
 
-            resolve(NextResponse.json({
-              ...translateObject(order),
-              items: (items || []).map((item: any) => translateObject(item))
-            }));
-          }
-        );
-      }
+    // Get order items
+    const items = await dbAll(db, 'SELECT * FROM order_items WHERE order_id = ?', [orderId]);
+
+    return NextResponse.json({
+      ...translateObject(order),
+      items: items.map((item: any) => translateObject(item))
+    });
+  } catch (error: any) {
+    console.error('Database error:', error);
+    return NextResponse.json(
+      { error: 'Database error' },
+      { status: 500 }
     );
-  });
+  }
 }
 
 export async function PATCH(
@@ -56,45 +80,51 @@ export async function PATCH(
     const { status, notes } = await request.json();
 
     const db = getDatabase();
-
-    return new Promise<NextResponse>((resolve) => {
-      const updates: string[] = [];
-      const values: any[] = [];
-
-      if (status) {
-        updates.push('status = ?');
-        values.push(status);
-      }
-
-      if (notes !== undefined) {
-        updates.push('notes = ?');
-        values.push(notes);
-      }
-
-      updates.push('updated_at = CURRENT_TIMESTAMP');
-      values.push(orderId);
-
-      db.run(
-        `UPDATE orders SET ${updates.join(', ')} WHERE id = ?`,
-        values,
-        function(this: { lastID: number; changes: number }, err: Error | null) {
-          if (err) {
-            resolve(NextResponse.json({ error: 'Failed to update order' }, { status: 500 }));
-            return;
-          }
-
-          if (this.changes === 0) {
-            resolve(NextResponse.json({ error: 'Order not found' }, { status: 404 }));
-            return;
-          }
-
-          resolve(NextResponse.json({ success: true, message: 'Order updated successfully' }));
-        }
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
       );
-    });
-  } catch (error) {
+    }
+
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    if (status) {
+      updates.push('status = ?');
+      values.push(status);
+    }
+
+    if (notes !== undefined) {
+      updates.push('notes = ?');
+      values.push(notes);
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json(
+        { error: 'No fields to update' },
+        { status: 400 }
+      );
+    }
+
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(orderId);
+
+    const result = await dbRun(
+      db,
+      `UPDATE orders SET ${updates.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    if (result.changes === 0) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Order updated successfully' });
+  } catch (error: any) {
+    console.error('Error updating order:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
@@ -104,33 +134,35 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const db = getDatabase();
-  const { id } = await params;
-  const orderId = id;
+  try {
+    const { id } = await params;
+    const orderId = id;
+    const db = getDatabase();
 
-  return new Promise<NextResponse>((resolve) => {
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
+
     // Delete order items first
-    db.run('DELETE FROM order_items WHERE order_id = ?', [orderId], (err: Error | null) => {
-      if (err) {
-        resolve(NextResponse.json({ error: 'Failed to delete order items' }, { status: 500 }));
-        return;
-      }
+    await dbRun(db, 'DELETE FROM order_items WHERE order_id = ?', [orderId]);
 
-      // Then delete the order
-      db.run('DELETE FROM orders WHERE id = ?', [orderId], function(this: { lastID: number; changes: number }, err: Error | null) {
-        if (err) {
-          resolve(NextResponse.json({ error: 'Failed to delete order' }, { status: 500 }));
-          return;
-        }
+    // Then delete the order
+    const result = await dbRun(db, 'DELETE FROM orders WHERE id = ?', [orderId]);
 
-        if (this.changes === 0) {
-          resolve(NextResponse.json({ error: 'Order not found' }, { status: 404 }));
-          return;
-        }
+    if (result.changes === 0) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
 
-        resolve(NextResponse.json({ success: true, message: 'Order deleted successfully' }));
-      });
-    });
-  });
+    return NextResponse.json({ success: true, message: 'Order deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting order:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 

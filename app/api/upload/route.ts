@@ -3,6 +3,11 @@ import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 
+// For Next.js 13+ App Router - increase timeout for large file uploads
+export const maxDuration = 30;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -25,11 +30,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 5MB.' },
+        { error: 'File too large. Maximum size is 10MB.' },
         { status: 400 }
       );
     }

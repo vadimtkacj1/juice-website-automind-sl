@@ -32,6 +32,10 @@ server {
         root /var/www/html;
     }
     
+    # Increase max body size for file uploads (10MB)
+    client_max_body_size 10M;
+    client_body_buffer_size 10M;
+    
     # Proxy to Docker container (Docker exposes on port 3000)
     location / {
         proxy_pass http://localhost:3000;
