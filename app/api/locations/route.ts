@@ -36,7 +36,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { country, city, address, hours, phone, email, image, map_url, show_map_button, is_active, sort_order } = body;
+    const { country, city, address, hours, image, map_url, show_map_button, is_active, sort_order } = body;
 
     if (!country || !city || !address) {
       return NextResponse.json(
@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
 
     return new Promise<NextResponse>((resolve) => {
       db.run(
-        `INSERT INTO locations (country, city, address, hours, phone, email, image, map_url, show_map_button, is_active, sort_order) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [country, city, address, hours || '', phone || '', email || '', image || '', map_url || '', show_map_button !== false ? 1 : 0, is_active !== false ? 1 : 0, sort_order || 0],
+        `INSERT INTO locations (country, city, address, hours, image, map_url, show_map_button, is_active, sort_order) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [country, city, address, hours || '', image || '', map_url || '', show_map_button !== false ? 1 : 0, is_active !== false ? 1 : 0, sort_order || 0],
         function (this: any, err: Error | null) {
           if (err) {
             console.error('Database error:', err);
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           }
           resolve(
             NextResponse.json(
-              { id: this.lastID, country, city, address, hours, phone, email, image, map_url, show_map_button },
+              { id: this.lastID, country, city, address, hours, image, map_url, show_map_button },
               { status: 201 }
             )
           );

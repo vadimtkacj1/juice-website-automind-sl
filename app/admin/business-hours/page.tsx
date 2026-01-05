@@ -22,7 +22,6 @@ export default function AdminBusinessHours() {
   const { t, language } = useAdminLanguage();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBusinessHours();
@@ -30,23 +29,22 @@ export default function AdminBusinessHours() {
 
   async function fetchBusinessHours() {
     try {
-      setLoading(true);
       const response = await fetch('/api/business-hours');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const data = await response.json();
-      setBusinessHours(data.businessHours);
-    } catch (error: any) {
+      // Convert is_active from 0/1 to boolean
+      const formattedHours = (data.businessHours || []).map((bh: any) => ({
+        ...bh,
+        is_active: bh.is_active === 1 || bh.is_active === true
+      }));
+      setBusinessHours(formattedHours);
+    } catch (error) {
       console.error('Error fetching business hours:', error);
-      setError(t('Failed to load business hours.'));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   async function handleDelete(id: number) {
-    if (!confirm(t('Are you sure you want to delete this business hour entry?'))) {
+    if (!confirm(t('Are you sure you want to delete this business hour?'))) {
       return;
     }
 
@@ -54,88 +52,126 @@ export default function AdminBusinessHours() {
       const response = await fetch(`/api/business-hours/${id}`, {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        fetchBusinessHours();
       }
-
-      // Remove the deleted item from the state
-      setBusinessHours(businessHours.filter((hour) => hour.id !== id));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting business hour:', error);
-      alert(t('Failed to delete business hour.'));
     }
   }
 
-  if (loading) {
-    return <LoadingSpinner size="lg" text={t('Loading business hours...')} />;
+  function formatTime(time: string): string {
+    // Convert 24h format to 12h format
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500 py-8" dir={language}>{t('Error')}: {error}</div>;
+  const dayNames: { [key: string]: string } = {
+    'Sunday': t('Sunday'),
+    'Monday': t('Monday'),
+    'Tuesday': t('Tuesday'),
+    'Wednesday': t('Wednesday'),
+    'Thursday': t('Thursday'),
+    'Friday': t('Friday'),
+    'Saturday': t('Saturday'),
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="lg" text={t('Loading business hours...')} />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8" dir={language}>
+    <div className="max-w-7xl mx-auto space-y-6" dir={language}>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">{t('Business Hours Management')}</h1>
+        <p className="text-gray-500 mt-1">{t('Manage store opening and closing times')}</p>
+      </div>
+
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <div className="flex flex-col">
-            <CardTitle className="text-2xl font-bold">{t('Business Hours')}</CardTitle>
-            <CardDescription>{t('Manage your store\'s operating hours.')}</CardDescription>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-purple-600" />
+              <div>
+                <CardTitle>{t('All Business Hours')}</CardTitle>
+                <CardDescription>{t('Store hours for each day of the week')}</CardDescription>
+              </div>
+            </div>
+            <Link href="/admin/business-hours/add">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                {t('Add Business Hours')}
+              </Button>
+            </Link>
           </div>
-          <Link href="/admin/business-hours/add">
-            <Button className="flex items-center gap-2">
-              <Plus size={18} /> {t('Add New Hour')}
-            </Button>
-          </Link>
         </CardHeader>
         <CardContent>
           {businessHours.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">{t('No business hours configured yet')}</p>
+            <p className="text-center text-gray-500 py-8">{t('No business hours yet')}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[150px]">{t('Day(s)')}</TableHead>
-                  <TableHead>{t('Open Time')}</TableHead>
-                  <TableHead>{t('Close Time')}</TableHead>
-                  <TableHead className="text-center">{t('Active')}</TableHead>
-                  <TableHead className="text-center">{t('Sort Order')}</TableHead>
-                  <TableHead className="text-right">{t('Actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {businessHours.map((hour) => (
-                  <TableRow key={hour.id}>
-                    <TableCell className="font-medium">{hour.day_of_week}</TableCell>
-                    <TableCell>{hour.open_time}</TableCell>
-                    <TableCell>{hour.close_time}</TableCell>
-                    <TableCell className="text-center">
-                      {hour.is_active ? '✅' : '❌'}
-                    </TableCell>
-                    <TableCell className="text-center">{hour.sort_order}</TableCell>
-                    <TableCell className="text-right flex items-center justify-end gap-2">
-                      <Link href={`/admin/business-hours/edit/${hour.id}`}>
-                        <Button variant="outline" size="icon">
-                          <Pencil size={18} />
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="destructive" 
-                        size="icon" 
-                        onClick={() => handleDelete(hour.id)}
-                      >
-                        <Trash size={18} />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('Day')}</TableHead>
+                    <TableHead>{t('Opening Time')}</TableHead>
+                    <TableHead>{t('Closing Time')}</TableHead>
+                    <TableHead>{t('Status')}</TableHead>
+                    <TableHead className="text-right">{t('Actions')}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {businessHours.map((hour) => (
+                    <TableRow key={hour.id}>
+                      <TableCell>
+                        <span className="font-medium">{dayNames[hour.day_of_week] || hour.day_of_week}</span>
+                      </TableCell>
+                      <TableCell className="font-mono">{formatTime(hour.open_time)}</TableCell>
+                      <TableCell className="font-mono">{formatTime(hour.close_time)}</TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                          hour.is_active 
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-gray-50 text-gray-700'
+                        }`}>
+                          {hour.is_active ? t('Active') : t('Inactive')}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Link href={`/admin/business-hours/edit/${hour.id}`}>
+                            <Button variant="ghost" size="sm">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(hour.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
+
 

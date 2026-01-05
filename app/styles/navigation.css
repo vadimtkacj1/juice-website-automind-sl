@@ -6,12 +6,24 @@
   top: 40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 95%;
+  width: calc(100% - 30px);
   max-width: calc(100% - 30px);
   z-index: 100;
   transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
   box-sizing: border-box;
   contain: layout style paint;
+}
+
+/* When nav-main is inside hero section, position it relative to hero */
+.hero .nav-main,
+.contact-hero .nav-main {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 15px);
+  max-width: calc(100% - 15px);
+  z-index: 100;
 }
 
 /* Hide main navbar when sticky navbar is active */

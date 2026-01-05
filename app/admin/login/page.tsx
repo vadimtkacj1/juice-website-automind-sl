@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLanguageProvider, useAdminLanguage } from '@/lib/admin-language-context';
+import { Lock } from 'lucide-react';
 
 function AdminLoginContent() {
   const router = useRouter();
@@ -45,59 +46,68 @@ function AdminLoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" dir={language}>
-      <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold text-gray-900">{t('Admin Panel')}</CardTitle>
-            <CardDescription className="text-center">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-slate-50 p-4" 
+      dir={language}
+      style={{ fontFamily: "'Heebo', 'Segoe UI', system-ui, sans-serif" }}
+    >
+      <Card className="w-full max-w-sm border-slate-200 shadow-sm">
+        <CardHeader className="space-y-3 text-center pb-2">
+          <div className="mx-auto w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+            <Lock className="w-6 h-6 text-indigo-600" strokeWidth={1.75} />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-semibold text-slate-900">{t('Admin Panel')}</CardTitle>
+            <CardDescription className="text-slate-500 text-sm mt-1">
               {t('Enter your credentials to access the admin dashboard')}
             </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm text-center">
-                  {error}
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-center block">{t('Username')}</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder={t('Enter your username')}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  disabled={loading}
-                  className="w-full"
-                />
+          </div>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4 pt-2">
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2.5 rounded-lg text-sm text-center">
+                {error}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-center block">{t('Password')}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t('Enter your password')}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                  className="w-full"
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              <Button 
-                type="submit" 
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold" 
+            )}
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-slate-700 text-sm">{t('Username')}</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder={t('Enter your username')}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
                 disabled={loading}
-              >
-                {loading ? t('Signing in...') : t('Sign in')}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
+                className="h-10 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-slate-700 text-sm">{t('Password')}</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder={t('Enter your password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="h-10 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="pt-2">
+            <Button 
+              type="submit" 
+              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-medium" 
+              disabled={loading}
+            >
+              {loading ? t('Signing in...') : t('Sign in')}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }
@@ -109,4 +119,3 @@ export default function AdminLogin() {
     </AdminLanguageProvider>
   );
 }
-

@@ -3,16 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Pencil, Trash, Percent, FolderOpen, Coffee } from 'lucide-react';
+import { Plus, Pencil, Trash2, Percent, FolderOpen, Coffee } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import { cn } from '@/lib/utils';
 
 interface MenuItem {
   id: number;
@@ -304,238 +305,226 @@ export default function AdminMenu() {
     );
   }
 
+  const stats = [
+    { title: t('Categories'), value: categories.length, icon: FolderOpen, color: 'text-slate-600', bg: 'bg-slate-100' },
+    { title: t('Total Items'), value: items.length, icon: Coffee, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { title: t('Available'), value: items.filter(i => i.is_available).length, icon: Coffee, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { title: t('On Sale'), value: items.filter(i => i.discount_percent > 0).length, icon: Percent, color: 'text-red-600', bg: 'bg-red-50' },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto space-y-6" dir={language}>
+    <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('Menu Management')}</h1>
-        <p className="text-gray-500 mt-1">{t('Categories, items, prices and discounts')}</p>
+        <h1 className="text-2xl font-semibold text-slate-900">{t('Menu Management')}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">{t('Categories, items, prices and discounts')}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('Categories')}</CardTitle>
-            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('Total Items')}</CardTitle>
-            <Coffee className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('Available')}</CardTitle>
-            <Coffee className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.filter(i => i.is_available).length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('On Sale')}</CardTitle>
-            <Percent className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.filter(i => i.discount_percent > 0).length}</div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="border-slate-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500">{stat.title}</p>
+                    <p className="text-2xl font-semibold text-slate-900 mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`${stat.bg} p-2.5 rounded-xl`}>
+                    <Icon className={`h-5 w-5 ${stat.color}`} strokeWidth={1.75} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
+      {/* Tabs */}
       <Tabs defaultValue="items" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="items">{t('Menu Items')}</TabsTrigger>
-          <TabsTrigger value="categories">{t('Categories')}</TabsTrigger>
+        <TabsList className="bg-slate-100 p-1 rounded-lg">
+          <TabsTrigger value="items" className="rounded-md px-4">{t('Menu Items')}</TabsTrigger>
+          <TabsTrigger value="categories" className="rounded-md px-4">{t('Categories')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="items">
-          <Card>
-            <CardHeader>
+          <Card className="border-slate-200">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{t('All Items')}</CardTitle>
-                  <CardDescription>{t('Manage menu items')}</CardDescription>
-                </div>
+                <CardTitle className="text-base font-medium">{t('All Items')}</CardTitle>
                 <Link href="/admin/menu/add">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    <Plus className="mr-2 h-4 w-4" />
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white h-9 px-4">
+                    <Plus className="h-4 w-4 mr-1.5" strokeWidth={2} />
                     {t('Add Item')}
                   </Button>
                 </Link>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {items.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">{t('No items yet')}</p>
+                <p className="text-center text-slate-400 py-12 text-sm">{t('No items yet')}</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-right">{t('Name')}</TableHead>
-                      <TableHead className="text-right">{t('Category')}</TableHead>
-                      <TableHead className="text-center">{t('Price')}</TableHead>
-                      <TableHead className="text-center">{t('Discount')}</TableHead>
-                      <TableHead className="text-center">{t('Status')}</TableHead>
-                      <TableHead className="text-left">{t('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="text-right">
-                          <div className="flex items-center gap-3 flex-row-reverse">
-                            {item.image && (
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="w-10 h-10 object-cover rounded-full"
-                              />
-                            )}
-                            <div className="text-right">
-                              <p className="font-medium">{t(item.name)}</p>
-                              {item.volume && (
-                                <p className="text-xs text-gray-500">{item.volume}</p>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <span className="text-sm text-gray-600">{t(item.category_name)}</span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className="font-bold">₪{item.price}</span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openDiscountDialog(item)}
-                            className={item.discount_percent > 0 ? 'text-red-600' : ''}
-                          >
-                            {item.discount_percent > 0 ? `-${item.discount_percent}` : '0'}
-                            <Percent className="ml-1 h-3 w-3" />
-                          </Button>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <button
-                            onClick={() => toggleItemAvailability(item)}
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                              item.is_available
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                : 'bg-red-100 text-red-800 hover:bg-red-200'
-                            }`}
-                          >
-                            {item.is_available ? t('Available') : t('Unavailable')}
-                          </button>
-                        </TableCell>
-                        <TableCell className="text-left">
-                          <div className="flex gap-2">
-                            <Link href={`/admin/menu/edit/${item.id}`}>
-                              <Button variant="ghost" size="sm">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteItem(item.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-200">
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Name')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Category')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Price')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Discount')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Status')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Actions')}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {items.map((item) => (
+                        <TableRow key={item.id} className="border-slate-100">
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {item.image && (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-9 h-9 object-cover rounded-lg"
+                                />
+                              )}
+                              <div>
+                                <p className="font-medium text-sm text-slate-900">{t(item.name)}</p>
+                                {item.volume && (
+                                  <p className="text-xs text-slate-500">{item.volume}</p>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-500">{t(item.category_name)}</TableCell>
+                          <TableCell className="font-semibold text-sm">₪{item.price}</TableCell>
+                          <TableCell>
+                            <button
+                              onClick={() => openDiscountDialog(item)}
+                              className={cn(
+                                'px-2 py-1 rounded-md text-xs font-medium transition-colors',
+                                item.discount_percent > 0 
+                                  ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+                                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                              )}
+                            >
+                              {item.discount_percent > 0 ? `-${item.discount_percent}%` : '0%'}
+                            </button>
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              onClick={() => toggleItemAvailability(item)}
+                              className={cn(
+                                'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                                item.is_available
+                                  ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                              )}
+                            >
+                              {item.is_available ? t('Available') : t('Unavailable')}
+                            </button>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Link href={`/admin/menu/edit/${item.id}`}>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700">
+                                  <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteItem(item.id)}
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="categories">
-          <Card>
-            <CardHeader>
+          <Card className="border-slate-200">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{t('Categories')}</CardTitle>
-                  <CardDescription>{t('Manage menu categories')}</CardDescription>
-                </div>
+                <CardTitle className="text-base font-medium">{t('Categories')}</CardTitle>
                 <Link href="/admin/menu/categories/add">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    <Plus className="mr-2 h-4 w-4" />
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white h-9 px-4">
+                    <Plus className="h-4 w-4 mr-1.5" strokeWidth={2} />
                     {t('Add Category')}
                   </Button>
                 </Link>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {categories.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">{t('No categories yet')}</p>
+                <p className="text-center text-slate-400 py-12 text-sm">{t('No categories yet')}</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t('Name')}</TableHead>
-                      <TableHead>{t('Description')}</TableHead>
-                      <TableHead>{t('Items')}</TableHead>
-                      <TableHead>{t('Order')}</TableHead>
-                      <TableHead>{t('Status')}</TableHead>
-                      <TableHead>{t('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {categories.map((cat) => (
-                      <TableRow key={cat.id}>
-                        <TableCell className="font-medium">{t(cat.name)}</TableCell>
-                        <TableCell className="text-sm text-gray-600 max-w-xs truncate">
-                          {cat.description ? t(cat.description) : '—'}
-                        </TableCell>
-                        <TableCell>
-                          {items.filter(i => i.category_id === cat.id).length}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm text-gray-600">{cat.sort_order || 0}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            cat.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {cat.is_active ? t('Active') : t('Inactive')}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Link href={`/admin/menu/categories/edit/${cat.id}`}>
-                              <Button variant="ghost" size="sm">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteCategory(cat.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-200">
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Name')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Description')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Items')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Order')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Status')}</TableHead>
+                        <TableHead className="text-xs font-medium text-slate-500">{t('Actions')}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {categories.map((cat) => (
+                        <TableRow key={cat.id} className="border-slate-100">
+                          <TableCell className="font-medium text-sm">{t(cat.name)}</TableCell>
+                          <TableCell className="text-sm text-slate-500 max-w-[200px] truncate">
+                            {cat.description ? t(cat.description) : '—'}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {items.filter(i => i.category_id === cat.id).length}
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-500">{cat.sort_order || 0}</TableCell>
+                          <TableCell>
+                            <span className={cn(
+                              'px-2 py-1 rounded-md text-xs font-medium',
+                              cat.is_active
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-slate-100 text-slate-500'
+                            )}>
+                              {cat.is_active ? t('Active') : t('Inactive')}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Link href={`/admin/menu/categories/edit/${cat.id}`}>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700">
+                                  <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteCategory(cat.id)}
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -544,21 +533,19 @@ export default function AdminMenu() {
 
       {/* Discount Form */}
       {showDiscountForm && selectedItem && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{t('Set Discount')}</CardTitle>
-            <CardDescription>
-              {t('Discount for:')} {selectedItem?.name ? t(selectedItem.name) : ''}
-            </CardDescription>
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium">{t('Set Discount')}</CardTitle>
+            <p className="text-sm text-slate-500">{t('Discount for:')} {selectedItem?.name ? t(selectedItem.name) : ''}</p>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <Label htmlFor="current-price">{t('Current Price')}</Label>
-                <p className="text-2xl font-bold">₪{selectedItem?.price}</p>
+                <Label className="text-xs text-slate-500">{t('Current Price')}</Label>
+                <p className="text-xl font-semibold text-slate-900 mt-1">₪{selectedItem?.price}</p>
               </div>
               <div>
-                <Label htmlFor="discount">{t('Discount (%)')}</Label>
+                <Label htmlFor="discount" className="text-xs text-slate-500">{t('Discount (%)')}</Label>
                 <Input
                   id="discount"
                   type="number"
@@ -567,12 +554,13 @@ export default function AdminMenu() {
                   value={newDiscount}
                   onChange={(e) => setNewDiscount(e.target.value)}
                   placeholder="0"
+                  className="mt-1"
                 />
               </div>
               {parseFloat(newDiscount) > 0 && selectedItem && (
                 <div>
-                  <Label>{t('Discounted Price')}</Label>
-                  <p className="text-2xl font-bold text-red-600">
+                  <Label className="text-xs text-slate-500">{t('Discounted Price')}</Label>
+                  <p className="text-xl font-semibold text-emerald-600 mt-1">
                     ₪{(selectedItem.price * (1 - parseFloat(newDiscount) / 100)).toFixed(0)}
                   </p>
                 </div>
@@ -583,10 +571,10 @@ export default function AdminMenu() {
                 setShowDiscountForm(false);
                 setSelectedItem(null);
                 setNewDiscount('');
-              }}>
+              }} className="border-slate-200">
                 {t('Cancel')}
               </Button>
-              <Button onClick={updateDiscount} className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button onClick={updateDiscount} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 {t('Save')}
               </Button>
             </div>
@@ -596,78 +584,72 @@ export default function AdminMenu() {
 
       {/* Category Form */}
       {showCategoryForm && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium">
               {editingCategory ? t('Edit Category') : t('New Category')}
             </CardTitle>
-            <CardDescription>
-              {editingCategory 
-                ? t('Update category information')
-                : t('Create a new menu category')}
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="cat-name">{t('Name')} *</Label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label htmlFor="cat-name" className="text-xs text-slate-500">{t('Name')} *</Label>
                 <Input
                   id="cat-name"
                   value={categoryForm.name}
                   onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                   placeholder={t('Fresh Juices')}
                   required
+                  className="mt-1"
                 />
               </div>
-              <div>
-                <Label htmlFor="cat-desc">{t('Description')}</Label>
+              <div className="sm:col-span-2">
+                <Label htmlFor="cat-desc" className="text-xs text-slate-500">{t('Description')}</Label>
                 <Input
                   id="cat-desc"
                   value={categoryForm.description}
                   onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                   placeholder={t('Category description (optional)')}
+                  className="mt-1"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="cat-sort">{t('Sort Order')}</Label>
-                  <Input
-                    id="cat-sort"
-                    type="number"
-                    value={categoryForm.sort_order}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
-                    placeholder="0"
-                    min="0"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {t('Lower numbers appear first')}
-                  </p>
-                </div>
-                {editingCategory && (
-                  <div className="flex items-center gap-2 pt-6">
-                    <input
-                      type="checkbox"
-                      id="cat-active"
-                      checked={categoryForm.is_active}
-                      onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="cat-active" className="cursor-pointer">
-                      {t('Active')}
-                    </Label>
-                  </div>
-                )}
+              <div>
+                <Label htmlFor="cat-sort" className="text-xs text-slate-500">{t('Sort Order')}</Label>
+                <Input
+                  id="cat-sort"
+                  type="number"
+                  value={categoryForm.sort_order}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
+                  placeholder="0"
+                  min="0"
+                  className="mt-1"
+                />
+                <p className="text-xs text-slate-400 mt-1">{t('Lower numbers appear first')}</p>
               </div>
+              {editingCategory && (
+                <div className="flex items-center gap-2 pt-5">
+                  <input
+                    type="checkbox"
+                    id="cat-active"
+                    checked={categoryForm.is_active}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })}
+                    className="w-4 h-4 rounded border-slate-300"
+                  />
+                  <Label htmlFor="cat-active" className="cursor-pointer text-sm">
+                    {t('Active')}
+                  </Label>
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <Button variant="outline" onClick={() => {
                 setShowCategoryForm(false);
                 setEditingCategory(null);
-              }}>
+              }} className="border-slate-200">
                 {t('Cancel')}
               </Button>
-              <Button onClick={saveCategory} className="bg-purple-600 hover:bg-purple-700 text-white">
-                {editingCategory ? t('Update') : t('Create')} {t('Category')}
+              <Button onClick={saveCategory} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                {editingCategory ? t('Update') : t('Create')}
               </Button>
             </div>
           </CardContent>

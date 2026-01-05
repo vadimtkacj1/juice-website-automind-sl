@@ -11,8 +11,6 @@ import { adminContactsTranslations } from './admin/contacts';
 import { adminOrdersTranslations } from './admin/orders';
 import { adminDiscountsTranslations } from './admin/discounts';
 import { adminIngredientsTranslations } from './admin/ingredients';
-import { adminBusinessHoursTranslations } from './admin/business-hours';
-import { adminOrderPromptsTranslations } from './admin/order-prompts';
 
 // Merge all translations
 export const hebrewTranslations: Record<string, string> = {
@@ -26,7 +24,5 @@ export const hebrewTranslations: Record<string, string> = {
   ...adminOrdersTranslations,
   ...adminDiscountsTranslations,
   ...adminIngredientsTranslations,
-  ...adminBusinessHoursTranslations,
-  ...adminOrderPromptsTranslations,
 };
 

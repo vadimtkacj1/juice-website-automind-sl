@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import NavBarShell from './Navbar/NavbarShell';
+import MobileMenu from './Navbar/MobileMenu';
 
 interface HeroSectionProps {
   children: React.ReactNode;
@@ -53,6 +55,7 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -87,6 +90,11 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
     return () => observer.disconnect();
   }, []);
 
+  // Memoize the close function to prevent unnecessary re-renders
+  const handleCloseMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
   return (
     <section 
       ref={heroRef}
@@ -104,6 +112,13 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       }}
       aria-label="אזור ראשי - נטורליי מרענן"
     >
+      {/* Main Navigation */}
+      <NavBarShell 
+        className="nav-main" 
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
+      
       {/* Animated background gradient overlay */}
       <div className="hero-gradient-overlay" aria-hidden="true"></div>
       
@@ -162,6 +177,12 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
           transform: `translateY(${scrollY * 0.15}px)`,
         }}
       ></div>
+      
+      {/* Mobile Menu */}
+      <MobileMenu 
+        isOpen={mobileMenuOpen} 
+        onClose={handleCloseMenu}
+      />
     </section>
   );
 }

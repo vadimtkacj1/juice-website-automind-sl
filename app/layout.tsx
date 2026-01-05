@@ -105,12 +105,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet" 
         />
         
-        {/* Accessibility widget */}
-        <script 
-          src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" 
-          defer
-        />
-        
         {/* Mobile support script */}
         <script
           dangerouslySetInnerHTML={{

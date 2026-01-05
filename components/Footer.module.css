@@ -63,10 +63,10 @@
 /* Footer Navigation Links */
 .footerNavLink {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   text-decoration: none;
-  padding: 8px 16px;
+  padding: 12px 20px;
   border-radius: 8px;
   transition: color 0.25s ease, background-color 0.25s ease;
 }
@@ -112,6 +112,10 @@
     gap: var(--spacing-sm);
   }
 
+  .footerNavLink {
+    font-size: 28px;
+  }
+
   .legalLink {
     font-size: 32px;
   }
@@ -124,6 +128,10 @@
 @media (max-width: 480px) {
   .footerBrand {
     font-size: 60px;
+  }
+
+  .footerNavLink {
+    font-size: 24px;
   }
 
   .legalLink {

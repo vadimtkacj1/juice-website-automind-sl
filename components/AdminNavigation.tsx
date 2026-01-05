@@ -16,8 +16,7 @@ import {
   Newspaper,
   ChefHat,
   MessageSquare,
-  Clock,
-  ShoppingBag
+  Clock
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -25,23 +24,21 @@ import { cn } from '@/lib/utils';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 import LanguageSwitcher from './LanguageSwitcher';
 
-
 export default function AdminNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { t, language } = useAdminLanguage();
   const [newOrdersCount, setNewOrdersCount] = useState(0);
+  const isRTL = language === 'he';
 
   useEffect(() => {
-    // Fetch new orders count (pending/processing orders)
     const fetchNewOrdersCount = async () => {
       try {
         const response = await fetch('/api/orders');
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
-            // Count orders with pending or processing status
             const newOrders = data.filter((order: any) => 
               order.status === 'pending' || order.status === 'processing'
             );
@@ -54,7 +51,6 @@ export default function AdminNavigation() {
     };
 
     fetchNewOrdersCount();
-    // Refresh every 30 seconds
     const interval = setInterval(fetchNewOrdersCount, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -64,7 +60,6 @@ export default function AdminNavigation() {
     router.push('/admin/login');
   };
 
-  // Don't show navigation on login page
   if (pathname === '/admin/login') {
     return null;
   }
@@ -80,64 +75,71 @@ export default function AdminNavigation() {
     { name: t('Locations'), href: '/admin/locations', icon: MapPin },
     { name: t('Contacts'), href: '/admin/contacts', icon: Users },
     { name: t('Business Hours'), href: '/admin/business-hours', icon: Clock },
-    { name: t('Order Prompts'), href: '/admin/order-prompts', icon: ShoppingBag },
   ];
+
+  const NavLink = ({ item, onClick }: { item: typeof navigation[0]; onClick?: () => void }) => {
+    const Icon = item.icon;
+    const isActive = pathname.startsWith(item.href);
+    const isOrders = item.href === '/admin/orders';
+    const showBadge = isOrders && newOrdersCount > 0;
+    
+    return (
+      <Link
+        href={item.href}
+        onClick={onClick}
+        className={cn(
+          'flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-all duration-150',
+          isActive 
+            ? 'bg-indigo-50 text-indigo-600' 
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        )}
+      >
+        <div className="relative flex-shrink-0">
+          <Icon className={cn('h-[18px] w-[18px]', isActive ? 'text-indigo-600' : 'text-slate-400')} strokeWidth={1.75} />
+          {showBadge && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] rounded-full bg-indigo-500 flex items-center justify-center text-white text-[10px] font-medium px-1">
+              {newOrdersCount > 9 ? '9+' : newOrdersCount}
+            </span>
+          )}
+        </div>
+        <span className="font-medium">{item.name}</span>
+      </Link>
+    );
+  };
 
   return (
     <>
-      {/* Mobile Header with Burger */}
-      <div className={`desktop:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center justify-between px-4`} dir={language}>
-        <div className="flex items-center">
+      {/* Mobile Header */}
+      <div 
+        className="desktop:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-50 flex items-center justify-between px-4"
+        dir={language}
+      >
+        <div className="flex items-center gap-3">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-600">
+                <Menu className="h-5 w-5" strokeWidth={1.75} />
               </Button>
             </SheetTrigger>
-            <SheetContent side={language === 'he' ? 'right' : 'left'} className="w-[280px] p-0" dir={language}>
+            <SheetContent 
+              side={isRTL ? 'right' : 'left'} 
+              className="w-[260px] p-0 border-slate-200" 
+              dir={language}
+            >
               <div className="flex flex-col h-full">
-                <SheetHeader className="p-6 border-b">
-                  <SheetTitle className="text-2xl font-bold text-purple-600">
+                <SheetHeader className="p-4 border-b border-slate-100">
+                  <SheetTitle className="text-lg font-semibold text-slate-900">
                     {t('Admin Panel')}
                   </SheetTitle>
                 </SheetHeader>
-                <nav className="flex-1 overflow-y-auto p-4">
-                  <div className="flex flex-col gap-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
-              const isOrders = item.href === '/admin/orders';
-              const showBadge = isOrders && newOrdersCount > 0;
-              
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
-                    'text-gray-700 hover:bg-gray-100'
-                  )}
-                >
-                  {isOrders ? (
-                    <div className="relative">
-                      <ShoppingCart className="h-5 w-5" />
-                      {showBadge && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
-                          {newOrdersCount > 9 ? '9+' : newOrdersCount}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <Icon className="h-5 w-5" />
-                  )}
-                  {item.name}
-                </Link>
-              );
-            })}
+                <nav className="flex-1 overflow-y-auto p-3">
+                  <div className="flex flex-col gap-0.5">
+                    {navigation.map((item) => (
+                      <NavLink key={item.href} item={item} onClick={() => setIsOpen(false)} />
+                    ))}
                   </div>
                 </nav>
-                <div className="p-4 border-t space-y-2">
+                <div className="p-3 border-t border-slate-100 space-y-2">
                   <LanguageSwitcher />
                   <Button
                     variant="ghost"
@@ -145,73 +147,51 @@ export default function AdminNavigation() {
                       setIsOpen(false);
                       handleLogout();
                     }}
-                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 h-10"
                   >
-                    <LogOut className={language === 'he' ? 'ml-3' : 'mr-3'} style={{ transform: language === 'he' ? 'scaleX(-1)' : 'none' }} />
+                    <LogOut className={cn('h-[18px] w-[18px]', isRTL ? 'ml-3' : 'mr-3')} strokeWidth={1.75} style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }} />
                     {t('Logout')}
                   </Button>
                 </div>
               </div>
             </SheetContent>
           </Sheet>
-          <h1 className={`text-xl font-bold text-purple-600 ${language === 'he' ? 'ml-3' : 'mr-3'}`}>{t('Admin Panel')}</h1>
+          <span className="text-base font-semibold text-slate-900">{t('Admin Panel')}</span>
         </div>
         <LanguageSwitcher />
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className={`hidden desktop:flex desktop:fixed desktop:inset-y-0 ${language === 'he' ? 'desktop:right-0' : 'desktop:left-0'} desktop:w-64 desktop:flex-col bg-white ${language === 'he' ? 'border-l' : 'border-r'} border-gray-200 z-50`} dir={language}>
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-purple-600">{t('Admin Panel')}</h1>
+      <aside 
+        className={cn(
+          'hidden desktop:flex desktop:fixed desktop:inset-y-0 desktop:w-60 desktop:flex-col bg-white z-50',
+          isRTL ? 'desktop:right-0 border-l border-slate-200' : 'desktop:left-0 border-r border-slate-200'
+        )} 
+        dir={language}
+      >
+        {/* Logo */}
+        <div className="h-14 flex items-center justify-between px-4 border-b border-slate-100">
+          <span className="text-base font-semibold text-slate-900">{t('Admin Panel')}</span>
           <LanguageSwitcher />
         </div>
 
-        {/* Sidebar Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4">
-          <div className="flex flex-col gap-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
-              const isOrders = item.href === '/admin/orders';
-              const showBadge = isOrders && newOrdersCount > 0;
-              
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-colors relative',
-                    'text-gray-700 hover:bg-gray-100'
-                  )}
-                >
-                  {isOrders ? (
-                    <div className="relative">
-                      <ShoppingCart className="h-5 w-5" />
-                      {showBadge && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ff00ff] flex items-center justify-center text-white text-xs font-bold">
-                          {newOrdersCount > 9 ? '9+' : newOrdersCount}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <Icon className="h-5 w-5" />
-                  )}
-                  {item.name}
-                </Link>
-              );
-            })}
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-3">
+          <div className="flex flex-col gap-0.5">
+            {navigation.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
           </div>
         </nav>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-gray-200">
+        {/* Footer */}
+        <div className="p-3 border-t border-slate-100">
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 h-10"
           >
-            <LogOut className={language === 'he' ? 'ml-3' : 'mr-3'} style={{ transform: language === 'he' ? 'scaleX(-1)' : 'none' }} />
+            <LogOut className={cn('h-[18px] w-[18px]', isRTL ? 'ml-3' : 'mr-3')} strokeWidth={1.75} style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }} />
             {t('Logout')}
           </Button>
         </div>
@@ -219,4 +199,3 @@ export default function AdminNavigation() {
     </>
   );
 }
-

@@ -9,35 +9,42 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import { cn } from '@/lib/utils';
 
 export default function LanguageSwitcher() {
   const { language, setLanguage } = useAdminLanguage();
+  const isRTL = language === 'he';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{language === 'he' ? 'עברית' : 'English'}</span>
+        <Button variant="ghost" size="sm" className="h-8 px-2 gap-1.5 text-slate-600 hover:text-slate-900">
+          <Globe className="h-4 w-4" strokeWidth={1.75} />
+          <span className="text-sm">{language === 'he' ? 'עב' : 'EN'}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={language === 'he' ? 'start' : 'end'}>
+      <DropdownMenuContent align={isRTL ? 'start' : 'end'} className="min-w-[120px]">
         <DropdownMenuItem
           onClick={() => setLanguage('he')}
-          className={language === 'he' ? 'bg-purple-50 text-purple-700' : ''}
+          className={cn(
+            'cursor-pointer text-sm',
+            language === 'he' && 'bg-indigo-50 text-indigo-600'
+          )}
         >
-          <span className={language === 'he' ? 'ml-2' : 'mr-2'}>עברית</span>
-          {language === 'he' && <span className="mr-auto">✓</span>}
+          <span>עברית</span>
+          {language === 'he' && <span className="mr-auto text-indigo-600">✓</span>}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setLanguage('en')}
-          className={language === 'en' ? 'bg-purple-50 text-purple-700' : ''}
+          className={cn(
+            'cursor-pointer text-sm',
+            language === 'en' && 'bg-indigo-50 text-indigo-600'
+          )}
         >
-          <span className={language === 'he' ? 'ml-2' : 'mr-2'}>English</span>
-          {language === 'en' && <span className="ml-auto">✓</span>}
+          <span>English</span>
+          {language === 'en' && <span className="ml-auto text-indigo-600">✓</span>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
-

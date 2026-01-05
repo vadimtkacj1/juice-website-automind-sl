@@ -42,17 +42,29 @@ export async function GET() {
     }
 
     // 2. Fetch Data Concurrently
-    // We fetch categories and items in parallel to improve performance
-    const [categories, items, stats] = await Promise.all([
+    // We fetch categories, items, and volumes in parallel to improve performance
+    const [categories, items, volumes, stats] = await Promise.all([
       dbAll(db, 'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order'),
       dbAll(db, 'SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order'),
+      dbAll(db, 'SELECT * FROM menu_category_volumes ORDER BY category_id, sort_order, volume'),
       dbGet(db, 'SELECT (SELECT COUNT(*) FROM menu_categories) as catCount, (SELECT COUNT(*) FROM menu_items) as itemCount')
     ]);
 
     console.error(`${requestId} [Menu API] Found ${categories.length}/${stats.catCount} active categories`);
     console.error(`${requestId} [Menu API] Found ${items.length}/${stats.itemCount} available items`);
+    console.error(`${requestId} [Menu API] Found ${volumes.length} volume options`);
 
-    // 3. Process and Group Data
+    // 3. Group volumes by category_id for quick lookup
+    const volumesByCategory = new Map<number, any[]>();
+    volumes.forEach((volume: any) => {
+      const categoryId = Number(volume.category_id);
+      if (!volumesByCategory.has(categoryId)) {
+        volumesByCategory.set(categoryId, []);
+      }
+      volumesByCategory.get(categoryId)!.push(translateObject(volume));
+    });
+
+    // 4. Process and Group Data
     const menu = categories
       .map((category: any) => {
         const categoryId = Number(category.id);
@@ -66,9 +78,24 @@ export async function GET() {
           console.error(`${requestId} [Menu API] Category "${category.name}" (ID: ${categoryId}) has no items.`);
         }
 
+        // Get volumes for this category and sort them
+        const categoryVolumes = (volumesByCategory.get(categoryId) || [])
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        // Add volumes to each item
+        const itemsWithVolumes = categoryItems.map((item: any) => {
+          if (categoryVolumes.length > 0) {
+            return {
+              ...item,
+              categoryVolumes: categoryVolumes,
+            };
+          }
+          return item;
+        });
+
         return {
           ...translateObject(category),
-          items: categoryItems,
+          items: itemsWithVolumes,
         };
       })
       // Only return categories that actually have items

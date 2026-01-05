@@ -1,458 +1,425 @@
 /* ============================================
-   ADMIN PANEL STYLES
+   ADMIN PANEL STYLES - CLEAN HEBREW UI
+   Minimal, elegant design with RTL focus
    ============================================ */
 
-/* Hide accessibility widget in admin panel */
-/* Target all possible accessibility widget elements */
+/* === Base Reset & Typography === */
+#admin-layout-root {
+  font-family: 'Heebo', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#admin-layout-root *,
+#admin-main-content * {
+  letter-spacing: 0.01em;
+}
+
+/* === Hide Accessibility Widget in Admin === */
 body:has(#admin-layout-root) [id*="accessibility"],
 body:has(#admin-layout-root) [class*="accessibility"],
 body:has(#admin-layout-root) [id*="sienna"],
 body:has(#admin-layout-root) [class*="sienna"],
-body:has(#admin-layout-root) .accessibility-widget-button,
-body:has(#admin-layout-root) .accessibility-widget-panel,
-body:has(#admin-layout-root) .accessibility-widget-overlay,
 html:has(#admin-layout-root) [id*="accessibility"],
-html:has(#admin-layout-root) [class*="accessibility"],
-html:has(#admin-layout-root) [id*="sienna"],
-html:has(#admin-layout-root) [class*="sienna"],
-/* Universal selector for any element with accessibility in class/id when admin panel is present */
-#admin-layout-root ~ * [id*="accessibility"],
-#admin-layout-root ~ * [class*="accessibility"],
-#admin-layout-root ~ * [id*="sienna"],
-#admin-layout-root ~ * [class*="sienna"] {
+html:has(#admin-layout-root) [class*="accessibility"] {
   display: none !important;
   visibility: hidden !important;
-  opacity: 0 !important;
   pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
 }
 
-/* Admin Panel Text - Better Colors */
-/* Target admin layout specifically */
-#admin-layout-root .text-gray-400 {
-  color: #4a5568 !important;
+/* === Color Palette === */
+#admin-layout-root {
+  --admin-primary: #6366f1;
+  --admin-primary-hover: #4f46e5;
+  --admin-primary-light: #eef2ff;
+  --admin-bg: #f8fafc;
+  --admin-sidebar: #ffffff;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #1e293b;
+  --admin-text-muted: #64748b;
+  --admin-text-light: #94a3b8;
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-error: #ef4444;
+  --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --admin-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Target admin main content area */
-#admin-main-content .text-gray-400 {
-  color: #4a5568 !important;
+/* === Background === */
+#admin-layout-root {
+  background: var(--admin-bg);
+  min-height: 100vh;
 }
 
-/* Card content text in admin */
-#admin-layout-root .card .text-muted-foreground,
-#admin-layout-root .card .text-gray-500 {
-  color: #2d3748 !important;
+/* === Typography Hierarchy === */
+#admin-layout-root h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  line-height: 1.3;
 }
 
-#admin-layout-root .card .text-gray-400 {
-  color: #4a5568 !important;
+#admin-layout-root h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--admin-text);
 }
 
-/* Table text in admin */
-#admin-layout-root table .text-muted-foreground,
-#admin-layout-root table .text-gray-500 {
-  color: #2d3748 !important;
+#admin-layout-root h3,
+#admin-layout-root [class*="CardTitle"] {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--admin-text);
 }
 
-#admin-layout-root table .text-gray-400 {
-  color: #4a5568 !important;
+#admin-layout-root p,
+#admin-layout-root span,
+#admin-layout-root label {
+  color: var(--admin-text);
 }
 
-/* Description and helper text in admin */
-#admin-layout-root .text-xs.text-muted-foreground,
-#admin-layout-root .text-sm.text-muted-foreground,
-#admin-layout-root .text-xs.text-gray-500,
-#admin-layout-root .text-sm.text-gray-500,
-#admin-main-content .text-xs.text-muted-foreground,
-#admin-main-content .text-sm.text-muted-foreground,
-#admin-main-content .text-xs.text-gray-500,
-#admin-main-content .text-sm.text-gray-500 {
-  color: #2d3748 !important;
+#admin-layout-root .text-gray-500,
+#admin-layout-root .text-muted-foreground,
+#admin-layout-root [class*="CardDescription"] {
+  color: var(--admin-text-muted) !important;
 }
 
-/* Small text - only if no color class specified */
-#admin-layout-root .text-xs:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
-#admin-main-content .text-xs:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
-#admin-layout-root .text-sm:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]),
-#admin-main-content .text-sm:not([class*="text-gray"]):not([class*="text-muted"]):not([class*="text-"]) {
-  color: #1a202c;
+/* === Cards === */
+#admin-layout-root .card,
+#admin-layout-root [class*="Card"]:not([class*="CardTitle"]):not([class*="CardDescription"]):not([class*="CardHeader"]):not([class*="CardContent"]):not([class*="CardFooter"]) {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: var(--admin-shadow);
 }
 
-/* Paragraph and description text - only if no color class */
-#admin-layout-root p:not([class*="text-"]),
-#admin-main-content p:not([class*="text-"]),
-#admin-layout-root .text-base:not([class*="text-gray"]):not([class*="text-muted"]),
-#admin-main-content .text-base:not([class*="text-gray"]):not([class*="text-muted"]) {
-  color: #1a202c;
+/* === Sidebar === */
+#admin-layout-root aside {
+  background: var(--admin-sidebar);
+  border-color: var(--admin-border) !important;
 }
 
-/* DialogDescription text */
-#admin-layout-root [role="dialog"] p,
-#admin-main-content [role="dialog"] p,
-#admin-layout-root [role="dialog"] .text-sm,
-#admin-main-content [role="dialog"] .text-sm {
-  color: #000000 !important;
+/* Sidebar header */
+#admin-layout-root aside > div:first-child {
+  border-color: var(--admin-border) !important;
 }
 
-#admin-layout-root [role="dialog"] .text-muted-foreground,
-#admin-main-content [role="dialog"] .text-muted-foreground {
-  color: #1a202c !important;
+/* === Navigation Links === */
+#admin-layout-root nav a,
+#admin-layout-root aside a {
+  color: var(--admin-text-muted);
+  font-weight: 450;
+  font-size: 0.925rem;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
 }
 
-/* Navigation text */
-#admin-layout-root aside .text-gray-700,
-#admin-layout-root nav .text-gray-700 {
-  color: #000000 !important;
+#admin-layout-root nav a:hover,
+#admin-layout-root aside a:hover {
+  color: var(--admin-primary);
+  background: var(--admin-primary-light);
 }
 
-/* Admin Panel Headers - Remove Bold, Preserve Colors */
-#admin-layout-root h1:not([class*="text-"]),
-#admin-main-content h1:not([class*="text-"]),
-#admin-layout-root h2:not([class*="text-"]),
-#admin-main-content h2:not([class*="text-"]),
-#admin-layout-root h3:not([class*="text-"]),
-#admin-main-content h3:not([class*="text-"]),
-#admin-layout-root h4:not([class*="text-"]),
-#admin-main-content h4:not([class*="text-"]),
-#admin-layout-root h5:not([class*="text-"]),
-#admin-main-content h5:not([class*="text-"]),
-#admin-layout-root h6:not([class*="text-"]),
-#admin-main-content h6:not([class*="text-"]) {
-  color: #111827;
+#admin-layout-root nav a[aria-current="page"],
+#admin-layout-root nav a.active,
+#admin-layout-root aside a[aria-current="page"],
+#admin-layout-root aside a.active {
+  color: var(--admin-primary);
+  background: var(--admin-primary-light);
   font-weight: 500;
 }
 
-/* Large text sizes - preserve colors */
-#admin-layout-root .text-3xl:not([class*="text-gray"]):not([class*="text-"]),
-#admin-main-content .text-3xl:not([class*="text-gray"]):not([class*="text-"]),
-#admin-layout-root .text-2xl:not([class*="text-gray"]):not([class*="text-"]),
-#admin-main-content .text-2xl:not([class*="text-gray"]):not([class*="text-"]),
-#admin-layout-root .text-xl:not([class*="text-gray"]):not([class*="text-"]),
-#admin-main-content .text-xl:not([class*="text-gray"]):not([class*="text-"]) {
-  color: #111827;
-  font-weight: 500;
-}
-
-#admin-layout-root h1.text-gray-900,
-#admin-main-content h1.text-gray-900,
-#admin-layout-root h2.text-gray-900,
-#admin-main-content h2.text-gray-900,
-#admin-layout-root h3.text-gray-900,
-#admin-main-content h3.text-gray-900,
-#admin-layout-root [class*="CardTitle"].text-gray-900,
-#admin-main-content [class*="CardTitle"].text-gray-900,
-#admin-layout-root [class*="CardTitle"][class*="text-gray"],
-#admin-main-content [class*="CardTitle"][class*="text-gray"] {
-  color: #000000 !important;
-}
-
-/* Admin Panel Buttons - Relative Font Sizes and Colors */
+/* === Buttons === */
 #admin-layout-root button,
-#admin-main-content button,
-#admin-layout-root .button,
-#admin-main-content .button {
-  font-size: 16px;
+#admin-main-content button {
   font-weight: 500;
-  color: #000000;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
 }
 
-/* Default Button (without variant) - Beautiful Gradient */
-#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]),
-#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]) {
-  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
-  color: white !important;
-  border: none !important;
-  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  font-weight: 600;
-}
-
-#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover,
-#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover {
-  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
-  color: white !important;
-  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"])::before,
-#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"])::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-#admin-layout-root button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover::before,
-#admin-main-content button:not([variant]):not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):not([variant="ghost"]):not([variant="link"]):hover::before {
-  left: 100%;
-}
-
-/* Primary Action Buttons - Beautiful Gradient Background */
+/* Primary buttons */
 #admin-layout-root button[class*="bg-purple"],
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="ghost"]),
 #admin-main-content button[class*="bg-purple"],
-#admin-layout-root button[class*="bg-purple-600"],
-#admin-main-content button[class*="bg-purple-600"],
-#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]),
-#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]) {
-  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
-  color: white !important;
-  font-size: 16px;
-  font-weight: 600;
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="ghost"]) {
+  background: var(--admin-primary) !important;
+  color: #ffffff !important;
   border: none !important;
-  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(99, 102, 241, 0.2);
 }
 
 #admin-layout-root button[class*="bg-purple"]:hover,
+#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="ghost"]):hover,
 #admin-main-content button[class*="bg-purple"]:hover,
-#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover,
-#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover {
-  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
-  color: white !important;
-  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
-  transform: translateY(-1px);
+#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="ghost"]):hover {
+  background: var(--admin-primary-hover) !important;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
 }
 
-#admin-layout-root button[class*="bg-purple"]:active,
-#admin-main-content button[class*="bg-purple"]:active,
-#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):active,
-#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px 0 rgba(115, 34, 255, 0.3);
+/* Outline buttons */
+#admin-layout-root button[class*="outline"],
+#admin-main-content button[class*="outline"] {
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
 }
 
-/* Add shimmer effect on hover */
-#admin-layout-root button[class*="bg-purple"]::before,
-#admin-main-content button[class*="bg-purple"]::before,
-#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"])::before,
-#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"])::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+#admin-layout-root button[class*="outline"]:hover,
+#admin-main-content button[class*="outline"]:hover {
+  background: var(--admin-bg);
+  border-color: var(--admin-text-light);
 }
 
-#admin-layout-root button[class*="bg-purple"]:hover::before,
-#admin-main-content button[class*="bg-purple"]:hover::before,
-#admin-layout-root button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover::before,
-#admin-main-content button[type="submit"]:not([class*="outline"]):not([class*="destructive"]):not([variant="outline"]):not([variant="destructive"]):hover::before {
-  left: 100%;
+/* Ghost buttons */
+#admin-layout-root button[class*="ghost"],
+#admin-main-content button[class*="ghost"] {
+  color: var(--admin-text-muted);
 }
 
-/* Style buttons with Plus icon (Add buttons) */
-#admin-layout-root button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]),
-#admin-main-content button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]) {
-  background: linear-gradient(135deg, #7322ff 0%, #9333ea 50%, #a855f7 100%) !important;
-  color: white !important;
-  border: none !important;
-  box-shadow: 0 4px 14px 0 rgba(115, 34, 255, 0.39);
+#admin-layout-root button[class*="ghost"]:hover,
+#admin-main-content button[class*="ghost"]:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
 }
 
-#admin-layout-root button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]):hover,
-#admin-main-content button:has(svg[class*="Plus"]):not([variant="outline"]):not([variant="destructive"]):not([class*="outline"]):hover {
-  background: linear-gradient(135deg, #5a1acc 0%, #7c3aed 50%, #9333ea 100%) !important;
-  box-shadow: 0 6px 20px 0 rgba(115, 34, 255, 0.5);
-  transform: translateY(-1px);
+/* Destructive/Delete buttons */
+#admin-layout-root button.text-red-600,
+#admin-layout-root button.text-red-700,
+#admin-main-content button.text-red-600,
+#admin-main-content button.text-red-700 {
+  color: var(--admin-error) !important;
 }
 
-#admin-layout-root button[class*="variant"]:not([class*="bg-purple"]),
-#admin-main-content button[class*="variant"]:not([class*="bg-purple"]) {
-  color: #000000;
-  font-size: 16px;
-  font-weight: 500;
+#admin-layout-root button.text-red-600:hover,
+#admin-layout-root button.text-red-700:hover,
+#admin-main-content button.text-red-600:hover,
+#admin-main-content button.text-red-700:hover {
+  background: #fef2f2;
 }
 
-#admin-layout-root button.size-sm,
-#admin-main-content button.size-sm {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-#admin-layout-root button.size-lg,
-#admin-main-content button.size-lg {
-  font-size: 18px;
-  font-weight: 500;
-}
-
-/* Admin Panel Form Elements - Relative Font Sizes */
+/* === Form Elements === */
 #admin-layout-root input,
-#admin-main-content input,
 #admin-layout-root select,
-#admin-main-content select,
 #admin-layout-root textarea,
+#admin-main-content input,
+#admin-main-content select,
 #admin-main-content textarea {
-  font-size: 16px;
-  color: #000000;
+  font-size: 0.9375rem;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#admin-layout-root input:focus,
+#admin-layout-root select:focus,
+#admin-layout-root textarea:focus,
+#admin-main-content input:focus,
+#admin-main-content select:focus,
+#admin-main-content textarea:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  outline: none;
 }
 
 #admin-layout-root input::placeholder,
-#admin-main-content input::placeholder,
 #admin-layout-root textarea::placeholder,
+#admin-main-content input::placeholder,
 #admin-main-content textarea::placeholder {
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 16px;
+  color: var(--admin-text-light);
 }
 
 #admin-layout-root label,
 #admin-main-content label {
-  font-size: 16px;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: #000000;
+  color: var(--admin-text);
+  margin-bottom: 0.375rem;
 }
 
-#admin-layout-root label.text-xs,
-#admin-main-content label.text-xs {
-  font-size: 14px;
+/* === Tables === */
+#admin-layout-root table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#admin-layout-root th {
   font-weight: 500;
-  color: #000000;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-bg);
 }
 
-/* Admin Panel Dialog Buttons */
-#admin-layout-root [role="dialog"] button,
-#admin-main-content [role="dialog"] button {
-  font-size: 16px;
+#admin-layout-root td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 0.9375rem;
+}
+
+#admin-layout-root tr:last-child td {
+  border-bottom: none;
+}
+
+#admin-layout-root tr:hover td {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+/* === Status Badges === */
+#admin-layout-root .bg-green-100 {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+#admin-layout-root .bg-yellow-100 {
+  background: #fef9c3 !important;
+  color: #854d0e !important;
+}
+
+#admin-layout-root .bg-red-100 {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+#admin-layout-root .bg-blue-100 {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+/* === Tabs === */
+#admin-layout-root [role="tablist"] {
+  border-bottom: 1px solid var(--admin-border);
+  gap: 0;
+}
+
+#admin-layout-root [role="tab"] {
   font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--admin-text-muted);
+  padding: 0.75rem 1.25rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s ease;
 }
 
-#admin-layout-root [role="dialog"] button[class*="bg-purple"],
-#admin-main-content [role="dialog"] button[class*="bg-purple"] {
-  color: white !important;
+#admin-layout-root [role="tab"]:hover {
+  color: var(--admin-text);
 }
 
-/* Admin Panel Add/Remove Volume Buttons */
-#admin-layout-root button[type="button"]:has(svg),
-#admin-main-content button[type="button"]:has(svg) {
-  font-size: 16px;
-  font-weight: 500;
+#admin-layout-root [role="tab"][data-state="active"] {
+  color: var(--admin-primary);
+  border-bottom-color: var(--admin-primary);
 }
 
-#admin-layout-root button:has([class*="Plus"]),
-#admin-main-content button:has([class*="Plus"]),
-#admin-layout-root button:has([class*="Trash"]),
-#admin-main-content button:has([class*="Trash"]) {
-  font-size: 16px;
-  font-weight: 500;
-  color: #000000;
+/* === Dialogs/Modals === */
+#admin-layout-root [role="dialog"] {
+  border-radius: 16px;
+  box-shadow: var(--admin-shadow-lg);
 }
 
-#admin-layout-root button:has([class*="Plus"])[class*="bg-purple"],
-#admin-main-content button:has([class*="Plus"])[class*="bg-purple"],
-#admin-layout-root button:has([class*="Trash"])[class*="bg-purple"],
-#admin-main-content button:has([class*="Trash"])[class*="bg-purple"] {
-  color: white !important;
+#admin-layout-root [role="dialog"] h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
-/* Only darken spans that are truly uncolored (not icons, not buttons) */
-#admin-layout-root span:not([class*="text-white"]):not([class*="text-purple"]):not([class*="text-"]):not(button *):not(svg *),
-#admin-main-content span:not([class*="text-white"]):not([class*="text-purple"]):not([class*="text-"]):not(button *):not(svg *) {
-  color: #1a202c;
+/* === Mobile Header === */
+#admin-layout-root .desktop\\:hidden {
+  background: var(--admin-sidebar);
+  border-color: var(--admin-border) !important;
 }
 
-/* Darken CardDescription and similar helper text */
-#admin-layout-root [class*="CardDescription"],
-#admin-main-content [class*="CardDescription"],
-#admin-layout-root [class*="DialogDescription"],
-#admin-main-content [class*="DialogDescription"] {
-  color: #1a202c !important;
+/* === Stats Cards === */
+#admin-layout-root .text-2xl.font-bold {
+  font-weight: 600;
+  color: var(--admin-text);
 }
 
-/* Remove bold styling from all admin panel text */
+/* === Icon Colors === */
+#admin-layout-root svg {
+  stroke-width: 1.75;
+}
+
+#admin-layout-root .text-purple-600 {
+  color: var(--admin-primary) !important;
+}
+
+/* === Order Badge === */
+#admin-layout-root .bg-\\[\\#ff00ff\\] {
+  background: var(--admin-primary) !important;
+}
+
+/* === RTL Specific Adjustments === */
+[dir="he"] #admin-layout-root,
+[dir="rtl"] #admin-layout-root {
+  text-align: right;
+}
+
+[dir="he"] #admin-layout-root table th,
+[dir="rtl"] #admin-layout-root table th {
+  text-align: right;
+}
+
+[dir="he"] #admin-layout-root table td,
+[dir="rtl"] #admin-layout-root table td {
+  text-align: right;
+}
+
+/* === Remove excessive bold === */
 #admin-layout-root .font-bold,
-#admin-main-content .font-bold,
+#admin-main-content .font-bold {
+  font-weight: 600;
+}
+
 #admin-layout-root .font-semibold,
 #admin-main-content .font-semibold {
-  font-weight: 500 !important;
+  font-weight: 500;
 }
 
-/* Override bold in headers */
-#admin-layout-root h1.font-bold,
-#admin-main-content h1.font-bold,
-#admin-layout-root h2.font-bold,
-#admin-main-content h2.font-bold,
-#admin-layout-root h3.font-bold,
-#admin-main-content h3.font-bold,
-#admin-layout-root h4.font-bold,
-#admin-main-content h4.font-bold,
-#admin-layout-root h5.font-bold,
-#admin-main-content h5.font-bold,
-#admin-layout-root h6.font-bold,
-#admin-main-content h6.font-bold {
-  font-weight: 500 !important;
+/* === Scrollbar styling === */
+#admin-layout-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-/* Better color scheme for admin panel - preserve Tailwind color hierarchy */
-#admin-layout-root .text-gray-500,
-#admin-main-content .text-gray-500 {
-  color: #6b7280 !important; /* Keep gray-500 as medium gray */
+#admin-layout-root ::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-#admin-layout-root .text-gray-600,
-#admin-main-content .text-gray-600 {
-  color: #4b5563 !important; /* Keep gray-600 as darker gray */
+#admin-layout-root ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 3px;
 }
 
-#admin-layout-root .text-gray-700,
-#admin-main-content .text-gray-700 {
-  color: #374151 !important; /* Keep gray-700 as dark gray */
+#admin-layout-root ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-text-light);
 }
 
-#admin-layout-root .text-gray-800,
-#admin-main-content .text-gray-800 {
-  color: #1f2937 !important; /* Keep gray-800 as very dark gray */
+/* === Selection === */
+#admin-layout-root ::selection {
+  background: var(--admin-primary-light);
+  color: var(--admin-primary);
 }
 
-#admin-layout-root .text-gray-900,
-#admin-main-content .text-gray-900 {
-  color: #111827 !important; /* Keep gray-900 as almost black */
+/* === Focus states for accessibility === */
+#admin-layout-root *:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
 }
 
-/* Improve muted foreground color */
-#admin-layout-root .text-muted-foreground,
-#admin-main-content .text-muted-foreground {
-  color: #6b7280 !important;
+#admin-layout-root button:focus-visible,
+#admin-layout-root a:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
 }
 
-/* Preserve status colors - don't override green, red, blue, yellow, etc. */
-#admin-layout-root .text-green-600,
-#admin-main-content .text-green-600 { color: #16a34a !important; }
-#admin-layout-root .text-green-500,
-#admin-main-content .text-green-500 { color: #22c55e !important; }
-
-#admin-layout-root .text-red-600,
-#admin-main-content .text-red-600 { color: #dc2626 !important; }
-#admin-layout-root .text-red-500,
-#admin-main-content .text-red-500 { color: #ef4444 !important; }
-
-#admin-layout-root .text-blue-600,
-#admin-main-content .text-blue-600 { color: #2563eb !important; }
-#admin-layout-root .text-blue-500,
-#admin-main-content .text-blue-500 { color: #3b82f6 !important; }
-
-#admin-layout-root .text-yellow-600,
-#admin-main-content .text-yellow-600 { color: #ca8a04 !important; }
-#admin-layout-root .text-yellow-500,
-#admin-main-content .text-yellow-500 { color: #eab308 !important; }
-
-/* Preserve icon colors - don't force color on icons */
-#admin-layout-root svg,
-#admin-main-content svg {
-  color: inherit;
+/* === Loading states === */
+#admin-layout-root [class*="animate-spin"] {
+  color: var(--admin-primary);
 }
-

@@ -19,6 +19,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.imgur.com',
+      },
     ],
     minimumCacheTTL: 31536000, // 1 year for uploaded images
     dangerouslyAllowSVG: true,

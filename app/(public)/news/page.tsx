@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import HeroSection from '@/components/HeroSection';
 import { translateToHebrew } from '@/lib/translations';
 import styles from './news.module.css';
 
@@ -63,15 +64,12 @@ export default function NewsPage() {
 
   return (
     <div className={styles['news-page-container']}>
-      {/* Hero Section */}
-      <section className={styles['news-hero']}>
-        <div className={styles.container}>
-          <h1 className={styles['news-hero-title']}>{translateToHebrew('Latest News & Updates')}</h1>
-          <p className={styles['news-hero-subtitle']}>
-            {translateToHebrew('Stay updated with our latest juice blends, health tips, and company news')}
-          </p>
-        </div>
-      </section>
+      <HeroSection>
+        <h1 className="hero-title">{translateToHebrew('Latest News & Updates')}</h1>
+        <p className="hero-subtitle">
+          {translateToHebrew('Stay updated with our latest juice blends, health tips, and company news')}
+        </p>
+      </HeroSection>
 
       {/* News Grid */}
       <section className={styles['news-content-section']}>

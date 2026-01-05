@@ -17,6 +17,8 @@ export default function AddContact() {
   const [formData, setFormData] = useState({
     type: '',
     value: '',
+    label: '',
+    description: '',
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -91,6 +93,26 @@ export default function AddContact() {
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                 placeholder={t('e.g., contact@example.com')}
                 required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="label">{t('Label')} (Optional)</Label>
+              <Input
+                id="label"
+                value={formData.label}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                placeholder={t('e.g., Email Us, Call Us')}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description">{t('Description')} (Optional)</Label>
+              <Input
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder={t('e.g., We\'ll respond within 24 hours')}
               />
             </div>
           </CardContent>

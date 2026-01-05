@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { translateObject } from '@/lib/translations';
 
 // Promisify db.all and db.run for async/await
 const dbAll = (db: any, query: string, params: any[] = []) => {
@@ -34,8 +33,9 @@ export async function GET() {
 
     try {
       const rows = await dbAll(db, 'SELECT * FROM contacts');
-      const translatedContacts = (rows || []).map((contact: any) => translateObject(contact));
-      return NextResponse.json({ contacts: translatedContacts });
+      // IMPORTANT: Do not translate enum-like fields (e.g. type) or values (e.g. phone/email/url).
+      // Translation is handled on the client for display-only text.
+      return NextResponse.json({ contacts: rows || [] });
     } catch (dbError: any) {
       console.error('Database error:', dbError);
       return NextResponse.json({ error: dbError.message }, { status: 500 });
@@ -52,7 +52,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, value } = body;
+    const { type, value, label, description } = body;
 
     if (!type || !value) {
       return NextResponse.json(
@@ -74,10 +74,10 @@ export async function POST(request: NextRequest) {
     try {
       const runResult = await dbRun(
         db,
-        'INSERT INTO contacts (type, value) VALUES (?, ?)',
-        [type, value]
+        'INSERT INTO contacts (type, value, label, description) VALUES (?, ?, ?, ?)',
+        [type, value, label || null, description || null]
       );
-      return NextResponse.json({ id: runResult.lastID, type, value }, { status: 201 });
+      return NextResponse.json({ id: runResult.lastID, type, value, label, description }, { status: 201 });
     } catch (dbError: any) {
       console.error('Database error:', dbError);
       return NextResponse.json({ error: dbError.message }, { status: 500 });

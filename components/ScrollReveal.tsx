@@ -35,7 +35,7 @@ export default function ScrollReveal() {
 
     // Animate letters in hero title
     const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle && heroTitle.textContent) {
+    if (heroTitle && heroTitle.textContent && !heroTitle.querySelector('.letter')) {
       const text = heroTitle.textContent;
       // Clear existing content safely - use textContent to avoid DOM manipulation issues
       // Store the text first, then clear and rebuild
@@ -47,7 +47,9 @@ export default function ScrollReveal() {
         span.className = 'letter';
         span.textContent = char === ' ' ? '\u00A0' : char;
         span.style.setProperty('--d', `${index * 0.03}s`);
-        heroTitle.appendChild(span);
+        if (heroTitle && heroTitle.parentNode) {
+          heroTitle.appendChild(span);
+        }
       });
     }
 

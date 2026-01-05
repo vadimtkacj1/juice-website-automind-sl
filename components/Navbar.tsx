@@ -74,9 +74,10 @@ export default function Navbar() {
   }, []);
   
   // Toggle main nav visibility based on sticky state (fallback for :has() selector)
+  // This works with nav-main that's now inside hero sections
   useEffect(() => {
-    const mainNav = document.querySelector('.nav-main') as HTMLElement;
-    if (mainNav) {
+    const mainNavs = document.querySelectorAll('.nav-main') as NodeListOf<HTMLElement>;
+    mainNavs.forEach((mainNav) => {
       if (sticky) {
         mainNav.style.opacity = '0';
         mainNav.style.visibility = 'hidden';
@@ -86,7 +87,7 @@ export default function Navbar() {
         mainNav.style.visibility = 'visible';
         mainNav.style.pointerEvents = 'auto';
       }
-    }
+    });
   }, [sticky]);
 
   // Memoize the close function to prevent unnecessary re-renders
@@ -96,11 +97,6 @@ export default function Navbar() {
 
   return (
     <>
-      <NavBarShell 
-        className="nav-main" 
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
       <NavBarShell 
         className={sticky ? 'nav-sticky is-active' : 'nav-sticky'}
         compact 

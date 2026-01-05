@@ -1,38 +1,5 @@
 import { useEffect, useState } from 'react';
-
-interface CustomIngredient {
-  id: number;
-  name: string;
-  description?: string;
-  price: number;
-  image?: string;
-  ingredient_category?: 'boosters' | 'fruits' | 'toppings';
-  selection_type?: 'single' | 'multiple';
-  price_override?: number;
-}
-
-interface VolumeOption {
-  id?: number;
-  volume: string;
-  price: number;
-  is_default: boolean;
-  sort_order: number;
-}
-
-interface AdditionalItem {
-  id: number;
-  name: string;
-  description?: string;
-  price: number;
-  is_available: boolean;
-  sort_order: number;
-}
-
-interface ProductModalItem {
-  id: number;
-  category_id?: number;
-  [key: string]: any;
-}
+import { ProductModalItem, CustomIngredient, VolumeOption, AdditionalItem } from './types';
 
 export function useProductModalData(item: ProductModalItem | null, isOpen: boolean) {
   const [customIngredients, setCustomIngredients] = useState<CustomIngredient[]>([]);
@@ -180,4 +147,3 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
 
   return { customIngredients, volumeOptions, additionalItems };
 }
-

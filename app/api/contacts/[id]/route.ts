@@ -51,7 +51,7 @@ export async function PUT(
   try {
     const { id } = params;
     const body = await request.json();
-    const { type, value } = body;
+    const { type, value, label, description } = body;
 
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
@@ -74,8 +74,8 @@ export async function PUT(
 
     try {
       const runResult = await dbRun(
-        'UPDATE contacts SET type = ?, value = ? WHERE id = ?',
-        [type, value, id]
+        'UPDATE contacts SET type = ?, value = ?, label = ?, description = ? WHERE id = ?',
+        [type, value, label || null, description || null, id]
       );
 
       if (runResult.changes === 0) {

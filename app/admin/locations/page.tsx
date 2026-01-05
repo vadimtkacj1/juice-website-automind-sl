@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, Trash, MapPin, Phone, Eye, EyeOff, Globe, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash, MapPin, Eye, EyeOff, Globe, Image as ImageIcon } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 
@@ -15,8 +15,6 @@ interface Location {
   city: string;
   address: string;
   hours?: string;
-  phone?: string;
-  email?: string;
   image?: string;
   map_url?: string;
   show_map_button?: boolean;
@@ -86,25 +84,25 @@ export default function AdminLocations() {
   }
 
   return (
-    <div className="space-y-6" dir={language}>
+    <div className="space-y-6 px-4 sm:px-6" dir={language}>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('Locations Management')}</h1>
-        <p className="text-gray-500 mt-1">{t('Manage store locations, images, and contact information')}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('Locations Management')}</h1>
+        <p className="text-sm sm:text-base text-gray-500 mt-1">{t('Manage store locations, images, and contact information')}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-purple-600" />
-              <div>
-                <CardTitle>{t('All Locations')}</CardTitle>
-                <CardDescription>{t('Store locations displayed on the website')}</CardDescription>
+              <MapPin className="h-5 w-5 text-purple-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <CardTitle className="text-lg sm:text-xl">{t('All Locations')}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">{t('Store locations displayed on the website')}</CardDescription>
               </div>
             </div>
-            <Link href="/admin/locations/add">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                <Plus className="mr-2 h-4 w-4" />
+            <Link href="/admin/locations/add" className="w-full sm:w-auto">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto">
+                <Plus className={`h-4 w-4 ${language === 'he' ? 'ml-2' : 'mr-2'}`} />
                 {t('Add Location')}
               </Button>
             </Link>
@@ -122,108 +120,171 @@ export default function AdminLocations() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16">{t('Image')}</TableHead>
-                    <TableHead>{t('Location')}</TableHead>
-                    <TableHead>{t('Address')}</TableHead>
-                    <TableHead>{t('Contact')}</TableHead>
-                    <TableHead className="w-20">{t('Status')}</TableHead>
-                    <TableHead className="text-right">{t('Actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {locations.map((location) => (
-                    <TableRow key={location.id} className={!location.is_active ? 'opacity-50' : ''}>
-                      <TableCell>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-16">{t('Image')}</TableHead>
+                      <TableHead>{t('Location')}</TableHead>
+                      <TableHead>{t('Address')}</TableHead>
+                      <TableHead className="w-20">{t('Status')}</TableHead>
+                      <TableHead className={language === 'he' ? 'text-left' : 'text-right'}>{t('Actions')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {locations.map((location) => (
+                      <TableRow key={location.id} className={!location.is_active ? 'opacity-50' : ''}>
+                        <TableCell>
+                          {location.image ? (
+                            <img 
+                              src={location.image} 
+                              alt={location.city}
+                              className="w-14 h-14 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <ImageIcon className="h-6 w-6 text-gray-400" />
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-gray-900">{t(location.city)}</p>
+                            <p className="text-sm text-gray-500 flex items-center gap-1">
+                              <Globe className="h-3 w-3" />
+                              {t(location.country)}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-xs">
+                            <p className="text-sm text-gray-600 truncate">{t(location.address)}</p>
+                            {location.hours && (
+                              <p className="text-xs text-gray-400">{t(location.hours)}</p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => toggleActive(location)}
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              location.is_active
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            {location.is_active ? (
+                              <>
+                                <Eye className="h-3 w-3" />
+                                {t('Active')}
+                              </>
+                            ) : (
+                              <>
+                                <EyeOff className="h-3 w-3" />
+                                {t('Hidden')}
+                              </>
+                            )}
+                          </button>
+                        </TableCell>
+                        <TableCell className={language === 'he' ? 'text-left' : 'text-right'}>
+                          <div className={`flex gap-2 ${language === 'he' ? 'justify-start' : 'justify-end'}`}>
+                            <Link href={`/admin/locations/edit/${location.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(location.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {locations.map((location) => (
+                  <Card key={location.id} className={!location.is_active ? 'opacity-50' : ''}>
+                    <CardContent className="pt-6">
+                      <div className="flex gap-4">
                         {location.image ? (
                           <img 
                             src={location.image} 
                             alt={location.city}
-                            className="w-14 h-14 object-cover rounded-lg"
+                            className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <ImageIcon className="h-6 w-6 text-gray-400" />
+                          <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <ImageIcon className="h-8 w-8 text-gray-400" />
                           </div>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-gray-900">{t(location.city)}</p>
-                          <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <Globe className="h-3 w-3" />
-                            {t(location.country)}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-xs">
-                          <p className="text-sm text-gray-600 truncate">{t(location.address)}</p>
-                          {location.hours && (
-                            <p className="text-xs text-gray-400">{t(location.hours)}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {location.phone && (
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <Phone className="h-3 w-3" />
-                              {location.phone}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 truncate">{t(location.city)}</h3>
+                              <p className="text-xs text-gray-500 flex items-center gap-1">
+                                <Globe className="h-3 w-3" />
+                                {t(location.country)}
+                              </p>
                             </div>
+                            <button
+                              onClick={() => toggleActive(location)}
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
+                                location.is_active
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-500'
+                              }`}
+                            >
+                              {location.is_active ? (
+                                <>
+                                  <Eye className="h-3 w-3" />
+                                  <span className="hidden sm:inline">{t('Active')}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff className="h-3 w-3" />
+                                  <span className="hidden sm:inline">{t('Hidden')}</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1 break-words">{t(location.address)}</p>
+                          {location.hours && (
+                            <p className="text-xs text-gray-400 mb-3">{t(location.hours)}</p>
                           )}
-                          {location.email && (
-                            <p className="text-xs text-gray-400 truncate max-w-32">{location.email}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => toggleActive(location)}
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            location.is_active
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-500'
-                          }`}
-                        >
-                          {location.is_active ? (
-                            <>
-                              <Eye className="h-3 w-3" />
-                              {t('Active')}
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="h-3 w-3" />
-                              {t('Hidden')}
-                            </>
-                          )}
-                        </button>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Link href={`/admin/locations/edit/${location.id}`}>
-                            <Button variant="ghost" size="sm">
-                              <Pencil className="h-4 w-4" />
+                          <div className="flex gap-2">
+                            <Link href={`/admin/locations/edit/${location.id}`} className="flex-1">
+                              <Button variant="outline" size="sm" className="w-full">
+                                <Pencil className={`h-4 w-4 ${language === 'he' ? 'ml-2' : 'mr-2'}`} />
+                                {t('Edit')}
+                              </Button>
+                            </Link>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(location.id)}
+                              className="text-red-600 hover:text-red-700 border-red-200"
+                            >
+                              <Trash className="h-4 w-4" />
                             </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(location.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
+                          </div>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

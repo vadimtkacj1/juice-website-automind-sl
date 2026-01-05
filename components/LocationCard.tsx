@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, Globe } from 'lucide-react';
+import { MapPin, Clock } from 'lucide-react';
 import React from 'react';
 import { translateToHebrew } from '@/lib/translations';
 
@@ -39,48 +39,20 @@ export default function LocationCard({ location }: LocationCardProps) {
       <div className="p-6 location-card-content">
         <div className="flex items-start gap-3 mb-4">
           <MapPin className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
-          <div>
-            <h3 className="location-card-title">{translateToHebrew(location.city)}</h3>
-            <p className="location-card-country flex items-center gap-1">
-              <Globe className="h-3 w-3" />
-              {translateToHebrew(location.country)}
-            </p>
+          <div className="flex-1 min-w-0">
+            <h3 className="location-card-title break-words">{translateToHebrew(location.city)}</h3>
           </div>
         </div>
 
         <div className="space-y-3 location-card-text">
           <div>
-            <p className="location-card-address">{translateToHebrew(location.address)}</p>
+            <p className="location-card-address break-words">{translateToHebrew(location.address)}</p>
           </div>
 
           {location.hours && (
             <div className="flex items-start gap-2">
               <Clock className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-              <p className="location-card-hours">{translateToHebrew(location.hours)}</p>
-            </div>
-          )}
-
-          {location.phone && (
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-purple-600 flex-shrink-0" />
-              <a
-                href={`tel:${location.phone}`}
-                className="location-card-phone hover:text-purple-600 transition-colors"
-              >
-                {location.phone}
-              </a>
-            </div>
-          )}
-
-          {location.email && (
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-purple-600 flex-shrink-0" />
-              <a
-                href={`mailto:${location.email}`}
-                className="location-card-email hover:text-purple-600 transition-colors break-all"
-              >
-                {location.email}
-              </a>
+              <p className="location-card-hours break-words flex-1">{translateToHebrew(location.hours)}</p>
             </div>
           )}
 

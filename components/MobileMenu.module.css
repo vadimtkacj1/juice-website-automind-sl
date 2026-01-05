@@ -69,9 +69,9 @@
 
 .mobileMenuLink {
   display: block;
-  padding-block: 20px;
-  font-size: 56px;
-  font-weight: 900;
+  padding-block: 12px;
+  font-size: 28px;
+  font-weight: 700;
   color: rgba(112, 117, 140, 0.8);
   text-decoration: none;
   border-bottom: 2px solid rgba(29, 26, 64, 0.1);
@@ -94,12 +94,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 56px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 700;
   color: rgba(112, 117, 140, 0.8);
   background: none;
   border: none;
-  padding-block: 20px;
+  padding-block: 12px;
   opacity: 0;
   transform: translateX(30px);
   animation: slideInRight 0.4s var(--spring-ease) forwards;
@@ -130,6 +130,12 @@
 
   .mobileMenuLink,
   .mobileMenuCart {
-    font-size: 48px;
+    font-size: 24px;
+    padding-block: 10px;
+  }
+
+  .mobileMenuContent {
+    padding: 60px 24px 32px;
+    gap: 4px;
   }
 }

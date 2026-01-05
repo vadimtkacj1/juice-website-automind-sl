@@ -48,7 +48,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { country, city, address, hours, phone, email, image, map_url, show_map_button, is_active, sort_order } = body;
+    const { country, city, address, hours, image, map_url, show_map_button, is_active, sort_order } = body;
 
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
@@ -63,10 +63,10 @@ export async function PUT(
     return new Promise<NextResponse>((resolve) => {
       db.run(
         `UPDATE locations SET 
-          country = ?, city = ?, address = ?, hours = ?, phone = ?, 
-          email = ?, image = ?, map_url = ?, show_map_button = ?, is_active = ?, sort_order = ? 
+          country = ?, city = ?, address = ?, hours = ?, 
+          image = ?, map_url = ?, show_map_button = ?, is_active = ?, sort_order = ? 
         WHERE id = ?`,
-        [country, city, address, hours || '', phone || '', email || '', image || '', map_url || '', show_map_button !== false ? 1 : 0, is_active ? 1 : 0, sort_order || 0, id],
+        [country, city, address, hours || '', image || '', map_url || '', show_map_button !== false ? 1 : 0, is_active ? 1 : 0, sort_order || 0, id],
         function (this: any, err: Error | null) {
           if (err) {
             console.error('Database error:', err);

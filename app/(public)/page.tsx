@@ -90,7 +90,7 @@ export default function HomePage() {
       
       {/* Hero Section with Floating Oranges */}
       <HeroSection showFloatingOranges={true}>
-        <h1 className="hero-title">נטורליי מרענן</h1>
+        <h1 className="hero-title">טבעי שזה מרענן</h1>
       </HeroSection>
       
       {/* About Section */}

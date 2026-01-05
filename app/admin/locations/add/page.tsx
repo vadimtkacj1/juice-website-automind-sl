@@ -21,8 +21,6 @@ export default function AddLocation() {
     city: '',
     address: '',
     hours: '',
-    phone: '',
-    email: '',
     image: '',
     map_url: '',
     show_map_button: true,
@@ -58,16 +56,16 @@ export default function AddLocation() {
   }
 
   return (
-    <div className="space-y-6" dir={language}>
+    <div className="space-y-6 px-4 sm:px-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/locations">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="flex-shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('Add New Location')}</h1>
-          <p className="text-gray-500 mt-1">{t('Create a new store location')}</p>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('Add New Location')}</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">{t('Create a new store location')}</p>
         </div>
       </div>
 
@@ -85,7 +83,7 @@ export default function AddLocation() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="country">{t('Country *')}</Label>
                   <Input
@@ -128,29 +126,6 @@ export default function AddLocation() {
                   onChange={(e) => setFormData({ ...formData, hours: e.target.value })}
                   placeholder={t('e.g., All week: 7:00 AM - 7:00 PM')}
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="phone">{t('Phone Number')}</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder={t('e.g., (123) 456-7890')}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">{t('Email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder={t('e.g., store@example.com')}
-                  />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -227,11 +202,11 @@ export default function AddLocation() {
           </Card>
         </div>
 
-        <div className="flex justify-end gap-4">
-          <Link href="/admin/locations">
-            <Button type="button" variant="outline">{t('Cancel')}</Button>
+        <div className={`flex flex-col sm:flex-row gap-4 ${language === 'he' ? 'justify-start' : 'justify-end'}`}>
+          <Link href="/admin/locations" className="w-full sm:w-auto">
+            <Button type="button" variant="outline" className="w-full sm:w-auto">{t('Cancel')}</Button>
           </Link>
-          <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto">
             {loading ? t('Creating...') : t('Create Location')}
           </Button>
         </div>

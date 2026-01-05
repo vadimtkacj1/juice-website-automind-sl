@@ -4,9 +4,11 @@ import { useCart } from '@/lib/cart-context';
 import { X, Minus, Plus, ShoppingBag, Trash2, Loader2, Phone, Mail, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { translateToHebrew } from '@/lib/translations';
+import { useRouter } from 'next/navigation';
 import styles from './Cart.module.css';
 
 export default function Cart() {
+  const router = useRouter();
   const {
     cart,
     removeFromCart,
@@ -50,8 +52,9 @@ export default function Cart() {
 
   function handleProceedToContact() {
     if (cart.length === 0) return;
-    setStep('contact');
-    setError(null);
+    // Navigate to the secure checkout page
+    closeCart();
+    router.push('/checkout');
   }
 
   function handleBackToCart() {
@@ -341,6 +344,7 @@ export default function Cart() {
                     <input
                       type="tel"
                       id="phone"
+                      dir="ltr"
                       placeholder={translateToHebrew('+972 50 123 4567')}
                       value={phone}
                       onChange={(e) => {
@@ -360,6 +364,7 @@ export default function Cart() {
                     <input
                       type="email"
                       id="email"
+                      dir="ltr"
                       placeholder={translateToHebrew('your@email.com')}
                       value={email}
                       onChange={(e) => {

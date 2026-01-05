@@ -14,6 +14,8 @@ interface Contact {
   id: number;
   type: string;
   value: string;
+  label?: string;
+  description?: string;
 }
 
 export default function EditContact() {
@@ -26,6 +28,8 @@ export default function EditContact() {
     id: 0,
     type: '',
     value: '',
+    label: '',
+    description: '',
   });
 
   useEffect(() => {
@@ -133,6 +137,26 @@ export default function EditContact() {
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                 placeholder={t('e.g., contact@example.com')}
                 required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="label">{t('Label')} (Optional)</Label>
+              <Input
+                id="label"
+                value={formData.label || ''}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                placeholder={t('e.g., Email Us, Call Us')}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description">{t('Description')} (Optional)</Label>
+              <Input
+                id="description"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder={t('e.g., We\'ll respond within 24 hours')}
               />
             </div>
           </CardContent>

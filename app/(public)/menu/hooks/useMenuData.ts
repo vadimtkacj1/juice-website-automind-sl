@@ -21,44 +21,9 @@ export function useMenuData() {
     console.error(`${requestId} [Frontend] ===== processAndSetMenu called =====`);
     console.error(`${requestId} [Frontend] Input data: ${data.length} categories`);
     
-    const newMenu: MenuCategory[] = [];
-
-    // Process each category and fetch volumes
-    for (const category of data) {
-      console.error(`${requestId} [Frontend] Processing category: ${category.name} (ID: ${category.id}) with ${category.items?.length || 0} items`);
-      if (category.items && category.items.length > 0) {
-        // Fetch category volumes
-        let categoryVolumes: any[] = [];
-        try {
-          const volumesRes = await fetch(`/api/menu-categories/${category.id}/volumes`);
-          const volumesData = await volumesRes.json();
-          categoryVolumes = volumesData.volumes || [];
-        } catch (err) {
-          console.error('Error fetching category volumes:', err);
-        }
-
-        // Sort volumes by sort_order
-        const sortedVolumes = [...categoryVolumes].sort(
-          (a, b) => (a.sort_order || 0) - (b.sort_order || 0)
-        );
-
-        // Update items with all volume info
-        const itemsWithVolumes = category.items.map((item) => {
-          if (sortedVolumes.length > 0) {
-            return {
-              ...item,
-              categoryVolumes: sortedVolumes, // Store all volumes for this category
-            };
-          }
-          return item;
-        });
-
-        newMenu.push({
-          ...category,
-          items: itemsWithVolumes,
-        });
-      }
-    }
+    // Volumes are now included in the API response, so we just need to process the data
+    // No additional API calls needed!
+    const newMenu: MenuCategory[] = data.filter(cat => cat.items && cat.items.length > 0);
 
     console.error(`${requestId} [Frontend] Final menu: ${newMenu.length} categories`);
     console.error(`${requestId} [Frontend] Total items across all categories: ${newMenu.reduce((sum, cat) => sum + (cat.items?.length || 0), 0)}`);
@@ -119,12 +84,9 @@ export function useMenuData() {
       console.error(`${requestId} [Frontend] Error stack:`, err.stack);
       setError(translateToHebrew('Failed to load menu'));
     } finally {
-      // Small delay to prevent flash
-      setTimeout(() => {
-        setLoading(false);
-        setGlobalLoading(false);
-        console.error(`${requestId} [Frontend] ===== fetchMenu completed =====`);
-      }, 300);
+      setLoading(false);
+      setGlobalLoading(false);
+      console.error(`${requestId} [Frontend] ===== fetchMenu completed =====`);
     }
   }, [processAndSetMenu, setGlobalLoading]);
 

@@ -10,8 +10,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
-  width: 32px;
+  height: 28px;
+  width: 28px;
   transition: opacity 0.2s ease;
 }
 
@@ -29,8 +29,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border-radius: 50%;
   flex-shrink: 0;
@@ -40,8 +40,8 @@
 
 .cart-icon-wrapper :global(svg) {
   color: #70758c;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   stroke-width: 2.5;
   transition: color 0.2s ease;
@@ -55,7 +55,7 @@
   height: 16px;
   padding: 0 3px;
   z-index: 100000 !important;
-  background: #9333ea !important; /* Purple color */
+  background: #1d1a40 !important; /* Purple/Dark color */
   border-radius: 50%;
   display: flex !important;
   align-items: center;
@@ -86,13 +86,12 @@
   gap: 8px;
 }
 
-.mobile-cart-btn,
 .mobile-menu-btn {
   background: none;
   border: none;
   cursor: pointer;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -105,100 +104,9 @@
   background: rgba(29, 26, 64, 0.1);
 }
 
-.mobile-cart-btn {
-  position: relative;
-  background: transparent !important;
-  color: #1d1a40 !important;
-  overflow: visible !important; /* Allow badge to be visible */
-  z-index: 1; /* Ensure button is above other elements */
-}
-
-.mobile-cart-btn :global(svg) {
-  color: #70758c;
-  stroke-width: 2.5;
-  transition: color 0.2s ease;
-}
-
-.mobile-cart-btn:hover {
-  cursor: pointer;
-}
-
-.mobile-cart-btn:hover :global(svg) {
-  color: #1d1a40;
-  opacity: 1;
-}
-
-.mobile-cart-badge {
-  position: absolute;
-  right: -4px;
-  top: -4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 3px;
-  z-index: 100000 !important;
-  background: #9333ea !important; /* Purple color */
-  border-radius: 50%;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  color: white !important;
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  pointer-events: none; /* Prevent badge from blocking clicks */
-  white-space: nowrap;
-  transform: translateZ(0); /* Force hardware acceleration */
-  isolation: isolate; /* Create new stacking context */
-}
-
 /* Burger menu only on smaller screens (mobile/tablet) */
 @media (max-width: 768px) {
   .mobile-actions {
     display: flex;
-  }
-  
-  /* Hide desktop cart button on mobile */
-  .cart-button {
-    display: none !important;
-  }
-  
-  .cart-badge {
-    right: -4px;
-    top: -4px;
-    min-width: 14px;
-    height: 14px;
-    font-size: 8px;
-    padding: 0 2px;
-  }
-  
-  .mobile-cart-badge {
-    right: -2px;
-    top: -2px;
-    min-width: 14px;
-    height: 14px;
-    font-size: 8px;
-    padding: 0 2px;
-  }
-}
-
-/* Extra small screens */
-@media (max-width: 480px) {
-  .cart-badge {
-    right: -2px;
-    top: -2px;
-    min-width: 12px;
-    height: 12px;
-    font-size: 7px;
-    padding: 0 2px;
-  }
-  
-  .mobile-cart-badge {
-    right: 0;
-    top: 0;
-    min-width: 12px;
-    height: 12px;
-    font-size: 7px;
-    padding: 0 2px;
   }
 }

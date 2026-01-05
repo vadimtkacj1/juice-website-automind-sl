@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import LocationList from '@/components/LocationList';
+import HeroSection from '@/components/HeroSection';
 import { Location } from '@/types/location';
 import { translateToHebrew } from '@/lib/translations';
-import styles from './locations.module.css';
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -38,15 +38,14 @@ export default function LocationsPage() {
   }
 
   return (
-    <>
-      {/* Locations Hero Section */}
-      <section className={styles['locations-hero']}>
-        <div className={styles['locations-hero-content']}>
-          <h1 className={styles['locations-hero-title']}>{translateToHebrew('OUR LOCATIONS')}</h1>
-          <p className={styles['locations-hero-subtitle']}>{translateToHebrew('Find us at a location near you!')}</p>
-        </div>
-      </section>
-      <LocationList locations={locations} />
-    </>
+    <div>
+      <HeroSection>
+        <h1 className="hero-title">{translateToHebrew('OUR LOCATIONS')}</h1>
+        <p className="hero-subtitle">{translateToHebrew('Find us at a location near you!')}</p>
+      </HeroSection>
+      <div className="mx-[15px]">
+        <LocationList locations={locations} />
+      </div>
+    </div>
   );
 }

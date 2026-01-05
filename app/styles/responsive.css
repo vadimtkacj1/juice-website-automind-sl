@@ -2,12 +2,6 @@
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 1200px) {
-  .hero {
-    margin: 12px;
-    width: calc(100% - 24px);
-    max-width: calc(100% - 24px);
-  }
-  
   .nav-main {
     width: calc(100% - 24px);
     max-width: calc(100% - 24px);
@@ -32,23 +26,6 @@
 @media (max-width: 1024px) {
   body {
     font-size: clamp(18px, 1.6vw, 24px);
-  }
-  
-  .hero {
-    min-height: 60vh;
-    padding-block: 80px 50px;
-    margin: 12px;
-    width: calc(100% - 24px);
-    max-width: calc(100% - 24px);
-  }
-  
-  .hero-title {
-    font-size: 80px;
-    padding-inline: 15px;
-  }
-  
-  .hero-subtitle {
-    font-size: 90px;
   }
   
   .section-title,
@@ -133,11 +110,6 @@
   .menu-item.cart-button .roll-inner span,
   .menu-item.cart-button .cart-icon-wrapper {
     overflow: visible !important; /* Allow badge to be visible */
-  }
-  
-  .floating-orange-5,
-  .floating-orange-6 {
-    display: none;
   }
   
   .card-img-wrapper {
@@ -264,6 +236,11 @@
   html, body, #main-content, main {
     overflow-x: hidden;
     max-width: 100vw;
+    padding: 0;
+  }
+  
+  .page-wrapper {
+    padding: 120px 0 80px;
   }
   
   .nav-links {
@@ -271,9 +248,9 @@
   }
   
   .nav-main {
-    top: 25px;
-    width: calc(100% - 20px);
-    max-width: calc(100% - 20px);
+    top: 20px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .ticker-wrap {
@@ -288,35 +265,35 @@
   }
   
   .nav-content {
-    padding: 10px 16px;
-    gap: 10px;
+    padding: 6px 8px;
+    gap: 6px;
   }
   
   .nav-links {
-    gap: 12px;
+    gap: 10px;
   }
   
   .menu-item {
-    height: 22px;
+    height: 20px;
     overflow: hidden;
   }
   
   .roll-inner {
-    height: 44px;
+    height: 40px;
   }
   
   .roll-inner span {
-    font-size: 22px;
-    line-height: 22px;
-    height: 22px;
+    font-size: 18px;
+    line-height: 20px;
+    height: 20px;
   }
   
   .menu-item:hover .roll-inner {
-    transform: translateY(-22px);
+    transform: translateY(-20px);
   }
   
   .roll-inner .hvr {
-    transform: translateY(22px);
+    transform: translateY(20px);
   }
   
   .menu-item.cart-button {
@@ -335,26 +312,17 @@
   }
   
   .logo img {
-    height: 32px;
+    height: 28px;
   }
   
-  .hero {
-    margin: 0;
-    border-radius: 0;
-    min-height: 50vh;
-    padding-block: 60px 40px;
-    width: 100%;
-    max-width: 100%;
+  .brand-logo {
+    width: 40px !important;
+    height: 40px !important;
   }
   
-  .hero-title {
-    font-size: clamp(36px, 10vw, 48px);
-    padding-inline: 15px;
-  }
-  
-  .hero-subtitle {
-    font-size: clamp(42px, 12vw, 56px);
-    margin-block-start: 15px;
+  .brand-logo svg {
+    width: 40px !important;
+    height: 40px !important;
   }
   
   .section-title,
@@ -440,11 +408,13 @@
   }
   
   .mobile-menu-link {
-    font-size: 48px;
+    font-size: 24px;
+    padding-block: 10px;
   }
   
   .mobile-menu-cart {
-    font-size: 48px;
+    font-size: 24px;
+    padding-block: 10px;
   }
 
   .about-list li {
@@ -580,12 +550,21 @@
   html, body, #main-content, main {
     overflow-x: hidden;
     max-width: 100vw;
+    padding: 0;
+  }
+  
+  .page-wrapper {
+    padding: 120px 0 80px;
   }
   
   .nav-main {
-    top: 20px;
-    width: calc(100% - 16px);
-    max-width: calc(100% - 16px);
+    top: 15px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .nav-sticky {
+    width: 80%
   }
   
   .ticker-wrap {
@@ -604,35 +583,35 @@
   }
   
   .nav-content {
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 4px 8px;
+    gap: 4px;
   }
   
   .nav-links {
-    gap: 10px;
+    gap: 8px;
   }
   
   .menu-item {
-    height: 20px;
+    height: 18px;
     overflow: hidden;
   }
   
   .roll-inner {
-    height: 40px;
+    height: 36px;
   }
   
   .roll-inner span {
-    font-size: 20px;
-    line-height: 20px;
-    height: 20px;
+    font-size: 16px;
+    line-height: 18px;
+    height: 18px;
   }
   
   .menu-item:hover .roll-inner {
-    transform: translateY(-20px);
+    transform: translateY(-18px);
   }
   
   .roll-inner .hvr {
-    transform: translateY(20px);
+    transform: translateY(18px);
   }
   
   .menu-item.cart-button {
@@ -651,25 +630,17 @@
   }
   
   .logo img {
-    height: 28px;
+    height: 24px;
   }
   
-  .hero {
-    margin: 8px;
-    min-height: 45vh;
-    padding-block: 50px 30px;
-    width: calc(100% - 16px);
-    max-width: calc(100% - 16px);
+  .brand-logo {
+    width: 36px !important;
+    height: 36px !important;
   }
   
-  .hero-title {
-    font-size: 64px;
-    padding-inline: 10px;
-  }
-  
-  .hero-subtitle {
-    font-size: 72px;
-    margin-block-start: 12px;
+  .brand-logo svg {
+    width: 36px !important;
+    height: 36px !important;
   }
   
   .section-title,
@@ -694,14 +665,6 @@
   
   .section-subtitle {
     font-size: 60px;
-  }
-  
-  .hero-title {
-    font-size: 56px;
-  }
-  
-  .hero-subtitle {
-    font-size: 64px;
   }
   
   .about-section {
@@ -738,11 +701,13 @@
   }
   
   .mobile-menu-link {
-    font-size: 40px;
+    font-size: 22px;
+    padding-block: 10px;
   }
   
   .mobile-menu-cart {
-    font-size: 40px;
+    font-size: 22px;
+    padding-block: 10px;
   }
 
   .about-list li {
@@ -828,11 +793,13 @@
   }
   
   .mobile-menu-link {
-    font-size: 40px;
+    font-size: 22px;
+    padding-block: 10px;
   }
   
   .mobile-menu-cart {
-    font-size: 40px;
+    font-size: 22px;
+    padding-block: 10px;
   }
   
   .legal-link {

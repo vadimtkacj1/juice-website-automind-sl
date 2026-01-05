@@ -1,34 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import getDatabase from '@/lib/database';
-import { translateObject } from '@/lib/translations';
-
-// Promisify db.all for async/await
-const dbAll = (db: any, query: string, params: any[] = []) => {
-  return new Promise<any[]>((resolve, reject) => {
-    db.all(query, params, (err: Error | null, rows: any[]) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-};
-
-// Promisify db.run for async/await
-const dbRun = (db: any, query: string, params: any[] = []) => {
-  return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
-    db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
-      if (err) reject(err);
-      else {
-        // MySQL wrapper sets 'this' to context with lastID and changes
-        resolve(this || { lastID: 0, changes: 0 });
-      }
-    });
-  });
-};
 
 export async function GET() {
   try {
+    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-
+    
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -36,11 +12,18 @@ export async function GET() {
       );
     }
 
-    const businessHours = await dbAll(db, 'SELECT * FROM business_hours ORDER BY sort_order, day_of_week');
-    const translatedBusinessHours = (businessHours || []).map((bh: any) => translateObject(bh));
-    return NextResponse.json({ businessHours: translatedBusinessHours });
+    return new Promise<NextResponse>((resolve) => {
+      db.all('SELECT * FROM business_hours ORDER BY sort_order, day_of_week', [], (err: Error | null, rows: any[]) => {
+        if (err) {
+          console.error('Database error:', err);
+          resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+          return;
+        }
+        resolve(NextResponse.json({ businessHours: rows || [] }));
+      });
+    });
   } catch (error: any) {
-    console.error('API error fetching business hours:', error);
+    console.error('API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -55,13 +38,14 @@ export async function POST(request: NextRequest) {
 
     if (!day_of_week || !open_time || !close_time) {
       return NextResponse.json(
-        { error: 'Day of week, open time, and close time are required' },
+        { error: 'Day of week, open time, and close time are required.' },
         { status: 400 }
       );
     }
 
+    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-
+    
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -69,29 +53,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await dbRun(
-      db,
-      `INSERT INTO business_hours (day_of_week, open_time, close_time, sort_order, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-      [
-        day_of_week,
-        open_time,
-        close_time,
-        sort_order || 0,
-        is_active !== false ? 1 : 0,
-      ]
-    );
-
-    return NextResponse.json({
-      id: result.lastID,
-      day_of_week,
-      open_time,
-      close_time,
-      sort_order: sort_order || 0,
-      is_active: is_active !== false ? 1 : 0,
+    return new Promise<NextResponse>((resolve) => {
+      db.run(
+        'INSERT INTO business_hours (day_of_week, open_time, close_time, sort_order, is_active) VALUES (?, ?, ?, ?, ?)',
+        [day_of_week, open_time, close_time, sort_order || 0, is_active !== undefined ? (is_active ? 1 : 0) : 1],
+        function (this: any, err: Error | null) {
+          if (err) {
+            console.error('Database error:', err);
+            resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+            return;
+          }
+          resolve(
+            NextResponse.json(
+              {
+                id: this.lastID,
+                day_of_week,
+                open_time,
+                close_time,
+                sort_order: sort_order || 0,
+                is_active: is_active !== undefined ? is_active : true
+              },
+              { status: 201 }
+            )
+          );
+        }
+      );
     });
   } catch (error: any) {
-    console.error('API error creating business hours:', error);
+    console.error('API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

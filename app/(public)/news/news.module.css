@@ -1,32 +1,7 @@
+/* News page specific styles - Hero styles now handled by HeroSection component */
 .news-page-container {
   min-height: 100vh;
   background: var(--white);
-}
-
-.news-hero {
-  background: #7322ff;
-  padding: 120px 20px 80px;
-  text-align: center;
-  color: var(--white);
-  margin: 16px;
-  border-radius: 40px;
-}
-
-.news-hero-title {
-  font-family: 'Heebo', sans-serif;
-  font-size: 120px;
-  font-weight: 900;
-  color: white;
-  margin-bottom: 24px;
-  line-height: 1.1;
-}
-
-.news-hero-subtitle {
-  font-size: 32px;
-  opacity: 0.95;
-  max-width: 700px;
-  margin: 0 auto;
-  line-height: 1.6;
 }
 
 .news-content-section {
@@ -135,13 +110,7 @@
   color: var(--text-gray);
 }
 
-@media (max-width: 980px) {
-  .news-hero {
-    padding: 80px 20px 60px;
-    margin: 12px;
-    border-radius: 32px;
-  }
-
+@media (max-width: 1024px) {
   .news-content-section {
     padding: 60px 16px;
   }
@@ -160,11 +129,8 @@
   }
 }
 
-@media (max-width: 640px) {
-  .news-hero {
-    padding: 60px 16px 40px;
-  }
 
+@media (max-width: 480px) {
   .news-card-image {
     height: 200px;
   }

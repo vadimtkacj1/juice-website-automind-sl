@@ -1,25 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import getDatabase from '@/lib/database';
-
-// Promisify db.get for async/await
-const dbGet = (db: any, query: string, params: any[] = []) => {
-  return new Promise<any>((resolve, reject) => {
-    db.get(query, params, (err: Error | null, row: any) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-};
-
-// Promisify db.run for async/await
-const dbRun = (db: any, query: string, params: any[] = []) => {
-  return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
-    db.run(query, params, function(this: { lastID: number; changes: number }, err: Error | null) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-};
 
 export async function GET(
   request: NextRequest,
@@ -27,8 +6,9 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-
+    
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -36,15 +16,23 @@ export async function GET(
       );
     }
 
-    const businessHour = await dbGet(db, 'SELECT * FROM business_hours WHERE id = ?', [id]);
-
-    if (!businessHour) {
-      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ businessHour });
+    return new Promise<NextResponse>((resolve) => {
+      db.get('SELECT * FROM business_hours WHERE id = ?', [id], (err: Error | null, row: any) => {
+        if (err) {
+          console.error('Database error:', err);
+          resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+          return;
+        }
+        if (!row) {
+          resolve(NextResponse.json({ message: 'Business hour not found' }, { status: 404 }));
+          return;
+        }
+        // Convert is_active from 0/1 to boolean
+        resolve(NextResponse.json({ businessHour: { ...row, is_active: row.is_active === 1 } }));
+      });
+    });
   } catch (error: any) {
-    console.error('API error fetching business hour:', error);
+    console.error('API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -61,15 +49,9 @@ export async function PUT(
     const body = await request.json();
     const { day_of_week, open_time, close_time, sort_order, is_active } = body;
 
-    if (!day_of_week || !open_time || !close_time) {
-      return NextResponse.json(
-        { error: 'Day of week, open time, and close time are required' },
-        { status: 400 }
-      );
-    }
-
+    const getDatabase = require('@/lib/database');
     const db = getDatabase();
-
+    
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -77,35 +59,26 @@ export async function PUT(
       );
     }
 
-    const result = await dbRun(
-      db,
-      `UPDATE business_hours 
-       SET day_of_week = ?, open_time = ?, close_time = ?, sort_order = ?, is_active = ?, updated_at = NOW()
-       WHERE id = ?`,
-      [
-        day_of_week,
-        open_time,
-        close_time,
-        sort_order || 0,
-        is_active !== false ? 1 : 0,
-        id
-      ]
-    );
-
-    if (result.changes === 0) {
-      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      id: parseInt(id),
-      day_of_week,
-      open_time,
-      close_time,
-      sort_order: sort_order || 0,
-      is_active: is_active !== false ? 1 : 0,
+    return new Promise<NextResponse>((resolve) => {
+      db.run(
+        'UPDATE business_hours SET day_of_week = ?, open_time = ?, close_time = ?, sort_order = ?, is_active = ? WHERE id = ?',
+        [day_of_week, open_time, close_time, sort_order || 0, is_active ? 1 : 0, id],
+        function (this: any, err: Error | null) {
+          if (err) {
+            console.error('Database error:', err);
+            resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+            return;
+          }
+          if (this.changes === 0) {
+            resolve(NextResponse.json({ message: 'Business hour not found' }, { status: 404 }));
+            return;
+          }
+          resolve(NextResponse.json({ message: 'Business hour updated successfully' }));
+        }
+      );
     });
   } catch (error: any) {
-    console.error('API error updating business hour:', error);
+    console.error('API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -119,6 +92,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
+    const getDatabase = require('@/lib/database');
     const db = getDatabase();
     
     if (!db) {
@@ -128,15 +102,22 @@ export async function DELETE(
       );
     }
 
-    const result = await dbRun(db, 'DELETE FROM business_hours WHERE id = ?', [id]);
-
-    if (result.changes === 0) {
-      return NextResponse.json({ error: 'Business hour entry not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true });
+    return new Promise<NextResponse>((resolve) => {
+      db.run('DELETE FROM business_hours WHERE id = ?', [id], function (this: any, err: Error | null) {
+        if (err) {
+          console.error('Database error:', err);
+          resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+          return;
+        }
+        if (this.changes === 0) {
+          resolve(NextResponse.json({ message: 'Business hour not found' }, { status: 404 }));
+          return;
+        }
+        resolve(NextResponse.json({ message: 'Business hour deleted successfully' }));
+      });
+    });
   } catch (error: any) {
-    console.error('API error deleting business hour:', error);
+    console.error('API error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
