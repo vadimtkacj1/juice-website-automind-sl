@@ -79,7 +79,7 @@ export default function MenuItemCard({
           ) : (
             // Для внутренних изображений используем Next.js Image
             <Image
-              src={item.image}
+              src={item.image!}
               alt={translateToHebrew(item.name)}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

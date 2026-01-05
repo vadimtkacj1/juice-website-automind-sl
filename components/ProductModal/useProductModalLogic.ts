@@ -111,9 +111,7 @@ export function useProductModalLogic(
     if (selectedVolume && volumeOptions.length > 0) {
       const selectedVolOption = volumeOptions.find(v => v.volume === selectedVolume);
       if (selectedVolOption) {
-        basePrice = typeof selectedVolOption.price === 'string' 
-          ? parseFloat(selectedVolOption.price.toString()) 
-          : (selectedVolOption.price || 0);
+        basePrice = selectedVolOption.price || 0;
       }
     }
     return basePrice;
