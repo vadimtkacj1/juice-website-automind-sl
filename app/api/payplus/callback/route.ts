@@ -35,7 +35,7 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
     
     dbInstance.run(
       `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, status, payment_method, notes, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [customer.name || 'Customer', customer.email, customer.phone, customer.deliveryAddress || null, total, 'paid', 'payplus', notes],
       function(this: { lastID: number; changes: number }, err: any) {
         if (err) {
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     // Retrieve pending order data
     return new Promise<NextResponse>((resolve) => {
       dbInstance.get(
-        `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > datetime('now')`,
+        `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > NOW()`,
         [orderToken],
         async (err: any, pendingOrder: any) => {
           if (err || !pendingOrder) {
@@ -274,7 +274,7 @@ export async function POST(request: NextRequest) {
     
     return new Promise<NextResponse>((resolve) => {
       dbInstance.get(
-        `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > datetime('now')`,
+        `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > NOW()`,
         [orderToken],
         async (err: any, pendingOrder: any) => {
           if (err || !pendingOrder) {

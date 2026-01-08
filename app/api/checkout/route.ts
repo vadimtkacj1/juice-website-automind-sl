@@ -41,7 +41,11 @@ async function savePendingOrder(items: CartItem[], customer: CustomerInfo, total
     };
     
     // Set expiration to 1 hour from now
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    // Convert to MySQL datetime format (YYYY-MM-DD HH:MM:SS)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 19)
+      .replace('T', ' ');
     
     dbInstance.run(
       `INSERT INTO pending_orders (order_token, order_data, total_amount, expires_at) 
@@ -89,7 +93,7 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
     
     dbInstance.run(
       `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, status, payment_method, notes, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [customer.name || 'Customer', customer.email, customer.phone, customer.deliveryAddress || null, total, 'pending', null, notes],
       function(this: { lastID: number; changes: number }, err: any) {
         if (err) {

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
             db.run(
               `INSERT INTO orders (customer_name, customer_email, customer_phone, delivery_address, total_amount, status, payment_method, notes, created_at) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
               [testOrder.customer_name, testOrder.customer_email, testOrder.customer_phone, 
                testOrder.delivery_address, testOrder.total_amount, testOrder.status, null, testOrder.notes],
               function(this: { lastID: number; changes: number }, err: Error | null) {

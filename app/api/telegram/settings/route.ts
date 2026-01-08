@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
             // Update existing settings
             db.run(
               `UPDATE telegram_bot_settings 
-               SET bot_id = ?, api_token = ?, is_enabled = ?, reminder_interval_minutes = ?, updated_at = datetime('now')
+               SET bot_id = ?, api_token = ?, is_enabled = ?, reminder_interval_minutes = ?, updated_at = NOW()
                WHERE id = ?`,
               [finalBotId, api_token, is_enabled ? 1 : 0, reminder_interval_minutes || 3, existing.id],
               function(updateErr: Error | null) {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             // Insert new settings
             db.run(
               `INSERT INTO telegram_bot_settings (bot_id, api_token, is_enabled, reminder_interval_minutes, created_at, updated_at)
-               VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
+               VALUES (?, ?, ?, ?, NOW(), NOW())`,
               [finalBotId, api_token, is_enabled ? 1 : 0, reminder_interval_minutes || 3],
               function(insertErr: Error | null) {
                 if (insertErr) {
