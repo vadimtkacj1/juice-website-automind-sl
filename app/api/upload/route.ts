@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const folder = (formData.get('folder') as string) || 'general';
     const quality = parseInt((formData.get('quality') as string) || '85');
     const generateWebP = (formData.get('generateWebP') as string) !== 'false';
+    const generateAvif = (formData.get('generateAvif') as string) !== 'false';
 
     if (!file) {
       return NextResponse.json(
@@ -22,10 +23,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.' },
+        { error: 'Invalid file type. Only JPEG, PNG, WebP, AVIF, and GIF are allowed.' },
         { status: 400 }
       );
     }
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
     const optimizedResult = await optimizeImage(buffer, filename, folder, {
       quality,
       generateWebP,
+      generateAvif,
       generateThumbnail: true,
       maxWidth: 1920,
       maxHeight: 1920,
@@ -77,12 +79,15 @@ export async function POST(request: NextRequest) {
       success: true,
       url: optimizedResult.originalUrl,
       webpUrl: optimizedResult.webpUrl,
+      avifUrl: optimizedResult.avifUrl,
       thumbnailUrl: optimizedResult.thumbnailUrl,
       placeholder,
       width: optimizedResult.width,
       height: optimizedResult.height,
       originalSize: file.size,
       optimizedSize: optimizedResult.size,
+      webpSize: optimizedResult.webpSize,
+      avifSize: optimizedResult.avifSize,
       compressionRatio: `${compressionRatio}%`,
       format: optimizedResult.format,
       filename: filename,

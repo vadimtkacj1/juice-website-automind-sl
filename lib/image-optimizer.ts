@@ -8,6 +8,7 @@ export interface ImageOptimizationOptions {
   maxWidth?: number;
   maxHeight?: number;
   generateWebP?: boolean;
+  generateAvif?: boolean;
   generateThumbnail?: boolean;
   thumbnailSize?: number;
 }
@@ -15,11 +16,14 @@ export interface ImageOptimizationOptions {
 export interface OptimizedImageResult {
   originalUrl: string;
   webpUrl?: string;
+  avifUrl?: string;
   thumbnailUrl?: string;
   width: number;
   height: number;
   size: number;
   format: string;
+  avifSize?: number;
+  webpSize?: number;
 }
 
 const DEFAULT_OPTIONS: ImageOptimizationOptions = {
@@ -27,12 +31,13 @@ const DEFAULT_OPTIONS: ImageOptimizationOptions = {
   maxWidth: 1920,
   maxHeight: 1920,
   generateWebP: true,
+  generateAvif: true,
   generateThumbnail: true,
   thumbnailSize: 400,
 };
 
 /**
- * Оптимизирует изображение: сжимает, конвертирует в WebP, создает миниатюры
+ * Оптимизирует изображение: сжимает, конвертирует в WebP и AVIF, создает миниатюры
  * @param buffer - Buffer изображения
  * @param filename - Имя файла
  * @param folder - Папка для сохранения
@@ -118,12 +123,30 @@ export async function optimizeImage(
     const webpBuffer = await sharp(optimizedBuffer)
       .webp({ quality: opts.quality })
       .toBuffer();
-    
+
     const webpFilename = `${nameWithoutExt}.webp`;
     const webpPath = path.join(uploadDir, webpFilename);
     await writeFile(webpPath, webpBuffer);
-    
+
     result.webpUrl = `/uploads/${folder}/${webpFilename}`;
+    result.webpSize = webpBuffer.length;
+  }
+
+  // Генерируем AVIF версию (современный формат с лучшим сжатием)
+  if (opts.generateAvif && outputFormat !== 'avif') {
+    const avifBuffer = await sharp(optimizedBuffer)
+      .avif({
+        quality: opts.quality,
+        effort: 4 // Баланс между скоростью и качеством (0-9, где 4 - хороший баланс)
+      })
+      .toBuffer();
+
+    const avifFilename = `${nameWithoutExt}.avif`;
+    const avifPath = path.join(uploadDir, avifFilename);
+    await writeFile(avifPath, avifBuffer);
+
+    result.avifUrl = `/uploads/${folder}/${avifFilename}`;
+    result.avifSize = avifBuffer.length;
   }
 
   // Генерируем миниатюру для быстрого превью
@@ -135,11 +158,11 @@ export async function optimizeImage(
       })
       .webp({ quality: 70 })
       .toBuffer();
-    
+
     const thumbnailFilename = `${nameWithoutExt}-thumb.webp`;
     const thumbnailPath = path.join(uploadDir, thumbnailFilename);
     await writeFile(thumbnailPath, thumbnailBuffer);
-    
+
     result.thumbnailUrl = `/uploads/${folder}/${thumbnailFilename}`;
   }
 

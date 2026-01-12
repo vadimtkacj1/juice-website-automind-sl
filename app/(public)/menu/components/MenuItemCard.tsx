@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { ShoppingBag } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
 import styles from '../menu.module.css';
@@ -49,8 +48,6 @@ export default function MenuItemCard({
     setImageLoaded(true);
   };
 
-  // Проверяем, является ли изображение внешним URL
-  const isExternalImage = item.image?.startsWith('http://') || item.image?.startsWith('https://');
   const hasValidImage = item.image && item.image.trim() !== '' && !imageError;
 
   return (
@@ -67,29 +64,15 @@ export default function MenuItemCard({
       {/* Image */}
       <div className={styles.productImage}>
         {hasValidImage ? (
-          isExternalImage ? (
-            // Для внешних изображений используем обычный img
-            <img 
-              src={item.image} 
-              alt={translateToHebrew(item.name)} 
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-              className={imageLoaded ? styles.imageLoaded : ''}
-            />
-          ) : (
-            // Для внутренних изображений используем Next.js Image
-            <Image
-              src={item.image!}
-              alt={translateToHebrew(item.name)}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className={styles.productImageNext}
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-              style={{ objectFit: 'cover' }}
-              unoptimized={false}
-            />
-          )
+          // Используем обычный img для всех изображений (внешних и локальных)
+          // Локальные изображения уже оптимизированы через sharp
+          <img
+            src={item.image}
+            alt={translateToHebrew(item.name)}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            className={imageLoaded ? styles.imageLoaded : ''}
+          />
         ) : (
           <div className={styles.productImagePlaceholder}>
             <ShoppingBag size={40} />

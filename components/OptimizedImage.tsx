@@ -145,24 +145,42 @@ export default function OptimizedImage({
     );
   }
 
-  // Используем Next.js Image для оптимизации
+  // Для изображений из /uploads используем обычный img (уже оптимизированы через sharp)
+  // Для внешних изображений используем Next.js Image для оптимизации
+  const useNativeImg = isInternalUpload;
+
+  // Используем Next.js Image для внешних изображений, обычный img для /uploads
   if (fill) {
     return (
       <div ref={imgRef} className={`relative ${className}`}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          quality={quality}
-          priority={priority}
-          onLoad={handleLoad}
-          onError={handleError}
-          sizes={sizes || '100vw'}
-          className={`transition-opacity duration-300 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ objectFit }}
-        />
+        {useNativeImg ? (
+          <img
+            src={src}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            onLoad={handleLoad}
+            onError={handleError}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ objectFit }}
+          />
+        ) : (
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            quality={quality}
+            priority={priority}
+            onLoad={handleLoad}
+            onError={handleError}
+            sizes={sizes || '100vw'}
+            className={`transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ objectFit }}
+          />
+        )}
         {placeholder && !isLoaded && (
           <div
             className="absolute inset-0"
@@ -182,21 +200,35 @@ export default function OptimizedImage({
   if (width && height) {
     return (
       <div ref={imgRef} className="relative" style={{ width, height }}>
-        <Image
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          quality={quality}
-          priority={priority}
-          onLoad={handleLoad}
-          onError={handleError}
-          sizes={sizes}
-          className={`transition-opacity duration-300 ${className} ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ objectFit }}
-        />
+        {useNativeImg ? (
+          <img
+            src={src}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            onLoad={handleLoad}
+            onError={handleError}
+            className={`transition-opacity duration-300 ${className} ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ objectFit, width, height }}
+          />
+        ) : (
+          <Image
+            src={src}
+            alt={alt}
+            width={width}
+            height={height}
+            quality={quality}
+            priority={priority}
+            onLoad={handleLoad}
+            onError={handleError}
+            sizes={sizes}
+            className={`transition-opacity duration-300 ${className} ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ objectFit }}
+          />
+        )}
         {placeholder && !isLoaded && (
           <div
             className="absolute inset-0"

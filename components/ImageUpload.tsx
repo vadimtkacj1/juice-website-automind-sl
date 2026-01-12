@@ -21,6 +21,8 @@ interface UploadStats {
   width: number;
   height: number;
   format: string;
+  webpSize?: number;
+  avifSize?: number;
 }
 
 export default function ImageUpload({
@@ -97,7 +99,7 @@ export default function ImageUpload({
       // Only call onChange if we got a valid URL
       if (data.url) {
         onChange(data.url);
-        
+
         // Store upload stats
         if (data.originalSize && data.optimizedSize) {
           setUploadStats({
@@ -107,11 +109,13 @@ export default function ImageUpload({
             width: data.width,
             height: data.height,
             format: data.format,
+            webpSize: data.webpSize,
+            avifSize: data.avifSize,
           });
           setShowStats(true);
-          
-          // Hide stats after 5 seconds
-          setTimeout(() => setShowStats(false), 5000);
+
+          // Hide stats after 8 seconds (увеличено, чтобы успеть прочитать всю статистику)
+          setTimeout(() => setShowStats(false), 8000);
         }
       }
     } catch (err: any) {
@@ -217,9 +221,25 @@ export default function ImageUpload({
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
                     <div>
-                      <span className="font-medium">{t('Size')}:</span>{' '}
+                      <span className="font-medium">{t('Original')}:</span>{' '}
+                      {(uploadStats.originalSize / 1024).toFixed(1)} KB
+                    </div>
+                    <div>
+                      <span className="font-medium">{t('Optimized')}:</span>{' '}
                       {(uploadStats.optimizedSize / 1024).toFixed(1)} KB
                     </div>
+                    {uploadStats.webpSize && (
+                      <div>
+                        <span className="font-medium">WebP:</span>{' '}
+                        {(uploadStats.webpSize / 1024).toFixed(1)} KB
+                      </div>
+                    )}
+                    {uploadStats.avifSize && (
+                      <div>
+                        <span className="font-medium">AVIF:</span>{' '}
+                        {(uploadStats.avifSize / 1024).toFixed(1)} KB
+                      </div>
+                    )}
                     <div>
                       <span className="font-medium">{t('Saved')}:</span>{' '}
                       {uploadStats.compressionRatio}
@@ -227,10 +247,6 @@ export default function ImageUpload({
                     <div>
                       <span className="font-medium">{t('Dimensions')}:</span>{' '}
                       {uploadStats.width}x{uploadStats.height}
-                    </div>
-                    <div>
-                      <span className="font-medium">{t('Format')}:</span>{' '}
-                      {uploadStats.format.toUpperCase()}
                     </div>
                   </div>
                 </div>
@@ -284,7 +300,7 @@ export default function ImageUpload({
                 <p className="text-xs text-gray-500">
                   {hasImage
                     ? t('The new file will replace the current image')
-                    : t('PNG, JPG, WebP up to 5MB')}
+                    : t('PNG, JPG, WebP, AVIF up to 5MB')}
                 </p>
               </div>
             </div>
@@ -292,7 +308,7 @@ export default function ImageUpload({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif,image/gif"
             onChange={handleFileChange}
             disabled={uploading}
             className="hidden"
