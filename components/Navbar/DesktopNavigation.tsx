@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { translateToHebrew } from '@/lib/translations';
 
 const navLinks = [
-  { href: '/', label: translateToHebrew('Home') },
   { href: '/menu', label: translateToHebrew('Menu') },
   { href: '/locations', label: translateToHebrew('Locations') },
   { href: '/contact', label: translateToHebrew('Contact') },

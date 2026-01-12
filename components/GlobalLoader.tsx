@@ -16,7 +16,7 @@ export default function GlobalLoader() {
     const handleLoad = () => {
       setTimeout(() => {
         setIsInitialLoad(false);
-      }, 500);
+      }, 200);
     };
 
     if (document.readyState === 'complete') {
@@ -32,7 +32,7 @@ export default function GlobalLoader() {
     setIsNavigating(true);
     const timer = setTimeout(() => {
       setIsNavigating(false);
-    }, 300);
+    }, 100);
 
     return () => clearTimeout(timer);
   }, [pathname]);

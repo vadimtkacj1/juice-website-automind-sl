@@ -64,7 +64,7 @@ export default function NewsPage() {
 
   return (
     <div className={styles['news-page-container']}>
-      <HeroSection>
+      <HeroSection showFloatingOranges={true}>
         <h1 className="hero-title">{translateToHebrew('Latest News & Updates')}</h1>
         <p className="hero-subtitle">
           {translateToHebrew('Stay updated with our latest juice blends, health tips, and company news')}

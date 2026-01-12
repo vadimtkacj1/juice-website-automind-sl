@@ -14,7 +14,7 @@ export default function PageLoader() {
     setIsNavigating(true);
     const timer = setTimeout(() => {
       setIsNavigating(false);
-    }, 500);
+    }, 100);
     return () => clearTimeout(timer);
   }, [pathname]);
 
@@ -23,7 +23,7 @@ export default function PageLoader() {
     const handleLoad = () => {
       setTimeout(() => {
         setIsLoading(false);
-      }, 300);
+      }, 150);
     };
 
     if (document.readyState === 'complete') {

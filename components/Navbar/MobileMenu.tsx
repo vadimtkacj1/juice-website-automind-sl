@@ -8,7 +8,6 @@ import { translateToHebrew } from '@/lib/translations';
 import '@/app/styles/mobile-menu.css'; // Assuming mobile menu styles are global or in a dedicated file
 
 const navLinks = [
-  { href: '/', label: translateToHebrew('Home') },
   { href: '/menu', label: translateToHebrew('Menu') },
   { href: '/locations', label: translateToHebrew('Locations') },
   { href: '/contact', label: translateToHebrew('Contact') },

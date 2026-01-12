@@ -158,6 +158,42 @@
   animation-delay: -5s;
 }
 
+/* Orange 7 - Mid Top Right */
+.floating-orange-7 {
+  width: clamp(65px, 13vw, 150px);
+  top: 30%;
+  right: 18%;
+  animation: float-7 9.5s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+
+/* Orange 8 - Mid Bottom Left */
+.floating-orange-8 {
+  width: clamp(75px, 15vw, 170px);
+  bottom: 30%;
+  left: 18%;
+  animation: float-8 10.5s ease-in-out infinite;
+  animation-delay: -4.5s;
+}
+
+/* Orange 9 - Upper Left */
+.floating-orange-9 {
+  width: clamp(58px, 12vw, 135px);
+  top: 15%;
+  left: 25%;
+  animation: float-9 8s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+/* Orange 10 - Lower Right */
+.floating-orange-10 {
+  width: clamp(62px, 13vw, 145px);
+  bottom: 25%;
+  right: 25%;
+  animation: float-10 11.5s ease-in-out infinite;
+  animation-delay: -3.5s;
+}
+
 /* Juicy Float Animations */
 @keyframes float-1 {
   0%, 100% {
@@ -225,6 +261,54 @@
   }
   66% {
     transform: translateY(-30px) translateX(5px) rotate(-4deg);
+  }
+}
+
+@keyframes float-7 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translateY(-24px) rotate(6deg) scale(1.01);
+  }
+  70% {
+    transform: translateY(-16px) rotate(-5deg) scale(0.99);
+  }
+}
+
+@keyframes float-8 {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-28px) translateX(12px) rotate(-7deg) scale(1.02);
+  }
+  75% {
+    transform: translateY(-14px) translateX(-6px) rotate(4deg) scale(0.98);
+  }
+}
+
+@keyframes float-9 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  40% {
+    transform: translateY(-20px) rotate(9deg);
+  }
+  80% {
+    transform: translateY(-32px) rotate(-6deg);
+  }
+}
+
+@keyframes float-10 {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  35% {
+    transform: translateY(-26px) translateX(-10px) rotate(8deg) scale(1.03);
+  }
+  65% {
+    transform: translateY(-18px) translateX(8px) rotate(-5deg) scale(0.97);
   }
 }
 
@@ -358,7 +442,11 @@
   }
   
   .floating-orange-5,
-  .floating-orange-6 {
+  .floating-orange-6,
+  .floating-orange-7,
+  .floating-orange-8,
+  .floating-orange-9,
+  .floating-orange-10 {
     display: none;
   }
 }
@@ -390,7 +478,13 @@
   }
   
   .floating-orange-3,
-  .floating-orange-4 {
+  .floating-orange-4,
+  .floating-orange-5,
+  .floating-orange-6,
+  .floating-orange-7,
+  .floating-orange-8,
+  .floating-orange-9,
+  .floating-orange-10 {
     display: none;
   }
   

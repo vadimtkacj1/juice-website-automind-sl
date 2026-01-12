@@ -103,6 +103,7 @@ export default function MenuPage() {
     <div className={styles.menuPage}>
       <HeroSection
         backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080"
+        showFloatingOranges={true}
       >
         <h1 className="hero-title">{translateToHebrew('OUR MENU')}</h1>
       </HeroSection>

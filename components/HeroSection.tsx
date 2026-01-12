@@ -13,41 +13,65 @@ interface HeroSectionProps {
 
 // Floating orange configuration
 const floatingOranges = [
-  { 
-    id: 1, 
-    src: '/oranges/orange-slice-1.png', 
-    alt: 'פרוסת תפוז טרייה', 
-    className: 'floating-orange-1' 
+  {
+    id: 1,
+    src: '/oranges/orange-wedge.png',
+    alt: 'פרוסת תפוז טרייה',
+    className: 'floating-orange-1'
   },
-  { 
-    id: 2, 
-    src: '/oranges/orange-slice-2.png', 
-    alt: 'תפוז חתוך טרי למיץ', 
-    className: 'floating-orange-2' 
+  {
+    id: 2,
+    src: '/oranges/orange-slice-2.png',
+    alt: 'תפוז חתוך טרי למיץ',
+    className: 'floating-orange-2'
   },
-  { 
-    id: 3, 
-    src: '/oranges/orange-wedge.png', 
-    alt: 'פלח תפוז עסיסי', 
-    className: 'floating-orange-3' 
+  {
+    id: 3,
+    src: '/images/rasberry.png',
+    alt: 'פלח תפוז עסיסי',
+    className: 'floating-orange-3'
   },
-  { 
-    id: 4, 
-    src: '/oranges/orange-slice-2.png', 
-    alt: 'תפוז טרי מהטבע', 
-    className: 'floating-orange-4' 
+  {
+    id: 4,
+    src: '/oranges/orange-slice-2.png',
+    alt: 'תפוז טרי מהטבע',
+    className: 'floating-orange-4'
   },
-  { 
-    id: 5, 
-    src: '/oranges/orange-slice-1.png', 
-    alt: 'פרוסת תפוז למשקאות', 
-    className: 'floating-orange-5' 
+  {
+    id: 5,
+    src: '/oranges/orange-slice-1.png',
+    alt: 'פרוסת תפוז למשקאות',
+    className: 'floating-orange-5'
   },
-  { 
-    id: 6, 
-    src: '/oranges/orange-wedge.png', 
-    alt: 'פלח תפוז טבעי', 
-    className: 'floating-orange-6' 
+  {
+    id: 6,
+    src: '/images/apple.png',
+    alt: 'פלח תפוז טבעי',
+    className: 'floating-orange-6'
+  },
+  {
+    id: 7,
+    src: '/images/pomegranede.png',
+    alt: 'פרוסת תפוז עסיסית',
+    className: 'floating-orange-7'
+  },
+  {
+    id: 8,
+    src: '/images/strawberry.png',
+    alt: 'פלח תפוז מתוק',
+    className: 'floating-orange-8'
+  },
+  {
+    id: 9,
+    src: '/oranges/orange-slice-2.png',
+    alt: 'תפוז טרי וטעים',
+    className: 'floating-orange-9'
+  },
+  {
+    id: 10,
+    src: '/oranges/orange-slice-1.png',
+    alt: 'פרוסת תפוז ויטמין C',
+    className: 'floating-orange-10'
   },
 ];
 

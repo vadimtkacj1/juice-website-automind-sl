@@ -39,7 +39,7 @@ export default function LocationsPage() {
 
   return (
     <div>
-      <HeroSection>
+      <HeroSection showFloatingOranges={true}>
         <h1 className="hero-title">{translateToHebrew('OUR LOCATIONS')}</h1>
         <p className="hero-subtitle">{translateToHebrew('Find us at a location near you!')}</p>
       </HeroSection>

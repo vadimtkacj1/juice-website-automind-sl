@@ -195,7 +195,7 @@ export default function ContactPage() {
 
   return (
     <div className={styles['contact-page']}>
-      <HeroSection>
+      <HeroSection showFloatingOranges={true}>
         <h1 className="hero-title">{translateToHebrew('Contact Us')}</h1>
         <p className="hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
       </HeroSection>
