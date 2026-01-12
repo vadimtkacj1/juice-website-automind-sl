@@ -29,10 +29,9 @@ export function useMenuData() {
     console.error(`${requestId} [Frontend] Total items across all categories: ${newMenu.reduce((sum, cat) => sum + (cat.items?.length || 0), 0)}`);
     
     setAllMenuItems(newMenu);
-    setDisplayedMenu(
-      newMenu.map((cat) => ({ ...cat, items: cat.items.slice(0, ITEMS_PER_LOAD) }))
-    );
-    setHasMore(newMenu.some((cat) => cat.items.length > ITEMS_PER_LOAD));
+    // Показываем все элементы сразу, без ограничения
+    setDisplayedMenu(newMenu);
+    setHasMore(false);
     console.error(`${requestId} [Frontend] ===== processAndSetMenu completed =====`);
   }, []);
 
