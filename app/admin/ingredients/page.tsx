@@ -1,38 +1,25 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import { Plus, Pencil, Trash, Settings, DollarSign, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash, FolderOpen, Coffee, Link2, X } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
-import ImageUpload from '@/components/ImageUpload';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Ingredient {
   id: number;
@@ -51,128 +38,42 @@ interface MenuCategory {
   description?: string;
 }
 
-interface CategoryIngredientConfig {
-  category_id: number;
-  category_name: string;
-  ingredient_id: number;
-  ingredient_name: string;
-  selection_type: 'single' | 'multiple';
-  price_override?: number;
-  volume_prices?: Record<string, number>; // Prices for each category volume, e.g., {"0.5": 2.00, "1": 4.00}
+interface MenuItem {
+  id: number;
+  name: string;
+  category_name?: string;
+  image?: string;
 }
 
-interface VolumeOption {
-  id?: number;
-  volume: string;
-  price: number;
-  is_default: boolean;
-  sort_order: number;
+interface AttachmentCategory {
+  id: number;
+  name: string;
+  description?: string;
 }
 
-function SortableRow({
-  ingredient,
-  onEdit,
-  onDelete,
-  t,
-  index,
-}: {
-  ingredient: Ingredient;
-  onEdit: (ingredient: Ingredient) => void;
-  onDelete: (id: number) => void;
-  t: (text: string) => string;
-  index: number;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: ingredient.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <TableRow ref={setNodeRef} style={style}>
-      <TableCell className="font-medium w-12">
-        <button
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing touch-none"
-          aria-label="Drag to reorder"
-        >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </TableCell>
-      <TableCell className="font-medium">{index + 1}</TableCell>
-      <TableCell className="font-medium">{t(ingredient.name)}</TableCell>
-      <TableCell>{ingredient.description ? t(ingredient.description) : '-'}</TableCell>
-      <TableCell>${ingredient.price.toFixed(2)}</TableCell>
-      <TableCell>{ingredient.is_available ? t('Yes') : t('No')}</TableCell>
-      <TableCell>
-        <div className="flex gap-2">
-          <Link href={`/admin/ingredients/edit/${ingredient.id}`}>
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onDelete(ingredient.id)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
+interface AttachmentMenuItem {
+  id: number;
+  name: string;
+  image?: string;
+  category_name?: string;
 }
 
 export default function AdminIngredients() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, language } = useAdminLanguage();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'boosters' | 'fruits' | 'toppings'>('fruits');
-  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
-  const [categoryIngredientCounts, setCategoryIngredientCounts] = useState<Record<number, number>>({});
-  const [categoryVolumes, setCategoryVolumes] = useState<VolumeOption[]>([]);
-  const [categoryConfigs, setCategoryConfigs] = useState<CategoryIngredientConfig[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
-  const [showCategoryConfigForm, setShowCategoryConfigForm] = useState(false);
-  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
-  const [ingredientForm, setIngredientForm] = useState({
-    name: '',
-    description: '',
-    price: '0',
-    image: '',
-    ingredient_category: 'fruits' as 'boosters' | 'fruits' | 'toppings',
-    is_available: true,
-    sort_order: '0',
-  });
-  const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
-  const [showIngredientForm, setShowIngredientForm] = useState(false);
-  const [ingredientVolumes, setIngredientVolumes] = useState<Record<number, VolumeOption[]>>({});
-  const isFetchingRef = useRef(false);
-  const hasInitialFetchRef = useRef(false);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const [showAddToCategoryDialog, setShowAddToCategoryDialog] = useState(false);
+  const [showAddToMenuItemDialog, setShowAddToMenuItemDialog] = useState(false);
+  const [showAttachmentsDialog, setShowAttachmentsDialog] = useState(false);
+  const [ingredientToAdd, setIngredientToAdd] = useState<number | null>(null);
+  const [attachmentsLoading, setAttachmentsLoading] = useState(false);
+  const [attachedCategories, setAttachedCategories] = useState<AttachmentCategory[]>([]);
+  const [attachedMenuItems, setAttachedMenuItems] = useState<AttachmentMenuItem[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -196,597 +97,354 @@ export default function AdminIngredients() {
     type: 'info',
   });
 
-  const fetchData = useCallback(async () => {
-    // Prevent concurrent fetches
-    if (isFetchingRef.current) {
-      return;
-    }
-    
-    isFetchingRef.current = true;
-    try {
-      const [ingredientsRes, categoriesRes] = await Promise.all([
-        fetch('/api/custom-ingredients?include_inactive=true'),
-        fetch('/api/menu-categories?include_inactive=true')
-      ]);
-      const ingredientsData = await ingredientsRes.json();
-      const categoriesData = await categoriesRes.json();
-      setIngredients(ingredientsData.ingredients || []);
-      setMenuCategories(categoriesData.categories || []);
-      
-      // Fetch ingredient counts for each category
-      const counts: Record<number, number> = {};
-      await Promise.all(
-        (categoriesData.categories || []).map(async (category: MenuCategory) => {
-          try {
-            const res = await fetch(`/api/menu-categories/${category.id}/ingredient-configs?include_inactive=true`);
-            const data = await res.json();
-            counts[category.id] = (data.configs || []).length;
-          } catch (error) {
-            counts[category.id] = 0;
-          }
-        })
-      );
-      setCategoryIngredientCounts(counts);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-      isFetchingRef.current = false;
-    }
+  useEffect(() => {
+      fetchData();
   }, []);
 
   useEffect(() => {
-    // Only fetch once on initial mount
-    if (!hasInitialFetchRef.current) {
-      hasInitialFetchRef.current = true;
-      fetchData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function fetchCategoryConfigs(categoryId: number) {
-    try {
-      // Fetch category volumes first
-      const volumesRes = await fetch(`/api/menu-categories/${categoryId}/volumes`);
-      const volumesData = await volumesRes.json();
-      setCategoryVolumes(volumesData.volumes || []);
-
-      const res = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs?include_inactive=true`);
-      const data = await res.json();
-      // Map custom_ingredient_id to ingredient_id for consistency
-      const mappedConfigs = (data.configs || []).map((config: any) => {
-        // Parse volume_prices JSON if it exists
-        let volume_prices: Record<string, number> | undefined = undefined;
-        if (config.volume_prices) {
-          try {
-            volume_prices = typeof config.volume_prices === 'string' 
-              ? JSON.parse(config.volume_prices) 
-              : config.volume_prices;
-          } catch (e) {
-            volume_prices = undefined;
-          }
-        }
-        
-        return {
-          category_id: config.category_id,
-          category_name: config.category_name,
-          ingredient_id: config.custom_ingredient_id, // Map custom_ingredient_id to ingredient_id
-          ingredient_name: config.ingredient_name,
-          selection_type: config.selection_type,
-          price_override: config.price_override,
-          volume_prices: volume_prices,
-        };
-      });
-      setCategoryConfigs(mappedConfigs);
-    } catch (error) {
-      console.error('Error fetching category configs:', error);
-    }
-  }
-
-  async function handleOpenIngredientDialog(ingredient?: Ingredient) {
-    console.log('handleOpenIngredientDialog called', ingredient);
-    try {
-      if (ingredient) {
-        setEditingIngredient(ingredient);
-        setIngredientForm({
-          name: ingredient.name,
-          description: ingredient.description || '',
-          price: ingredient.price.toString(),
-          image: ingredient.image || '',
-          ingredient_category: ingredient.ingredient_category,
-          is_available: ingredient.is_available,
-          sort_order: ingredient.sort_order.toString(),
-        });
-        // Fetch volume options for this ingredient
-        try {
-          const res = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
-          const data = await res.json();
-          setVolumeOptions(data.volumes || []);
-        } catch (error) {
-          console.error('Error fetching volumes:', error);
-          setVolumeOptions([]);
-        }
-      } else {
-        setEditingIngredient(null);
-        setIngredientForm({
-          name: '',
-          description: '',
-          price: '0',
-          image: '',
-          ingredient_category: activeTab,
-          is_available: true,
-          sort_order: '0',
-        });
-        setVolumeOptions([]);
+    const addToCategory = searchParams?.get('addToCategory');
+    if (addToCategory) {
+      const ingredientId = parseInt(addToCategory);
+      if (!isNaN(ingredientId)) {
+        setIngredientToAdd(ingredientId);
+        fetchCategories();
+        setShowAddToCategoryDialog(true);
+        // Remove the parameter from URL
+        router.replace('/admin/ingredients', { scroll: false });
       }
-      setShowIngredientForm(true);
-      console.log('showIngredientForm set to true');
-    } catch (error) {
-      console.error('Error in handleOpenIngredientDialog:', error);
     }
-  }
+  }, [searchParams, router]);
 
-  function addVolumeOption() {
-    setVolumeOptions([...volumeOptions, {
-      volume: '',
-      price: parseFloat(ingredientForm.price) || 0,
-      is_default: volumeOptions.length === 0,
-      sort_order: volumeOptions.length
-    }]);
-  }
-
-  function removeVolumeOption(index: number) {
-    const newVolumes = volumeOptions.filter((_, i) => i !== index);
-    // If we removed the default, make the first one default
-    if (newVolumes.length > 0 && volumeOptions[index].is_default) {
-      newVolumes[0].is_default = true;
-    }
-    setVolumeOptions(newVolumes);
-  }
-
-  function updateVolumeOption(index: number, field: keyof VolumeOption, value: any) {
-    const newVolumes = [...volumeOptions];
-    if (field === 'is_default' && value) {
-      // Only one default allowed
-      newVolumes.forEach((v, i) => {
-        v.is_default = i === index;
-      });
-    } else {
-      newVolumes[index] = { ...newVolumes[index], [field]: value };
-    }
-    setVolumeOptions(newVolumes);
-  }
-
-  async function handleOpenCategoryConfigDialog(category: MenuCategory) {
-    console.log('handleOpenCategoryConfigDialog called', category);
+  async function fetchData() {
     try {
-      setSelectedCategory(category);
-      await fetchCategoryConfigs(category.id);
-      setShowCategoryConfigForm(true);
-      console.log('showCategoryConfigForm set to true');
+      const response = await fetch('/api/custom-ingredients?include_inactive=true');
+      const data = await response.json();
+      setIngredients(data.ingredients || []);
     } catch (error) {
-      console.error('Error opening category config dialog:', error);
-      setAlertDialog({
-        open: true,
-        title: 'Error',
-        message: 'Failed to open configuration dialog. Please try again.',
-        type: 'error',
-      });
+      console.error('Error fetching ingredients:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
-  function addCategoryVolume() {
-    setCategoryVolumes([...categoryVolumes, {
-      volume: '',
-      price: 0,
-      is_default: categoryVolumes.length === 0,
-      sort_order: categoryVolumes.length
-    }]);
-  }
-
-  function removeCategoryVolume(index: number) {
-    const newVolumes = categoryVolumes.filter((_, i) => i !== index);
-    if (newVolumes.length > 0 && categoryVolumes[index].is_default) {
-      newVolumes[0].is_default = true;
-    }
-    setCategoryVolumes(newVolumes);
-    
-    // Remove prices for this volume from all ingredient configs
-    const removedVolume = categoryVolumes[index].volume;
-    if (removedVolume) {
-      setCategoryConfigs(categoryConfigs.map(config => {
-        if (config.volume_prices && config.volume_prices[removedVolume]) {
-          const newPrices = { ...config.volume_prices };
-          delete newPrices[removedVolume];
-          return { ...config, volume_prices: Object.keys(newPrices).length > 0 ? newPrices : undefined };
-        }
-        return config;
-      }));
-    }
-  }
-
-  function updateCategoryVolume(index: number, field: keyof VolumeOption, value: any) {
-    const newVolumes = [...categoryVolumes];
-    if (field === 'is_default' && value) {
-      newVolumes.forEach((v, i) => {
-        v.is_default = i === index;
-      });
-    } else {
-      newVolumes[index] = { ...newVolumes[index], [field]: value };
-    }
-    setCategoryVolumes(newVolumes);
-  }
-
-  async function saveCategoryVolumes() {
-    if (!selectedCategory) return;
-    
+  async function fetchCategories() {
     try {
-      const response = await fetch(`/api/menu-categories/${selectedCategory.id}/volumes`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ volumes: categoryVolumes })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save category volumes');
-      }
+      const response = await fetch('/api/menu-categories?include_inactive=true');
+      const data = await response.json();
+      // Defensive: de-duplicate by id (users reported duplicates in the picker)
+      const unique = new Map<number, MenuCategory>();
+      (data.categories || []).forEach((c: MenuCategory) => unique.set(c.id, c));
+      setCategories(Array.from(unique.values()));
     } catch (error) {
-      console.error('Error saving category volumes:', error);
+      console.error('Error fetching categories:', error);
     }
   }
 
-  async function handleSaveIngredient() {
-    if (!ingredientForm.name.trim()) {
-      setAlertDialog({
-        open: true,
-        title: 'Validation Error',
-        message: 'Ingredient name is required.',
-        type: 'error',
-      });
+  async function fetchMenuItems() {
+    try {
+      const response = await fetch('/api/menu-items?include_inactive=true');
+      const data = await response.json();
+      // Defensive: de-duplicate by id
+      const unique = new Map<number, MenuItem>();
+      (data.items || []).forEach((i: MenuItem) => unique.set(i.id, i));
+      setMenuItems(Array.from(unique.values()));
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    }
+  }
+
+  async function handleAddIngredientToMenuItem(itemId: number) {
+    if (!ingredientToAdd) {
+      console.error('No ingredient to add');
       return;
     }
 
     try {
-      const url = editingIngredient
-        ? `/api/custom-ingredients/${editingIngredient.id}`
-        : '/api/custom-ingredients';
-      const method = editingIngredient ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: ingredientForm.name,
-          description: ingredientForm.description || null,
-          price: parseFloat(ingredientForm.price) || 0,
-          image: ingredientForm.image || null,
-          ingredient_category: ingredientForm.ingredient_category,
-          is_available: ingredientForm.is_available,
-          sort_order: parseInt(ingredientForm.sort_order) || 0,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save ingredient');
-      }
-
-      const responseData = await response.json();
-      const ingredientId = editingIngredient ? editingIngredient.id : responseData.id;
+      // First, get current ingredients for this item
+      const currentResponse = await fetch(`/api/menu-items/${itemId}/custom-ingredients`);
       
-      // Save volume options
-      if (ingredientId) {
-        const volumesResponse = await fetch(`/api/custom-ingredients/${ingredientId}/volumes`, {
-          method: 'PUT',
+      if (!currentResponse.ok) {
+        throw new Error('Failed to fetch current ingredients');
+      }
+      
+      const currentData = await currentResponse.json();
+      const currentIngredientIds = (currentData.ingredients || []).map((ing: any) => ing.id);
+      
+      // Add the new ingredient if it's not already there
+      if (!currentIngredientIds.includes(ingredientToAdd)) {
+        const newIngredientIds = [...currentIngredientIds, ingredientToAdd];
+        
+        console.log('Adding ingredient', ingredientToAdd, 'to menu item', itemId, 'with all ingredients:', newIngredientIds);
+        
+        const response = await fetch(`/api/menu-items/${itemId}/custom-ingredients`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ volumes: volumeOptions })
+          body: JSON.stringify({ ingredient_ids: newIngredientIds })
         });
 
-        if (!volumesResponse.ok) {
-          const error = await volumesResponse.json();
-          throw new Error(error.error || 'Failed to save volume options');
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('API error:', errorData);
+          throw new Error(errorData.error || 'Failed to add ingredient');
         }
-      }
 
-      setShowIngredientForm(false);
-      setEditingIngredient(null);
-      setVolumeOptions([]);
-      fetchData();
-      setAlertDialog({
-        open: true,
-        title: 'Success',
-        message: `Ingredient ${editingIngredient ? 'updated' : 'created'} successfully!`,
-        type: 'success',
-      });
+        const result = await response.json();
+        console.log('Success:', result);
+        
+        // Verify the ingredient was added by fetching again
+        const verifyResponse = await fetch(`/api/menu-items/${itemId}/custom-ingredients`);
+        if (verifyResponse.ok) {
+          const verifyData = await verifyResponse.json();
+          console.log('Verified ingredients after add:', verifyData.ingredients?.length || 0);
+        }
+        
+        setShowAddToMenuItemDialog(false);
+        setIngredientToAdd(null);
+        setAlertDialog({
+          open: true,
+          title: t('Success'),
+          message: t('Ingredient added to menu item successfully!'),
+          type: 'success',
+        });
+      } else {
+        setShowAddToMenuItemDialog(false);
+        setIngredientToAdd(null);
+        setAlertDialog({
+          open: true,
+          title: t('Info'),
+          message: t('This ingredient is already added to this menu item.'),
+          type: 'info',
+        });
+      }
     } catch (error: any) {
+      console.error('Error adding ingredient to item:', error);
       setAlertDialog({
         open: true,
-        title: 'Error',
-        message: error.message || 'Failed to save ingredient',
+        title: t('Error'),
+        message: error.message || t('An error occurred while adding the ingredient.'),
         type: 'error',
       });
     }
   }
 
-  async function handleDeleteIngredient(id: number) {
+  async function handleAddIngredientToCategory(categoryId: number) {
+    if (!ingredientToAdd) return;
+
+    try {
+      // Attach directly (stay in modals) by merging configs and saving back
+      const currentRes = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs?include_inactive=true`);
+      if (!currentRes.ok) {
+        throw new Error(t('Failed to fetch current category ingredients'));
+      }
+      const currentData = await currentRes.json();
+      const currentConfigs = Array.isArray(currentData.configs) ? currentData.configs : [];
+
+      const already = currentConfigs.some((c: any) => Number(c.custom_ingredient_id) === ingredientToAdd || Number(c.ingredient_id) === ingredientToAdd);
+      if (already) {
+        setShowAddToCategoryDialog(false);
+        setIngredientToAdd(null);
+        setAlertDialog({
+          open: true,
+          title: t('Info'),
+          message: t('This ingredient is already added to this category.'),
+          type: 'info',
+        });
+        return;
+      }
+
+      const newConfigs = [
+        ...currentConfigs.map((c: any) => ({
+          ingredient_id: c.custom_ingredient_id ?? c.ingredient_id,
+          selection_type: c.selection_type || 'multiple',
+          price_override: c.price_override ?? null,
+          volume_prices: null,
+        })),
+        {
+          ingredient_id: ingredientToAdd,
+          selection_type: 'multiple',
+          price_override: null,
+          volume_prices: null,
+        },
+      ];
+
+      const saveRes = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ configs: newConfigs }),
+      });
+      if (!saveRes.ok) {
+        const err = await saveRes.json().catch(() => ({}));
+        throw new Error(err.error || t('Failed to save category configuration'));
+      }
+
+      setShowAddToCategoryDialog(false);
+      setIngredientToAdd(null);
+      setAlertDialog({
+        open: true,
+        title: t('Success'),
+        message: t('Ingredient added to category successfully!'),
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Error navigating to category config:', error);
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: (error as any)?.message || t('An error occurred while adding the ingredient.'),
+        type: 'error',
+      });
+    }
+  }
+
+  async function openAttachments(ingredientId: number) {
+    setIngredientToAdd(ingredientId);
+    setShowAttachmentsDialog(true);
+    setAttachmentsLoading(true);
+    setAttachedCategories([]);
+    setAttachedMenuItems([]);
+
+    try {
+      const res = await fetch(`/api/custom-ingredients/${ingredientId}/attachments`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t('Failed to load attachments'));
+      }
+      const data = await res.json();
+      setAttachedCategories(Array.isArray(data.categories) ? data.categories : []);
+      setAttachedMenuItems(Array.isArray(data.menuItems) ? data.menuItems : []);
+    } catch (error: any) {
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: error.message || t('Failed to load attachments'),
+        type: 'error',
+      });
+      setShowAttachmentsDialog(false);
+      setIngredientToAdd(null);
+    } finally {
+      setAttachmentsLoading(false);
+    }
+  }
+
+  async function detachFromCategory(categoryId: number) {
+    if (!ingredientToAdd) return;
+
+    const prev = attachedCategories;
+    setAttachedCategories((p) => p.filter((c) => c.id !== categoryId));
+
+    try {
+      const res = await fetch(`/api/custom-ingredients/${ingredientToAdd}/attachments?category_id=${categoryId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t('Failed to detach'));
+      }
+    } catch (error: any) {
+      setAttachedCategories(prev);
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: error.message || t('Failed to detach'),
+        type: 'error',
+      });
+    }
+  }
+
+  async function detachFromMenuItem(menuItemId: number) {
+    if (!ingredientToAdd) return;
+
+    const prev = attachedMenuItems;
+    setAttachedMenuItems((p) => p.filter((i) => i.id !== menuItemId));
+
+    try {
+      const res = await fetch(`/api/custom-ingredients/${ingredientToAdd}/attachments?menu_item_id=${menuItemId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t('Failed to detach'));
+      }
+    } catch (error: any) {
+      setAttachedMenuItems(prev);
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: error.message || t('Failed to detach'),
+        type: 'error',
+      });
+    }
+  }
+
+  async function handleDelete(id: number) {
     setConfirmDialog({
       open: true,
-      title: 'Delete Ingredient',
-      description: 'Are you sure you want to delete this ingredient? This will remove it from all juices.',
+      title: t('Delete Ingredient'),
+      description: t('Are you sure you want to delete this ingredient? This action cannot be undone.'),
       onConfirm: async () => {
         try {
           const response = await fetch(`/api/custom-ingredients/${id}`, {
             method: 'DELETE',
           });
 
-          if (!response.ok) {
-            throw new Error('Failed to delete ingredient');
-          }
-
+          if (response.ok) {
           fetchData();
           setAlertDialog({
             open: true,
-            title: 'Success',
-            message: 'Ingredient deleted successfully!',
+              title: t('Success'),
+              message: t('Ingredient deleted successfully!'),
             type: 'success',
           });
-        } catch (error: any) {
+          } else {
+            const error = await response.json();
           setAlertDialog({
             open: true,
-            title: 'Error',
-            message: error.message || 'Failed to delete ingredient',
+              title: t('Error'),
+              message: error.error || t('Failed to delete ingredient.'),
             type: 'error',
           });
         }
+        } catch (error) {
+          console.error('Error deleting ingredient:', error);
+      setAlertDialog({
+        open: true,
+            title: t('Error'),
+            message: t('An error occurred while deleting the ingredient.'),
+        type: 'error',
+      });
+    }
         setConfirmDialog({ ...confirmDialog, open: false });
       },
     });
   }
 
-  async function handleSaveCategoryConfig() {
-    if (!selectedCategory) return;
-
-    try {
-      // Save category volumes first
-      await saveCategoryVolumes();
-
-      // Prepare configs with volume_prices as JSON string
-      const configsToSave = categoryConfigs.map(config => ({
-        ...config,
-        volume_prices: config.volume_prices ? JSON.stringify(config.volume_prices) : null
-      }));
-
-      const configRes = await fetch(`/api/menu-categories/${selectedCategory.id}/ingredient-configs`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ configs: configsToSave }),
-      });
-
-      if (!configRes.ok) {
-        throw new Error('Failed to save category configuration');
-      }
-
-      const result = await configRes.json();
-      // Update the count for this category
-      setCategoryIngredientCounts(prev => ({
-        ...prev,
-        [selectedCategory.id]: categoryConfigs.length
-      }));
-      setShowCategoryConfigForm(false);
-      fetchData();
-      setAlertDialog({
-        open: true,
-        title: 'Success',
-        message: `Successfully saved ${categoryConfigs.length} ingredient(s) to ${selectedCategory?.name}. Customers will now see these ingredients when selecting items from this category.`,
-        type: 'success',
-      });
-    } catch (error: any) {
-      setAlertDialog({
-        open: true,
-        title: 'Error',
-        message: error.message || 'Failed to save category configuration',
-        type: 'error',
-      });
-    }
-  }
-
-  async function handleAddIngredientToCategory(ingredient: Ingredient) {
-    try {
-      if (!selectedCategory) {
-        setAlertDialog({
-          open: true,
-          title: 'Error',
-          message: 'No category selected. Please select a category first.',
-          type: 'error',
-        });
-        return;
-      }
-      
-      const existing = categoryConfigs.find(c => c.ingredient_id === ingredient.id);
-      if (existing) {
-        setAlertDialog({
-          open: true,
-          title: 'Already Added',
-          message: `${ingredient.name} is already attached to this category.`,
-          type: 'info',
-        });
-        return;
-      }
-      
-      // Fetch volume options for this ingredient
-      let volumes: VolumeOption[] = [];
-      try {
-        const volRes = await fetch(`/api/custom-ingredients/${ingredient.id}/volumes`);
-        const volData = await volRes.json();
-        volumes = volData.volumes || [];
-        setIngredientVolumes(prev => ({
-          ...prev,
-          [ingredient.id]: volumes
-        }));
-      } catch (error) {
-        console.error('Error fetching volumes:', error);
-      }
-      
-      // Initialize volume_prices for this ingredient based on category volumes
-      const initialVolumePrices: Record<string, number> = {};
-      categoryVolumes.forEach(vol => {
-        if (vol.volume) {
-          initialVolumePrices[vol.volume] = ingredient.price; // Use ingredient base price as default
-        }
-      });
-
-      // Add ingredient with multiple selection by default (allows customers to select multiple ingredients)
-      setCategoryConfigs([
-        ...categoryConfigs,
-        {
-          category_id: selectedCategory.id,
-          category_name: selectedCategory.name,
-          ingredient_id: ingredient.id,
-          ingredient_name: ingredient.name,
-          selection_type: 'multiple', // Default to multiple so customers can select many ingredients
-          price_override: undefined,
-          volume_prices: Object.keys(initialVolumePrices).length > 0 ? initialVolumePrices : undefined,
-        },
-      ]);
-    } catch (error: any) {
-      console.error('Error adding ingredient to category:', error);
-      setAlertDialog({
-        open: true,
-        title: 'Error',
-        message: error.message || 'Failed to add ingredient. Please try again.',
-        type: 'error',
-      });
-    }
-  }
-
-  function handleRemoveIngredientFromCategory(ingredientId: number) {
-    setCategoryConfigs(categoryConfigs.filter(c => c.ingredient_id !== ingredientId));
-  }
-
-  function handleUpdateCategoryConfig(ingredientId: number, field: 'selection_type' | 'price_override' | 'volume_prices', value: any) {
-    setCategoryConfigs(
-      categoryConfigs.map(c =>
-        c.ingredient_id === ingredientId ? { ...c, [field]: value } : c
-      )
-    );
-  }
-
-  function handleUpdateIngredientVolumePrice(ingredientId: number, volume: string, price: number | undefined) {
-    setCategoryConfigs(
-      categoryConfigs.map(c => {
-        if (c.ingredient_id === ingredientId) {
-          const newPrices = { ...(c.volume_prices || {}) };
-          if (price !== undefined && price !== null && !isNaN(price)) {
-            newPrices[volume] = price;
-          } else {
-            delete newPrices[volume];
-          }
-          return { ...c, volume_prices: Object.keys(newPrices).length > 0 ? newPrices : undefined };
-        }
-        return c;
-      })
-    );
-  }
-
-  async function handleDragEnd(event: DragEndEvent, category: 'boosters' | 'fruits' | 'toppings') {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const categoryIngredients = ingredients
-      .filter(i => i.ingredient_category === category)
-      .sort((a, b) => a.sort_order - b.sort_order);
-
-    const oldIndex = categoryIngredients.findIndex(i => i.id === active.id);
-    const newIndex = categoryIngredients.findIndex(i => i.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) {
-      return;
-    }
-
-    const reorderedIngredients = arrayMove(categoryIngredients, oldIndex, newIndex);
-
-    // Update sort_order for all ingredients in this category
-    setIsUpdatingOrder(true);
-    try {
-      const updatePromises = reorderedIngredients.map((ingredient, index) => {
-        return fetch(`/api/custom-ingredients/${ingredient.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: ingredient.name,
-            description: ingredient.description || null,
-            price: ingredient.price,
-            image: ingredient.image || null,
-            ingredient_category: ingredient.ingredient_category,
-            is_available: ingredient.is_available,
-            sort_order: index,
-          }),
-        });
-      });
-
-      const results = await Promise.all(updatePromises);
-      
-      // Check if all requests were successful
-      const failed = results.filter(r => !r.ok);
-      if (failed.length > 0) {
-        throw new Error('Some ingredients failed to update');
-      }
-      
-      // Reload data from server to ensure consistency
-      await fetchData();
-      
-      setAlertDialog({
-        open: true,
-        title: t('Success'),
-        message: t('Ingredient order updated successfully!'),
-        type: 'success',
-      });
-    } catch (error: any) {
-      console.error('Error updating sort order:', error);
-      setAlertDialog({
-        open: true,
-        title: t('Error'),
-        message: t('Failed to update ingredient order. Please try again.'),
-        type: 'error',
-      });
-      // Refresh data to revert to server state
-      await fetchData();
-    } finally {
-      setIsUpdatingOrder(false);
-    }
-  }
-
-  const filteredIngredients = ingredients
-    .filter(i => i.ingredient_category === activeTab)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  const filteredIngredients = ingredients.filter(i => i.ingredient_category === activeTab);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="lg" text={t('Loading ingredients...')} />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6" dir={language}>
-      <div className="flex justify-between items-center">
+    <div className="space-y-6" dir={language}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('Ingredient Management')}</h1>
-          <p className="text-muted-foreground mt-2">
-            {t('Manage boosters, fruits, and toppings. Attach them to menu categories and set prices.')}
-          </p>
+          <h1 className="text-2xl font-semibold text-slate-900">{t('Ingredients')}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{t('Manage fruits, boosters, and toppings')}</p>
         </div>
         <Link href={`/admin/ingredients/add?category=${activeTab}`}>
-          <Button 
-            type="button"
-            className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-          >
-            <Plus className="ml-2 h-4 w-4" />
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
             {t('Add Ingredient')}
           </Button>
         </Link>
       </div>
 
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList>
           <TabsTrigger value="fruits">{t('Fruits')}</TabsTrigger>
@@ -794,715 +452,119 @@ export default function AdminIngredients() {
           <TabsTrigger value="toppings">{t('Toppings')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="fruits">
+        <TabsContent value={activeTab} className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t('Fruits')}</CardTitle>
-              <CardDescription>{t('Manage fruit ingredients. Drag and drop to reorder.')}</CardDescription>
+              <CardTitle>
+                {activeTab === 'fruits' ? t('Fruits') : 
+                 activeTab === 'boosters' ? t('Boosters') : 
+                 t('Toppings')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={(e) => handleDragEnd(e, 'fruits')}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>{t('Sort Order')}</TableHead>
-                      <TableHead>{t('Name')}</TableHead>
-                      <TableHead>{t('Description')}</TableHead>
-                      <TableHead>{t('Price')}</TableHead>
-                      <TableHead>{t('Available')}</TableHead>
-                      <TableHead>{t('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
                     {filteredIngredients.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {t('No fruits found. Click "Add Ingredient" button above to get started.')}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <SortableContext
-                        items={filteredIngredients.map(i => i.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {filteredIngredients.map((ingredient, index) => (
-                          <SortableRow
-                            key={ingredient.id}
-                            ingredient={ingredient}
-                            onEdit={handleOpenIngredientDialog}
-                            onDelete={handleDeleteIngredient}
-                            t={t}
-                            index={index}
-                          />
-                        ))}
-                      </SortableContext>
-                    )}
-                  </TableBody>
-                </Table>
-              </DndContext>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="boosters">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('Boosters')}</CardTitle>
-              <CardDescription>{t('Manage booster ingredients. Drag and drop to reorder.')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={(e) => handleDragEnd(e, 'boosters')}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>{t('Sort Order')}</TableHead>
-                      <TableHead>{t('Name')}</TableHead>
-                      <TableHead>{t('Description')}</TableHead>
-                      <TableHead>{t('Price')}</TableHead>
-                      <TableHead>{t('Available')}</TableHead>
-                      <TableHead>{t('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredIngredients.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {t('No boosters found. Click "Add Ingredient" button above to get started.')}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <SortableContext
-                        items={filteredIngredients.map(i => i.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {filteredIngredients.map((ingredient, index) => (
-                          <SortableRow
-                            key={ingredient.id}
-                            ingredient={ingredient}
-                            onEdit={handleOpenIngredientDialog}
-                            onDelete={handleDeleteIngredient}
-                            t={t}
-                            index={index}
-                          />
-                        ))}
-                      </SortableContext>
-                    )}
-                  </TableBody>
-                </Table>
-              </DndContext>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="toppings">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('Toppings')}</CardTitle>
-              <CardDescription>{t('Manage topping ingredients. Drag and drop to reorder.')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={(e) => handleDragEnd(e, 'toppings')}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>{t('Sort Order')}</TableHead>
-                      <TableHead>{t('Name')}</TableHead>
-                      <TableHead>{t('Description')}</TableHead>
-                      <TableHead>{t('Price')}</TableHead>
-                      <TableHead>{t('Available')}</TableHead>
-                      <TableHead>{t('Actions')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredIngredients.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          {t('No toppings found. Click "Add Ingredient" button above to get started.')}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <SortableContext
-                        items={filteredIngredients.map(i => i.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {filteredIngredients.map((ingredient, index) => (
-                          <SortableRow
-                            key={ingredient.id}
-                            ingredient={ingredient}
-                            onEdit={handleOpenIngredientDialog}
-                            onDelete={handleDeleteIngredient}
-                            t={t}
-                            index={index}
-                          />
-                        ))}
-                      </SortableContext>
-                    )}
-                  </TableBody>
-                </Table>
-              </DndContext>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('Category Configurations')}</CardTitle>
-          <CardDescription>{t('Attach ingredients to menu categories. All items in a category will have access to these ingredients.')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('Category Name')}</TableHead>
-                <TableHead>{t('Description')}</TableHead>
-                <TableHead>{t('Attached Ingredients')}</TableHead>
-                <TableHead>{t('Actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {menuCategories.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    {t('No categories found.')}
-                  </TableCell>
-                </TableRow>
+                <div className="text-center py-12">
+                  <p className="text-slate-500 mb-4">{t('No ingredients yet')}</p>
+                  <Link href={`/admin/ingredients/add?category=${activeTab}`}>
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('Add First Ingredient')}
+                    </Button>
+                  </Link>
+                </div>
               ) : (
-                menuCategories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{t(category.name)}</TableCell>
-                    <TableCell>{category.description ? t(category.description) : '-'}</TableCell>
+                <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('Name')}</TableHead>
+                      <TableHead>{t('Description')}</TableHead>
+                      <TableHead>{t('Price')}</TableHead>
+                      <TableHead>{t('Available')}</TableHead>
+                        <TableHead className="text-right">{t('Actions')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {filteredIngredients
+                        .sort((a, b) => a.sort_order - b.sort_order)
+                        .map((ingredient) => (
+                          <TableRow key={ingredient.id}>
+                            <TableCell className="font-medium">{t(ingredient.name)}</TableCell>
+                            <TableCell className="text-slate-500">
+                              {ingredient.description ? t(ingredient.description) : '-'}
+                        </TableCell>
+                            <TableCell>₪{(typeof ingredient.price === 'number' ? ingredient.price : parseFloat(String(ingredient.price)) || 0).toFixed(2)}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {categoryIngredientCounts[category.id] || 0} {t('ingredient')}{(categoryIngredientCounts[category.id] || 0) !== 1 ? 'ים' : ''}
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                ingredient.is_available 
+                                  ? 'bg-green-100 text-green-700' 
+                                  : 'bg-gray-100 text-gray-500'
+                              }`}>
+                                {ingredient.is_available ? t('Yes') : t('No')}
                       </span>
                     </TableCell>
-                    <TableCell>
-                      <Link href={`/admin/ingredients/configure/${category.id}`}>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="cursor-pointer"
-                        >
-                          <Settings className="ml-2 h-4 w-4" />
-                          {t('Configure')}
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openAttachments(ingredient.id)}
+                                  className="text-slate-700 hover:text-slate-900"
+                                  title={t('Manage Attachments')}
+                                >
+                                  <Link2 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setIngredientToAdd(ingredient.id);
+                                    fetchMenuItems();
+                                    setShowAddToMenuItemDialog(true);
+                                  }}
+                                  className="text-indigo-600 hover:text-indigo-700"
+                                  title={t('Add to Menu Item')}
+                                >
+                                  <Coffee className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setIngredientToAdd(ingredient.id);
+                                    fetchCategories();
+                                    setShowAddToCategoryDialog(true);
+                                  }}
+                                  className="text-purple-600 hover:text-purple-700"
+                                  title={t('Add to Category')}
+                                >
+                                  <FolderOpen className="h-4 w-4" />
+                                </Button>
+                                <Link href={`/admin/ingredients/edit/${ingredient.id}`}>
+                                  <Button variant="outline" size="sm">
+                                    <Pencil className="h-4 w-4" />
                         </Button>
                       </Link>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Ingredient Form - moved to separate page */}
-      {false && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-2xl">
-              {editingIngredient ? t('Edit Ingredient') : t('Add New Ingredient')}
-            </CardTitle>
-            <CardDescription className="text-base">
-              {editingIngredient
-                ? t('Update ingredient details')
-                : t('Create a new ingredient')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-6 py-4">
-            {/* Basic Information Section */}
-            <div className="space-y-4 pb-4 border-b">
-              <h3 className="text-lg font-semibold">{t('Basic Information')}</h3>
-              <div>
-                <Label htmlFor="name" className="text-base font-medium">{t('Name')} *</Label>
-                <Input
-                  id="name"
-                  value={ingredientForm.name}
-                  onChange={(e) =>
-                    setIngredientForm({ ...ingredientForm, name: e.target.value })
-                  }
-                  placeholder={t('e.g., Strawberry, Protein Powder, Chia Seeds')}
-                  className="mt-2 h-11"
-                />
-              </div>
-              <div>
-                <Label htmlFor="description" className="text-base font-medium">{t('Description')}</Label>
-                <Textarea
-                  id="description"
-                  value={ingredientForm.description}
-                  onChange={(e) =>
-                    setIngredientForm({ ...ingredientForm, description: e.target.value })
-                  }
-                  placeholder={t('Optional description')}
-                  className="mt-2 min-h-[100px]"
-                />
-              </div>
-            </div>
-
-            {/* Pricing & Category Section */}
-            <div className="space-y-4 pb-4 border-b">
-              <h3 className="text-lg font-semibold">{t('Pricing & Category')}</h3>
-              <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="price" className="text-base font-medium">{t('Base Price ($)')}</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={ingredientForm.price}
-                  onChange={(e) =>
-                    setIngredientForm({ ...ingredientForm, price: e.target.value })
-                  }
-                  className="mt-2 h-11"
-                />
-              </div>
-              <div>
-                <Label htmlFor="category" className="text-base font-medium">{t('Ingredient Category')}</Label>
-                <select
-                  id="category"
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background mt-2"
-                  value={ingredientForm.ingredient_category}
-                  onChange={(e) =>
-                    setIngredientForm({
-                      ...ingredientForm,
-                      ingredient_category: e.target.value as any,
-                    })
-                  }
-                >
-                  <option value="fruits">{t('Fruits')}</option>
-                  <option value="boosters">{t('Boosters')}</option>
-                  <option value="toppings">{t('Toppings')}</option>
-                </select>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {t('You can change this anytime. This only affects how ingredients are grouped in the admin panel. You can still attach any ingredient to any menu category.')}
-                </p>
-              </div>
-            </div>
-              <div>
-                <Label htmlFor="sort_order" className="text-base font-medium">{t('Sort Order')}</Label>
-                <Input
-                  id="sort_order"
-                  type="number"
-                  value={ingredientForm.sort_order}
-                  onChange={(e) =>
-                    setIngredientForm({ ...ingredientForm, sort_order: e.target.value })
-                  }
-                  placeholder="0"
-                  className="mt-2 h-11"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  {t('Lower numbers appear first. Controls display order in customer selection.')}
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-8">
-                <input
-                  type="checkbox"
-                  id="is_available"
-                  checked={ingredientForm.is_available}
-                  onChange={(e) =>
-                    setIngredientForm({
-                      ...ingredientForm,
-                      is_available: e.target.checked,
-                    })
-                  }
-                  className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer flex-shrink-0"
-                />
-                <Label htmlFor="is_available" className="text-base font-medium cursor-pointer">{t('Available')}</Label>
-              </div>
-            </div>
-
-            {/* Image Section */}
-            <div className="space-y-4 pb-4 border-b">
-              <h3 className="text-lg font-semibold">{t('Image')}</h3>
-              <div>
-                <Label htmlFor="image" className="text-base font-medium">{t('Image URL')}</Label>
-                <Input
-                  id="image"
-                  value={ingredientForm.image}
-                  onChange={(e) =>
-                    setIngredientForm({ ...ingredientForm, image: e.target.value })
-                  }
-                  placeholder={t('Image URL or use upload below')}
-                  className="mt-2 h-11"
-                />
-                <div className="mt-3">
-                  <ImageUpload
-                    value={ingredientForm.image}
-                    onChange={(url) =>
-                      setIngredientForm({ ...ingredientForm, image: url })
-                    }
-                    folder="ingredients"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Volume/Weight Options */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{t('Volume/Weight Options')}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t('Define volume or weight options (e.g., 100g, 250g, 1kg, 0.5L). Customers can choose from these when selecting this ingredient.')}
-                  </p>
-                </div>
                 <Button
-                  type="button"
-                  onClick={addVolumeOption}
                   variant="outline"
                   size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 h-10 px-4"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('Add Volume')}
-                </Button>
-              </div>
-              {volumeOptions.length === 0 ? (
-                <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed rounded-lg bg-gray-50">
-                  <p className="font-medium">{t('No volume options defined.')}</p>
-                  <p className="text-xs mt-2">{t('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {volumeOptions.map((vol, index) => (
-                    <div key={index} className="grid grid-cols-12 gap-3 p-4 border rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
-                      <div className="col-span-4">
-                        <Label htmlFor={`vol-${index}`} className="text-sm font-medium">{t('Volume/Weight')} *</Label>
-                        <Input
-                          id={`vol-${index}`}
-                          value={vol.volume}
-                          onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
-                          placeholder={t('e.g., 100g, 250g, 1kg')}
-                          className="mt-1.5 h-10"
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <Label htmlFor={`vol-price-${index}`} className="text-sm font-medium">{t('Price ($)')} *</Label>
-                        <Input
-                          id={`vol-price-${index}`}
-                          type="number"
-                          step="0.01"
-                          value={vol.price}
-                          onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
-                          placeholder="0.00"
-                          className="mt-1.5 h-10"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Label htmlFor={`vol-sort-${index}`} className="text-sm font-medium">{t('Sort Order')}</Label>
-                        <Input
-                          id={`vol-sort-${index}`}
-                          type="number"
-                          value={vol.sort_order}
-                          onChange={(e) => updateVolumeOption(index, 'sort_order', parseInt(e.target.value) || 0)}
-                          placeholder="0"
-                          className="mt-1.5 h-10"
-                        />
-                      </div>
-                      <div className="col-span-2 flex items-end pb-1">
-                        <div className="flex items-center gap-2.5">
-                          <input
-                            type="checkbox"
-                            id={`vol-default-${index}`}
-                            checked={vol.is_default}
-                            onChange={(e) => updateVolumeOption(index, 'is_default', e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-                          />
-                          <Label htmlFor={`vol-default-${index}`} className="text-sm font-medium cursor-pointer ml-1">
-                            {t('Default')}
-                          </Label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 flex items-end pb-1">
-                        <Button
-                          type="button"
-                          onClick={() => removeVolumeOption(index)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-10 w-10 p-0"
+                                  onClick={() => handleDelete(ingredient.id)}
+                                  className="text-red-600 hover:text-red-700"
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
                       </div>
-                    </div>
+                            </TableCell>
+                          </TableRow>
                   ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={() => {
-              setShowIngredientForm(false);
-              setEditingIngredient(null);
-              setVolumeOptions([]);
-            }}>
-              {t('Cancel')}
-            </Button>
-            <Button onClick={handleSaveIngredient}>
-              {editingIngredient ? t('Update') : t('Create')}
-            </Button>
-          </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Category Configuration Form - moved to separate page */}
-      {false && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{t('Configure Ingredients for')} {t(selectedCategory?.name || '')}</CardTitle>
-            <CardDescription>
-              {t('Attach ingredients to this category and configure their settings.')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label>{t('Available Ingredients')}</Label>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted-foreground">
-                    {t('You can add multiple ingredients. Click "Add" for each one you want to include.')}
-                  </p>
-                  {ingredients.filter(
-                    (ing) => !categoryConfigs.find((c) => c.ingredient_id === ing.id)
-                  ).length > 0 && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const availableIngredients = ingredients.filter(
-                          (ing) => !categoryConfigs.find((c) => c.ingredient_id === ing.id)
-                        );
-                        const newConfigs = availableIngredients.map(ing => {
-                          // Initialize volume_prices for each ingredient
-                          const initialVolumePrices: Record<string, number> = {};
-                          categoryVolumes.forEach(vol => {
-                            initialVolumePrices[vol.volume] = ing.price; // Use ingredient base price as default
-                          });
-                          
-                          return {
-                            category_id: selectedCategory!.id,
-                            category_name: selectedCategory!.name,
-                            ingredient_id: ing.id,
-                            ingredient_name: ing.name,
-                            selection_type: 'multiple' as 'single' | 'multiple',
-                            price_override: undefined,
-                            volume_prices: Object.keys(initialVolumePrices).length > 0 ? initialVolumePrices : undefined,
-                          };
-                        });
-                        setCategoryConfigs([...categoryConfigs, ...newConfigs]);
-                      }}
-                      className="text-xs"
-                    >
-                      <Plus className="h-3 w-3 ml-1" />
-                      {t('Add All Available')}
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div className="mt-2 space-y-2 max-h-60 overflow-y-auto border rounded-md p-4">
-                {ingredients
-                  .filter(
-                    (ing) =>
-                      !categoryConfigs.find((c) => c.ingredient_id === ing.id)
-                  )
-                  .sort((a, b) => {
-                    // Sort by category first, then by name
-                    if (a.ingredient_category !== b.ingredient_category) {
-                      return a.ingredient_category.localeCompare(b.ingredient_category);
-                    }
-                    return a.name.localeCompare(b.name);
-                  })
-                  .map((ingredient) => (
-                    <div
-                      key={ingredient.id}
-                      className="flex items-center justify-between p-2 hover:bg-muted rounded"
-                    >
-                      <div>
-                        <span className="font-medium">{t(ingredient.name)}</span>
-                        <span className="text-sm text-muted-foreground ml-2">
-                          ({t(ingredient.ingredient_category)}) - ${ingredient.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          console.log('Adding ingredient:', ingredient);
-                          handleAddIngredientToCategory(ingredient);
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                        title={`${t('Add')} ${t(ingredient.name)} ${t('to')} ${t(selectedCategory?.name || '')}`}
-                      >
-                        <Plus className="h-4 w-4 ml-1" />
-                        {t('Add')}
-                      </Button>
-                    </div>
-                  ))}
-                {ingredients.filter(
-                  (ing) => !categoryConfigs.find((c) => c.ingredient_id === ing.id)
-                ).length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    {t('All ingredients are already attached')}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label>{t('Attached Ingredients')} ({categoryConfigs.length})</Label>
-                <p className="text-xs text-muted-foreground">
-                  {t('All ingredients listed here will be available when customers select items from this category')}
-                </p>
-              </div>
-              <div className="mt-2 space-y-4">
-                {categoryConfigs.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    {t('No ingredients attached. Add ingredients from the list above.')}
-                  </p>
-                ) : (
-                  categoryConfigs.map((config) => {
-                    const ingredient = ingredients.find((i) => i.id === config.ingredient_id);
-                    return (
-                      <Card key={config.ingredient_id}>
-                        <CardContent className="pt-6">
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium">{t(config.ingredient_name)}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {t('Category')}: {t(ingredient?.ingredient_category || '')}
-                                </p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRemoveIngredientFromCategory(config.ingredient_id)}
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label>{t('Selection Type')}</Label>
-                                <select
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                  value={config.selection_type}
-                                  onChange={(e) =>
-                                    handleUpdateCategoryConfig(
-                                      config.ingredient_id,
-                                      'selection_type',
-                                      e.target.value
-                                    )
-                                  }
-                                >
-                                  <option value="multiple">{t('Multiple Choice (Recommended)')}</option>
-                                  <option value="single">{t('Single Choice (Choose One)')}</option>
-                                </select>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {config.selection_type === 'multiple' 
-                                    ? t('Customers can select multiple ingredients from this category')
-                                    : t('Customers can only select one ingredient from this category')}
-                                </p>
-                              </div>
-                              <div>
-                                <Label>{t('Base Price Override ($) - Optional')}</Label>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={config.price_override || ''}
-                                  onChange={(e) =>
-                                    handleUpdateCategoryConfig(
-                                      config.ingredient_id,
-                                      'price_override',
-                                      e.target.value ? parseFloat(e.target.value) : undefined
-                                    )
-                                  }
-                                  placeholder={`${t('Default')}: $${ingredient?.price.toFixed(2) || '0.00'}`}
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {t('Base price if volume prices are not set')}
-                                </p>
-                              </div>
-                            </div>
-                            
-                            {/* Price per Volume */}
-                            {categoryVolumes.length > 0 && (
-                              <div>
-                                <Label>{t('Price per Volume/Weight')}</Label>
-                                <p className="text-xs text-muted-foreground mb-2">
-                                  {t('Set the price for this ingredient for each category volume option:')}
-                                </p>
-                                <div className="grid grid-cols-2 gap-3">
-                                  {categoryVolumes.map((vol) => {
-                                    const currentPrice = config.volume_prices?.[vol.volume];
-                                    return (
-                                      <div key={vol.volume} className="flex items-center gap-2">
-                                        <Label className="w-20 text-sm">{vol.volume}:</Label>
-                                        <Input
-                                          type="number"
-                                          step="0.01"
-                                          value={currentPrice !== undefined ? currentPrice : ''}
-                                          onChange={(e) => {
-                                            const value = e.target.value;
-                                            handleUpdateIngredientVolumePrice(
-                                              config.ingredient_id,
-                                              vol.volume,
-                                              value && value !== '' ? parseFloat(value) : undefined
-                                            );
-                                          }}
-                                          placeholder={`$${ingredient?.price.toFixed(2) || '0.00'}`}
-                                          className="flex-1"
-                                        />
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  {t('If a price is not set for a volume, the base price override (or ingredient base price) will be used.')}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={() => {
-              setShowCategoryConfigForm(false);
-              setSelectedCategory(null);
-            }}>
-              {t('Cancel')}
-            </Button>
-            <Button onClick={handleSaveCategoryConfig}>{t('Save Configuration')}</Button>
-          </div>
-          </CardContent>
-        </Card>
-      )}
+        </TabsContent>
+      </Tabs>
 
       <ConfirmDialog
         open={confirmDialog.open}
@@ -1519,7 +581,205 @@ export default function AdminIngredients() {
         message={alertDialog.message}
         type={alertDialog.type}
       />
+
+      {/* Dialog for selecting menu item to add ingredient */}
+      <Dialog open={showAddToMenuItemDialog} onOpenChange={setShowAddToMenuItemDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('Select Menu Item')}</DialogTitle>
+            <DialogDescription>
+              {t('Select a menu item to add the ingredient to')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-4 max-h-[400px] overflow-y-auto">
+            {menuItems.length === 0 ? (
+              <p className="text-center text-slate-400 py-8">{t('No menu items found')}</p>
+            ) : (
+              menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleAddIngredientToMenuItem(item.id)}
+                  className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-slate-900">{t(item.name)}</p>
+                      {item.category_name && (
+                        <p className="text-xs text-slate-500">{t(item.category_name)}</p>
+                      )}
+                    </div>
+                    <Coffee className="h-4 w-4 text-slate-400" />
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAddToMenuItemDialog(false);
+                setIngredientToAdd(null);
+              }}
+            >
+              {t('Cancel')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for selecting category to add ingredient */}
+      <Dialog open={showAddToCategoryDialog} onOpenChange={setShowAddToCategoryDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('Select Category')}</DialogTitle>
+            <DialogDescription>
+              {t('Select a category to add the ingredient to')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-4 max-h-[400px] overflow-y-auto">
+            {categories.length === 0 ? (
+              <p className="text-center text-slate-400 py-8">{t('No categories found')}</p>
+            ) : (
+              categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleAddIngredientToCategory(category.id)}
+                  className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FolderOpen className="h-5 w-5 text-slate-400" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-slate-900">{t(category.name)}</p>
+                      {category.description && (
+                        <p className="text-xs text-slate-500">{t(category.description)}</p>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAddToCategoryDialog(false);
+                setIngredientToAdd(null);
+              }}
+            >
+              {t('Cancel')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for managing attachments (detach) */}
+      <Dialog open={showAttachmentsDialog} onOpenChange={setShowAttachmentsDialog}>
+        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('Manage Attachments')}</DialogTitle>
+            <DialogDescription>
+              {t('Detach this ingredient from categories or menu items')}
+            </DialogDescription>
+          </DialogHeader>
+
+          {attachmentsLoading ? (
+            <div className="py-10">
+              <LoadingSpinner size="md" text={t('Loading...')} />
+            </div>
+          ) : (
+            <div className="space-y-6 py-4">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">{t('Categories')}</h3>
+                {attachedCategories.length === 0 ? (
+                  <p className="text-sm text-slate-500">{t('No categories attached')}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {attachedCategories.map((c) => (
+                      <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
+                        <div>
+                          <p className="font-medium text-sm text-slate-900">{t(c.name)}</p>
+                          {c.description && <p className="text-xs text-slate-500">{t(c.description)}</p>}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => detachFromCategory(c.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title={t('Detach')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">{t('Menu Items')}</h3>
+                {attachedMenuItems.length === 0 ? (
+                  <p className="text-sm text-slate-500">{t('No menu items attached')}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {attachedMenuItems.map((i) => (
+                      <div key={i.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
+                        <div className="flex items-center gap-3">
+                          {i.image && (
+                            <img
+                              src={i.image}
+                              alt={i.name}
+                              className="w-10 h-10 object-cover rounded-lg"
+                            />
+                          )}
+                          <div>
+                            <p className="font-medium text-sm text-slate-900">{t(i.name)}</p>
+                            {i.category_name && <p className="text-xs text-slate-500">{t(i.category_name)}</p>}
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => detachFromMenuItem(i.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title={t('Detach')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAttachmentsDialog(false);
+                setIngredientToAdd(null);
+              }}
+            >
+              {t('Close')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

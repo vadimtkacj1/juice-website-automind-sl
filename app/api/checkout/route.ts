@@ -19,7 +19,10 @@ function calculateTotal(items: CartItem[]): number {
     const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal, ing) => 
       ingTotal + ing.price * item.quantity, 0
     );
-    return sum + itemPrice + ingredientsPrice;
+    const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) =>
+      addTotal + addItem.price * item.quantity, 0
+    );
+    return sum + itemPrice + ingredientsPrice + additionalItemsPrice;
   }, 0);
 }
 
@@ -76,7 +79,10 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
       const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal, ing) => 
         ingTotal + ing.price * item.quantity, 0
       );
-      return sum + itemPrice + ingredientsPrice;
+      const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) =>
+        addTotal + addItem.price * item.quantity, 0
+      );
+      return sum + itemPrice + ingredientsPrice + additionalItemsPrice;
     }, 0);
     
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;

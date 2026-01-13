@@ -7,10 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Trash } from 'lucide-react';
+import { ArrowLeft, Plus, Trash, ChefHat, X } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Category {
   id: number;
@@ -39,6 +47,17 @@ interface VolumeOption {
   sort_order: number;
 }
 
+interface Ingredient {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  image?: string;
+  ingredient_category: 'boosters' | 'fruits' | 'toppings';
+  is_available: boolean;
+  sort_order: number;
+}
+
 export default function EditMenuItem() {
   const router = useRouter();
   const params = useParams();
@@ -48,6 +67,9 @@ export default function EditMenuItem() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>([]);
+  const [showIngredientDialog, setShowIngredientDialog] = useState(false);
   const [form, setForm] = useState({
     category_id: '',
     name: '',
@@ -80,9 +102,10 @@ export default function EditMenuItem() {
   async function fetchMenuItem(itemId: number) {
     setInitialLoading(true);
     try {
-      const [itemResponse, volumesResponse] = await Promise.all([
+      const [itemResponse, volumesResponse, ingredientsResponse] = await Promise.all([
         fetch(`/api/menu-items/${itemId}`),
-        fetch(`/api/menu-items/${itemId}/volumes`)
+        fetch(`/api/menu-items/${itemId}/volumes`),
+        fetch(`/api/menu-items/${itemId}/custom-ingredients`)
       ]);
       
       if (!itemResponse.ok) {
@@ -135,7 +158,19 @@ export default function EditMenuItem() {
         }]);
       }
 
-      // Fetch additional items
+      // Fetch ingredients
+      if (ingredientsResponse.ok) {
+        const ingredientsData = await ingredientsResponse.json();
+        const itemIngredients = ingredientsData.ingredients || [];
+        setSelectedIngredientIds(itemIngredients.map((ing: any) => ing.id));
+      }
+
+      // Fetch all available ingredients
+      const allIngredientsResponse = await fetch('/api/custom-ingredients?include_inactive=true');
+      if (allIngredientsResponse.ok) {
+        const allIngredientsData = await allIngredientsResponse.json();
+        setIngredients(allIngredientsData.ingredients || []);
+      }
     } catch (error) {
       console.error('Error fetching menu item:', error);
       alert(t('Error loading menu item'));
@@ -210,6 +245,19 @@ export default function EditMenuItem() {
         return;
       }
 
+      // Update ingredients
+      const ingredientsResponse = await fetch(`/api/menu-items/${id}/custom-ingredients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredient_ids: selectedIngredientIds })
+      });
+
+      if (!ingredientsResponse.ok) {
+        const data = await ingredientsResponse.json();
+        console.error('Error updating ingredients:', data);
+        // Don't fail the whole update if ingredients fail
+      }
+
       router.push('/admin/menu');
     } catch (error) {
       console.error('Error updating item:', error);
@@ -253,6 +301,46 @@ export default function EditMenuItem() {
     }
     setVolumeOptions(newVolumes);
   }
+
+  function toggleIngredient(ingredientId: number) {
+    if (selectedIngredientIds.includes(ingredientId)) {
+      setSelectedIngredientIds(selectedIngredientIds.filter(id => id !== ingredientId));
+    } else {
+      setSelectedIngredientIds([...selectedIngredientIds, ingredientId]);
+    }
+  }
+
+  async function removeIngredient(ingredientId: number) {
+    if (!id) return;
+    
+    // Store previous state for potential rollback
+    const previousIds = [...selectedIngredientIds];
+    
+    // Remove from local state immediately for better UX
+    setSelectedIngredientIds(prev => prev.filter(id => id !== ingredientId));
+    
+    try {
+      // Also remove from database
+      const response = await fetch(`/api/menu-items/${id}/custom-ingredients?ingredient_id=${ingredientId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        // If API call failed, restore the ingredient in the list
+        setSelectedIngredientIds(previousIds);
+        const errorData = await response.json();
+        alert(errorData.error || t('Failed to remove ingredient'));
+      }
+    } catch (error) {
+      // If error, restore the ingredient in the list
+      setSelectedIngredientIds(previousIds);
+      console.error('Error removing ingredient:', error);
+      alert(t('Failed to remove ingredient'));
+    }
+  }
+
+  const availableIngredients = ingredients.filter(ing => ing.is_available);
+  const selectedIngredients = ingredients.filter(ing => selectedIngredientIds.includes(ing.id));
 
 
   if (initialLoading) {
@@ -387,6 +475,80 @@ export default function EditMenuItem() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
+                <CardTitle>{t('Ingredients')}</CardTitle>
+                <CardDescription>
+                  {t('Add ingredients that customers can select when ordering this item')}
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={() => setShowIngredientDialog(true)}
+                variant="outline"
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600"
+              >
+                <ChefHat className="h-4 w-4 mr-2" />
+                {t('Manage Ingredients')}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {selectedIngredients.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">{t('No ingredients added yet')}</p>
+                <Button
+                  type="button"
+                  onClick={() => setShowIngredientDialog(true)}
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t('Add Ingredients')}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {selectedIngredients.map((ingredient) => (
+                  <div
+                    key={ingredient.id}
+                    className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      {ingredient.image && (
+                        <img
+                          src={ingredient.image}
+                          alt={ingredient.name}
+                          className="w-10 h-10 object-cover rounded-lg"
+                        />
+                      )}
+                      <div>
+                        <p className="font-medium text-sm">{t(ingredient.name)}</p>
+                        <p className="text-xs text-gray-500">
+                          {t(ingredient.ingredient_category)} • ₪{(typeof ingredient.price === 'number' ? ingredient.price : parseFloat(String(ingredient.price)) || 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => removeIngredient(ingredient.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
                 <CardTitle>{t('Price & Volume Options')}</CardTitle>
                 <CardDescription>
                   {t('Configure prices and volumes for this item. At least one option is required. Customers will choose from these when ordering.')}
@@ -491,6 +653,75 @@ export default function EditMenuItem() {
           </Link>
         </div>
       </form>
+
+      {/* Dialog for managing ingredients */}
+      <Dialog open={showIngredientDialog} onOpenChange={setShowIngredientDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('Manage Ingredients')}</DialogTitle>
+            <DialogDescription>
+              {t('Select ingredients that customers can add to this menu item')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">{t('Available Ingredients')}</Label>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto border rounded-lg p-3">
+                {availableIngredients.length === 0 ? (
+                  <p className="text-center text-gray-500 py-4 text-sm">{t('No ingredients available')}</p>
+                ) : (
+                  availableIngredients.map((ingredient) => {
+                    const isSelected = selectedIngredientIds.includes(ingredient.id);
+                    return (
+                      <button
+                        key={ingredient.id}
+                        type="button"
+                        onClick={() => toggleIngredient(ingredient.id)}
+                        className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                          isSelected
+                            ? 'border-indigo-500 bg-indigo-50'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}}
+                            className="w-4 h-4 text-indigo-600"
+                          />
+                          {ingredient.image && (
+                            <img
+                              src={ingredient.image}
+                              alt={ingredient.name}
+                              className="w-10 h-10 object-cover rounded-lg"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{t(ingredient.name)}</p>
+                            <p className="text-xs text-gray-500">
+                              {t(ingredient.ingredient_category)} • ₪{ingredient.price.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowIngredientDialog(false)}
+            >
+              {t('Done')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -252,7 +252,7 @@ export default function Cart() {
                                   {item.customIngredients.map((ingredient, idx) => (
                                     <span key={ingredient.id}>
                                       {ingredient.name}
-                                      {ingredient.price > 0 && ` (+₪${ingredient.price.toFixed(0)})`}
+                                      {ingredient.price > 0 && ` (+₪${(typeof ingredient.price === 'number' ? ingredient.price : parseFloat(String(ingredient.price)) || 0).toFixed(0)})`}
                                       {idx < item.customIngredients!.length - 1 && ', '}
                                     </span>
                                   ))}
@@ -269,7 +269,7 @@ export default function Cart() {
                                       + {translateToHebrew(addItem.name)}
                                     </span>
                                     <span className={styles.cartItemAddonPrice}>
-                                      +₪{addItem.price.toFixed(0)}
+                                      +₪{(typeof addItem.price === 'number' ? addItem.price : parseFloat(String(addItem.price)) || 0).toFixed(0)}
                                     </span>
                                   </div>
                                 ))}

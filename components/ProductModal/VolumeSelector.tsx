@@ -38,9 +38,19 @@ export default function VolumeSelector({
       <div className={styles['volume-grid']}>
         {volumeOptions.map((vol, index) => {
           const isSelected = selectedVolume === vol.volume;
+          // Ensure price is a number
+          const numPrice = typeof vol.price === 'number' 
+            ? vol.price 
+            : (typeof vol.price === 'string' ? parseFloat(vol.price) : 0) || 0;
+          
           const volPrice = discountPercent > 0
-            ? vol.price * (1 - discountPercent / 100)
-            : vol.price;
+            ? numPrice * (1 - discountPercent / 100)
+            : numPrice;
+          
+          // Ensure volPrice is a number before calling toFixed
+          const finalPrice = typeof volPrice === 'number' && !isNaN(volPrice) 
+            ? volPrice 
+            : 0;
           
           return (
             <div key={vol.volume} className={styles['volume-option']}>
@@ -61,7 +71,7 @@ export default function VolumeSelector({
                   {translateToHebrew(vol.volume)}
                 </span>
                 <span className={styles['volume-price']}>
-                  ₪{volPrice.toFixed(0)}
+                  ₪{finalPrice.toFixed(0)}
                 </span>
               </div>
             </div>

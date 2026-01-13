@@ -24,7 +24,7 @@ export async function GET(
           mici.price_override
         FROM custom_ingredients ci
         INNER JOIN menu_item_custom_ingredients mici ON ci.id = mici.custom_ingredient_id
-        WHERE mici.menu_item_id = ? AND ci.is_available = 1
+        WHERE mici.menu_item_id = ? AND (ci.is_available = 1 OR ci.is_available = true)
         ORDER BY ci.ingredient_category, ci.sort_order, ci.name`,
         [id],
         (err: any, rows: any[]) => {
@@ -33,6 +33,7 @@ export async function GET(
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));
             return;
           }
+          console.log(`[GET /api/menu-items/${id}/custom-ingredients] Found ${rows?.length || 0} ingredients`);
           resolve(NextResponse.json({ ingredients: rows || [] }));
         }
       );
@@ -106,6 +107,7 @@ export async function POST(
                 resolve(NextResponse.json({ error: err.message }, { status: 500 }));
                 return;
               }
+              console.log(`[POST /api/menu-items/${id}/custom-ingredients] Successfully added ${ingredient_ids.length} ingredients`);
               resolve(NextResponse.json({ success: true, ingredients: ingredient_ids }));
             }
           );
@@ -121,3 +123,51 @@ export async function POST(
   }
 }
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const ingredientId = searchParams.get('ingredient_id');
+
+    if (!ingredientId) {
+      return NextResponse.json(
+        { error: 'ingredient_id parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    const getDatabase = require('@/lib/database');
+    const db = getDatabase();
+    
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
+
+    return new Promise<NextResponse>((resolve) => {
+      db.run(
+        'DELETE FROM menu_item_custom_ingredients WHERE menu_item_id = ? AND custom_ingredient_id = ?',
+        [id, ingredientId],
+        function (this: any, err: any) {
+          if (err) {
+            console.error('Database error:', err);
+            resolve(NextResponse.json({ error: err.message }, { status: 500 }));
+            return;
+          }
+          resolve(NextResponse.json({ success: true, message: 'Ingredient removed successfully' }));
+        }
+      );
+    });
+  } catch (error: any) {
+    console.error('API error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

@@ -378,100 +378,240 @@
   color: var(--modal-accent);
 }
 
-/* --- Ingredients Grid --- */
-.ingredient-category {
-  margin-bottom: 20px;
+/* ============================================
+   НОВЫЕ СТИЛИ ДЛЯ СЕКЦИИ ИНГРЕДИЕНТОВ
+   ============================================ */
+
+/* Контейнер всей секции */
+.ingredients-section-container {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid var(--modal-bg-secondary);
+  direction: rtl; /* Важно для иврита */
 }
 
-.ingredient-description {
+.section-title {
+  font-family: var(--font-family);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--modal-text-primary);
+}
+
+.section-description {
   font-family: var(--font-family);
   font-size: 14px;
   color: var(--modal-text-secondary);
-  margin: 0 0 20px;
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
-.category-title {
-  font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--modal-text-primary);
+/* --- Заголовки категорий --- */
+.category-group {
+  margin-bottom: 24px;
+}
+
+.category-header {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.selection-hint {
   font-family: var(--font-family);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--modal-text-primary);
+}
+
+.category-header svg {
+  color: var(--modal-accent);
+}
+
+.hint-text {
+  font-size: 12px;
+  font-weight: 400;
   color: var(--modal-text-secondary);
-  background: var(--modal-bg-secondary);
-  padding: 2px 8px;
-  border-radius: 12px;
+  margin-right: 4px;
 }
 
-.ingredients-list {
+/* --- Сетка карточек (Grid) --- */
+.ingredients-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  /* Карточки будут минимум 110px шириной и заполнят ряд */
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
 }
 
-.ingredient-item {
-  border: 1.5px solid var(--modal-border);
-  border-radius: 12px;
-  padding: 12px 14px;
+/* --- Сама карточка ингредиента --- */
+.ingredient-card {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid var(--modal-border);
+  border-radius: 16px;
+  padding: 16px 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column; /* Вертикальный стек */
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none; /* Чтобы текст не выделялся при частых кликах */
+}
+
+/* Эффект при наведении */
+.ingredient-card:hover {
+  border-color: rgba(29, 26, 64, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+/* Состояние "Выбрано" */
+.ingredient-card.is-selected {
+  border-color: var(--modal-accent);
+  background: rgba(29, 26, 64, 0.03); /* Легкий фон цвета акцента */
+  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.1);
+}
+
+/* --- Скрытый инпут --- */
+.hidden-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* --- Бейдж с галочкой --- */
+.selection-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: var(--modal-accent);
+  color: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: white;
+  justify-content: center;
+  z-index: 2;
+  animation: popIn 0.2s ease-out;
 }
 
-.ingredient-item:hover {
-  border-color: rgba(29, 26, 64, 0.3);
-  background: var(--modal-bg-secondary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.06);
+@keyframes popIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 
-.ingredient-item-selected,
-.ingredient-item:has(input:checked) {
-  border-color: var(--modal-accent);
-  border-width: 2px;
-  background: rgba(29, 26, 64, 0.05);
-  box-shadow: 0 3px 10px rgba(29, 26, 64, 0.08);
-  transform: translateY(-1px);
+/* --- Обёртка для картинки (Фиксированный размер!) --- */
+.card-image-wrapper {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ingredient-checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--modal-accent);
-  cursor: pointer;
-  flex-shrink: 0;
+/* Сама картинка */
+.card-img {
+  /* Важно: переопределяем стили Next/Image */
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important; /* Вписываем картинку, не обрезая */
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));
+  transition: transform 0.3s ease;
 }
 
-.ingredient-info {
+.ingredient-card:hover .card-img {
+  transform: scale(1.08);
+}
+
+.card-emoji {
+  font-size: 40px;
+}
+
+/* --- Текстовый блок --- */
+.card-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
+  gap: 4px;
+  width: 100%;
 }
 
-.ingredient-name {
+.card-name {
   font-family: var(--font-family);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--modal-text-primary);
+  line-height: 1.2;
+  /* Обрезаем длинный текст троеточием */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0 4px;
 }
 
-.ingredient-price {
+.card-price {
+  font-family: var(--font-family);
   font-size: 12px;
+  font-weight: 700;
+  color: var(--modal-accent);
+}
+
+/* --- Адаптив для мобильных --- */
+@media (max-width: 480px) {
+  .ingredients-grid {
+    grid-template-columns: repeat(2, 1fr); /* Две колонки */
+    gap: 10px;
+  }
+  
+  .ingredient-card {
+    padding: 12px 6px;
+  }
+
+  .card-image-wrapper {
+    width: 60px; /* Чуть меньше картинки на мобилках */
+    height: 60px;
+  }
+}
+
+/* --- Ingredient Volume Selector --- */
+.ingredient-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-volume-selector {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 0 30px;
+  flex-wrap: wrap;
+}
+
+.volume-option-btn {
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1.5px solid var(--modal-border);
+  border-radius: 8px;
+  background: white;
   color: var(--modal-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.volume-option-btn:hover {
+  border-color: rgba(29, 26, 64, 0.3);
+  background: var(--modal-bg-secondary);
+}
+
+.volume-option-selected {
+  border-color: var(--modal-accent);
+  background: rgba(29, 26, 64, 0.05);
+  color: var(--modal-accent);
+  font-weight: 700;
 }
 
 /* --- Additional Options --- */

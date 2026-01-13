@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,24 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 import { AlertDialog } from '@/components/ui/alert-dialog';
-
-interface VolumeOption {
-  volume: string;
-  price: number;
-  is_default: boolean;
-  sort_order: number;
-}
 
 export default function AddIngredient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t, language } = useAdminLanguage();
   const [loading, setLoading] = useState(false);
-  const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
   const [alertDialog, setAlertDialog] = useState<{
     open: boolean;
     title: string;
@@ -48,35 +40,6 @@ export default function AddIngredient() {
     is_available: true,
     sort_order: '0',
   });
-
-  function addVolumeOption() {
-    setVolumeOptions([...volumeOptions, {
-      volume: '',
-      price: parseFloat(form.price) || 0,
-      is_default: volumeOptions.length === 0,
-      sort_order: volumeOptions.length
-    }]);
-  }
-
-  function removeVolumeOption(index: number) {
-    const newVolumes = volumeOptions.filter((_, i) => i !== index);
-    if (newVolumes.length > 0 && volumeOptions[index].is_default) {
-      newVolumes[0].is_default = true;
-    }
-    setVolumeOptions(newVolumes);
-  }
-
-  function updateVolumeOption(index: number, field: keyof VolumeOption, value: any) {
-    const newVolumes = [...volumeOptions];
-    if (field === 'is_default' && value) {
-      newVolumes.forEach((v, i) => {
-        v.is_default = i === index;
-      });
-    } else {
-      newVolumes[index] = { ...newVolumes[index], [field]: value };
-    }
-    setVolumeOptions(newVolumes);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -113,30 +76,14 @@ export default function AddIngredient() {
         throw new Error(error.error || t('Failed to save ingredient'));
       }
 
-      const responseData = await response.json();
-      const ingredientId = responseData.id;
-
-      // Save volume options
-      if (ingredientId && volumeOptions.length > 0) {
-        const volumesResponse = await fetch(`/api/custom-ingredients/${ingredientId}/volumes`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ volumes: volumeOptions })
-        });
-
-        if (!volumesResponse.ok) {
-          const error = await volumesResponse.json();
-          throw new Error(error.error || t('Failed to save volume options'));
-        }
-      }
-
+      const result = await response.json();
+      
       setAlertDialog({
         open: true,
         title: t('Success'),
         message: t('Ingredient created successfully!'),
         type: 'success',
       });
-
       setTimeout(() => {
         router.push('/admin/ingredients');
       }, 1500);
@@ -152,7 +99,7 @@ export default function AddIngredient() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6" dir={language}>
+    <div className="space-y-6" dir={language}>
       <div className="flex items-center gap-4">
         <Link href="/admin/ingredients">
           <Button variant="ghost" size="icon">
@@ -160,8 +107,8 @@ export default function AddIngredient() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">{t('Add New Ingredient')}</h1>
-          <p className="text-muted-foreground mt-1">{t('Create a new ingredient')}</p>
+          <h1 className="text-2xl font-semibold text-slate-900">{t('Add New Ingredient')}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{t('Create a new ingredient')}</p>
         </div>
       </div>
 
@@ -195,7 +142,7 @@ export default function AddIngredient() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="price">{t('Base Price ($)')}</Label>
+                <Label htmlFor="price">{t('Price (₪)')}</Label>
                 <Input
                   id="price"
                   type="number"
@@ -206,7 +153,7 @@ export default function AddIngredient() {
                 />
               </div>
               <div>
-                <Label htmlFor="category">{t('Ingredient Category')}</Label>
+                <Label htmlFor="category">{t('Category')} ({t('Optional')})</Label>
                 <select
                   id="category"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background mt-2"
@@ -217,6 +164,9 @@ export default function AddIngredient() {
                   <option value="boosters">{t('Boosters')}</option>
                   <option value="toppings">{t('Toppings')}</option>
                 </select>
+                <p className="text-sm text-slate-500 mt-1">
+                  {t('Category is optional. Ingredients can be attached to menu items or categories later.')}
+                </p>
               </div>
             </div>
             <div>
@@ -229,8 +179,8 @@ export default function AddIngredient() {
                 placeholder="0"
                 className="mt-2"
               />
-              <p className="text-sm text-muted-foreground mt-2">
-                {t('Lower numbers appear first. Controls display order in customer selection.')}
+              <p className="text-sm text-slate-500 mt-1">
+                {t('Lower numbers appear first')}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -239,7 +189,7 @@ export default function AddIngredient() {
                 id="is_available"
                 checked={form.is_available}
                 onChange={(e) => setForm({ ...form, is_available: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
               />
               <Label htmlFor="is_available" className="cursor-pointer">{t('Available')}</Label>
             </div>
@@ -272,89 +222,13 @@ export default function AddIngredient() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>{t('Volume/Weight Options')}</CardTitle>
-                <CardDescription>
-                  {t('Define volume or weight options (e.g., 100g, 250g, 1kg, 0.5L). Customers can choose from these when selecting this ingredient.')}
-                </CardDescription>
-              </div>
-              <Button
-                type="button"
-                onClick={addVolumeOption}
-                variant="outline"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {t('Add Volume')}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {volumeOptions.length === 0 ? (
-              <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed rounded-lg bg-gray-50">
-                <p className="font-medium">{t('No volume options defined.')}</p>
-                <p className="text-xs mt-2">{t('Click "Add Volume" to create options like "100g", "250g", "1kg", etc.')}</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {volumeOptions.map((vol, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-3 p-4 border rounded-lg bg-gray-50/50">
-                    <div className="col-span-4">
-                      <Label>{t('Volume/Weight')} *</Label>
-                      <Input
-                        value={vol.volume}
-                        onChange={(e) => updateVolumeOption(index, 'volume', e.target.value)}
-                        placeholder={t('e.g., 100g, 250g, 1kg')}
-                        className="mt-1.5"
-                      />
-                    </div>
-                    <div className="col-span-3">
-                      <Label>{t('Price ($)')} *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={vol.price}
-                        onChange={(e) => updateVolumeOption(index, 'price', parseFloat(e.target.value) || 0)}
-                        className="mt-1.5"
-                      />
-                    </div>
-                    <div className="col-span-3 flex items-center gap-2 pt-7">
-                      <input
-                        type="checkbox"
-                        checked={vol.is_default}
-                        onChange={(e) => updateVolumeOption(index, 'is_default', e.target.checked)}
-                        className="h-4 w-4"
-                      />
-                      <Label className="text-sm">{t('Default')}</Label>
-                    </div>
-                    <div className="col-span-2 flex items-end">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeVolumeOption(index)}
-                        className="w-full"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         <div className="flex justify-end gap-2">
           <Link href="/admin/ingredients">
             <Button type="button" variant="outline">
               {t('Cancel')}
             </Button>
           </Link>
-          <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white">
             {loading ? t('Saving...') : t('Create')}
           </Button>
         </div>
@@ -370,4 +244,3 @@ export default function AddIngredient() {
     </div>
   );
 }
-

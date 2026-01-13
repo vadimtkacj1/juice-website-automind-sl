@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,14 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface MenuItem {
   id: number;
@@ -37,6 +46,8 @@ interface MenuCategory {
 }
 
 export default function AdminMenu() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, language } = useAdminLanguage();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -52,6 +63,8 @@ export default function AdminMenu() {
     is_active: true 
   });
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
+  const [showAddIngredientDialog, setShowAddIngredientDialog] = useState(false);
+  const [ingredientToAdd, setIngredientToAdd] = useState<number | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -78,6 +91,19 @@ export default function AdminMenu() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const addIngredient = searchParams?.get('addIngredient');
+    if (addIngredient) {
+      const ingredientId = parseInt(addIngredient);
+      if (!isNaN(ingredientId)) {
+        setIngredientToAdd(ingredientId);
+        setShowAddIngredientDialog(true);
+        // Remove the parameter from URL
+        router.replace('/admin/menu', { scroll: false });
+      }
+    }
+  }, [searchParams, router]);
 
   async function fetchData() {
     try {
@@ -292,6 +318,70 @@ export default function AdminMenu() {
         open: true,
         title: t('Error'),
         message: t('An error occurred while saving the category.'),
+        type: 'error',
+      });
+    }
+  }
+
+  async function handleAddIngredientToItem(itemId: number) {
+    if (!ingredientToAdd) return;
+
+    try {
+      // First, get current ingredients for this item
+      const currentResponse = await fetch(`/api/menu-items/${itemId}/custom-ingredients`);
+      const currentData = await currentResponse.json();
+      const currentIngredientIds = (currentData.ingredients || []).map((ing: any) => ing.id);
+      
+      // Add the new ingredient if it's not already there
+      if (!currentIngredientIds.includes(ingredientToAdd)) {
+        const newIngredientIds = [...currentIngredientIds, ingredientToAdd];
+        
+        const response = await fetch(`/api/menu-items/${itemId}/custom-ingredients`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ingredient_ids: newIngredientIds })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Ingredient added successfully:', result);
+          
+          // Refresh the menu items to show updated ingredients
+          fetchMenu();
+          
+          setShowAddIngredientDialog(false);
+          setIngredientToAdd(null);
+          setAlertDialog({
+            open: true,
+            title: t('Success'),
+            message: t('Ingredient added to menu item successfully!'),
+            type: 'success',
+          });
+        } else {
+          const data = await response.json();
+          setAlertDialog({
+            open: true,
+            title: t('Error'),
+            message: data.error || t('Failed to add ingredient to menu item.'),
+            type: 'error',
+          });
+        }
+      } else {
+        setShowAddIngredientDialog(false);
+        setIngredientToAdd(null);
+        setAlertDialog({
+          open: true,
+          title: t('Info'),
+          message: t('This ingredient is already added to this menu item.'),
+          type: 'info',
+        });
+      }
+    } catch (error) {
+      console.error('Error adding ingredient to item:', error);
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: t('An error occurred while adding the ingredient.'),
         type: 'error',
       });
     }
@@ -676,6 +766,58 @@ export default function AdminMenu() {
         message={alertDialog.message}
         type={alertDialog.type}
       />
+
+      {/* Dialog for selecting menu item to add ingredient */}
+      <Dialog open={showAddIngredientDialog} onOpenChange={setShowAddIngredientDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('Select Menu Item')}</DialogTitle>
+            <DialogDescription>
+              {t('Select a menu item to add the ingredient to')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-4 max-h-[400px] overflow-y-auto">
+            {items.length === 0 ? (
+              <p className="text-center text-slate-400 py-8">{t('No menu items found')}</p>
+            ) : (
+              items.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleAddIngredientToItem(item.id)}
+                  className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-slate-900">{t(item.name)}</p>
+                      <p className="text-xs text-slate-500">{t(item.category_name)}</p>
+                    </div>
+                    <Coffee className="h-4 w-4 text-slate-400" />
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAddIngredientDialog(false);
+                setIngredientToAdd(null);
+              }}
+            >
+              {t('Cancel')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

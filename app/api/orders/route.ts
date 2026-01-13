@@ -84,8 +84,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate total
-    const total_amount = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+    // Calculate total (include custom ingredients / additional items if provided)
+    const total_amount = items.reduce((sum: number, item: any) => {
+      const base = (Number(item.price) || 0) * (Number(item.quantity) || 0);
+      const ingredients = Array.isArray(item.customIngredients) ? item.customIngredients : [];
+      const additional = Array.isArray(item.additionalItems) ? item.additionalItems : [];
+      const ingredientsTotal = ingredients.reduce((t: number, ing: any) => t + (Number(ing.price) || 0) * (Number(item.quantity) || 0), 0);
+      const additionalTotal = additional.reduce((t: number, add: any) => t + (Number(add.price) || 0) * (Number(item.quantity) || 0), 0);
+      return sum + base + ingredientsTotal + additionalTotal;
+    }, 0);
 
     // Create order
     const orderResult = await dbRun(
@@ -97,13 +104,35 @@ export async function POST(request: NextRequest) {
 
     const orderId = orderResult.lastID;
 
-    // Insert order items
+    // Insert order items (store readable description so courier sees extras)
     for (const item of items) {
+      const qty = Number(item.quantity) || 0;
+      const basePrice = Number(item.price) || 0;
+      const ingredients = Array.isArray(item.customIngredients) ? item.customIngredients : [];
+      const additional = Array.isArray(item.additionalItems) ? item.additionalItems : [];
+
+      const ingredientsPrice = ingredients.reduce((t: number, ing: any) => t + (Number(ing.price) || 0), 0);
+      const additionalItemsPrice = additional.reduce((t: number, add: any) => t + (Number(add.price) || 0), 0);
+      const itemTotalPrice = basePrice + ingredientsPrice + additionalItemsPrice;
+
+      let itemName = item.item_name || item.product_name || item.name || 'Item';
+      if (item.volume) {
+        itemName += ` (${item.volume})`;
+      }
+      if (ingredients.length > 0) {
+        const list = ingredients.map((ing: any) => ing.name).filter(Boolean).join(', ');
+        if (list) itemName += ` [Ingredients: ${list}]`;
+      }
+      if (additional.length > 0) {
+        const list = additional.map((a: any) => a.name).filter(Boolean).map((n: string) => `+${n}`).join(', ');
+        if (list) itemName += ` [${list}]`;
+      }
+
       await dbRun(
         db,
         `INSERT INTO order_items (order_id, menu_item_id, item_name, quantity, price)
          VALUES (?, ?, ?, ?, ?)`,
-        [orderId, item.menu_item_id || item.product_id, item.item_name || item.product_name, item.quantity, item.price]
+        [orderId, item.menu_item_id || item.product_id || item.id, itemName, qty, itemTotalPrice]
       );
     }
 

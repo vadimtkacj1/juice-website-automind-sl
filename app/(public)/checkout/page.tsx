@@ -178,7 +178,7 @@ export default function CheckoutPage() {
                         </span>
                         {item.additionalItems.map((addItem: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
-                            {addItem.name} (+₪{addItem.price.toFixed(2)})
+                            {addItem.name} (+₪{(typeof addItem.price === 'number' ? addItem.price : parseFloat(String(addItem.price)) || 0).toFixed(2)})
                           </span>
                         ))}
                       </div>

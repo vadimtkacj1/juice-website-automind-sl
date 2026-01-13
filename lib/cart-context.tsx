@@ -88,6 +88,7 @@ export interface CartCustomIngredient {
   id: number;
   name: string;
   price: number;
+  volume?: string; // Volume option selected for this ingredient
 }
 
 export interface CartAdditionalItem {
@@ -290,7 +291,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const ingredientsPrice = (item.customIngredients || []).reduce((ingredientTotal, ingredient) => 
         ingredientTotal + ingredient.price * item.quantity, 0
       );
-      return total + itemPrice + ingredientsPrice;
+      const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) =>
+        addTotal + addItem.price * item.quantity, 0
+      );
+      return total + itemPrice + ingredientsPrice + additionalItemsPrice;
     }, 0);
   };
 

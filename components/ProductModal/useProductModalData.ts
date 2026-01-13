@@ -14,32 +14,33 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
       return;
     }
 
-    // Fetch custom ingredients for this menu item's category
-    const fetchIngredients = (categoryId: number) => {
-      console.log('Fetching ingredients for category:', categoryId);
-      fetch(`/api/menu-categories/${categoryId}/ingredient-configs`)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`Failed to fetch ingredient configs: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(data => {
-          console.log('Fetched ingredient configs for category', categoryId, ':', data);
-          if (data.configs && data.configs.length > 0) {
-            console.log(`Found ${data.configs.length} ingredient configs`);
-            Promise.all(
-              data.configs.map((config: any) =>
-                fetch(`/api/custom-ingredients/${config.custom_ingredient_id}`)
-                  .then(res => {
-                    if (!res.ok) {
-                      throw new Error(`Failed to fetch ingredient ${config.custom_ingredient_id}`);
-                    }
-                    return res.json();
-                  })
-                  .then(ingData => {
+    // Fetch custom ingredients from both category and menu item
+    const fetchIngredients = async (categoryId: number | null, itemId: number) => {
+      console.log('Fetching ingredients for category:', categoryId, 'and menu item:', itemId);
+      
+      const allIngredients: CustomIngredient[] = [];
+      const ingredientIds = new Set<number>(); // To avoid duplicates
+
+      // Fetch ingredients from category (if categoryId is provided)
+      if (categoryId && categoryId > 0) {
+        try {
+          const categoryRes = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs`);
+          if (categoryRes.ok) {
+            const categoryData = await categoryRes.json();
+            console.log('Fetched ingredient configs for category', categoryId, ':', categoryData);
+            
+            if (categoryData.configs && categoryData.configs.length > 0) {
+              console.log(`Found ${categoryData.configs.length} ingredient configs from category`);
+              
+              const categoryIngredients = await Promise.all(
+                categoryData.configs.map(async (config: any) => {
+                  try {
+                    const ingRes = await fetch(`/api/custom-ingredients/${config.custom_ingredient_id}`);
+                    if (!ingRes.ok) return null;
+                    
+                    const ingData = await ingRes.json();
                     if (ingData.ingredient && ingData.ingredient.is_available) {
-                      return {
+                      const ingredient: CustomIngredient = {
                         id: config.custom_ingredient_id,
                         name: config.ingredient_name,
                         price: config.price_override !== null && config.price_override !== undefined 
@@ -48,38 +49,81 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
                         selection_type: config.selection_type,
                         price_override: config.price_override,
                         ingredient_category: ingData.ingredient?.ingredient_category || 'fruits',
+                        image: ingData.ingredient?.image || undefined,
+                        description: ingData.ingredient?.description || undefined,
                       };
+                      ingredientIds.add(ingredient.id);
+                      return ingredient;
                     }
                     return null;
-                  })
-                  .catch(err => {
+                  } catch (err) {
                     console.error(`Error fetching ingredient ${config.custom_ingredient_id}:`, err);
                     return null;
-                  })
-              )
-            ).then(fullIngredients => {
-              const availableIngredients = fullIngredients.filter((ing: any) => ing !== null);
-              console.log('Setting custom ingredients:', availableIngredients);
-              setCustomIngredients(availableIngredients);
-            })
-            .catch(err => {
-              console.error('Error processing ingredients:', err);
-              setCustomIngredients([]);
+                  }
+                })
+              );
+              
+              categoryIngredients.forEach(ing => {
+                if (ing && !ingredientIds.has(ing.id)) {
+                  allIngredients.push(ing);
+                  ingredientIds.add(ing.id);
+                  console.log('Added ingredient from category:', ing.name, ing.id);
+                }
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching category ingredients:', err);
+        }
+      }
+
+      // Fetch ingredients directly from menu item
+      try {
+        const itemRes = await fetch(`/api/menu-items/${itemId}/custom-ingredients`);
+        if (itemRes.ok) {
+          const itemData = await itemRes.json();
+          console.log('Fetched ingredients for menu item', itemId, ':', itemData);
+          
+          if (itemData.ingredients && itemData.ingredients.length > 0) {
+            console.log(`Found ${itemData.ingredients.length} ingredients from menu item`);
+            
+            itemData.ingredients.forEach((ing: any) => {
+              // Only add if not already added from category
+              if (!ingredientIds.has(ing.id)) {
+                const ingredient: CustomIngredient = {
+                  id: ing.id,
+                  name: ing.name,
+                  price: ing.price_override !== null && ing.price_override !== undefined 
+                    ? ing.price_override 
+                    : (typeof ing.price === 'string' ? parseFloat(ing.price) : (ing.price || 0)),
+                  selection_type: ing.selection_type || 'multiple',
+                  price_override: ing.price_override !== null && ing.price_override !== undefined ? ing.price_override : undefined,
+                  ingredient_category: ing.ingredient_category || 'fruits',
+                  image: ing.image || undefined,
+                  description: ing.description || undefined,
+                };
+                allIngredients.push(ingredient);
+                ingredientIds.add(ingredient.id);
+                console.log('Added ingredient from menu item:', ingredient.name, ingredient.id, 'image:', ingredient.image);
+              }
             });
           } else {
-            console.log('No ingredient configs found for category:', categoryId);
-            setCustomIngredients([]);
+            console.log('No ingredients found for menu item', itemId);
           }
-        })
-        .catch(err => {
-          console.error('Error fetching custom ingredients:', err);
-          setCustomIngredients([]);
-        });
+        } else {
+          console.error('Failed to fetch ingredients for menu item', itemId, 'Status:', itemRes.status);
+        }
+      } catch (err) {
+        console.error('Error fetching menu item ingredients:', err);
+      }
+
+      console.log('Setting custom ingredients (total):', allIngredients.length, allIngredients);
+      setCustomIngredients(allIngredients);
     };
 
     if (item.category_id) {
       console.log('Item has category_id:', item.category_id);
-      fetchIngredients(item.category_id);
+      fetchIngredients(item.category_id, item.id);
     } else {
       console.log('Item missing category_id, fetching from API for item:', item.id);
       fetch(`/api/menu-items/${item.id}`)
@@ -88,12 +132,18 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
           console.log('Fetched item data:', itemData);
           if (itemData.item?.category_id) {
             console.log('Found category_id from API:', itemData.item.category_id);
-            fetchIngredients(itemData.item.category_id);
+            fetchIngredients(itemData.item.category_id, item.id);
           } else {
             console.warn('No category_id found for item:', item.id);
+            // Still try to fetch ingredients from menu item only
+            fetchIngredients(null, item.id);
           }
         })
-        .catch(err => console.error('Error fetching item category:', err));
+        .catch(err => {
+          console.error('Error fetching item category:', err);
+          // Still try to fetch ingredients from menu item only
+          fetchIngredients(null, item.id);
+        });
     }
 
     // Fetch volume options from category (not item)
@@ -104,14 +154,28 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
           if (data.volumes && data.volumes.length > 0) {
             // Convert category volumes to volume options with prices
             // Prices will be calculated based on item base price
-            const basePrice = item.price || 0;
-            const volumes: VolumeOption[] = data.volumes.map((vol: any) => ({
-              id: vol.id,
-              volume: vol.volume,
-              price: basePrice, // Base price, will be adjusted if needed
-              is_default: vol.is_default || false,
-              sort_order: vol.sort_order || 0,
-            }));
+            // Ensure basePrice is always a number
+            const basePrice = typeof item.price === 'number' 
+              ? item.price 
+              : (typeof item.price === 'string' ? parseFloat(item.price) : 0) || 0;
+            
+            const volumes: VolumeOption[] = data.volumes.map((vol: any) => {
+              // Ensure vol.price is a number if it exists, otherwise use basePrice
+              let volPrice = basePrice;
+              if (vol.price !== undefined && vol.price !== null) {
+                volPrice = typeof vol.price === 'number' 
+                  ? vol.price 
+                  : (typeof vol.price === 'string' ? parseFloat(vol.price) : 0) || 0;
+              }
+              
+              return {
+                id: vol.id,
+                volume: vol.volume,
+                price: volPrice, // Ensure it's always a number
+                is_default: vol.is_default || false,
+                sort_order: vol.sort_order || 0,
+              };
+            });
             setVolumeOptions(volumes);
           } else {
             setVolumeOptions([]);

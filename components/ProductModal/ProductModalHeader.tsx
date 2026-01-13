@@ -35,9 +35,9 @@ export default function ProductModalHeader({
       )}
       <div className={styles['modal-price']}>
         {discountPercent > 0 && (
-          <span className={styles['price-old']}>₪{basePrice.toFixed(0)}</span>
+          <span className={styles['price-old']}>₪{(typeof basePrice === 'number' && !isNaN(basePrice) ? basePrice : 0).toFixed(0)}</span>
         )}
-        <span className={styles['price-main']}>₪{discountedPrice.toFixed(0)}</span>
+        <span className={styles['price-main']}>₪{(typeof discountedPrice === 'number' && !isNaN(discountedPrice) ? discountedPrice : 0).toFixed(0)}</span>
         {discountPercent > 0 && (
           <span className={styles['discount-tag']}>
             {translateToHebrew('Save')} {discountPercent}%

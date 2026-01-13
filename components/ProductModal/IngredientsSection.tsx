@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Cherry, Sparkles, Cookie } from 'lucide-react';
+import { Cherry, Sparkles, Cookie, Check } from 'lucide-react';
 import styles from '../ProductModal.module.css';
 import { translateToHebrew } from '@/lib/translations';
+import OptimizedImage from '@/components/OptimizedImage';
 
 interface CustomIngredient {
   id: number;
   name: string;
-  description?: string;
   price: number;
   image?: string;
   ingredient_category?: 'boosters' | 'fruits' | 'toppings';
@@ -33,21 +32,12 @@ export default function IngredientsSection({
   selectedIngredients,
   onIngredientToggle,
 }: IngredientsSectionProps) {
-  // Debug logging
-  useEffect(() => {
-    console.log('IngredientsSection rendered with ingredients:', ingredients.length);
-  }, [ingredients]);
+  
+  if (ingredients.length === 0) return null;
 
-  if (ingredients.length === 0) {
-    return null;
-  }
-
-  // Group ingredients by category
   const groupedIngredients = ingredients.reduce((acc, ingredient) => {
     const category = ingredient.ingredient_category || 'fruits';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
+    if (!acc[category]) acc[category] = [];
     acc[category].push(ingredient);
     return acc;
   }, {} as Record<string, typeof ingredients>);
@@ -59,9 +49,9 @@ export default function IngredientsSection({
   };
 
   return (
-    <div className={styles['modal-section']}>
+    <div className={styles['ingredients-section-container']}>
       <h3 className={styles['section-title']}>{translateToHebrew('Add Ingredients')}</h3>
-      <p className={styles['ingredient-description']}>
+      <p className={styles['section-description']}>
         {translateToHebrew('Choose additional ingredients to customize your juice')}
       </p>
       
@@ -71,57 +61,53 @@ export default function IngredientsSection({
         const IconComponent = categoryIcons[category] || Sparkles;
         
         return (
-          <div key={category} className={styles['ingredient-category']}>
-            <h4 className={styles['category-title']}>
-              <IconComponent size={16} style={{ color: '#7322ff' }} />
-              {categoryLabels[category] || translateToHebrew(category)}
-              {isSingleSelection && (
-                <span className={styles['selection-hint']}>
-                  {translateToHebrew('Choose one')}
-                </span>
-              )}
+          <div key={category} className={styles['category-group']}>
+            <h4 className={styles['category-header']}>
+              <IconComponent size={18} />
+              <span>{categoryLabels[category] || translateToHebrew(category)}</span>
+              {isSingleSelection && <small className={styles['hint-text']}>({translateToHebrew('Choose one')})</small>}
             </h4>
-            <div className={styles['ingredients-list']}>
+
+            <div className={styles['ingredients-grid']}>
               {categoryIngredients.map(ingredient => {
                 const isSelected = selectedIngredients.has(ingredient.id);
-                const price = ingredient.price_override !== undefined && ingredient.price_override !== null
-                  ? ingredient.price_override
-                  : ingredient.price;
-                  
+                const price = ingredient.price_override ?? ingredient.price;
+                
                 return (
                   <label 
                     key={ingredient.id} 
-                    className={`${styles['ingredient-item']} ${isSelected ? styles['ingredient-item-selected'] || '' : ''}`}
+                    className={`${styles['ingredient-card']} ${isSelected ? styles['is-selected'] : ''}`}
                   >
                     <input
                       type={isSingleSelection ? 'radio' : 'checkbox'}
-                      name={isSingleSelection ? `ingredient-${category}` : undefined}
+                      name={isSingleSelection ? `ing-${category}` : undefined}
                       checked={isSelected}
-                      onChange={(e) => {
-                        console.log('Ingredient input changed:', ingredient.name, ingredient.id, 'was:', isSelected, 'will be:', !isSelected);
-                        onIngredientToggle(ingredient.id, selectionType, category);
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      className={styles['ingredient-checkbox']}
+                      onChange={() => onIngredientToggle(ingredient.id, selectionType, category)}
+                      className={styles['real-input']}
                     />
-                    <div 
-                      className={styles['ingredient-info']} 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        console.log('Ingredient info clicked:', ingredient.name, ingredient.id);
-                        onIngredientToggle(ingredient.id, selectionType, category);
-                      }}
-                    >
-                      <span className={styles['ingredient-name']}>
-                        {translateToHebrew(ingredient.name)}
-                      </span>
-                      {price > 0 && (
-                        <span className={styles['ingredient-price']}>
-                          +₪{price.toFixed(0)}
-                        </span>
+                    
+                    {/* Визуальный индикатор выбора */}
+                    <div className={styles['card-selector']}>
+                      {isSelected && <Check size={12} strokeWidth={4} />}
+                    </div>
+
+                    <div className={styles['card-image-wrapper']}>
+                      {ingredient.image ? (
+                        <OptimizedImage
+                          src={ingredient.image}
+                          alt={ingredient.name}
+                          width={80}
+                          height={80}
+                          className={styles['card-img']}
+                        />
+                      ) : (
+                        <span className={styles['card-emoji']}>🍎</span>
                       )}
+                    </div>
+
+                    <div className={styles['card-content']}>
+                      <span className={styles['card-name']}>{translateToHebrew(ingredient.name)}</span>
+                      {price > 0 && <span className={styles['card-price']}>+₪{Number(price).toFixed(0)}</span>}
                     </div>
                   </label>
                 );

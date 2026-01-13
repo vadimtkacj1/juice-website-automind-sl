@@ -51,7 +51,7 @@ export default function AdditionalItemsSection({
                   {translateToHebrew(item.name)}
                 </span>
                 <span className={styles['option-price']}>
-                  +₪{item.price.toFixed(0)}
+                  +₪{(typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0).toFixed(0)}
                 </span>
               </div>
               {item.description && (

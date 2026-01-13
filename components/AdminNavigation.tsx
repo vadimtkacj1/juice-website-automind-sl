@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   X,
-  Newspaper,
   ChefHat,
   MessageSquare,
   Clock
@@ -70,7 +69,6 @@ export default function AdminNavigation() {
     { name: t('Ingredients'), href: '/admin/ingredients', icon: ChefHat },
     { name: t('Orders'), href: '/admin/orders', icon: ShoppingCart },
     { name: t('Telegram Delivery'), href: '/admin/telegram-delivery', icon: MessageSquare },
-    { name: t('News'), href: '/admin/news', icon: Newspaper },
     { name: t('Discounts & Promos'), href: '/admin/discounts', icon: Tag },
     { name: t('Locations'), href: '/admin/locations', icon: MapPin },
     { name: t('Contacts'), href: '/admin/contacts', icon: Users },

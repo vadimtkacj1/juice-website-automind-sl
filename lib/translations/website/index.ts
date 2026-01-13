@@ -36,6 +36,8 @@ export const websiteTranslations: Record<string, string> = {
   'select volume': 'בחר נפח',
   'add ingredients': 'הוסף מרכיבים',
   'choose additional ingredients': 'בחר מרכיבים נוספים',
+  'Choose additional ingredients to customize your juice': 'בחר מרכיבים נוספים להתאמה אישית של המיץ שלך',
+  'choose additional ingredients to customize your juice': 'בחר מרכיבים נוספים להתאמה אישית של המיץ שלך',
   'select add-ons': 'בחר תוספות',
   'add ingredients?': 'הוסף מרכיבים',
   'would you like to add these ingredients to this juice?': 'האם תרצה להוסיף את המרכיבים האלה למיץ הזה',
