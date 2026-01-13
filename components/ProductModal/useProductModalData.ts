@@ -24,7 +24,8 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
       // Fetch ingredients from category (if categoryId is provided)
       if (categoryId && categoryId > 0) {
         try {
-          const categoryRes = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs`);
+          // Include inactive ingredients since admin explicitly added them to the category
+          const categoryRes = await fetch(`/api/menu-categories/${categoryId}/ingredient-configs?include_inactive=true`);
           if (categoryRes.ok) {
             const categoryData = await categoryRes.json();
             console.log('Fetched ingredient configs for category', categoryId, ':', categoryData);
@@ -36,28 +37,67 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
                 categoryData.configs.map(async (config: any) => {
                   try {
                     const ingRes = await fetch(`/api/custom-ingredients/${config.custom_ingredient_id}`);
-                    if (!ingRes.ok) return null;
+                    let ingData: any = null;
                     
-                    const ingData = await ingRes.json();
-                    if (ingData.ingredient && ingData.ingredient.is_available) {
+                    if (ingRes.ok) {
+                      ingData = await ingRes.json();
+                    } else {
+                      console.warn(`Failed to fetch ingredient ${config.custom_ingredient_id}:`, ingRes.status, 'Using config data only');
+                    }
+                    
+                    // For category configs, we trust the admin's selection
+                    // The ingredient was explicitly added to the category, so it should be shown
+                    // Use config data as fallback if ingredient fetch failed
+                    if (ingData?.ingredient || config.ingredient_name) {
+                      // Check is_available properly (handles both number 1/0 and boolean true/false)
+                      const isAvailable = ingData?.ingredient 
+                        ? (ingData.ingredient.is_available === 1 || 
+                           ingData.ingredient.is_available === true || 
+                           ingData.ingredient.is_available === '1')
+                        : true; // Assume available if we can't check
+                      
+                      // Even if not available, show it if it's in category config (admin explicitly added it)
+                      // But log a warning
+                      if (ingData?.ingredient && !isAvailable) {
+                        console.warn(`Ingredient ${config.custom_ingredient_id} (${config.ingredient_name}) is marked as unavailable but is in category config`);
+                      }
+                      
                       const ingredient: CustomIngredient = {
+                        id: config.custom_ingredient_id,
+                        name: config.ingredient_name || ingData?.ingredient?.name || 'Unknown',
+                        price: config.price_override !== null && config.price_override !== undefined 
+                          ? config.price_override 
+                          : (ingData?.ingredient?.price || 0),
+                        selection_type: config.selection_type || 'multiple',
+                        price_override: config.price_override,
+                        ingredient_category: ingData?.ingredient?.ingredient_category || 'fruits',
+                        image: ingData?.ingredient?.image || undefined,
+                        description: ingData?.ingredient?.description || undefined,
+                      };
+                      // Don't add to ingredientIds here - it will be added in forEach below
+                      console.log('Prepared ingredient from category:', ingredient.name, ingredient.id);
+                      return ingredient;
+                    }
+                    console.warn(`No ingredient data available for ${config.custom_ingredient_id}`);
+                    return null;
+                  } catch (err) {
+                    console.error(`Error fetching ingredient ${config.custom_ingredient_id}:`, err);
+                    // Try to create ingredient from config data as fallback
+                    if (config.custom_ingredient_id && config.ingredient_name) {
+                      console.log('Creating ingredient from config data as fallback:', config.ingredient_name);
+                      const fallbackIngredient: CustomIngredient = {
                         id: config.custom_ingredient_id,
                         name: config.ingredient_name,
                         price: config.price_override !== null && config.price_override !== undefined 
                           ? config.price_override 
-                          : (ingData.ingredient?.price || 0),
-                        selection_type: config.selection_type,
+                          : 0,
+                        selection_type: config.selection_type || 'multiple',
                         price_override: config.price_override,
-                        ingredient_category: ingData.ingredient?.ingredient_category || 'fruits',
-                        image: ingData.ingredient?.image || undefined,
-                        description: ingData.ingredient?.description || undefined,
+                        ingredient_category: 'fruits',
                       };
-                      ingredientIds.add(ingredient.id);
-                      return ingredient;
+                      // Don't add to ingredientIds here - it will be added in forEach below
+                      return fallbackIngredient;
                     }
-                    return null;
-                  } catch (err) {
-                    console.error(`Error fetching ingredient ${config.custom_ingredient_id}:`, err);
                     return null;
                   }
                 })
@@ -90,6 +130,8 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
             itemData.ingredients.forEach((ing: any) => {
               // Only add if not already added from category
               if (!ingredientIds.has(ing.id)) {
+                // Menu item ingredients are already filtered by is_available in the API
+                // So we can add them directly
                 const ingredient: CustomIngredient = {
                   id: ing.id,
                   name: ing.name,
@@ -105,6 +147,8 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
                 allIngredients.push(ingredient);
                 ingredientIds.add(ingredient.id);
                 console.log('Added ingredient from menu item:', ingredient.name, ingredient.id, 'image:', ingredient.image);
+              } else {
+                console.log('Skipped ingredient from menu item (already added from category):', ing.id, ing.name);
               }
             });
           } else {
