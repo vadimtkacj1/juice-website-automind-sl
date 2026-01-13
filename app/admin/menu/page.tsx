@@ -346,8 +346,8 @@ export default function AdminMenu() {
           const result = await response.json();
           console.log('Ingredient added successfully:', result);
           
-          // Refresh the menu items to show updated ingredients
-          fetchMenu();
+          // REFRESH DATA HERE (Fixed from fetchMenu to fetchData)
+          fetchData();
           
           setShowAddIngredientDialog(false);
           setIngredientToAdd(null);
