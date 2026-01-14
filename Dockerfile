@@ -38,6 +38,7 @@ ARG RAPYD_SECRET_KEY
 ARG PAYPLUS_API_KEY
 ARG PAYPLUS_SECRET_KEY
 ARG PAYPLUS_PAGE_UID
+ARG PAYPLUS_TEST_MODE=false
 ARG TELEGRAM_BOT_TOKEN
 ARG SESSION_SECRET
 ARG NODE_ENV=production
@@ -51,6 +52,11 @@ RUN npm run build
 # Stage 3: Runner (production image)
 FROM node:18-alpine AS runner
 WORKDIR /app
+
+ARG PAYPLUS_API_KEY
+ARG PAYPLUS_SECRET_KEY
+ARG PAYPLUS_PAGE_UID
+ARG PAYPLUS_TEST_MODE=false
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -79,6 +85,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Copy scripts directory for database initialization
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
+# Persist PayPlus credentials for tools expecting a nano file (requested)
+RUN printf "PAYPLUS_API_KEY=%s\nPAYPLUS_SECRET_KEY=%s\nPAYPLUS_PAGE_UID=%s\nPAYPLUS_TEST_MODE=%s\n" \
+    "$PAYPLUS_API_KEY" "$PAYPLUS_SECRET_KEY" "$PAYPLUS_PAGE_UID" "$PAYPLUS_TEST_MODE" > /app/nano \
+    && chmod 600 /app/nano
 
 # Ensure sharp is available - copy from builder's node_modules if needed
 # The standalone build should include it, but we ensure it's there

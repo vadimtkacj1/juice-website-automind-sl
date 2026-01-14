@@ -121,6 +121,10 @@ jobs:
             NODE_ENV=production
             RAPYD_ACCESS_KEY=${{ secrets.RAPYD_ACCESS_KEY }}
             RAPYD_SECRET_KEY=${{ secrets.RAPYD_SECRET_KEY }}
+            PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
+            PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
+            PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
+            PAYPLUS_TEST_MODE=${{ secrets.PAYPLUS_TEST_MODE }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
           platforms: linux/amd64
@@ -300,6 +304,7 @@ jobs:
             PAYPLUS_API_KEY=${{ secrets.PAYPLUS_API_KEY }}
             PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
             PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
+            PAYPLUS_TEST_MODE=${{ secrets.PAYPLUS_TEST_MODE }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
             DEPLOYMENT_URL=${{ secrets.DEPLOYMENT_URL }}
@@ -319,6 +324,7 @@ jobs:
             export PAYPLUS_API_KEY="${{ secrets.PAYPLUS_API_KEY }}"
             export PAYPLUS_SECRET_KEY="${{ secrets.PAYPLUS_SECRET_KEY }}"
             export PAYPLUS_PAGE_UID="${{ secrets.PAYPLUS_PAGE_UID }}"
+            export PAYPLUS_TEST_MODE="${{ secrets.PAYPLUS_TEST_MODE }}"
             export TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
             export SESSION_SECRET="${{ secrets.SESSION_SECRET }}"
             export DEPLOYMENT_URL="${{ secrets.DEPLOYMENT_URL }}"

@@ -1,12 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // Enable dark mode support using the 'class' strategy
   darkMode: ["class"],
+  
+  // Define the paths to all of your template files
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+
   theme: {
+    // Configure the default container behavior
     container: {
       center: true,
       padding: "2rem",
@@ -15,13 +21,16 @@ module.exports = {
       },
     },
     extend: {
+      // Custom breakpoints
       screens: {
         'desktop': '1050px',
       },
+      // Custom font families (Heebo for Hebrew support)
       fontFamily: {
-        sans: ['Heebo', 'sans-serif'],
+        sans: ['Heebo', 'sans-serif', 'system-ui'],
         display: ['Heebo', 'sans-serif'],
       },
+      // Map Shadcn UI colors to HSL variables defined in globals.css
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,11 +66,13 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      // Custom border radius using variables
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Keyframes for animations
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -72,12 +83,13 @@ module.exports = {
           to: { height: "0" },
         },
       },
+      // Animation definitions
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
+  // Essential plugins for Shadcn UI and animations
   plugins: [require("tailwindcss-animate")],
 }
-
