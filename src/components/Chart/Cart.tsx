@@ -40,7 +40,6 @@ export default function Cart() {
   }, [isCartOpen]);
 
   function validatePhone(value: string): boolean {
-    // Basic phone validation - at least 9 digits
     const phoneRegex = /^[\d\s\-+()]{9,}$/;
     return phoneRegex.test(value);
   }
@@ -52,7 +51,6 @@ export default function Cart() {
 
   function handleProceedToContact() {
     if (cart.length === 0) return;
-    // Navigate to the secure checkout page
     closeCart();
     router.push('/checkout');
   }
@@ -64,7 +62,6 @@ export default function Cart() {
   }
 
   async function handleCheckout() {
-    // Validate contact info
     let hasError = false;
 
     if (!phone.trim()) {
@@ -122,10 +119,8 @@ export default function Cart() {
       }
 
       if (data.success && (data.redirectUrl || data.paymentUrl)) {
-        // Redirect to payment page or success page
         window.location.href = data.redirectUrl || data.paymentUrl;
       } else if (data.orderNumber) {
-        // Fallback redirect
         window.location.href = `/checkout/success?order=${data.orderNumber}`;
       }
     } catch (err) {
@@ -136,16 +131,10 @@ export default function Cart() {
     }
   }
 
-  // Prevent body scroll when cart is open and scroll to top
   useEffect(() => {
     if (isCartOpen) {
-      // Scroll to top when cart opens
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Prevent body scroll
       document.body.style.overflow = 'hidden';
-      
-      // Ensure cart is visible by bringing it to front
       const cartElement = document.querySelector('[class*="cartModal"]');
       if (cartElement) {
         (cartElement as HTMLElement).style.zIndex = '10051';
@@ -158,7 +147,6 @@ export default function Cart() {
     };
   }, [isCartOpen]);
 
-  // Close on escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeCart();
@@ -168,15 +156,13 @@ export default function Cart() {
   }, [closeCart]);
 
   if (!isCartOpen) return null;
+
   return (
     <>
-      {/* Backdrop */}
       <div className={styles.cartBackdrop} onClick={closeCart} />
 
-      {/* Cart Modal */}
       <div className={styles.cartModal}>
         <div className={styles.cartContainer}>
-          {/* Header */}
           <div className={styles.cartHeader}>
             <div className={styles.cartHeaderTitle}>
               {step === 'contact' ? (
@@ -200,7 +186,6 @@ export default function Cart() {
 
           {step === 'cart' ? (
             <>
-              {/* Cart Items */}
               <div className={styles.cartItems}>
                 {cart.length === 0 ? (
                   <div className={styles.cartEmpty}>
@@ -216,7 +201,6 @@ export default function Cart() {
                 ) : (
                   <div className={styles.cartItemsList}>
                     {cart.map((item, index) => {
-                      // Calculate item total including custom ingredients and additional items
                       const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                         total + ingredient.price, 0
                       );
@@ -248,7 +232,6 @@ export default function Cart() {
                               {item.volume && <span className="cart-item-volume"> - {item.volume}</span>}
                             </h4>
                             
-                            {/* Custom Ingredients */}
                             {item.customIngredients && item.customIngredients.length > 0 && (
                               <div className={styles.cartItemIngredients}>
                                 <span className={styles.cartItemIngredientsLabel}>{translateToHebrew('With')}: </span>
@@ -264,7 +247,6 @@ export default function Cart() {
                               </div>
                             )}
 
-                            {/* Additional Items */}
                             {item.additionalItems && item.additionalItems.length > 0 && (
                               <div className={styles.cartItemAddons}>
                                 {item.additionalItems.map(addItem => (
@@ -280,9 +262,9 @@ export default function Cart() {
                               </div>
                             )}
 
-               <p className={styles.cartItemPrice}>
-  ₪{Number(itemTotal)} {item.quantity > 1 && `× ${item.quantity}`}
-</p>
+                            <p className={styles.cartItemPrice}>
+                              ₪{Number(itemTotal)} {item.quantity > 1 && `× ${item.quantity}`}
+                            </p>
                           </div>
 
                           <div className={styles.cartItemControls}>
@@ -315,7 +297,6 @@ export default function Cart() {
                 )}
               </div>
 
-              {/* Footer - Cart Step */}
               {cart.length > 0 && (
                 <div className={styles.cartFooter}>
                   <div className={styles.cartTotal}>
@@ -333,9 +314,8 @@ export default function Cart() {
             </>
           ) : (
             <>
-              {/* Contact Form */}
               <div className={styles.cartItems}>
-                  <div className={styles.contactForm}>
+                <div className={styles.contactForm}>
                   <div className={styles.contactInfoText}>
                     <p>{translateToHebrew('Please provide your contact details so we can send you the order confirmation and reach out if needed.')}</p>
                   </div>
@@ -395,12 +375,10 @@ export default function Cart() {
                     />
                   </div>
 
-                  {/* Order Summary */}
                   <div className={styles.orderSummary}>
                     <h4>{translateToHebrew('Order Summary')}</h4>
                     <div className={styles.summaryItems}>
-                      {cart.map((item) => {
-                        // Calculate item total including ingredients and additional items
+                      {cart.map((item, itemIndex) => { // ИСПРАВЛЕНО: добавлен itemIndex
                         const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
                           total + ingredient.price, 0
                         );
@@ -417,7 +395,6 @@ export default function Cart() {
                               <span>₪{itemTotalWithQuantity}</span>
                             </div>
                             
-                            {/* Custom Ingredients as sub-items */}
                             {item.customIngredients && item.customIngredients.length > 0 && (
                               <div className={styles.summarySubItems}>
                                 {item.customIngredients.map((ingredient) => (
@@ -429,7 +406,6 @@ export default function Cart() {
                               </div>
                             )}
 
-                            {/* Additional Items as sub-items */}
                             {item.additionalItems && item.additionalItems.length > 0 && (
                               <div className={styles.summarySubItems}>
                                 {item.additionalItems.map((addItem) => (
@@ -448,7 +424,6 @@ export default function Cart() {
                 </div>
               </div>
 
-              {/* Footer - Contact Step */}
               <div className={styles.cartFooter}>
                 {error && (
                   <div className={styles.cartError}>
@@ -623,7 +598,6 @@ export default function Cart() {
           background: #fafbfd;
         }
 
-        /* Contact Form Styles */
         .contact-form {
           display: flex;
           flex-direction: column;
@@ -725,11 +699,6 @@ export default function Cart() {
           font-weight: 600;
         }
 
-        .summary-item span:last-child {
-          font-weight: 600;
-          color: var(--dark, #1d1a40);
-        }
-
         .summary-sub-items {
           margin-top: 4px;
           margin-left: 16px;
@@ -742,11 +711,6 @@ export default function Cart() {
           display: flex;
           justify-content: space-between;
           font-size: 12px;
-          color: var(--text-gray, #70758c);
-        }
-
-        .summary-sub-item span:last-child {
-          font-weight: 500;
           color: var(--text-gray, #70758c);
         }
 
@@ -901,10 +865,6 @@ export default function Cart() {
 
         .cart-item-ingredients-label {
           font-weight: 600;
-        }
-
-        .cart-item-ingredients-list {
-          font-weight: 400;
         }
 
         .cart-item-price {

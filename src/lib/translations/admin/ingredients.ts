@@ -284,8 +284,6 @@ export const adminIngredientsTranslations: Record<string, string> = {
   'create group': 'צור קבוצה',
   'Enter group name (e.g., Milk base, Protein choice)': 'הזן שם קבוצה (למשל, בסיס חלב, בחירת חלבון)',
   'enter group name (e.g., milk base, protein choice)': 'הזן שם קבוצה (למשל, בסיס חלב, בחירת חלבון)',
-  'Create': 'צור',
-  'create': 'צור',
   'No groups created yet. Create a group and add ingredients to it.': 'עדיין לא נוצרו קבוצות. צור קבוצה והוסף אליה מרכיבים.',
   'no groups created yet. create a group and add ingredients to it.': 'עדיין לא נוצרו קבוצות. צור קבוצה והוסף אליה מרכיבים.',
   'Group name is required': 'שם קבוצה נדרש',
