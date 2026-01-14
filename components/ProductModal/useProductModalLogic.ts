@@ -134,9 +134,9 @@ export function useProductModalLogic(
     const ingredientsPrice = Array.from(selectedIngredients).reduce((total, id) => {
       const ingredient = customIngredients.find(i => i.id === id);
       const price = ingredient?.price_override !== undefined && ingredient.price_override !== null
-        ? ingredient.price_override
-        : (ingredient?.price || 0);
-      return total + price;
+        ? Number(ingredient.price_override
+)        : Number(ingredient?.price || 0);
+      return Number(total) + price;
     }, 0);
 
     const additionalItemsPrice = Array.from(selectedAdditionalItems).reduce((total, id) => {

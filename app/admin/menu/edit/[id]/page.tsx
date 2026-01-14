@@ -700,7 +700,7 @@ export default function EditMenuItem() {
                           <div className="flex-1">
                             <p className="font-medium text-sm">{t(ingredient.name)}</p>
                             <p className="text-xs text-gray-500">
-                              {t(ingredient.ingredient_category)} • ₪{ingredient.price.toFixed(2)}
+                              {t(ingredient.ingredient_category)} • ₪{(Number(ingredient.price) || 0).toFixed(2)}
                             </p>
                           </div>
                         </div>

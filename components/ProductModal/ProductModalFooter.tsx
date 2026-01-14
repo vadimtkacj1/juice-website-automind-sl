@@ -20,7 +20,7 @@ export default function ProductModalFooter({
         <span className={styles['total-label']}>
           {translateToHebrew('Total')}:
         </span>
-        <span className={styles['total-price']}>₪{(typeof totalPrice === 'number' && !isNaN(totalPrice) ? totalPrice : 0).toFixed(0)}</span>
+        <span className={styles['total-price']}>₪{Number(totalPrice)}</span>
       </div>
 
       {/* Add to Cart Button */}

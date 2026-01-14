@@ -287,14 +287,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const getTotalPrice = () => {
     return cart.reduce((total, item) => {
-      const itemPrice = item.price * item.quantity;
+      const itemPrice = Number(item.price) * Number(item.quantity);
       const ingredientsPrice = (item.customIngredients || []).reduce((ingredientTotal, ingredient) => 
-        ingredientTotal + ingredient.price * item.quantity, 0
+        Number(ingredientTotal) + Number(ingredient.price) * Number(item.quantity), 0
       );
       const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) =>
-        addTotal + addItem.price * item.quantity, 0
+        Number(addTotal) + Number(addItem.price) * Number(item.quantity), 0
       );
-      return total + itemPrice + ingredientsPrice + additionalItemsPrice;
+      return Number(total) + itemPrice + ingredientsPrice + additionalItemsPrice;
     }, 0);
   };
 

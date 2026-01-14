@@ -102,14 +102,14 @@ export default function CheckoutPage() {
   
   // Calculate total including custom ingredients and additional items
   const calculateItemTotal = (item: any) => {
-    let total = item.price;
+    let total = Number(item.price);
     if (item.customIngredients) {
-      total += item.customIngredients.reduce((sum: number, ing: any) => sum + ing.price, 0);
+      total += item.customIngredients.reduce((sum: number, ing: any) => Number(sum) + Number(ing.price), 0);
     }
     if (item.additionalItems) {
-      total += item.additionalItems.reduce((sum: number, addItem: any) => sum + addItem.price, 0);
+      total += item.additionalItems.reduce((sum: number, addItem: any) => Number(sum) + Number(addItem.price), 0);
     }
-    return total * item.quantity;
+    return Number(total) * Number(item.quantity);
   };
   
   if (cart.length === 0 && !isProcessing) {
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                         </span>
                         {item.customIngredients.map((ing: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
-                            {ing.name} (+₪{ing.price.toFixed(2)})
+                            {ing.name} (+₪{ing.price})
                           </span>
                         ))}
                       </div>
@@ -178,7 +178,7 @@ export default function CheckoutPage() {
                         </span>
                         {item.additionalItems.map((addItem: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
-                            {addItem.name} (+₪{(typeof addItem.price === 'number' ? addItem.price : parseFloat(String(addItem.price)) || 0).toFixed(2)})
+                            {addItem.name} (+₪{Number(addItem.price)})
                           </span>
                         ))}
                       </div>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                   </div>
                   
                   <div className={styles['item-price']}>
-                    ₪{calculateItemTotal(item).toFixed(2)}
+                    ₪{calculateItemTotal(item)}
                   </div>
                 </div>
               ))}
@@ -198,7 +198,7 @@ export default function CheckoutPage() {
             <div className={styles['order-total']}>
               <span>{translateToHebrew('Total Amount')}</span>
               <span className={styles['total-price']}>
-                ₪{getTotalPrice().toFixed(2)}
+                ₪{getTotalPrice()}
               </span>
             </div>
           </div>

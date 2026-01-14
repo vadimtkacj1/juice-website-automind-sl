@@ -168,7 +168,7 @@ export default function Cart() {
   }, [closeCart]);
 
   if (!isCartOpen) return null;
-
+  console.log(cart)
   return (
     <>
       {/* Backdrop */}
@@ -224,7 +224,7 @@ export default function Cart() {
                       const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
                         total + addItem.price, 0
                       );
-                      const itemTotal = item.price + ingredientsTotal + additionalItemsTotal;
+                      const itemTotal = Number(item.price) + Number(ingredientsTotal) + Number(additionalItemsTotal);
                       
                       return (
                         <div key={`${item.id}-${index}`} className={styles.cartItem}>
@@ -276,9 +276,9 @@ export default function Cart() {
                               </div>
                             )}
 
-                            <p className={styles.cartItemPrice}>
-                              ₪{itemTotal.toFixed(0)} {item.quantity > 1 && `× ${item.quantity}`}
-                            </p>
+               <p className={styles.cartItemPrice}>
+  ₪{Number(itemTotal)} {item.quantity > 1 && `× ${item.quantity}`}
+</p>
                           </div>
 
                           <div className={styles.cartItemControls}>
@@ -404,14 +404,14 @@ export default function Cart() {
                         const additionalItemsTotal = (item.additionalItems || []).reduce((total, addItem) => 
                           total + addItem.price, 0
                         );
-                        const itemTotal = item.price + ingredientsTotal + additionalItemsTotal;
-                        const itemTotalWithQuantity = itemTotal * item.quantity;
+                        const itemTotal = Number(item.price) + Number(ingredientsTotal) + Number(additionalItemsTotal);
+                        const itemTotalWithQuantity = Number(itemTotal * Number(item.quantity))
                         
                         return (
                           <div key={`${item.id}-${itemIndex}`} className={styles.summaryItemGroup}>
                             <div className={styles.summaryItem}>
                               <span>{item.quantity}x {item.name}{item.volume ? ` (${item.volume})` : ''}</span>
-                              <span>₪{itemTotalWithQuantity.toFixed(0)}</span>
+                              <span>₪{itemTotalWithQuantity}</span>
                             </div>
                             
                             {/* Custom Ingredients as sub-items */}
@@ -420,7 +420,7 @@ export default function Cart() {
                                 {item.customIngredients.map((ingredient) => (
                                   <div key={ingredient.id} className={styles.summarySubItem}>
                                     <span>  + {translateToHebrew(ingredient.name)}</span>
-                                    <span>+₪{(ingredient.price * item.quantity).toFixed(0)}</span>
+                                    <span>+₪{Number(ingredient.price) * Number(item.quantity)}</span>
                                   </div>
                                 ))}
                               </div>
@@ -432,7 +432,7 @@ export default function Cart() {
                                 {item.additionalItems.map((addItem) => (
                                   <div key={addItem.id} className={styles.summarySubItem}>
                                     <span>  + {translateToHebrew(addItem.name)}</span>
-                                    <span>+₪{(addItem.price * item.quantity).toFixed(0)}</span>
+                                    <span>+₪{Number(addItem.price * item.quantity)}</span>
                                   </div>
                                 ))}
                               </div>
