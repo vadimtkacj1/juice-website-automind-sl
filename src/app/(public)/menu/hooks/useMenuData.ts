@@ -4,7 +4,8 @@ import { translateToHebrew } from '@/lib/translations';
 import { MenuCategory } from '../components/MenuCategorySection';
 import { MenuItem } from '../components/MenuItemCard';
 
-const ITEMS_PER_LOAD = 6;
+// Show all menu items without limiting to batches
+const ITEMS_PER_LOAD = Number.MAX_SAFE_INTEGER;
 
 export function useMenuData() {
   const [allMenuItems, setAllMenuItems] = useState<MenuCategory[]>([]);
@@ -23,7 +24,7 @@ export function useMenuData() {
 
     const initialMenu = newMenu.map((category) => ({
       ...category,
-      items: category.items.slice(0, ITEMS_PER_LOAD),
+      items: category.items,
     }));
 
     setAllMenuItems(newMenu);
