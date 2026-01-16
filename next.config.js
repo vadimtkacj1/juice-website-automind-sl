@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Enable standalone output for Docker
-  output: 'standalone',
+  // Enable standalone output for Docker (disabled for development)
+  // output: 'standalone',
   
   // Performance optimizations
   compress: true,

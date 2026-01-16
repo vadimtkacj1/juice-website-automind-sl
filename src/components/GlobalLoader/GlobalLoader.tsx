@@ -56,14 +56,30 @@ export default function GlobalLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(8px)',
         zIndex: 999999,
-        transition: 'opacity 0.3s ease-out, visibility 0.3s ease-out',
+        transition: 'opacity 0.2s ease-out, visibility 0.2s ease-out',
         pointerEvents: 'all',
       }}
     >
-      <LoadingSpinner size="lg" />
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1rem'
+      }}>
+        <LoadingSpinner size="lg" />
+        <div style={{
+          fontSize: '1.125rem',
+          fontWeight: '600',
+          color: '#374151',
+          textAlign: 'center',
+          fontFamily: 'Heebo, sans-serif'
+        }}>
+          טוען...
+        </div>
+      </div>
     </div>
   );
 }

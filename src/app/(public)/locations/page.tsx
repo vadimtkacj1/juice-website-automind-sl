@@ -6,10 +6,12 @@ import LocationList from '@/components/LocationList';
 import HeroSection from '@/components/HeroSection';
 import { Location } from '@/types/location';
 import { translateToHebrew } from '@/lib/translations';
+import { useLoading } from '@/lib/loading-context';
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
+  const { setLoading: setGlobalLoading } = useLoading();
 
   useEffect(() => {
     fetchLocations();
@@ -17,6 +19,7 @@ export default function LocationsPage() {
 
   async function fetchLocations() {
     try {
+      setGlobalLoading(true);
       const response = await fetch('/api/locations');
       const data = await response.json();
       // Filter to only show active locations
@@ -26,6 +29,7 @@ export default function LocationsPage() {
       console.error('Error fetching locations:', error);
     } finally {
       setLoading(false);
+      setGlobalLoading(false);
     }
   }
 

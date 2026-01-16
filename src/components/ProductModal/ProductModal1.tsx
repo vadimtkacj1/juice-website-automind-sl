@@ -2,8 +2,15 @@
 
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import styles from './ProductModal.module.css';
 import { CartCustomIngredient } from '@/lib/cart-context';
+import { translateToHebrew } from '@/lib/translations';
+import { ProductModalItem } from './types';
+import { useProductModalLogic } from './useProductModalLogic';
+import { useScrollLock } from '../../hooks/useScrollLock';
+
+// Sub-components
 import ProductModalHeader from './ProductModalHeader';
 import ProductModalImage from './ProductModalImage';
 import ProductModalFeatures from './ProductModalFeatures';
@@ -11,11 +18,7 @@ import VolumeSelector from './VolumeSelector';
 import IngredientsSection from './IngredientsSection';
 import AdditionalItemsSection from './AdditionalItemsSection';
 import ProductModalFooter from './ProductModalFooter';
-import { useProductModalLogic } from './useProductModalLogic';
-import { useScrollLock } from '../../hooks/useScrollLock';
-import { translateToHebrew } from '@/lib/translations';
-import { ProductModalItem } from './types';
-import { useEffect } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface ProductModalProps {
   item: ProductModalItem | null;
@@ -25,6 +28,15 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ item, isOpen, onClose, onAddToCart }: ProductModalProps) {
+  // SSR compatibility: Ensure portal only renders on client
+  const [mounted, setMounted] = useState(false);
+  const [shouldHighlightMissing, setShouldHighlightMissing] = useState(false);
+  const ingredientsSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     customIngredients,
     volumeOptions,
@@ -39,110 +51,128 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     handleAddToCartClick,
     currentBasePrice,
     currentDiscountedPrice,
-    discountPercent
+    discountPercent,
+    isLoading,
+    missingRequiredGroups,
+    canAddToCart
   } = useProductModalLogic(item, isOpen, onAddToCart, onClose);
 
-  // Prevent body scroll when modal is open
+  // Prevent scroll when open
   useScrollLock(isOpen);
 
-  // Close on escape key
+  // Handle disabled button click - scroll to first missing group
+  const handleDisabledButtonClick = () => {
+    if (!canAddToCart && ingredientsSectionRef.current) {
+      // Enable highlight animation
+      setShouldHighlightMissing(true);
+
+      // Scroll to ingredients section
+      ingredientsSectionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      // Disable highlight after animation
+      setTimeout(() => {
+        setShouldHighlightMissing(false);
+      }, 3000);
+    }
+  };
+
+  // Keyboard accessibility: Close on Escape
   useEffect(() => {
+    if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
-  if (!isOpen || !item) {
-    return null;
-  }
+  // Don't render if not open, no item, or not mounted (SSR)
+  if (!isOpen || !item || !mounted) return null;
 
-  // Render modal content
   const modalContent = (
-    <>
-      {/* Backdrop */}
+    <div className={styles['modal-wrapper']} role="dialog" aria-modal="true">
+      {/* Backdrop with fade-in animation potential */}
       <div 
         className={styles['modal-backdrop']} 
         onClick={onClose}
-        aria-label="Close modal"
+        aria-hidden="true"
       />
 
-      {/* Modal */}
       <div className={styles['product-modal']}>
         <div className={styles['modal-container']} onClick={(e) => e.stopPropagation()}>
-          {/* Close Button */}
+          {/* Close Action */}
           <button 
             className={styles['modal-close']} 
             onClick={onClose}
-            aria-label="Close"
+            aria-label={translateToHebrew('Close')}
           >
             <X size={20} />
           </button>
           
-          {/* Image - Right Side */}
-          <ProductModalImage image={item.image} name={item.name} />
-
-          {/* Content - Left Side */}
-          <div className={styles['modal-content']}>
-            {/* Header */}
-            <ProductModalHeader
-              name={item.name}
-              selectedVolume={selectedVolume}
-              basePrice={currentBasePrice}
-              discountedPrice={currentDiscountedPrice}
-              discountPercent={discountPercent}
-            />
-
-            {/* Description */}
-            <div className={styles['modal-description']}>
-              <p>
-                {translateToHebrew(item.description) || 
-                  translateToHebrew('Experience the perfect blend of quality and taste. Made with care using only the finest natural ingredients to bring you an exceptional experience.')}
-              </p>
+          {/* Main Layout */}
+          {isLoading ? (
+            <div className="flex h-[400px] w-full items-center justify-center">
+               <LoadingSpinner size="lg" text={translateToHebrew('Loading details...')} />
             </div>
+          ) : (
+            <>
+              <ProductModalImage image={item.image} name={item.name} />
 
-            {/* Features */}
-            <ProductModalFeatures />
+              <div className={styles['modal-content']}>
+                <ProductModalHeader
+                  name={item.name}
+                  selectedVolume={selectedVolume}
+                  basePrice={currentBasePrice}
+                  discountedPrice={currentDiscountedPrice}
+                  discountPercent={discountPercent}
+                />
 
-            {/* Volume Selection */}
-            <VolumeSelector
-              volumeOptions={volumeOptions}
-              selectedVolume={selectedVolume}
-              onVolumeChange={setSelectedVolume}
-              discountPercent={discountPercent}
-            />
+                <div className={styles['modal-description']}>
+                  <p>{translateToHebrew(item.description) || translateToHebrew('Natural ingredients experience.')}</p>
+                </div>
 
-            {/* Custom Ingredients */}
-            <IngredientsSection
-              ingredients={customIngredients}
-              selectedIngredients={selectedIngredients}
-              onIngredientToggle={handleIngredientToggle}
-            />
+                <ProductModalFeatures />
 
-            {/* Additional Items */}
-            <AdditionalItemsSection
-              additionalItems={additionalItems}
-              selectedItems={selectedAdditionalItems}
-              onToggle={handleAdditionalItemToggle}
-            />
+                <VolumeSelector
+                  volumeOptions={volumeOptions}
+                  selectedVolume={selectedVolume}
+                  onVolumeChange={setSelectedVolume}
+                  discountPercent={discountPercent}
+                />
 
-            {/* Footer */}
-            <ProductModalFooter
-              totalPrice={totalPrice}
-              onAddToCart={handleAddToCartClick}
-            />
-          </div>
+                <div ref={ingredientsSectionRef}>
+                  <IngredientsSection
+                    ingredients={customIngredients}
+                    selectedIngredients={selectedIngredients}
+                    onIngredientToggle={handleIngredientToggle}
+                    missingRequiredGroups={missingRequiredGroups}
+                    shouldHighlightMissing={shouldHighlightMissing}
+                  />
+                </div>
+
+                <AdditionalItemsSection
+                  additionalItems={additionalItems}
+                  selectedItems={selectedAdditionalItems}
+                  onToggle={handleAdditionalItemToggle}
+                />
+
+                <ProductModalFooter
+                  totalPrice={totalPrice}
+                  onAddToCart={handleAddToCartClick}
+                  canAddToCart={canAddToCart}
+                  missingRequiredGroups={missingRequiredGroups}
+                  onDisabledClick={handleDisabledButtonClick}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 
-  // Use Portal to render modal directly in body, bypassing any parent containers
-  if (typeof window !== 'undefined' && document.body) {
-    return createPortal(modalContent, document.body);
-  }
-
-  // Fallback for SSR
-  return null;
+  return createPortal(modalContent, document.body);
 }

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { ShoppingBag } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
+import { prefetchModalData } from '@/components/ProductModal/useProductModalData';
 import styles from '../menu.module.css';
 
 export interface MenuItem {
@@ -10,10 +12,10 @@ export interface MenuItem {
   category_id: number;
   name: string;
   description?: string;
-  price: number | string; // Can be string from MySQL DECIMAL
+  price: number | string;
   volume?: string;
   image?: string;
-  discount_percent: number | string; // Can be string from MySQL DECIMAL
+  discount_percent: number | string;
   is_available: boolean;
   categoryVolumes?: Array<{ volume: string; is_default: boolean; sort_order: number }>;
 }
@@ -36,45 +38,47 @@ export default function MenuItemCard({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Парсимо значення один раз при рендері
+  const price = Number(item.price) || 0;
+  const discount = Number(item.discount_percent) || 0;
+  const discountedPrice = getDiscountedPrice(price, discount);
+  const hasDiscount = discount > 0;
+
   const handleClick = () => {
     onItemClick({ ...item, category_id: item.category_id || categoryId });
   };
 
-  const handleImageError = () => {
-    setImageError(true);
-  };
+  // Prefetch modal data on hover for faster loading
+  const handleMouseEnter = useCallback(() => {
+    prefetchModalData(item.id);
+  }, [item.id]);
 
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  };
-
-  const hasValidImage = item.image && item.image.trim() !== '' && !imageError;
+  const hasValidImage = item.image?.trim() && !imageError;
 
   return (
     <div
       className={`${styles.productCard} reveal`}
       style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
       onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
     >
       {/* Discount Badge */}
-      {(typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0) > 0 && (
-        <div className={styles.discountBadge}>-{typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0}%</div>
+      {hasDiscount && (
+        <div className={styles.discountBadge}>-{discount}%</div>
       )}
 
-      {/* Image */}
+      {/* Image Container */}
       <div className={styles.productImage}>
         {hasValidImage ? (
-          // Используем обычный img для всех изображений (внешних и локальных)
-          // Локальные изображения уже оптимизированы через sharp
-          <img
+          <Image
             src={item.image}
             alt={translateToHebrew(item.name)}
-            loading="lazy"
-            decoding="async"
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            onError={handleImageError}
-            onLoad={handleImageLoad}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
             className={imageLoaded ? styles.imageLoaded : ''}
+            style={{ objectFit: 'cover' }}
           />
         ) : (
           <div className={styles.productImagePlaceholder}>
@@ -83,7 +87,7 @@ export default function MenuItemCard({
         )}
       </div>
 
-      {/* Info */}
+      {/* Info Section */}
       <div className={styles.productInfo}>
         <div className={styles.productText}>
           <h3 className={styles.productName}>{translateToHebrew(item.name)}</h3>
@@ -93,32 +97,25 @@ export default function MenuItemCard({
         </div>
 
         <div className={styles.productFooter}>
-          {item.categoryVolumes && item.categoryVolumes.length > 0 ? (
+          {item.categoryVolumes?.length ? (
             <div className={styles.volumesList}>
-              {item.categoryVolumes.map((vol, volIdx) => {
-                const volPrice = getDiscountedPrice(item.price, item.discount_percent);
-                const numPrice = typeof volPrice === 'number' ? volPrice : parseFloat(String(volPrice)) || 0;
-                return (
-                  <div key={volIdx} className={styles.volumeBadge}>
-                    <span className={styles.volumeLabel}>{translateToHebrew(vol.volume)}</span>
-                    <span className={styles.volumeSeparator}>•</span>
-                    <span className={styles.volumePrice}>₪{numPrice.toFixed(0)}</span>
-                  </div>
-                );
-              })}
+              {item.categoryVolumes.map((vol, idx) => (
+                <div key={idx} className={styles.volumeBadge}>
+                  <span className={styles.volumeLabel}>{translateToHebrew(vol.volume)}</span>
+                  <span className={styles.volumeSeparator}>•</span>
+                  <span className={styles.volumePrice}>₪{discountedPrice.toFixed(0)}</span>
+                </div>
+              ))}
             </div>
           ) : (
             <div className={styles.priceBadge}>
-              {(typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(String(item.discount_percent)) || 0) > 0 && (
-                <span className={styles.priceOld}>₪{
-                  (typeof item.price === 'number' ? item.price : parseFloat(String(item.price)) || 0).toFixed(0)
-                }</span>
+              {hasDiscount && (
+                <span className={styles.priceOld}>₪{price.toFixed(0)}</span>
               )}
-              <span className={styles.priceCurrent}>
-                ₪{getDiscountedPrice(item.price, item.discount_percent).toFixed(0)}
-              </span>
+              <span className={styles.priceCurrent}>₪{discountedPrice.toFixed(0)}</span>
             </div>
           )}
+
           <button
             className={styles.addBtn}
             onClick={(e) => {
@@ -134,4 +131,3 @@ export default function MenuItemCard({
     </div>
   );
 }
-

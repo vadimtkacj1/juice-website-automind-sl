@@ -1,54 +1,52 @@
 import { useEffect } from 'react';
 
 /**
- * Hook to lock body scroll when a modal/overlay is open
- * Handles scroll position preservation and restoring
+ * Optimized hook to lock body scroll when a modal/overlay is open
+ * Prevents scroll jumps and janky behavior by using a smoother approach
  */
 export function useScrollLock(isOpen: boolean) {
   useEffect(() => {
     if (!isOpen) return;
-    
-    // Store current scroll position BEFORE any changes
-    const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-    
+
+    // Get scrollbar width to prevent layout shift
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    // Store current scroll position
+    const scrollY = window.scrollY;
+
     // Store original styles
     const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalBodyPosition = document.body.style.position;
     const originalBodyTop = document.body.style.top;
-    const originalBodyLeft = document.body.style.left;
-    const originalBodyRight = document.body.style.right;
     const originalBodyWidth = document.body.style.width;
-    
-    // Lock scroll - prevent body scroll without losing position
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    const originalBodyPaddingRight = document.body.style.paddingRight;
+
+    // Lock scroll using fixed positioning to prevent scroll jumps
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
     document.body.style.width = '100%';
-    
-    // Store for cleanup in a way that persists across re-renders but is attached to DOM
-    // (using local variables in closure for cleanup)
-    
+    document.body.style.overflow = 'hidden';
+
+    // Compensate for scrollbar width to prevent content shift
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
     return () => {
-      // Restore original styles
+      // Restore original styles FIRST
       document.body.style.position = originalBodyPosition;
       document.body.style.top = originalBodyTop;
-      document.body.style.left = originalBodyLeft;
-      document.body.style.right = originalBodyRight;
       document.body.style.width = originalBodyWidth;
       document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-      
-      // Restore scroll position
-      if (scrollY) {
-        // Use requestAnimationFrame to ensure DOM is ready
-        requestAnimationFrame(() => {
-          window.scrollTo(0, scrollY);
-        });
-      }
+      document.body.style.paddingRight = originalBodyPaddingRight;
+
+      // THEN restore scroll position WITHOUT animation to prevent jumps
+      // Use instant scroll instead of scrollTo to prevent visual jumps
+      window.scrollTo({
+        top: scrollY,
+        left: 0,
+        behavior: 'instant' as ScrollBehavior
+      });
     };
   }, [isOpen]);
 }

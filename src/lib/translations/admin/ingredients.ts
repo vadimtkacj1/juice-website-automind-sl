@@ -306,5 +306,11 @@ export const adminIngredientsTranslations: Record<string, string> = {
   'move to group...': 'העבר לקבוצה...',
   'Multiple Choice': 'בחירה מרובה',
   'multiple choice': 'בחירה מרובה',
+  
+  // Category attachment
+  'Failed to add ingredient to category.': 'נכשל בהוספת המרכיב לקטגוריה',
+  'failed to add ingredient to category.': 'נכשל בהוספת המרכיב לקטגוריה',
+  'This ingredient is already attached to this category.': 'המרכיב הזה כבר מצורף לקטגוריה זו',
+  'this ingredient is already attached to this category.': 'המרכיב הזה כבר מצורף לקטגוריה זו',
 };
 

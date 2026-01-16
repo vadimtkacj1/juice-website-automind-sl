@@ -7,6 +7,7 @@ import { Calendar, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HeroSection from '@/components/HeroSection';
 import { translateToHebrew } from '@/lib/translations';
+import { useLoading } from '@/lib/loading-context';
 import styles from './news.module.css';
 
 interface NewsItem {
@@ -22,6 +23,7 @@ export default function NewsPage() {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { setLoading: setGlobalLoading } = useLoading();
 
   useEffect(() => {
     fetchNews();
@@ -29,6 +31,7 @@ export default function NewsPage() {
 
   async function fetchNews() {
     try {
+      setGlobalLoading(true);
       const response = await fetch('/api/news');
       if (!response.ok) {
         throw new Error('Failed to fetch news');
@@ -42,6 +45,7 @@ export default function NewsPage() {
       setError(translateToHebrew('Failed to load news. Please try again later.'));
     } finally {
       setLoading(false);
+      setGlobalLoading(false);
     }
   }
 

@@ -1,9 +1,9 @@
 /**
- * Telegram Bot Service
- * 
+ * Telegram Bot Service - SIMPLIFIED VERSION
+ *
  * Standalone service for handling Telegram bot operations.
- * Can be run independently from the main Next.js application.
- * 
+ * Now with simplified single-interval reminder system and role-based notifications.
+ *
  * Usage:
  *   node services/telegram-bot-service.js
  *   or
@@ -16,7 +16,7 @@ const http = require('http');
 
 // Configuration
 const SERVICE_PORT = process.env.TELEGRAM_SERVICE_PORT || 3001;
-const POLLING_INTERVAL = 1000; // 1 second
+const POLLING_INTERVAL = 1000;
 const MAX_POLLING_ERRORS = 5;
 
 // State
@@ -24,9 +24,9 @@ let bot = null;
 let db = null;
 let isPolling = false;
 let pollingErrorCount = 0;
-let notificationIntervals = new Map(); // Stage 1: 1-minute reminders (5 times)
-let reminderIntervals = new Map(); // Stage 2: 1-hour reminders
-let notificationCounts = new Map(); // Track how many times Stage 1 notification was sent
+
+// SIMPLIFIED: Single interval map for all reminders
+let orderReminderIntervals = new Map();
 
 // Initialize database connection
 function initDatabase() {
@@ -37,7 +37,7 @@ function initDatabase() {
         reject(new Error('Database connection failed'));
         return;
       }
-      console.log('[Telegram Service] Connected to MySQL database');
+      console.log('[Telegram Service] Connected to database');
       resolve();
     } catch (err) {
       console.error('[Telegram Service] Database connection error:', err.message);
@@ -66,7 +66,7 @@ function getBotSettings() {
 async function initBot() {
   try {
     const settings = await getBotSettings();
-    
+
     if (!settings || !settings.api_token) {
       console.log('[Telegram Service] Bot is not configured or disabled');
       return false;
@@ -75,17 +75,17 @@ async function initBot() {
     // Validate token
     const testBot = new TelegramBot(settings.api_token, { polling: false });
     await testBot.getMe();
-    
+
     // Create bot instance
     bot = new TelegramBot(settings.api_token, { polling: false });
-    
+
     // Setup handlers
     setupBotHandlers(bot);
     setupErrorHandlers(bot);
-    
+
     // Start polling
     await startPolling();
-    
+
     console.log('[Telegram Service] Bot initialized successfully');
     return true;
   } catch (error) {
@@ -96,9 +96,7 @@ async function initBot() {
 
 // Start polling
 async function startPolling() {
-  if (isPolling) {
-    return;
-  }
+  if (isPolling) return;
 
   try {
     bot.startPolling({
@@ -106,12 +104,10 @@ async function startPolling() {
       polling: {
         interval: POLLING_INTERVAL,
         autoStart: false,
-        params: {
-          timeout: 10
-        }
+        params: { timeout: 10 }
       }
     });
-    
+
     isPolling = true;
     pollingErrorCount = 0;
     console.log('[Telegram Service] Polling started');
@@ -138,19 +134,19 @@ function stopPolling() {
 function setupBotHandlers(bot) {
   bot.on('callback_query', async (query) => {
     const data = query.data;
-    const courierTelegramId = query.from.id.toString();
+    const deliveryTelegramId = query.from.id.toString();
 
     try {
       if (data?.startsWith('order_accept_')) {
         const orderId = parseInt(data.replace('order_accept_', ''));
-        await handleOrderAccept(orderId, courierTelegramId);
-        bot.answerCallbackQuery(query.id, { text: 'Order assigned to you!' });
+        await handleOrderAccept(orderId, deliveryTelegramId);
+        bot.answerCallbackQuery(query.id, { text: 'Заказ принят!' });
       }
 
       if (data?.startsWith('order_delivered_')) {
         const orderId = parseInt(data.replace('order_delivered_', ''));
-        await handleOrderDelivered(orderId, courierTelegramId);
-        bot.answerCallbackQuery(query.id, { text: 'Order marked as delivered!' });
+        await handleOrderDelivered(orderId, deliveryTelegramId);
+        bot.answerCallbackQuery(query.id, { text: 'Заказ доставлен!' });
       }
     } catch (error) {
       console.error('[Telegram Service] Callback query error:', error.message);
@@ -162,11 +158,11 @@ function setupBotHandlers(bot) {
 function setupErrorHandlers(bot) {
   bot.on('polling_error', (error) => {
     pollingErrorCount++;
-    
+
     if (pollingErrorCount <= 3) {
       console.error(`[Telegram Service] Polling error (${pollingErrorCount}/${MAX_POLLING_ERRORS}):`, error.message);
     }
-    
+
     if (pollingErrorCount >= MAX_POLLING_ERRORS) {
       console.error('[Telegram Service] Too many polling errors. Stopping polling.');
       stopPolling();
@@ -181,8 +177,8 @@ function setupErrorHandlers(bot) {
   });
 }
 
-// Handle order acceptance
-async function handleOrderAccept(orderId, courierTelegramId) {
+// Handle order acceptance (Delivery only)
+async function handleOrderAccept(orderId, deliveryTelegramId) {
   return new Promise((resolve) => {
     db.get(
       'SELECT * FROM order_telegram_notifications WHERE order_id = ?',
@@ -196,7 +192,7 @@ async function handleOrderAccept(orderId, courierTelegramId) {
 
         if (notification && notification.status === 'in_progress') {
           try {
-            await bot.sendMessage(courierTelegramId, '❌ This order has already been taken by another courier.');
+            await bot.sendMessage(deliveryTelegramId, '❌ Этот заказ уже взят другим курьером.');
           } catch (error) {
             // Ignore
           }
@@ -207,32 +203,31 @@ async function handleOrderAccept(orderId, courierTelegramId) {
         const now = new Date().toISOString();
         if (notification) {
           db.run(
-            `UPDATE order_telegram_notifications 
+            `UPDATE order_telegram_notifications
              SET courier_telegram_id = ?, status = 'in_progress', assigned_at = ?
              WHERE order_id = ?`,
-            [courierTelegramId, now, orderId]
+            [deliveryTelegramId, now, orderId]
           );
         } else {
           db.run(
             `INSERT INTO order_telegram_notifications (order_id, courier_telegram_id, status, assigned_at, created_at)
              VALUES (?, ?, 'in_progress', ?, ?)`,
-            [orderId, courierTelegramId, now, now]
+            [orderId, deliveryTelegramId, now, now]
           );
         }
 
         db.run('UPDATE orders SET status = ? WHERE id = ?', ['in_progress', orderId]);
 
-        // Stop Stage 1 notification interval
-        if (notificationIntervals.has(orderId)) {
-          clearInterval(notificationIntervals.get(orderId));
-          notificationIntervals.delete(orderId);
-          notificationCounts.delete(orderId);
-          console.log(`[Telegram Service] Stopped Stage 1 reminders for order #${orderId}`);
+        // Stop pending reminders
+        if (orderReminderIntervals.has(orderId)) {
+          clearInterval(orderReminderIntervals.get(orderId));
+          orderReminderIntervals.delete(orderId);
+          console.log(`[Telegram Service] Stopped reminders for order #${orderId}`);
         }
 
-        // Get order details for Stage 2 reminders
+        // Get order details
         db.get(
-          `SELECT o.*, 
+          `SELECT o.*,
             GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
            FROM orders o
            LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -241,79 +236,85 @@ async function handleOrderAccept(orderId, courierTelegramId) {
           [orderId],
           async (orderErr, order) => {
             if (orderErr || !order) {
-              console.error(`[Telegram Service] Error fetching order #${orderId} for Stage 2:`, orderErr);
+              console.error(`[Telegram Service] Error fetching order #${orderId}:`, orderErr);
               return;
             }
 
-            // Send confirmation with Stage 2 message
-            const stage2Message = `✅ Order #${orderId} is now in progress!\n\n` +
-              `👤 Customer: ${order.customer_name}\n` +
-              `📞 Phone: ${order.customer_phone || 'Not provided'}\n` +
-              (order.delivery_address ? `📍 Delivery Address: ${order.delivery_address}\n` : '') +
-              `\n❓ Did you deliver the order? Click the button to update status.`;
+            // Send confirmation
+            const confirmMessage = `✅ Заказ #${orderId} принят в работу!\n\n` +
+              `👤 Клиент: ${order.customer_name}\n` +
+              `📞 Телефон: ${order.customer_phone || 'Не указан'}\n` +
+              (order.delivery_address ? `📍 Адрес: ${order.delivery_address}\n` : '') +
+              `\n❓ Заказ доставлен?`;
 
             try {
               await bot.sendMessage(
-                courierTelegramId,
-                stage2Message,
+                deliveryTelegramId,
+                confirmMessage,
                 {
                   reply_markup: {
                     inline_keyboard: [[
-                      { text: '✅ Done', callback_data: `order_delivered_${orderId}` }
+                      { text: '✅ Доставлено', callback_data: `order_delivered_${orderId}` }
                     ]]
                   }
                 }
               );
             } catch (error) {
-              console.error(`[Telegram Service] Error sending Stage 2 confirmation:`, error);
+              console.error(`[Telegram Service] Error sending confirmation:`, error);
             }
 
-            // Stage 2: Start 1-hour reminders
-            const reminderInterval = setInterval(() => {
-              db.get(
-                'SELECT status FROM order_telegram_notifications WHERE order_id = ?',
-                [orderId],
-                async (checkErr, notif) => {
-                  if (!checkErr && notif && notif.status === 'in_progress') {
-                    try {
-                      const now = new Date().toISOString();
-                      db.run(
-                        'UPDATE order_telegram_notifications SET last_reminder_at = ? WHERE order_id = ?',
-                        [now, orderId]
-                      );
+            // SIMPLIFIED: Start reminders with same interval
+            db.get(
+              'SELECT reminder_interval_minutes FROM telegram_bot_settings WHERE is_enabled = 1 ORDER BY id DESC LIMIT 1',
+              (settingsErr, settings) => {
+                const reminderInterval = ((settings?.reminder_interval_minutes || 5) * 60 * 1000);
 
-                      const reminderMessage = `⏰ Reminder: Order #${orderId}\n\n` +
-                        `👤 Customer: ${order.customer_name}\n` +
-                        (order.delivery_address ? `📍 Delivery Address: ${order.delivery_address}\n` : '') +
-                        `\n❓ Did you deliver the order? Click the button to update status.`;
+                const interval = setInterval(() => {
+                  db.get(
+                    'SELECT status FROM order_telegram_notifications WHERE order_id = ?',
+                    [orderId],
+                    async (checkErr, notif) => {
+                      if (!checkErr && notif && notif.status === 'in_progress') {
+                        try {
+                          const now = new Date().toISOString();
+                          db.run(
+                            'UPDATE order_telegram_notifications SET last_reminder_at = ? WHERE order_id = ?',
+                            [now, orderId]
+                          );
 
-                      await bot.sendMessage(
-                        courierTelegramId,
-                        reminderMessage,
-                        {
-                          reply_markup: {
-                            inline_keyboard: [[
-                              { text: '✅ Done', callback_data: `order_delivered_${orderId}` }
-                            ]]
-                          }
+                          const reminderMessage = `⏰ НАПОМИНАНИЕ: Заказ #${orderId}\n\n` +
+                            `👤 Клиент: ${order.customer_name}\n` +
+                            (order.delivery_address ? `📍 Адрес: ${order.delivery_address}\n` : '') +
+                            `\n❓ Заказ доставлен?`;
+
+                          await bot.sendMessage(
+                            deliveryTelegramId,
+                            reminderMessage,
+                            {
+                              reply_markup: {
+                                inline_keyboard: [[
+                                  { text: '✅ Доставлено', callback_data: `order_delivered_${orderId}` }
+                                ]]
+                              }
+                            }
+                          );
+                          console.log(`[Telegram Service] Reminder sent for order #${orderId}`);
+                        } catch (error) {
+                          console.error(`[Telegram Service] Error sending reminder:`, error);
                         }
-                      );
-                      console.log(`[Telegram Service] Stage 2 reminder sent for order #${orderId}`);
-                    } catch (error) {
-                      console.error(`[Telegram Service] Error sending Stage 2 reminder:`, error);
+                      } else {
+                        clearInterval(interval);
+                        orderReminderIntervals.delete(orderId);
+                        console.log(`[Telegram Service] Stopped reminders for order #${orderId}`);
+                      }
                     }
-                  } else {
-                      // Status changed, stop reminders
-                      clearInterval(reminderInterval);
-                      reminderIntervals.delete(orderId);
-                      console.log(`[Telegram Service] Stopped Stage 2 reminders for order #${orderId}`);
-                    }
-                  }
-              );
-            }, 60 * 60 * 1000); // 1 hour interval
+                  );
+                }, reminderInterval);
 
-            reminderIntervals.set(orderId, reminderInterval);
-            console.log(`[Telegram Service] Started Stage 2 reminders (1 hour intervals) for order #${orderId}`);
+                orderReminderIntervals.set(orderId, interval);
+                console.log(`[Telegram Service] Started reminders for order #${orderId}`);
+              }
+            );
           }
         );
 
@@ -324,15 +325,15 @@ async function handleOrderAccept(orderId, courierTelegramId) {
 }
 
 // Handle order delivery
-async function handleOrderDelivered(orderId, courierTelegramId) {
+async function handleOrderDelivered(orderId, deliveryTelegramId) {
   return new Promise((resolve) => {
     db.get(
       'SELECT * FROM order_telegram_notifications WHERE order_id = ? AND courier_telegram_id = ?',
-      [orderId, courierTelegramId],
+      [orderId, deliveryTelegramId],
       async (err, notification) => {
         if (err || !notification || notification.status !== 'in_progress') {
           try {
-            await bot.sendMessage(courierTelegramId, '❌ Error: Order not found or already delivered.');
+            await bot.sendMessage(deliveryTelegramId, '❌ Ошибка: Заказ не найден или уже доставлен.');
           } catch (error) {
             // Ignore
           }
@@ -342,7 +343,7 @@ async function handleOrderDelivered(orderId, courierTelegramId) {
 
         const now = new Date().toISOString();
         db.run(
-          `UPDATE order_telegram_notifications 
+          `UPDATE order_telegram_notifications
            SET status = 'delivered', delivered_at = ?
            WHERE order_id = ?`,
           [now, orderId]
@@ -350,22 +351,17 @@ async function handleOrderDelivered(orderId, courierTelegramId) {
 
         db.run('UPDATE orders SET status = ? WHERE id = ?', ['delivered', orderId]);
 
-        // Stop all reminder intervals (Stage 1 and Stage 2)
-        if (notificationIntervals.has(orderId)) {
-          clearInterval(notificationIntervals.get(orderId));
-          notificationIntervals.delete(orderId);
-          notificationCounts.delete(orderId);
-        }
-        if (reminderIntervals.has(orderId)) {
-          clearInterval(reminderIntervals.get(orderId));
-          reminderIntervals.delete(orderId);
+        // Stop all reminders
+        if (orderReminderIntervals.has(orderId)) {
+          clearInterval(orderReminderIntervals.get(orderId));
+          orderReminderIntervals.delete(orderId);
         }
         console.log(`[Telegram Service] Stopped all reminders for order #${orderId} (order completed)`);
 
         try {
           await bot.sendMessage(
-            courierTelegramId,
-            `✅ Order #${orderId} has been delivered successfully! Thank you for your work!`
+            deliveryTelegramId,
+            `✅ Заказ #${orderId} успешно доставлен! Спасибо за работу!`
           );
         } catch (error) {
           // Ignore
@@ -377,13 +373,13 @@ async function handleOrderDelivered(orderId, courierTelegramId) {
   });
 }
 
-// Send order notification
+// SIMPLIFIED: Send order notification based on recipient roles
 async function sendOrderNotification(orderId) {
   console.log(`[Telegram Service] Sending notification for order #${orderId}`);
   return new Promise((resolve) => {
     db.get(
-      `SELECT o.*, 
-        GROUP_CONCAT(oi.item_name || ' x' || oi.quantity, '\n') as items
+      `SELECT o.*,
+        GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
        FROM orders o
        LEFT JOIN order_items oi ON o.id = oi.order_id
        WHERE o.id = ?
@@ -395,7 +391,7 @@ async function sendOrderNotification(orderId) {
           resolve(false);
           return;
         }
-        
+
         if (!order) {
           console.error(`[Telegram Service] Order #${orderId} not found`);
           resolve(false);
@@ -404,22 +400,23 @@ async function sendOrderNotification(orderId) {
 
         console.log(`[Telegram Service] Order #${orderId} found: ${order.customer_name}, Total: ₪${order.total_amount}`);
 
+        // Get all active recipients
         db.all(
           'SELECT * FROM telegram_couriers WHERE is_active = 1',
-          async (courierErr, couriers) => {
-            if (courierErr) {
-              console.error('[Telegram Service] Error fetching couriers:', courierErr.message);
-              resolve(false);
-              return;
-            }
-            
-            if (!couriers || couriers.length === 0) {
-              console.error('[Telegram Service] No active couriers found');
+          async (recipientErr, recipients) => {
+            if (recipientErr) {
+              console.error('[Telegram Service] Error fetching recipients:', recipientErr.message);
               resolve(false);
               return;
             }
 
-            console.log(`[Telegram Service] Found ${couriers.length} active courier(s)`);
+            if (!recipients || recipients.length === 0) {
+              console.error('[Telegram Service] No active recipients found');
+              resolve(false);
+              return;
+            }
+
+            console.log(`[Telegram Service] Found ${recipients.length} active recipient(s)`);
 
             db.get(
               'SELECT * FROM order_telegram_notifications WHERE order_id = ?',
@@ -438,7 +435,7 @@ async function sendOrderNotification(orderId) {
                 const now = new Date().toISOString();
                 if (existing) {
                   db.run(
-                    `UPDATE order_telegram_notifications 
+                    `UPDATE order_telegram_notifications
                      SET last_notification_sent_at = ?, status = 'pending'
                      WHERE order_id = ?`,
                     [now, orderId]
@@ -451,127 +448,132 @@ async function sendOrderNotification(orderId) {
                   );
                 }
 
-                // Create reminder message for Stage 1
-                const orderMessage = `🆕 New Order #${order.id}\n\n` +
-                  `👤 Customer: ${order.customer_name}\n` +
-                  `📞 Phone: ${order.customer_phone || 'Not provided'}\n` +
-                  `📧 Email: ${order.customer_email || 'Not provided'}\n` +
-                  (order.delivery_address ? `📍 Delivery Address: ${order.delivery_address}\n` : '') +
-                  `💰 Total: ₪${order.total_amount.toFixed(2)}\n\n` +
-                  `📦 Items:\n${order.items || 'No items'}\n\n` +
-                  (order.notes ? `📝 Notes: ${order.notes}\n\n` : '') +
-                  `⏰ Order Time: ${new Date(order.created_at).toLocaleString('en-US')}\n\n` +
-                  `❓ Did you deliver the order? Click the button to update status.`;
+                // Separate recipients by role
+                const kitchenRecipients = recipients.filter(r => r.role === 'kitchen');
+                const deliveryRecipients = recipients.filter(r => r.role === 'delivery');
+                const observerRecipients = recipients.filter(r => r.role === 'observer');
 
-                const keyboard = {
+                // Kitchen message (no buttons)
+                const kitchenMessage = `🍳 НОВЫЙ ЗАКАЗ #${order.id}\n\n` +
+                  `👤 Клиент: ${order.customer_name}\n` +
+                  `📞 Телефон: ${order.customer_phone || 'Не указан'}\n` +
+                  `💰 Сумма: ₪${order.total_amount.toFixed(2)}\n\n` +
+                  `📦 Состав заказа:\n${order.items || 'Нет товаров'}\n\n` +
+                  (order.notes ? `📝 Примечания: ${order.notes}\n\n` : '') +
+                  `⏰ Время заказа: ${new Date(order.created_at).toLocaleString('ru-RU')}`;
+
+                // Delivery message (with buttons)
+                const deliveryMessage = `🚗 НОВЫЙ ЗАКАЗ НА ДОСТАВКУ #${order.id}\n\n` +
+                  `👤 Клиент: ${order.customer_name}\n` +
+                  `📞 Телефон: ${order.customer_phone || 'Не указан'}\n` +
+                  `📧 Email: ${order.customer_email || 'Не указан'}\n` +
+                  (order.delivery_address ? `📍 Адрес доставки: ${order.delivery_address}\n` : '') +
+                  `💰 Сумма: ₪${order.total_amount.toFixed(2)}\n\n` +
+                  `📦 Состав заказа:\n${order.items || 'Нет товаров'}\n\n` +
+                  (order.notes ? `📝 Примечания: ${order.notes}\n\n` : '') +
+                  `⏰ Время заказа: ${new Date(order.created_at).toLocaleString('ru-RU')}\n\n` +
+                  `❓ Возьмете заказ в работу?`;
+
+                // Observer message (info only)
+                const observerMessage = `👁️ НОВЫЙ ЗАКАЗ (ИНФО) #${order.id}\n\n` +
+                  `👤 Клиент: ${order.customer_name}\n` +
+                  `💰 Сумма: ₪${order.total_amount.toFixed(2)}\n` +
+                  `📦 Товаров: ${order.items?.split('\n').length || 0}\n` +
+                  `⏰ Время: ${new Date(order.created_at).toLocaleString('ru-RU')}`;
+
+                const deliveryKeyboard = {
                   inline_keyboard: [[
-                    { text: '✅ In Progress', callback_data: `order_accept_${orderId}` }
+                    { text: '✅ Взять заказ', callback_data: `order_accept_${orderId}` }
                   ]]
                 };
 
                 let sentCount = 0;
-                let errorCount = 0;
-                
-                for (const courier of couriers) {
+
+                // Send to Kitchen (no buttons)
+                for (const recipient of kitchenRecipients) {
                   try {
-                    console.log(`[Telegram Service] Sending to courier ${courier.name} (${courier.telegram_id})...`);
-                    await bot.sendMessage(courier.telegram_id, orderMessage, {
-                      reply_markup: keyboard
-                    });
-                    console.log(`[Telegram Service] ✅ Sent to ${courier.name}`);
+                    console.log(`[Telegram Service] Sending to kitchen ${recipient.name} (${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, kitchenMessage);
+                    console.log(`[Telegram Service] ✅ Sent to kitchen ${recipient.name}`);
                     sentCount++;
                   } catch (error) {
-                    errorCount++;
-                    console.error(`[Telegram Service] ❌ Error sending to ${courier.name} (${courier.telegram_id}):`, error.message);
-                    if (error.message?.includes('chat not found') || error.message?.includes('bot was blocked')) {
-                      console.error(`[Telegram Service] ⚠️ Courier ${courier.name} needs to start chat with bot first!`);
-                    }
+                    console.error(`[Telegram Service] ❌ Error sending to kitchen ${recipient.name}:`, error.message);
                   }
                 }
-                
-                console.log(`[Telegram Service] Summary: Sent ${sentCount}/${couriers.length} notifications, ${errorCount} errors`);
 
-                // Stage 1: Set up 1-minute reminders (5 times total)
-                if (!notificationIntervals.has(orderId)) {
-                  notificationCounts.set(orderId, 1); // First notification already sent
-                  
-                  const interval = setInterval(() => {
-                    db.get(
-                      'SELECT status FROM order_telegram_notifications WHERE order_id = ?',
-                      [orderId],
-                      async (checkErr, notif) => {
-                        if (!checkErr && notif && notif.status === 'pending') {
-                          const count = notificationCounts.get(orderId) || 0;
-                          
-                          // Stop after 5 notifications (including the initial one)
-                          if (count >= 5) {
-                            clearInterval(interval);
-                            notificationIntervals.delete(orderId);
-                            notificationCounts.delete(orderId);
-                            console.log(`[Telegram Service] Stopped Stage 1 reminders for order #${orderId} (5 notifications sent)`);
-                            return;
-                          }
-                          
-                          // Send reminder to all couriers (reuse the same message format)
-                          // We need to fetch order details again or store them
-                          db.get(
-                            `SELECT o.*, 
-                              GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
-                             FROM orders o
-                             LEFT JOIN order_items oi ON o.id = oi.order_id
-                             WHERE o.id = ?
-                             GROUP BY o.id`,
-                            [orderId],
-                            async (orderFetchErr, orderData) => {
-                              if (orderFetchErr || !orderData) {
-                                console.error(`[Telegram Service] Error fetching order for reminder:`, orderFetchErr);
-                                return;
-                              }
-                              
-                              const reminderMessage = `🆕 New Order #${orderData.id}\n\n` +
-                                `👤 Customer: ${orderData.customer_name}\n` +
-                                `📞 Phone: ${orderData.customer_phone || 'Not provided'}\n` +
-                                `📧 Email: ${orderData.customer_email || 'Not provided'}\n` +
-                                (orderData.delivery_address ? `📍 Delivery Address: ${orderData.delivery_address}\n` : '') +
-                                `💰 Total: ₪${orderData.total_amount.toFixed(2)}\n\n` +
-                                `📦 Items:\n${orderData.items || 'No items'}\n\n` +
-                                (orderData.notes ? `📝 Notes: ${orderData.notes}\n\n` : '') +
-                                `⏰ Order Time: ${new Date(orderData.created_at).toLocaleString('en-US')}\n\n` +
-                                `❓ Did you deliver the order? Click the button to update status.`;
-                              
-                              const reminderKeyboard = {
-                                inline_keyboard: [[
-                                  { text: '✅ In Progress', callback_data: `order_accept_${orderId}` }
-                                ]]
-                              };
-                              
-                              // Send reminder to all couriers
-                              for (const courier of couriers) {
+                // Send to Delivery (with buttons)
+                for (const recipient of deliveryRecipients) {
+                  try {
+                    console.log(`[Telegram Service] Sending to delivery ${recipient.name} (${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, deliveryMessage, {
+                      reply_markup: deliveryKeyboard
+                    });
+                    console.log(`[Telegram Service] ✅ Sent to delivery ${recipient.name}`);
+                    sentCount++;
+                  } catch (error) {
+                    console.error(`[Telegram Service] ❌ Error sending to delivery ${recipient.name}:`, error.message);
+                  }
+                }
+
+                // Send to Observer (info only)
+                for (const recipient of observerRecipients) {
+                  try {
+                    console.log(`[Telegram Service] Sending to observer ${recipient.name} (${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, observerMessage);
+                    console.log(`[Telegram Service] ✅ Sent to observer ${recipient.name}`);
+                    sentCount++;
+                  } catch (error) {
+                    console.error(`[Telegram Service] ❌ Error sending to observer ${recipient.name}:`, error.message);
+                  }
+                }
+
+                console.log(`[Telegram Service] Summary: Sent ${sentCount}/${recipients.length} notifications`);
+
+                // SIMPLIFIED: Single reminder interval for pending orders
+                if (!orderReminderIntervals.has(orderId)) {
+                  db.get(
+                    'SELECT reminder_interval_minutes FROM telegram_bot_settings WHERE is_enabled = 1 ORDER BY id DESC LIMIT 1',
+                    (settingsErr, settings) => {
+                      const reminderInterval = ((settings?.reminder_interval_minutes || 5) * 60 * 1000);
+
+                      const interval = setInterval(() => {
+                        db.get(
+                          'SELECT status FROM order_telegram_notifications WHERE order_id = ?',
+                          [orderId],
+                          async (checkErr, notif) => {
+                            if (!checkErr && notif && notif.status === 'pending') {
+                              // Resend to Kitchen and Delivery only
+                              for (const recipient of kitchenRecipients) {
                                 try {
-                                  await bot.sendMessage(courier.telegram_id, reminderMessage, {
-                                    reply_markup: reminderKeyboard
-                                  });
-                                  console.log(`[Telegram Service] Stage 1 reminder ${count + 1}/5 sent to ${courier.name} for order #${orderId}`);
+                                  await bot.sendMessage(recipient.telegram_id, `🔔 НАПОМИНАНИЕ\n\n${kitchenMessage}`);
                                 } catch (error) {
-                                  // Ignore errors
+                                  // Ignore
                                 }
                               }
-                              
-                              notificationCounts.set(orderId, count + 1);
-                            }
-                          );
-                        } else {
-                          // Status changed, stop reminders
-                          clearInterval(interval);
-                          notificationIntervals.delete(orderId);
-                          notificationCounts.delete(orderId);
-                        }
-                      }
-                    );
-                  }, 1 * 60 * 1000); // 1 minute interval
 
-                  notificationIntervals.set(orderId, interval);
-                  console.log(`[Telegram Service] Started Stage 1 reminders (1 min intervals, max 5) for order #${orderId}`);
+                              for (const recipient of deliveryRecipients) {
+                                try {
+                                  await bot.sendMessage(recipient.telegram_id, `🔔 НАПОМИНАНИЕ\n\n${deliveryMessage}`, {
+                                    reply_markup: deliveryKeyboard
+                                  });
+                                } catch (error) {
+                                  // Ignore
+                                }
+                              }
+                              console.log(`[Telegram Service] Reminder sent for order #${orderId}`);
+                            } else {
+                              clearInterval(interval);
+                              orderReminderIntervals.delete(orderId);
+                              console.log(`[Telegram Service] Stopped reminders for order #${orderId}`);
+                            }
+                          }
+                        );
+                      }, reminderInterval);
+
+                      orderReminderIntervals.set(orderId, interval);
+                      console.log(`[Telegram Service] Started reminders (interval: ${reminderInterval / 60000} min) for order #${orderId}`);
+                    }
+                  );
                 }
 
                 resolve(sentCount > 0);
@@ -588,16 +590,16 @@ async function sendOrderNotification(orderId) {
 const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/notify-order') {
     let body = '';
-    
+
     req.on('data', chunk => {
       body += chunk.toString();
     });
-    
+
     req.on('end', async () => {
       try {
         console.log('[Telegram Service] Received notification request');
         const { orderId } = JSON.parse(body);
-        
+
         if (!orderId) {
           console.error('[Telegram Service] Order ID missing in request');
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -607,9 +609,9 @@ const server = http.createServer(async (req, res) => {
 
         console.log(`[Telegram Service] Processing notification for order #${orderId}`);
         const result = await sendOrderNotification(orderId);
-        
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
+        res.end(JSON.stringify({
           success: result,
           message: result ? 'Notification sent' : 'Failed to send notification'
         }));
@@ -621,8 +623,8 @@ const server = http.createServer(async (req, res) => {
     });
   } else if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ 
-      status: 'ok', 
+    res.end(JSON.stringify({
+      status: 'ok',
       polling: isPolling,
       bot_configured: bot !== null
     }));
@@ -636,6 +638,13 @@ const server = http.createServer(async (req, res) => {
 process.on('SIGINT', () => {
   console.log('\n[Telegram Service] Shutting down gracefully...');
   stopPolling();
+
+  // Clear all intervals
+  for (const [orderId, interval] of orderReminderIntervals.entries()) {
+    clearInterval(interval);
+  }
+  orderReminderIntervals.clear();
+
   if (db) {
     db.close();
   }
@@ -647,13 +656,13 @@ process.on('SIGINT', () => {
 
 // Main initialization
 async function main() {
-  console.log('[Telegram Service] Starting Telegram Bot Service...');
+  console.log('[Telegram Service] Starting Telegram Bot Service (SIMPLIFIED VERSION)...');
   console.log(`[Telegram Service] Port: ${SERVICE_PORT}`);
-  
+
   try {
     await initDatabase();
     await initBot();
-    
+
     server.listen(SERVICE_PORT, () => {
       console.log(`[Telegram Service] HTTP server listening on port ${SERVICE_PORT}`);
       console.log('[Telegram Service] Service is ready!');
@@ -673,4 +682,3 @@ if (require.main === module) {
 }
 
 module.exports = { main, sendOrderNotification };
-

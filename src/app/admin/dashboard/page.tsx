@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DollarSign, Package, ShoppingCart, Tag } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -31,15 +31,29 @@ export default function AdminDashboard() {
     try {
       const response = await fetch('/api/analytics');
       const data = await response.json();
+      
+      /**
+       * DATA NORMALIZATION:
+       * API often returns Decimal/Numeric types as Strings (e.g., "1500.00").
+       * We wrap these in Number() to ensure .toFixed() works without errors.
+       */
       setAnalytics({
-        totalOrders: data.totalOrders || 0,
-        totalRevenue: data.totalRevenue || 0,
-        totalProducts: data.totalProducts || 0,
-        activePromoCodes: data.activePromoCodes || 0,
+        totalOrders: Number(data.totalOrders) || 0,
+        totalRevenue: Number(data.totalRevenue) || 0,
+        totalProducts: Number(data.totalProducts) || 0,
+        activePromoCodes: Number(data.activePromoCodes) || 0,
         recentOrders: data.recentOrders || [],
         ordersByStatus: data.ordersByStatus || [],
-        revenueByMonth: data.revenueByMonth || [],
-        topProducts: data.topProducts || [],
+        revenueByMonth: (data.revenueByMonth || []).map((m: any) => ({
+          ...m,
+          revenue: Number(m.revenue) || 0,
+          orders: Number(m.orders) || 0
+        })),
+        topProducts: (data.topProducts || []).map((p: any) => ({
+          ...p,
+          revenue: Number(p.revenue) || 0,
+          total_sold: Number(p.total_sold) || 0
+        })),
       });
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
@@ -65,31 +79,32 @@ export default function AdminDashboard() {
     );
   }
 
+  // Define top-level summary statistics
   const stats = [
     {
       title: t('Total Revenue'),
-      value: `₪${(analytics.totalRevenue || 0).toFixed(0)}`,
+      value: `₪${analytics.totalRevenue.toFixed(0)}`,
       icon: DollarSign,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50'
     },
     {
       title: t('Total Orders'),
-      value: analytics.totalOrders || 0,
+      value: analytics.totalOrders,
       icon: ShoppingCart,
       color: 'text-blue-600',
       bg: 'bg-blue-50'
     },
     {
       title: t('Products'),
-      value: analytics.totalProducts || 0,
+      value: analytics.totalProducts,
       icon: Package,
       color: 'text-indigo-600',
       bg: 'bg-indigo-50'
     },
     {
       title: t('Active Promos'),
-      value: analytics.activePromoCodes || 0,
+      value: analytics.activePromoCodes,
       icon: Tag,
       color: 'text-amber-600',
       bg: 'bg-amber-50'
@@ -98,13 +113,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Page Header */}
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">{t('Dashboard')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('Welcome to your admin panel')}</p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Main Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -126,23 +141,22 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      {/* Two Column Layout */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Top Selling Products */}
+        {/* Top Selling Products Component */}
         <Card className="border-slate-200">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">{t('Top Selling Products')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            {(analytics.topProducts && analytics.topProducts.length > 0) ? (
+            {analytics.topProducts.length > 0 ? (
               <div className="space-y-2">
                 {analytics.topProducts.map((product, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <div>
                       <p className="font-medium text-slate-900 text-sm">{t(product.name)}</p>
-                      <p className="text-xs text-slate-500">{product.total_sold || 0} {t('sold')}</p>
+                      <p className="text-xs text-slate-500">{product.total_sold} {t('sold')}</p>
                     </div>
-                    <p className="font-semibold text-emerald-600">₪{(product.revenue || 0).toFixed(0)}</p>
+                    <p className="font-semibold text-emerald-600">₪{product.revenue.toFixed(0)}</p>
                   </div>
                 ))}
               </div>
@@ -152,13 +166,13 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Orders by Status */}
+        {/* Orders Distribution by Status */}
         <Card className="border-slate-200">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">{t('Orders by Status')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            {(analytics.ordersByStatus && analytics.ordersByStatus.length > 0) ? (
+            {analytics.ordersByStatus.length > 0 ? (
               <div className="space-y-2">
                 {analytics.ordersByStatus.map((status, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -182,13 +196,13 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Recent Orders */}
+      {/* Recent Activity Table */}
       <Card className="border-slate-200">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-medium">{t('Recent Orders')}</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          {(analytics.recentOrders && analytics.recentOrders.length > 0) ? (
+          {analytics.recentOrders.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -207,7 +221,8 @@ export default function AdminDashboard() {
                       <TableCell className="font-medium text-sm">#{order.id}</TableCell>
                       <TableCell className="text-sm">{t(order.customer_name)}</TableCell>
                       <TableCell className="text-sm text-slate-500">{order.items_count || 0}</TableCell>
-                      <TableCell className="font-medium text-sm">₪{(order.total_amount || 0).toFixed(0)}</TableCell>
+                      {/* Using Number() here as a failsafe for the table row */}
+                      <TableCell className="font-medium text-sm">₪{Number(order.total_amount || 0).toFixed(0)}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${
                           order.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
@@ -232,8 +247,8 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Revenue Chart */}
-      {(analytics.revenueByMonth && analytics.revenueByMonth.length > 0) && (
+      {/* Visual Revenue Trend Chart */}
+      {analytics.revenueByMonth.length > 0 && (
         <Card className="border-slate-200">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">{t('Revenue Trend')}</CardTitle>
@@ -241,8 +256,8 @@ export default function AdminDashboard() {
           <CardContent className="pt-0">
             <div className="space-y-3">
               {analytics.revenueByMonth.map((month, index) => {
-                const maxRevenue = Math.max(1, ...analytics.revenueByMonth.map(m => m.revenue || 0));
-                const percentage = ((month.revenue || 0) / maxRevenue) * 100;
+                const maxRevenue = Math.max(1, ...analytics.revenueByMonth.map(m => m.revenue));
+                const percentage = (month.revenue / maxRevenue) * 100;
                 return (
                   <div key={index} className="flex items-center gap-4">
                     <div className="w-20 text-sm font-medium text-slate-600">{t(month.month)}</div>
@@ -251,10 +266,10 @@ export default function AdminDashboard() {
                         className="bg-indigo-500 h-full flex items-center justify-end px-2 rounded-full transition-all duration-500"
                         style={{ width: `${Math.max(percentage, 15)}%` }}
                       >
-                        <span className="text-white text-xs font-medium">₪{(month.revenue || 0).toFixed(0)}</span>
+                        <span className="text-white text-xs font-medium">₪{month.revenue.toFixed(0)}</span>
                       </div>
                     </div>
-                    <div className="w-16 text-xs text-slate-500 text-left">{month.orders || 0} {t('orders')}</div>
+                    <div className="w-16 text-xs text-slate-500 text-left">{month.orders} {t('orders')}</div>
                   </div>
                 );
               })}

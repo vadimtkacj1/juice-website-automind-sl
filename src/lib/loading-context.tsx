@@ -21,6 +21,8 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const result = await promise;
+      // Small delay to prevent flashing on very fast requests
+      await new Promise(resolve => setTimeout(resolve, 100));
       return result;
     } finally {
       setIsLoading(false);

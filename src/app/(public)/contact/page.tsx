@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageSquare, Clock, MapPin, ArrowRight } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import { translateToHebrew } from '@/lib/translations';
+import { useLoading } from '@/lib/loading-context';
 import styles from './contact.module.css';
 
 interface Contact {
@@ -31,22 +32,28 @@ export default function ContactPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [businessHours, setBusinessHours] = useState<BusinessHourDisplay[]>([]);
   const [loading, setLoading] = useState(true);
+  const { setLoading: setGlobalLoading } = useLoading();
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setLoading(true);
+      setGlobalLoading(true);
       await Promise.all([fetchContacts(), fetchBusinessHours()]);
-      if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+        setGlobalLoading(false);
+      }
     }
 
     load();
 
     return () => {
       cancelled = true;
+      setGlobalLoading(false);
     };
-  }, []);
+  }, [setGlobalLoading]);
 
   useEffect(() => {
     if (loading) return;

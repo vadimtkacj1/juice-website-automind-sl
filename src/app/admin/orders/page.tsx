@@ -178,7 +178,7 @@ export default function OrdersPage() {
                       <TableCell className="text-sm text-slate-500">
                         {order.items_count} {t('items')}
                       </TableCell>
-                      <TableCell className="font-semibold text-sm">₪{order.total_amount.toFixed(0)}</TableCell>
+                      <TableCell className="font-semibold text-sm">₪{order.total_amount}</TableCell>
                       <TableCell>
                         <select
                           value={order.status}
@@ -262,7 +262,7 @@ export default function OrdersPage() {
 
               <div>
                 <Label className="text-xs text-slate-500">{t('Total Amount')}</Label>
-                <p className="font-semibold text-lg text-indigo-600 mt-0.5">₪{selectedOrder.total_amount.toFixed(0)}</p>
+                <p className="font-semibold text-lg text-indigo-600 mt-0.5">₪{selectedOrder.total_amount}</p>
               </div>
 
               {selectedOrder.notes && (

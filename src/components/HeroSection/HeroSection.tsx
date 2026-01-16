@@ -80,6 +80,7 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
   const heroRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -114,6 +115,23 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
     return () => observer.disconnect();
   }, []);
 
+  // Preload background image
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      setImageLoaded(true);
+      return;
+    }
+    
+    if (backgroundImage) {
+      const img = document.createElement('img');
+      img.onload = () => setImageLoaded(true);
+      img.onerror = () => setImageLoaded(true); // Still show even if image fails
+      img.src = backgroundImage;
+    } else {
+      setImageLoaded(true);
+    }
+  }, [backgroundImage]);
+
   // Memoize the close function to prevent unnecessary re-renders
   const handleCloseMenu = useCallback(() => {
     setMobileMenuOpen(false);
@@ -126,13 +144,15 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       id="hero"
       style={{
         backgroundColor: '#7322ff',
-        ...(backgroundImage ? {
+        ...(backgroundImage && imageLoaded ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           backgroundBlendMode: 'overlay'
-        } : {})
+        } : {}),
+        opacity: imageLoaded ? 1 : 0.95,
+        transition: 'opacity 0.3s ease-in-out'
       }}
       aria-label="אזור ראשי - נטורליי מרענן"
     >

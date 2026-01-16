@@ -74,7 +74,7 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
                   `📞 Phone: ${order.customer_phone || 'Not provided'}\n` +
                   `📧 Email: ${order.customer_email || 'Not provided'}\n` +
                   (order.delivery_address ? `📍 Delivery Address: ${order.delivery_address}\n` : '') +
-                  `💰 Total: ₪${order.total_amount.toFixed(2)}\n\n` +
+                  `💰 Total: ₪${order.total_amount}\n\n` +
                   `📦 Items:\n${order.items || 'No items'}\n\n` +
                   (order.notes ? `📝 Notes: ${order.notes}\n\n` : '') +
                   `⏰ Order Time: ${new Date(order.created_at).toLocaleString('en-US')}\n\n` +

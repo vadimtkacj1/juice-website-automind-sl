@@ -18,6 +18,7 @@ export async function GET() {
           id: courier.id,
           telegram_id: courier.telegram_id,
           name: courier.name,
+          role: courier.role || 'delivery',
           is_active: courier.is_active === 1
         }));
 
@@ -29,7 +30,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { telegram_id, name, is_active } = await request.json();
+    const { telegram_id, name, role, is_active } = await request.json();
 
     if (!telegram_id || !name) {
       return NextResponse.json(
@@ -42,16 +43,17 @@ export async function POST(request: NextRequest) {
 
     return new Promise<NextResponse>((resolve) => {
       db.run(
-        `INSERT INTO telegram_couriers (telegram_id, name, is_active, created_at, updated_at)
-         VALUES (?, ?, ?, NOW(), NOW())`,
-        [telegram_id, name, is_active !== false ? 1 : 0],
+        `INSERT INTO telegram_couriers (telegram_id, name, role, is_active, created_at, updated_at)
+         VALUES (?, ?, ?, ?, NOW(), NOW())`,
+        [telegram_id, name, role || 'delivery', is_active !== false ? 1 : 0],
         function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
-            if (err.message.includes('UNIQUE constraint')) {
+            console.error('Error creating courier:', err);
+            if (err.message.includes('UNIQUE constraint') || err.message.includes('Duplicate entry')) {
               resolve(NextResponse.json({ error: 'Courier with this Telegram ID already exists' }, { status: 400 }));
               return;
             }
-            resolve(NextResponse.json({ error: 'Failed to create courier' }, { status: 500 }));
+            resolve(NextResponse.json({ error: 'Failed to create courier', details: err.message }, { status: 500 }));
             return;
           }
 
@@ -64,8 +66,9 @@ export async function POST(request: NextRequest) {
       );
     });
   } catch (error) {
+    console.error('POST /api/telegram/couriers error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -73,7 +76,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { id, telegram_id, name, is_active } = await request.json();
+    const { id, telegram_id, name, role, is_active } = await request.json();
 
     if (!id) {
       return NextResponse.json(
@@ -86,13 +89,14 @@ export async function PUT(request: NextRequest) {
 
     return new Promise<NextResponse>((resolve) => {
       db.run(
-        `UPDATE telegram_couriers 
-         SET telegram_id = ?, name = ?, is_active = ?, updated_at = NOW()
+        `UPDATE telegram_couriers
+         SET telegram_id = ?, name = ?, role = ?, is_active = ?, updated_at = NOW()
          WHERE id = ?`,
-        [telegram_id, name, is_active ? 1 : 0, id],
+        [telegram_id, name, role || 'delivery', is_active ? 1 : 0, id],
         function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
-            resolve(NextResponse.json({ error: 'Failed to update courier' }, { status: 500 }));
+            console.error('Error updating courier:', err);
+            resolve(NextResponse.json({ error: 'Failed to update courier', details: err.message }, { status: 500 }));
             return;
           }
 
@@ -106,8 +110,9 @@ export async function PUT(request: NextRequest) {
       );
     });
   } catch (error) {
+    console.error('PUT /api/telegram/couriers error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -133,7 +138,8 @@ export async function DELETE(request: NextRequest) {
         [id],
         function(this: { lastID: number; changes: number }, err: Error | null) {
           if (err) {
-            resolve(NextResponse.json({ error: 'Failed to delete courier' }, { status: 500 }));
+            console.error('Error deleting courier:', err);
+            resolve(NextResponse.json({ error: 'Failed to delete courier', details: err.message }, { status: 500 }));
             return;
           }
 
@@ -147,8 +153,9 @@ export async function DELETE(request: NextRequest) {
       );
     });
   } catch (error) {
+    console.error('DELETE /api/telegram/couriers error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

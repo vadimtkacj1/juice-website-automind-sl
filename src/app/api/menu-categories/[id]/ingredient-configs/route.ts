@@ -21,10 +21,19 @@ export async function GET(
     
     const availabilityFilter = includeInactive ? '' : 'AND ci.is_available = 1';
     
-    // Ensure columns exist before querying
+    // Ensure tables/columns exist before querying
     const pool = (db as any).pool || (db as any)._pool;
     if (pool) {
       try {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS ingredient_groups (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name_he TEXT NOT NULL,
+            sort_order INT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
         // Check and add ingredient_group column if needed
         const [groupCols] = await pool.query(
           `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
@@ -54,6 +63,25 @@ export async function GET(
       }
     }
     
+    // Ensure group columns exist (safety)
+    if (pool) {
+      try {
+        const [groupIdCols] = await pool.query(
+          `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+           WHERE TABLE_SCHEMA = DATABASE() 
+           AND TABLE_NAME = 'menu_category_custom_ingredients' 
+           AND COLUMN_NAME = 'ingredient_group_id'`
+        );
+        if ((groupIdCols as any[])?.length === 0) {
+          await pool.query(`ALTER TABLE menu_category_custom_ingredients ADD COLUMN ingredient_group_id INT`);
+        }
+      } catch (err: any) {
+        if (!String(err?.message || '').includes('Duplicate column')) {
+          console.warn('Warning: could not ensure ingredient_group_id column on menu_category_custom_ingredients', err);
+        }
+      }
+    }
+
     return new Promise<NextResponse>((resolve) => {
       db.all(
         `SELECT 
@@ -64,13 +92,20 @@ export async function GET(
           mcci.selection_type,
           mcci.price_override,
           COALESCE(mcci.ingredient_group, NULL) as ingredient_group,
+          COALESCE(mcci.ingredient_group_id, NULL) as ingredient_group_id,
+          COALESCE(ig.name_he, NULL) as ingredient_group_name,
           COALESCE(mcci.is_required, 0) as is_required,
-          mcci.volume_prices
+          mcci.volume_prices,
+          COALESCE(igci.sort_order, NULL) as group_sort_order
         FROM menu_category_custom_ingredients mcci
         INNER JOIN menu_categories mc ON mcci.category_id = mc.id
         INNER JOIN custom_ingredients ci ON mcci.custom_ingredient_id = ci.id
+        LEFT JOIN ingredient_groups ig ON ig.id = mcci.ingredient_group_id
+        LEFT JOIN ingredient_group_custom_ingredients igci
+          ON igci.ingredient_group_id = mcci.ingredient_group_id
+          AND igci.custom_ingredient_id = ci.id
         WHERE mcci.category_id = ? ${availabilityFilter}
-        ORDER BY ci.ingredient_category, ci.sort_order, ci.name`,
+        ORDER BY ci.ingredient_category, COALESCE(igci.sort_order, ci.sort_order), ci.name`,
         [id],
         (err: any, rows: any[]) => {
           if (err) {
@@ -117,6 +152,21 @@ export async function PUT(
       );
     }
 
+    const normalizedConfigs = (configs as any[]).map((config: any) => {
+      const ingredientId = Number(config.ingredient_id ?? config.custom_ingredient_id);
+      const groupId = config.ingredient_group_id ? Number(config.ingredient_group_id) : null;
+      const groupName = config.ingredient_group ?? null;
+      return {
+        ingredient_id: ingredientId,
+        selection_type: groupId ? 'single' : (config.selection_type || 'multiple'),
+        price_override: config.price_override ?? null,
+        ingredient_group_id: groupId || null,
+        ingredient_group: groupName,
+        is_required: groupId ? !!config.is_required : false,
+        volume_prices: config.volume_prices || null,
+      };
+    });
+
     return new Promise<NextResponse>((resolve) => {
       // Delete all existing configs for this category
       db.run(
@@ -130,19 +180,20 @@ export async function PUT(
           }
 
           // Insert new configs
-          if (configs.length === 0) {
+          if (normalizedConfigs.length === 0) {
             resolve(NextResponse.json({ success: true, configs: [] }));
             return;
           }
 
-          const placeholders = configs.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ');
+          const placeholders = normalizedConfigs.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(', ');
           const values: any[] = [];
-          configs.forEach((config: any) => {
+          normalizedConfigs.forEach((config: any) => {
             values.push(
               id,
               config.ingredient_id,
               config.selection_type || 'multiple',
               config.price_override || null,
+              config.ingredient_group_id || null,
               config.ingredient_group || null,
               config.is_required ? 1 : 0,
               config.volume_prices || null // Store as JSON string
@@ -150,7 +201,7 @@ export async function PUT(
           });
 
           db.run(
-            `INSERT INTO menu_category_custom_ingredients (category_id, custom_ingredient_id, selection_type, price_override, ingredient_group, is_required, volume_prices) 
+            `INSERT INTO menu_category_custom_ingredients (category_id, custom_ingredient_id, selection_type, price_override, ingredient_group_id, ingredient_group, is_required, volume_prices) 
             VALUES ${placeholders}`,
             values,
             function (this: any, err: any) {

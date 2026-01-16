@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useCart } from '@/lib/cart-context';
 import ProductModal from '@/components/ProductModal';
 import HeroSection from '@/components/HeroSection';
@@ -8,15 +8,32 @@ import { translateToHebrew } from '@/lib/translations';
 import { useMenuData } from './hooks/useMenuData';
 import { useRevealAnimation } from './hooks/useRevealAnimation';
 import { useInfiniteScroll } from './hooks/useInfiniteScroll';
-import MenuCategorySection, { MenuCategory } from './components/MenuCategorySection';
+import MenuCategorySection from './components/MenuCategorySection';
 import { MenuItem } from './components/MenuItemCard';
 import {
   MenuLoadingState,
   MenuErrorState,
   MenuEmptyState,
 } from './components/MenuStates';
-import LoadMoreTrigger from './components/LoadMoreTrigger';
+import LoadingSpinner from '@/components/LoadingSpinner'; 
 import styles from './menu.module.css';
+
+const calculateFinalPrice = (price: number | string, discountPercent: number | string): number => {
+  const numPrice = typeof price === 'string' ? parseFloat(price) : (price || 0);
+  const numDiscount = typeof discountPercent === 'string' ? parseFloat(discountPercent) : (discountPercent || 0);
+  
+  return numDiscount > 0 ? numPrice * (1 - numDiscount / 100) : numPrice;
+};
+
+type AddToCartArgs = {
+  id: number | string;
+  name: string;
+  price: number | string;
+  image?: string;
+  discount_percent?: number | string;
+  volume?: string;
+  customIngredients?: any[];
+};
 
 export default function MenuPage() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -45,50 +62,38 @@ export default function MenuPage() {
     fetchMenu();
   }, [fetchMenu]);
 
-  function handleAddToCart(
-    item: MenuItem & { volume?: string; customIngredients?: any[] }
-  ) {
-    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
-    const numPrice = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
-    const numDiscount = typeof item.discount_percent === 'string' 
-      ? parseFloat(item.discount_percent) 
-      : (item.discount_percent || 0);
-    
-    const finalPrice =
-      numDiscount > 0
-        ? numPrice * (1 - numDiscount / 100)
-        : numPrice;
+const handleAddToCart = useCallback((item: AddToCartArgs) => {
+  const numericId = typeof item.id === 'string' ? parseInt(item.id, 10) : item.id;
+  
+  const finalPrice = calculateFinalPrice(item.price, item.discount_percent || 0);
 
-    console.log('handleAddToCart in menu page - item:', item);
-    console.log('handleAddToCart in menu page - customIngredients:', item.customIngredients);
-
-    addToCart({
-      id: item.id,
-      name: item.name,
-      price: finalPrice,
-      image: item.image,
-      volume: item.volume,
-      customIngredients: item.customIngredients,
-    });
-    
-    // Cart will open automatically via cart context (setIsCartOpen(true) in addToCart)
-    // Close the product modal
-    setSelectedItem(null);
+  if (isNaN(numericId)) {
+    console.error("Invalid product ID:", item.id);
+    return;
   }
 
-  function getDiscountedPrice(price: number | string, discountPercent: number | string): number {
-    // Ensure we have numbers (MySQL DECIMAL often returns as strings)
-    const numPrice = typeof price === 'string' ? parseFloat(price) : (price || 0);
-    const numDiscount = typeof discountPercent === 'string' ? parseFloat(discountPercent) : (discountPercent || 0);
-    
-    if (numDiscount > 0) {
-      return numPrice * (1 - numDiscount / 100);
-    }
-    return numPrice;
-  }
+  addToCart({
+    id: numericId, 
+    name: item.name,
+    price: finalPrice,
+    image: item.image,
+    volume: item.volume,
+    customIngredients: item.customIngredients,
+  });
+  
+  setSelectedItem(null);
+}, [addToCart]);
+
+  const getDiscountedPrice = useCallback((price: number | string, discount: number | string) => {
+    return calculateFinalPrice(price, discount);
+  }, []);
 
   if (loading && allMenuItems.length === 0) {
-    return <MenuLoadingState />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" text={translateToHebrew('Loading menu...')} />
+      </div>
+    );
   }
 
   if (error) {
@@ -102,31 +107,35 @@ export default function MenuPage() {
   return (
     <div className={styles.menuPage}>
       <HeroSection
-        backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080"
+        backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?..."
         showFloatingOranges={true}
       >
         <h1 className="hero-title">{translateToHebrew('OUR MENU')}</h1>
       </HeroSection>
 
-      {/* Categories */}
-      {displayedMenu.map((category, categoryIdx) => (
-        <MenuCategorySection
-          key={category.id}
-          category={category}
-          categoryIndex={categoryIdx}
-          onItemClick={setSelectedItem}
-          getDiscountedPrice={getDiscountedPrice}
-        />
-      ))}
+      <div className={styles.menuContent}>
+        {displayedMenu.map((category, categoryIdx) => (
+          <MenuCategorySection
+            key={category.id}
+            category={category}
+            categoryIndex={categoryIdx}
+            onItemClick={setSelectedItem}
+            getDiscountedPrice={getDiscountedPrice}
+          />
+        ))}
+      </div>
 
-      <LoadMoreTrigger observerTarget={observerTarget} hasMore={hasMore} />
+      <div ref={observerTarget} className="py-10 flex justify-center">
+        {loadingMore && (
+          <LoadingSpinner size="md" text={translateToHebrew('Loading more items...')} />
+        )}
+      </div>
 
-      {/* Product Modal */}
       <ProductModal
         item={selectedItem}
         isOpen={!!selectedItem}
         onClose={() => setSelectedItem(null)}
-        onAddToCart={(item) => handleAddToCart(item as MenuItem)}
+        onAddToCart={handleAddToCart}
       />
     </div>
   );

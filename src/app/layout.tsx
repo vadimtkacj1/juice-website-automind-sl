@@ -98,11 +98,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect to external resources for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
         
-        {/* Load Heebo font with all weights needed */}
+        {/* DNS prefetch for critical resources */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        
+        {/* Load fonts directly for reliability */}
         <link 
-          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" 
-          rel="stylesheet" 
+          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" 
+          rel="stylesheet"
         />
         
         {/* Mobile support script */}
@@ -187,11 +193,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body>
+      <body style={{ fontFamily: 'Heebo, Assistant, Segoe UI, system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}>
         <TextModeProvider>
           <LoadingProvider>
             <CartProviderWrapper>
-              <PageLoader />
               <GlobalLoader />
               <KeyboardShortcuts />
               <CookieConsent />

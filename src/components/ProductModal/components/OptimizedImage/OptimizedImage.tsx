@@ -37,7 +37,7 @@ export default function OptimizedImage({
   objectFit = 'cover',
   placeholder,
   onLoad,
-  quality = 85,
+  quality = 75,
   sizes,
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -59,7 +59,7 @@ export default function OptimizedImage({
         });
       },
       {
-        rootMargin: '50px', // Начинаем загрузку за 50px до появления в viewport
+        rootMargin: '100px', // Начинаем загрузку за 100px до появления в viewport
         threshold: 0.01,
       }
     );

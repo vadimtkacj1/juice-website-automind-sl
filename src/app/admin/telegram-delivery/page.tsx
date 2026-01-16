@@ -6,10 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Pencil, Trash, Settings, Bot, Users, TestTube, Activity } from 'lucide-react';
+import { Plus, Pencil, Trash, Settings, Bot, Users, TestTube, Activity, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface BotSettings {
   id?: number;
@@ -23,6 +25,7 @@ interface Courier {
   id: number;
   telegram_id: string;
   name: string;
+  role: 'kitchen' | 'delivery' | 'observer';
   is_active: boolean;
 }
 
@@ -42,6 +45,7 @@ export default function TelegramDeliveryPage() {
   const [courierForm, setCourierForm] = useState({
     telegram_id: '',
     name: '',
+    role: 'delivery' as 'kitchen' | 'delivery' | 'observer',
     is_active: true
   });
   const [alertDialog, setAlertDialog] = useState<{
@@ -245,6 +249,7 @@ export default function TelegramDeliveryPage() {
       setCourierForm({
         telegram_id: courier.telegram_id,
         name: courier.name,
+        role: courier.role || 'delivery',
         is_active: courier.is_active
       });
     } else {
@@ -252,6 +257,7 @@ export default function TelegramDeliveryPage() {
       setCourierForm({
         telegram_id: '',
         name: '',
+        role: 'delivery',
         is_active: true
       });
     }
@@ -338,302 +344,377 @@ export default function TelegramDeliveryPage() {
     return <LoadingSpinner />;
   }
 
+  const botConfigured = settings.api_token && settings.api_token.length > 10;
+  const activeCouriers = couriers.filter(c => c.is_active).length;
+  const systemReady = botConfigured && settings.is_enabled && activeCouriers > 0;
+
+  const stats = [
+    {
+      title: t('Bot Status'),
+      value: settings.is_enabled ? t('Active') : t('Inactive'),
+      icon: Bot,
+      color: settings.is_enabled ? 'text-emerald-600' : 'text-slate-500',
+      bg: settings.is_enabled ? 'bg-emerald-50' : 'bg-slate-100'
+    },
+    {
+      title: t('Active Couriers'),
+      value: activeCouriers,
+      icon: Users,
+      color: activeCouriers > 0 ? 'text-blue-600' : 'text-slate-500',
+      bg: activeCouriers > 0 ? 'bg-blue-50' : 'bg-slate-100'
+    },
+    {
+      title: t('System Status'),
+      value: systemReady ? t('Ready') : t('Not Ready'),
+      icon: systemReady ? CheckCircle2 : XCircle,
+      color: systemReady ? 'text-emerald-600' : 'text-amber-600',
+      bg: systemReady ? 'bg-emerald-50' : 'bg-amber-50'
+    },
+  ];
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">{t('Telegram Delivery Management')}</h1>
-          <p className="text-muted-foreground mt-2">
-            {t('Configure Telegram bot integration and manage couriers')}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleDiagnose} variant="outline" className="bg-green-50 hover:bg-green-100">
-            <Activity className="mr-2 h-4 w-4" />
-            {t('Diagnose')}
-          </Button>
-          <Button onClick={handleTestOrder} variant="outline" className="bg-blue-50 hover:bg-blue-100">
-            <TestTube className="mr-2 h-4 w-4" />
-            {t('Test Order')}
-          </Button>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">{t('Telegram Delivery Management')}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">
+          {t('Configure Telegram bot integration and manage couriers')}
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="border-slate-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500">{stat.title}</p>
+                    <p className="text-2xl font-semibold text-slate-900 mt-1">{stat.value}</p>
+                  </div>
+                  <div className={cn(stat.bg, "p-2.5 rounded-xl")}>
+                    <Icon className={cn(stat.color, "h-5 w-5")} strokeWidth={1.75} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 flex-wrap">
+        <Button onClick={handleDiagnose} variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-50">
+          <Activity className="mr-2 h-4 w-4" />
+          {t('Diagnose')}
+        </Button>
+        <Button onClick={handleTestOrder} variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-50">
+          <TestTube className="mr-2 h-4 w-4" />
+          {t('Test Order')}
+        </Button>
       </div>
 
       {/* Bot Settings Card */}
-      <Card>
-        <CardHeader>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base font-medium">
+                <Bot className="h-5 w-5 text-indigo-600" />
                 {t('Bot Settings')}
               </CardTitle>
-              <CardDescription>
-                {t('Enter Bot ID and API Token for Telegram integration')}
+              <CardDescription className="text-sm">
+                {t('Configure Telegram bot integration')}
               </CardDescription>
             </div>
-            <Button onClick={() => {
-              if (showSettingsForm) {
-                setShowSettingsForm(false);
-              } else {
-                setShowSettingsForm(true);
-              }
-            }}>
+            <Button onClick={() => setShowSettingsForm(true)} className="bg-slate-900 hover:bg-slate-800 text-white">
               <Settings className="mr-2 h-4 w-4" />
               {t('Configure')}
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('Bot ID')}:</span>
-              <span className="font-medium">{settings.bot_id ? settings.bot_id : t('Not configured (will be auto-filled)')}</span>
+        <CardContent className="pt-0">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-500">{t('Bot ID')}</p>
+              <p className="font-medium text-sm text-slate-900 mt-1">
+                {settings.bot_id || t('Not configured')}
+              </p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('API Token')}:</span>
-              <span className="font-medium">
-                {settings.api_token && settings.api_token.length > 4 
-                  ? '****' + settings.api_token.slice(-4) 
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-500">{t('API Token')}</p>
+              <p className="font-medium text-sm text-slate-900 mt-1">
+                {settings.api_token && settings.api_token.length > 4
+                  ? '****' + settings.api_token.slice(-4)
                   : t('Not configured')}
-              </span>
+              </p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('Status')}:</span>
-              <span className={`font-medium ${settings.is_enabled ? 'text-green-600' : 'text-gray-500'}`}>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-500">{t('Status')}</p>
+              <p className={cn(
+                "font-medium text-sm mt-1",
+                settings.is_enabled ? 'text-emerald-600' : 'text-slate-500'
+              )}>
                 {settings.is_enabled ? t('Enabled') : t('Disabled')}
-              </span>
+              </p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('Reminder Interval')}:</span>
-              <span className="font-medium">{settings.reminder_interval_minutes} {t('min.')}</span>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-500">{t('Reminder Interval')}</p>
+              <p className="font-medium text-sm text-slate-900 mt-1">
+                {settings.reminder_interval_minutes} {t('min.')}
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Couriers Card */}
-      <Card>
-        <CardHeader>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base font-medium">
+                <Users className="h-5 w-5 text-blue-600" />
                 {t('Delivery Accounts')}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {t('Manage the list of couriers who receive order notifications')}
               </CardDescription>
             </div>
-            <Button onClick={() => {
-              if (showCourierForm) {
-                setShowCourierForm(false);
-                setEditingCourier(null);
-              } else {
-                handleOpenCourierDialog();
-              }
-            }}>
+            <Button onClick={() => handleOpenCourierDialog()} className="bg-slate-900 hover:bg-slate-800 text-white">
               <Plus className="mr-2 h-4 w-4" />
-              {showCourierForm ? t('Cancel') : t('Add Courier')}
+              {t('Add Courier')}
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('Telegram ID')}</TableHead>
-                <TableHead>{t('Name')}</TableHead>
-                <TableHead>{t('Status')}</TableHead>
-                <TableHead>{t('Actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {couriers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    {t('No couriers. Click "Add Courier" to get started.')}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                couriers.map((courier) => (
-                  <TableRow key={courier.id}>
-                    <TableCell className="font-medium">{courier.telegram_id}</TableCell>
-                    <TableCell>{courier.name}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        courier.is_active 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {courier.is_active ? t('Active') : t('Inactive')}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenCourierDialog(courier)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteCourier(courier.id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <CardContent className="pt-0">
+          {couriers.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm text-slate-500">{t('No couriers yet')}</p>
+              <p className="text-xs text-slate-400 mt-1">{t('Click "Add Courier" to get started')}</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {couriers.map((courier) => (
+                <div key={courier.id} className="border border-slate-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm text-slate-900 truncate">{courier.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">ID: {courier.telegram_id}</p>
+                    </div>
+                    <span className={cn(
+                      "px-2 py-0.5 rounded-md text-xs font-medium whitespace-nowrap ml-2",
+                      courier.is_active
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-slate-100 text-slate-500'
+                    )}>
+                      {courier.is_active ? t('Active') : t('Inactive')}
+                    </span>
+                  </div>
+
+                  <div className="mb-3">
+                    <span className={cn(
+                      "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium",
+                      courier.role === 'kitchen' ? 'bg-orange-50 text-orange-700' :
+                      courier.role === 'delivery' ? 'bg-blue-50 text-blue-700' :
+                      'bg-purple-50 text-purple-700'
+                    )}>
+                      {courier.role === 'kitchen' ? t('Kitchen') :
+                       courier.role === 'delivery' ? t('Delivery') :
+                       t('Observer')}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t border-slate-100">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenCourierDialog(courier)}
+                      className="flex-1 h-8 text-slate-600 hover:text-slate-900"
+                    >
+                      <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                      {t('Edit')}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteCourier(courier.id)}
+                      className="flex-1 h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash className="h-3.5 w-3.5 mr-1.5" />
+                      {t('Delete')}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Settings Form */}
-      {showSettingsForm && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{t('Telegram Bot Settings')}</CardTitle>
-            <CardDescription>
-              {t('Enter Bot ID and API Token. You can get them from @BotFather in Telegram.')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-4">
+      {/* Settings Dialog */}
+      <Dialog open={showSettingsForm} onOpenChange={setShowSettingsForm}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{t('Telegram Bot Settings')}</DialogTitle>
+            <DialogDescription>
+              {t('Configure your Telegram bot for order notifications')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="api_token">{t('API Token')} *</Label>
+              <Label htmlFor="api_token" className="text-sm font-medium">{t('API Token')} *</Label>
               <Input
                 id="api_token"
                 type="password"
                 value={settings.api_token}
                 onChange={(e) => setSettings({ ...settings, api_token: e.target.value })}
-                placeholder={t('e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz')}
+                placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                className="mt-1.5"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('Get this from @BotFather in Telegram. Type /newbot to create a bot, then copy the token.')}
+              <p className="text-xs text-slate-500 mt-1.5">
+                {t('Get this from @BotFather in Telegram. Type /newbot to create a bot.')}
               </p>
             </div>
             <div>
-              <Label htmlFor="bot_id">{t('Bot ID (Auto-filled)')}</Label>
+              <Label htmlFor="bot_id" className="text-sm font-medium">{t('Bot ID')}</Label>
               <Input
                 id="bot_id"
                 value={settings.bot_id}
-                onChange={(e) => setSettings({ ...settings, bot_id: e.target.value })}
-                placeholder={t('Will be auto-filled from token')}
+                placeholder={t('Auto-filled from token')}
                 disabled
-                className="bg-gray-50"
+                className="mt-1.5 bg-slate-50"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('Bot ID is automatically extracted from the API token. You don\'t need to enter it manually.')}
+              <p className="text-xs text-slate-500 mt-1.5">
+                {t('Automatically extracted from API token')}
               </p>
             </div>
             <div>
-              <Label htmlFor="reminder_interval">{t('Reminder Interval (minutes)')}</Label>
+              <Label htmlFor="reminder_interval" className="text-sm font-medium">{t('Reminder Interval (minutes)')}</Label>
               <Input
                 id="reminder_interval"
                 type="number"
                 min="1"
                 max="60"
                 value={settings.reminder_interval_minutes}
-                onChange={(e) => setSettings({ 
-                  ...settings, 
-                  reminder_interval_minutes: parseInt(e.target.value) || 3 
+                onChange={(e) => setSettings({
+                  ...settings,
+                  reminder_interval_minutes: parseInt(e.target.value) || 5
                 })}
+                className="mt-1.5"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('How often to send reminders to courier if order is not delivered (1-60 minutes)')}
+              <p className="text-xs text-slate-500 mt-1.5">
+                {t('How often to send reminders (default: 5 minutes)')}
               </p>
             </div>
-            <div className="flex items-center space-x-2 pt-4">
+            <div className="flex items-center space-x-2 pt-2">
               <input
                 type="checkbox"
                 id="is_enabled"
                 checked={settings.is_enabled}
                 onChange={(e) => setSettings({ ...settings, is_enabled: e.target.checked })}
-                className="h-4 w-4"
+                className="h-4 w-4 rounded border-slate-300"
               />
-              <Label htmlFor="is_enabled">{t('Enable Bot')}</Label>
+              <Label htmlFor="is_enabled" className="text-sm font-medium cursor-pointer">
+                {t('Enable Bot')}
+              </Label>
             </div>
           </div>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={() => setShowSettingsForm(false)}>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSettingsForm(false)} className="border-slate-200">
               {t('Cancel')}
             </Button>
-            <Button onClick={handleSaveSettings}>
-              {t('Save')}
+            <Button onClick={handleSaveSettings} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              {t('Save Settings')}
             </Button>
-          </div>
-          </CardContent>
-        </Card>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Courier Form */}
-      {showCourierForm && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>
+      {/* Courier Dialog */}
+      <Dialog open={showCourierForm} onOpenChange={setShowCourierForm}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>
               {editingCourier ? t('Edit Courier') : t('Add Courier')}
-            </CardTitle>
-            <CardDescription>
+            </DialogTitle>
+            <DialogDescription>
               {editingCourier
                 ? t('Update courier information')
-                : t('Add a new courier to the system')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-4">
+                : t('Add a new courier to receive order notifications')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="courier_telegram_id">{t('Telegram ID')} *</Label>
+              <Label htmlFor="courier_telegram_id" className="text-sm font-medium">{t('Telegram ID')} *</Label>
               <Input
                 id="courier_telegram_id"
                 value={courierForm.telegram_id}
                 onChange={(e) => setCourierForm({ ...courierForm, telegram_id: e.target.value })}
-                placeholder={t('e.g., 123456789')}
+                placeholder="123456789"
+                className="mt-1.5"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-slate-500 mt-1.5">
                 {t('Find your Telegram ID using @userinfobot')}
               </p>
             </div>
             <div>
-              <Label htmlFor="courier_name">{t('Name')} *</Label>
+              <Label htmlFor="courier_name" className="text-sm font-medium">{t('Name')} *</Label>
               <Input
                 id="courier_name"
                 value={courierForm.name}
                 onChange={(e) => setCourierForm({ ...courierForm, name: e.target.value })}
-                placeholder={t('e.g., John Doe')}
+                placeholder={t('John Doe')}
+                className="mt-1.5"
               />
             </div>
-            <div className="flex items-center space-x-2 pt-4">
+            <div>
+              <Label htmlFor="courier_role" className="text-sm font-medium">{t('Role')} *</Label>
+              <select
+                id="courier_role"
+                value={courierForm.role}
+                onChange={(e) => setCourierForm({ ...courierForm, role: e.target.value as 'kitchen' | 'delivery' | 'observer' })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mt-1.5 text-sm"
+              >
+                <option value="delivery">{t('Delivery (with action buttons)')}</option>
+                <option value="kitchen">{t('Kitchen (info only)')}</option>
+                <option value="observer">{t('Observer (summary only)')}</option>
+              </select>
+              <p className="text-xs text-slate-500 mt-1.5">
+                {courierForm.role === 'delivery' && t('Receives orders with "Accept" and "Delivered" buttons, gets reminders')}
+                {courierForm.role === 'kitchen' && t('Receives order info without action buttons, gets reminders')}
+                {courierForm.role === 'observer' && t('Receives order summary only, no reminders')}
+              </p>
+            </div>
+            <div className="flex items-center space-x-2 pt-2">
               <input
                 type="checkbox"
                 id="courier_is_active"
                 checked={courierForm.is_active}
                 onChange={(e) => setCourierForm({ ...courierForm, is_active: e.target.checked })}
-                className="h-4 w-4"
+                className="h-4 w-4 rounded border-slate-300"
               />
-              <Label htmlFor="courier_is_active">{t('Active')}</Label>
+              <Label htmlFor="courier_is_active" className="text-sm font-medium cursor-pointer">
+                {t('Active')}
+              </Label>
             </div>
           </div>
-          <div className="flex justify-end gap-2 mt-6">
+          <DialogFooter>
             <Button variant="outline" onClick={() => {
               setShowCourierForm(false);
               setEditingCourier(null);
-            }}>
+            }} className="border-slate-200">
               {t('Cancel')}
             </Button>
-            <Button onClick={handleSaveCourier}>
+            <Button onClick={handleSaveCourier} className="bg-indigo-600 hover:bg-indigo-700 text-white">
               {editingCourier ? t('Update') : t('Create')}
             </Button>
-          </div>
-          </CardContent>
-        </Card>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={alertDialog.open}

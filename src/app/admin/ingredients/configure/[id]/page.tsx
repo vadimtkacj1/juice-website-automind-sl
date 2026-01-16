@@ -37,7 +37,14 @@ interface CategoryIngredientConfig {
   selection_type: 'single' | 'multiple';
   price_override?: number;
   ingredient_group?: string | null;
+  ingredient_group_id?: number | null;
   is_required?: boolean;
+}
+
+interface IngredientGroupOption {
+  id: number;
+  name_he: string;
+  sort_order?: number;
 }
 
 export default function ConfigureCategory() {
@@ -50,9 +57,9 @@ export default function ConfigureCategory() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [category, setCategory] = useState<MenuCategory | null>(null);
   const [categoryConfigs, setCategoryConfigs] = useState<CategoryIngredientConfig[]>([]);
+  const [groups, setGroups] = useState<IngredientGroupOption[]>([]);
   const [newGroupName, setNewGroupName] = useState('');
   const [showCreateGroup, setShowCreateGroup] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<string | null>(null);
   const [alertDialog, setAlertDialog] = useState<{
     open: boolean;
     title: string;
@@ -90,10 +97,11 @@ export default function ConfigureCategory() {
 
   async function fetchData() {
     try {
-      const [categoryRes, ingredientsRes, configsRes] = await Promise.all([
+      const [categoryRes, ingredientsRes, configsRes, groupsRes] = await Promise.all([
         fetch(`/api/menu-categories/${params.id}`),
         fetch('/api/custom-ingredients?include_inactive=true'),
         fetch(`/api/menu-categories/${params.id}/ingredient-configs?include_inactive=true`),
+        fetch('/api/ingredient-groups'),
       ]);
 
       if (!categoryRes.ok) throw new Error('Failed to fetch category');
@@ -110,12 +118,16 @@ export default function ConfigureCategory() {
         category_name: config.category_name,
         ingredient_id: Number(config.ingredient_id ?? config.custom_ingredient_id),
         ingredient_name: config.ingredient_name,
-        selection_type: config.selection_type || 'multiple',
+        selection_type: config.ingredient_group_id ? 'single' : 'multiple',
         price_override: config.price_override ?? undefined,
-        ingredient_group: config.ingredient_group ?? '',
-        is_required: config.is_required || false,
+        ingredient_group: config.ingredient_group_name ?? config.ingredient_group ?? null,
+        ingredient_group_id: config.ingredient_group_id ?? null,
+        is_required: config.ingredient_group_id ? !!config.is_required : false,
       }));
       setCategoryConfigs(configs);
+
+      const groupsData = await groupsRes.json();
+      setGroups(Array.isArray(groupsData.groups) ? groupsData.groups : []);
     } catch (error) {
       console.error('Error fetching data:', error);
       setAlertDialog({
@@ -129,7 +141,7 @@ export default function ConfigureCategory() {
     }
   }
 
-  function handleAddIngredientToCategory(ingredient: Ingredient, groupName?: string) {
+  function handleAddIngredientToCategory(ingredient: Ingredient, groupIdRaw?: string | number | null) {
     const existing = categoryConfigs.find(c => c.ingredient_id === ingredient.id);
     if (existing) {
       setAlertDialog({
@@ -141,25 +153,18 @@ export default function ConfigureCategory() {
       return;
     }
 
-    if (!groupName || !groupName.trim()) {
-      setAlertDialog({
-        open: true,
-        title: t('No Group Selected'),
-        message: t('Please select a group to add the ingredient to. Create a group first if needed.'),
-        type: 'error',
-      });
-      return;
-    }
-
+    const groupId = groupIdRaw ? Number(groupIdRaw) : null;
+    const groupMeta = groupId ? groups.find(g => g.id === groupId) : null;
     const newConfig: CategoryIngredientConfig = {
       category_id: category!.id,
       category_name: category!.name,
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
-      selection_type: 'multiple',
+      selection_type: groupId ? 'single' : 'multiple',
       price_override: undefined,
-      ingredient_group: groupName || '',
-      is_required: false,
+      ingredient_group: groupMeta?.name_he || null,
+      ingredient_group_id: groupId,
+      is_required: groupId ? false : false,
     };
     
     setCategoryConfigs([...categoryConfigs, newConfig]);
@@ -178,7 +183,7 @@ export default function ConfigureCategory() {
     }));
   }
 
-  function handleCreateGroup() {
+  async function handleCreateGroup() {
     if (!newGroupName.trim()) {
       setAlertDialog({
         open: true,
@@ -189,13 +194,10 @@ export default function ConfigureCategory() {
       return;
     }
 
-    const existingGroups = new Set(
-      categoryConfigs
-        .map(c => c.ingredient_group?.trim())
-        .filter((g): g is string => !!g)
-    );
+    const normalized = newGroupName.trim();
+    const existingGroupNames = new Set(groups.map((g) => g.name_he.trim()));
 
-    if (existingGroups.has(newGroupName.trim())) {
+    if (existingGroupNames.has(normalized)) {
       setAlertDialog({
         open: true,
         title: t('Error'),
@@ -205,8 +207,28 @@ export default function ConfigureCategory() {
       return;
     }
 
-    setNewGroupName('');
-    setShowCreateGroup(false);
+    try {
+      const res = await fetch('/api/ingredient-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name_he: normalized, sort_order: groups.length }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to create group');
+      }
+      const data = await res.json();
+      setGroups((prev) => [...prev, { id: data.id, name_he: data.name_he, sort_order: data.sort_order }]);
+      setNewGroupName('');
+      setShowCreateGroup(false);
+    } catch (error: any) {
+      setAlertDialog({
+        open: true,
+        title: t('Error'),
+        message: error.message || t('Failed to save group'),
+        type: 'error',
+      });
+    }
   }
 
   function handleAddIngredientToGroup(ingredientId: number, groupName: string) {
@@ -218,19 +240,19 @@ export default function ConfigureCategory() {
     }));
   }
 
-  function handleRemoveGroup(groupName: string) {
+  function handleRemoveGroup(groupId: number) {
     setCategoryConfigs(prev => prev.map(config => {
-      if (config.ingredient_group === groupName) {
-        return { ...config, ingredient_group: null, is_required: false };
+      if (config.ingredient_group_id === groupId) {
+        return { ...config, ingredient_group: null, ingredient_group_id: null, is_required: false, selection_type: 'multiple' };
       }
       return config;
     }));
   }
 
-  function handleUpdateGroupSettings(groupName: string, field: 'selection_type' | 'is_required', value: any) {
+  function handleUpdateGroupRequired(groupId: number, value: boolean) {
     setCategoryConfigs(prev => prev.map(config => {
-      if (config.ingredient_group === groupName) {
-        return { ...config, [field]: value };
+      if (config.ingredient_group_id === groupId) {
+        return { ...config, is_required: value, selection_type: 'single' };
       }
       return config;
     }));
@@ -240,12 +262,18 @@ export default function ConfigureCategory() {
     if (!category) return;
     setSaving(true);
     try {
-      const configsToSave = categoryConfigs.map(config => ({
-        ...config,
-        ingredient_group: config.ingredient_group || null,
-        is_required: config.is_required || false,
-        volume_prices: null,
-      }));
+      const configsToSave = categoryConfigs.map(config => {
+        const normalizedGroup = config.ingredient_group?.trim() || null;
+        const groupMeta = config.ingredient_group_id ? groups.find((g) => g.id === config.ingredient_group_id) : null;
+        return {
+          ...config,
+          selection_type: config.ingredient_group_id ? 'single' : 'multiple',
+          ingredient_group_id: config.ingredient_group_id || null,
+          ingredient_group: groupMeta?.name_he || normalizedGroup || null,
+          is_required: config.ingredient_group_id ? !!config.is_required : false,
+          volume_prices: null,
+        };
+      });
 
       const configRes = await fetch(`/api/menu-categories/${category.id}/ingredient-configs`, {
         method: 'PUT',
@@ -318,25 +346,19 @@ export default function ConfigureCategory() {
           )}
 
           {(() => {
-            const existingGroups = Array.from(new Set(
-              categoryConfigs
-                .map(c => c.ingredient_group?.trim())
-                .filter((g): g is string => !!g)
-            ));
+            const existingGroups = groups;
 
             if (existingGroups.length === 0) return <p className="text-center py-8">{t('No groups created yet.')}</p>;
 
             return (
               <div className="space-y-2">
-                {existingGroups.map((groupName) => (
-                  <div key={groupName} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2">
+                {existingGroups.map((group) => (
+                  <div key={group.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-3">
                       <span>📦</span>
-                      <span className="font-semibold text-blue-900">{t(groupName || '')}</span>
+                      <span className="font-semibold text-blue-900">{group.name_he}</span>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => handleRemoveGroup(groupName)} className="text-red-600">
-                      <Trash className="h-4 w-4" />
-                    </Button>
+                    <span className="text-xs text-slate-500">ID: {group.id}</span>
                   </div>
                 ))}
               </div>
@@ -352,23 +374,21 @@ export default function ConfigureCategory() {
             {ingredients
               .filter(ing => !categoryConfigs.find(c => c.ingredient_id === ing.id))
               .map((ingredient) => {
-                const existingGroups = Array.from(new Set(
-                  categoryConfigs
-                    .map(c => c.ingredient_group?.trim())
-                    .filter((g): g is string => !!g)
-                ));
+                const existingGroups = groups;
 
                 return (
                   <div key={ingredient.id} className="flex items-center justify-between p-2 hover:bg-muted rounded gap-2">
                     <div className="flex-1">
                       <span className="font-medium">{t(ingredient.name)}</span>
                     </div>
-                    {existingGroups.length > 0 ? (
-                      <select className="text-sm border rounded px-2 py-1" defaultValue="" onChange={(e) => handleAddIngredientToCategory(ingredient, e.target.value)}>
-                        <option value="">{t('Select group...')}</option>
-                        {existingGroups.map(g => <option key={g} value={g}>{t(g)}</option>)}
-                      </select>
-                    ) : <span className="text-xs">{t('Create a group first')}</span>}
+                    <select
+                      className="text-sm border rounded px-2 py-1"
+                      defaultValue=""
+                      onChange={(e) => handleAddIngredientToCategory(ingredient, e.target.value || null)}
+                    >
+                      <option value="">{t('Attach without group (multi-choice)')}</option>
+                      {existingGroups.map(g => <option key={g.id} value={g.id}>{g.name_he}</option>)}
+                    </select>
                   </div>
                 );
               })}
@@ -380,67 +400,81 @@ export default function ConfigureCategory() {
         <CardHeader><CardTitle>{t('Step 3: Manage Groups and Settings')}</CardTitle></CardHeader>
         <CardContent>
           {(() => {
-            const groupedConfigs = categoryConfigs.reduce((acc, config) => {
-              const groupKey = config.ingredient_group?.trim() || '__ungrouped';
-              if (!acc[groupKey]) acc[groupKey] = [];
-              acc[groupKey].push(config);
-              return acc;
-            }, {} as Record<string, typeof categoryConfigs>);
-
-            const groups = Object.keys(groupedConfigs).filter(k => k !== '__ungrouped');
+            const groupedById = groups.map((g) => ({
+              group: g,
+              configs: categoryConfigs.filter((c) => c.ingredient_group_id === g.id),
+            }));
+            const ungrouped = categoryConfigs.filter((c) => !c.ingredient_group_id);
 
             return (
               <div className="space-y-4">
-                {groups.map((groupName) => {
-                  const groupConfigs = groupedConfigs[groupName];
+                {groups.length === 0 && (
+                  <p className="text-sm text-slate-600">{t('No groups yet. You can attach ingredients without a group or create one above.')}</p>
+                )}
+                {groupedById.map(({ group, configs }) => {
+                  const isRequired = configs.some((c) => c.is_required);
                   return (
-                    <Card key={groupName} className="border-2 border-blue-200">
+                    <Card key={group.id} className="border-2 border-blue-200">
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-blue-900">{t(groupName || '')}</CardTitle>
-                          <Button variant="outline" size="sm" onClick={() => handleRemoveGroup(groupName)} className="text-red-600">
+                          <CardTitle className="text-blue-900">{group.name_he}</CardTitle>
+                          <Button variant="outline" size="sm" onClick={() => handleRemoveGroup(group.id)} className="text-red-600">
                             <Trash className="h-4 w-4" />
                           </Button>
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <Label>{t('Selection Type')}</Label>
-                            <select 
-                              className="w-full border rounded p-2 text-sm" 
-                              value={groupConfigs[0]?.selection_type || 'multiple'}
-                              onChange={(e) => handleUpdateGroupSettings(groupName, 'selection_type', e.target.value)}
-                            >
-                              <option value="multiple">{t('Multiple Choice')}</option>
-                              <option value="single">{t('Single Choice')}</option>
-                            </select>
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">{t('Single choice')}</span>
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox" 
+                              checked={isRequired}
+                              onChange={(e) => handleUpdateGroupRequired(group.id, e.target.checked)}
+                            />
+                            <Label className="text-sm">{t('Required (must pick one)')}</Label>
                           </div>
-                          {groupConfigs[0]?.selection_type === 'single' && (
-                            <div className="flex items-end gap-2">
-                              <input 
-                                type="checkbox" 
-                                checked={groupConfigs[0]?.is_required || false}
-                                onChange={(e) => handleUpdateGroupSettings(groupName, 'is_required', e.target.checked)}
-                              />
-                              <Label>{t('Required')}</Label>
-                            </div>
-                          )}
                         </div>
                         <div className="space-y-2 border-t pt-4">
-                          {groupConfigs.map(config => (
-                            <div key={config.ingredient_id} className="flex justify-between items-center p-2 bg-white border rounded">
-                              <span>{t(config.ingredient_name)}</span>
-                              <Button variant="ghost" size="sm" onClick={() => handleRemoveIngredientFromCategory(config.ingredient_id)} className="text-red-600">
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
+                          {configs.length === 0 ? (
+                            <p className="text-sm text-slate-500">{t('No ingredients in this group yet.')}</p>
+                          ) : (
+                            configs.map(config => (
+                              <div key={config.ingredient_id} className="flex justify-between items-center p-2 bg-white border rounded">
+                                <span>{t(config.ingredient_name)}</span>
+                                <Button variant="ghost" size="sm" onClick={() => handleRemoveIngredientFromCategory(config.ingredient_id)} className="text-red-600">
+                                  <Trash className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))
+                          )}
                         </div>
                       </CardContent>
                     </Card>
                   );
                 })}
+                <Card className="border border-dashed">
+                  <CardHeader>
+                    <CardTitle>{t('Standalone ingredients (multi-choice)')}</CardTitle>
+                    <CardDescription>{t('These are not in a group; customers can pick any number.')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    { ungrouped.length === 0 ? (
+                      <p className="text-sm text-slate-500">{t('No standalone ingredients yet.')}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {ungrouped.map(config => (
+                          <div key={config.ingredient_id} className="flex justify-between items-center p-2 bg-white border rounded">
+                            <span>{t(config.ingredient_name)}</span>
+                            <Button variant="ghost" size="sm" onClick={() => handleRemoveIngredientFromCategory(config.ingredient_id)} className="text-red-600">
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             );
           })()}

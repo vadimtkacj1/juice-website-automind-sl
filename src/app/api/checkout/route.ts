@@ -42,23 +42,59 @@ async function savePendingOrder(items: CartItem[], customer: CustomerInfo, total
       customer,
       orderNumber,
     };
-    
-    // Set expiration to 1 hour from now
-    // Convert to MySQL datetime format (YYYY-MM-DD HH:MM:SS)
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 19)
-      .replace('T', ' ');
-    
+
+    console.log('[Checkout] Saving pending order to database', {
+      orderToken: orderToken.substring(0, 16) + '...',
+      fullToken: orderToken,
+      orderNumber,
+      total,
+      itemsCount: items.length
+    });
+
+    // Use MySQL's DATE_ADD function to set expiration to 1 hour from now
+    // This ensures timezone consistency with the NOW() function used in lookups
     dbInstance.run(
-      `INSERT INTO pending_orders (order_token, order_data, total_amount, expires_at) 
-       VALUES (?, ?, ?, ?)`,
-      [orderToken, JSON.stringify(orderData), total, expiresAt],
+      `INSERT INTO pending_orders (order_token, order_data, total_amount, expires_at, created_at)
+       VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), NOW())`,
+      [orderToken, JSON.stringify(orderData), total],
       function(this: { lastID: number; changes: number }, err: any) {
         if (err) {
+          console.error('[Checkout] Failed to save pending order', {
+            error: err,
+            errorMessage: err?.message,
+            errorCode: err?.code,
+            orderToken: orderToken.substring(0, 16) + '...'
+          });
           reject(err);
           return;
         }
+
+        // Verify the inserted order and log its timestamps
+        dbInstance.get(
+          `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders WHERE id = ?`,
+          [this.lastID],
+          (verifyErr: any, insertedOrder: any) => {
+            if (!verifyErr && insertedOrder) {
+              console.log('[Checkout] Pending order saved successfully', {
+                orderToken: orderToken.substring(0, 16) + '...',
+                orderNumber,
+                insertId: this.lastID,
+                changes: this.changes,
+                expiresAt: insertedOrder.expires_at,
+                createdAt: insertedOrder.created_at,
+                currentTime: insertedOrder.current_time
+              });
+            } else {
+              console.log('[Checkout] Pending order saved (could not verify timestamps)', {
+                orderToken: orderToken.substring(0, 16) + '...',
+                orderNumber,
+                insertId: this.lastID,
+                changes: this.changes
+              });
+            }
+          }
+        );
+
         resolve({ orderToken, orderNumber });
       }
     );

@@ -1,12 +1,30 @@
 /* ============================================
    BASE STYLES & RESET
    ============================================ */
+
+/* Force font loading */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/heebo/v21/NGSpv5_NC0k9P_v6ZUCbLRAHxK1EiS2cckOnz02SXQ.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/heebo/v21/NGSpv5_NC0k9P_v6ZUCbLRAHxK1EixGdckOnz02SXQ.woff2') format('woff2');
+}
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html {
@@ -17,7 +35,7 @@ html {
 }
 
 body {
-  font-family: 'Heebo', 'Assistant', sans-serif;
+  font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 900;
   font-size: 24px;
   line-height: 1.6;

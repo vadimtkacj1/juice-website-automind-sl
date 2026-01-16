@@ -818,6 +818,11 @@ export default function AdminMenu() {
           </div>
 
           <div className="flex items-center justify-end gap-1">
+            <Link href={`/admin/menu/edit/${item.id}/ingredients`}>
+              <Button variant="ghost" size="sm" className="h-8 px-2 text-purple-600 hover:text-purple-700" title={t('Configure ingredients')}>
+                {t('Ingredients')}
+              </Button>
+            </Link>
             <Link href={`/admin/menu/edit/${item.id}`}>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-700">
                 <Pencil className="h-4 w-4" />

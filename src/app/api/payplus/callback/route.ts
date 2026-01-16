@@ -87,12 +87,12 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Get order token from callback URL
     const orderToken = searchParams.get('token');
     if (!orderToken) {
       console.error('PayPlus callback: Missing order token');
-      
+
       // Construct proper redirect URL
       let baseUrl = process.env.DEPLOYMENT_URL;
       if (!baseUrl) {
@@ -100,32 +100,95 @@ export async function GET(request: NextRequest) {
         baseUrl = `${url.protocol}//${url.host}`;
       }
       baseUrl = baseUrl.replace(/\/$/, '');
-      
+
       return NextResponse.redirect(new URL('/checkout/success?error=missing_token', baseUrl));
     }
-    
+
     // PayPlus typically sends payment status in query parameters
     const status = searchParams.get('status');
     const paymentUid = searchParams.get('uid') || searchParams.get('payment_uid');
     const transactionId = searchParams.get('transaction_id');
     const isTestMode = searchParams.get('test_mode') === 'true';
-    
+
     // In test mode, automatically mark as success
     if (isTestMode) {
       console.log('🧪 PayPlus TEST MODE: Auto-approving payment');
     }
-    
+
     const dbInstance = getDatabase();
-    
+
+    // Clean up expired pending orders (older than 2 hours)
+    dbInstance.run(
+      `DELETE FROM pending_orders WHERE expires_at < NOW()`,
+      [],
+      (cleanupErr: any) => {
+        if (cleanupErr) {
+          console.error('[PayPlus Callback] Error cleaning up expired orders:', cleanupErr?.message);
+        }
+      }
+    );
+
+    // Debug: Check all pending orders to help diagnose issues
+    console.log('[PayPlus Callback] Looking up pending order', {
+      orderToken: orderToken.substring(0, 16) + '...',
+      fullToken: orderToken
+    });
+
+    // First, check if this specific token exists at all (ignoring expiration)
+    dbInstance.get(
+      `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders WHERE order_token = ?`,
+      [orderToken],
+      (specificErr: any, specificOrder: any) => {
+        if (!specificErr && specificOrder) {
+          console.log('[PayPlus Callback] Found matching token in database (ignoring expiration):', {
+            token: specificOrder.order_token?.substring(0, 16) + '...',
+            expiresAt: specificOrder.expires_at,
+            createdAt: specificOrder.created_at,
+            currentTime: specificOrder.current_time,
+            isExpired: specificOrder.expires_at <= specificOrder.current_time
+          });
+        } else {
+          console.log('[PayPlus Callback] Token NOT found in database at all');
+        }
+      }
+    );
+
+    // Also check all pending orders for context
+    dbInstance.all(
+      `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders ORDER BY created_at DESC LIMIT 10`,
+      [],
+      (debugErr: any, allOrders: any) => {
+        if (!debugErr && allOrders) {
+          console.log('[PayPlus Callback] Recent pending orders in database:', {
+            count: allOrders.length,
+            currentTime: allOrders[0]?.current_time,
+            orders: allOrders.map((o: any) => ({
+              token: o.order_token?.substring(0, 16) + '...',
+              expiresAt: o.expires_at,
+              createdAt: o.created_at,
+              isExpired: o.expires_at <= o.current_time
+            }))
+          });
+        } else if (debugErr) {
+          console.error('[PayPlus Callback] Error fetching debug info:', debugErr?.message);
+        }
+      }
+    );
+
     // Retrieve pending order data
     return new Promise<NextResponse>((resolve) => {
       dbInstance.get(
         `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > NOW()`,
         [orderToken],
         async (err: any, pendingOrder: any) => {
-          if (err || !pendingOrder) {
-            console.error('PayPlus callback: Pending order not found or expired', orderToken);
-            
+          if (err) {
+            console.error('PayPlus callback: Database error while looking up pending order', {
+              error: err,
+              errorMessage: err?.message,
+              errorCode: err?.code,
+              orderToken: orderToken
+            });
+
             // Construct proper redirect URL
             let baseUrl = process.env.DEPLOYMENT_URL;
             if (!baseUrl) {
@@ -133,7 +196,23 @@ export async function GET(request: NextRequest) {
               baseUrl = `${url.protocol}//${url.host}`;
             }
             baseUrl = baseUrl.replace(/\/$/, '');
-            
+
+            return resolve(NextResponse.redirect(
+              new URL('/checkout/success?error=database_error', baseUrl)
+            ));
+          }
+
+          if (!pendingOrder) {
+            console.error('PayPlus callback: Pending order not found or expired', orderToken);
+
+            // Construct proper redirect URL
+            let baseUrl = process.env.DEPLOYMENT_URL;
+            if (!baseUrl) {
+              const url = new URL(request.url);
+              baseUrl = `${url.protocol}//${url.host}`;
+            }
+            baseUrl = baseUrl.replace(/\/$/, '');
+
             return resolve(NextResponse.redirect(
               new URL('/checkout/success?error=order_not_found', baseUrl)
             ));
@@ -182,14 +261,22 @@ export async function GET(request: NextRequest) {
               [orderToken],
               () => {}
             );
-            
+
             // Send Telegram notification for successful payment
-            fetch('/api/telegram/notify-service', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: orderResult.orderId }),
-            }).catch(() => {
-              // Ignore errors - notification is non-critical
+            console.log(`[PayPlus Callback] Order created successfully!`);
+            console.log(`[PayPlus Callback] - Order ID: ${orderResult.orderId}`);
+            console.log(`[PayPlus Callback] - Order Number: ${orderResult.orderNumber}`);
+            console.log(`[PayPlus Callback] - Total: ₪${orderResult.total}`);
+            console.log(`[PayPlus Callback] Sending Telegram notification for order #${orderResult.orderId}...`);
+            sendOrderNotification(orderResult.orderId).then((success) => {
+              if (success) {
+                console.log(`[PayPlus Callback] ✅ Telegram notification sent successfully for order #${orderResult.orderId}`);
+              } else {
+                console.log(`[PayPlus Callback] ⚠️ Failed to send Telegram notification for order #${orderResult.orderId}`);
+                console.log(`[PayPlus Callback] ⚠️ Check that Telegram bot is configured and recipients are added in admin panel`);
+              }
+            }).catch((error) => {
+              console.error(`[PayPlus Callback] ❌ Error sending Telegram notification:`, error);
             });
             
             // Construct proper redirect URL using DEPLOYMENT_URL or request origin
@@ -277,8 +364,21 @@ export async function POST(request: NextRequest) {
         `SELECT order_data, total_amount, order_token FROM pending_orders WHERE order_token = ? AND expires_at > NOW()`,
         [orderToken],
         async (err: any, pendingOrder: any) => {
-          if (err || !pendingOrder) {
-            console.error('PayPlus callback: Pending order not found or expired', orderToken);
+          if (err) {
+            console.error('PayPlus callback POST: Database error while looking up pending order', {
+              error: err,
+              errorMessage: err?.message,
+              errorCode: err?.code,
+              orderToken: orderToken
+            });
+            return resolve(NextResponse.json(
+              { error: 'Database error' },
+              { status: 500 }
+            ));
+          }
+
+          if (!pendingOrder) {
+            console.error('PayPlus callback POST: Pending order not found or expired', orderToken);
             return resolve(NextResponse.json(
               { error: 'Order not found or expired' },
               { status: 404 }
@@ -320,13 +420,23 @@ export async function POST(request: NextRequest) {
               [orderToken],
               () => {}
             );
-            
+
             // Send Telegram notification
-            fetch('/api/telegram/notify-service', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderId: orderResult.orderId }),
-            }).catch(() => {});
+            console.log(`[PayPlus Callback POST] Order created successfully!`);
+            console.log(`[PayPlus Callback POST] - Order ID: ${orderResult.orderId}`);
+            console.log(`[PayPlus Callback POST] - Order Number: ${orderResult.orderNumber}`);
+            console.log(`[PayPlus Callback POST] - Total: ₪${orderResult.total}`);
+            console.log(`[PayPlus Callback POST] Sending Telegram notification for order #${orderResult.orderId}...`);
+            sendOrderNotification(orderResult.orderId).then((success) => {
+              if (success) {
+                console.log(`[PayPlus Callback POST] ✅ Telegram notification sent successfully for order #${orderResult.orderId}`);
+              } else {
+                console.log(`[PayPlus Callback POST] ⚠️ Failed to send Telegram notification for order #${orderResult.orderId}`);
+                console.log(`[PayPlus Callback POST] ⚠️ Check that Telegram bot is configured and recipients are added in admin panel`);
+              }
+            }).catch((error) => {
+              console.error(`[PayPlus Callback POST] ❌ Error sending Telegram notification:`, error);
+            });
 
             resolve(NextResponse.json({
               success: true,

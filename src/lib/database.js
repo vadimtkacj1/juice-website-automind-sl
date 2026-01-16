@@ -148,16 +148,25 @@ function createDatabaseWrapper(pool) {
   return {
     // SQLite-style get() - returns single row
     get: function(sql, params, callback) {
+      // Handle both signatures: get(sql, callback) and get(sql, params, callback)
+      let actualParams = params;
+      let actualCallback = callback;
+
+      if (typeof params === 'function') {
+        actualCallback = params;
+        actualParams = [];
+      }
+
       const query = convertSQLiteToMySQL(sql);
-      pool.query(query, params || [])
+      pool.query(query, actualParams || [])
         .then(([rows]) => {
-          if (typeof callback === 'function') {
-            callback(null, rows.length > 0 ? rows[0] : undefined);
+          if (typeof actualCallback === 'function') {
+            actualCallback(null, rows.length > 0 ? rows[0] : undefined);
           }
         })
         .catch((err) => {
-          if (typeof callback === 'function') {
-            callback(err, null);
+          if (typeof actualCallback === 'function') {
+            actualCallback(err, null);
           } else {
             throw err;
           }
@@ -166,16 +175,25 @@ function createDatabaseWrapper(pool) {
 
     // SQLite-style all() - returns all rows
     all: function(sql, params, callback) {
+      // Handle both signatures: all(sql, callback) and all(sql, params, callback)
+      let actualParams = params;
+      let actualCallback = callback;
+
+      if (typeof params === 'function') {
+        actualCallback = params;
+        actualParams = [];
+      }
+
       const query = convertSQLiteToMySQL(sql);
-      pool.query(query, params || [])
+      pool.query(query, actualParams || [])
         .then(([rows]) => {
-          if (typeof callback === 'function') {
-            callback(null, rows);
+          if (typeof actualCallback === 'function') {
+            actualCallback(null, rows);
           }
         })
         .catch((err) => {
-          if (typeof callback === 'function') {
-            callback(err, null);
+          if (typeof actualCallback === 'function') {
+            actualCallback(err, null);
           } else {
             throw err;
           }
@@ -184,22 +202,31 @@ function createDatabaseWrapper(pool) {
 
     // SQLite-style run() - for INSERT/UPDATE/DELETE
     run: function(sql, params, callback) {
+      // Handle both signatures: run(sql, callback) and run(sql, params, callback)
+      let actualParams = params;
+      let actualCallback = callback;
+
+      if (typeof params === 'function') {
+        actualCallback = params;
+        actualParams = [];
+      }
+
       const query = convertSQLiteToMySQL(sql);
-      pool.query(query, params || [])
+      pool.query(query, actualParams || [])
         .then(([result]) => {
           const context = {
             lastID: result.insertId || 0,
             changes: result.affectedRows || 0,
           };
-          if (typeof callback === 'function') {
+          if (typeof actualCallback === 'function') {
             // SQLite style: callback(err, this) where 'this' is the context
             // Call with context as 'this' for compatibility
-            callback.call(context, null);
+            actualCallback.call(context, null);
           }
         })
         .catch((err) => {
-          if (typeof callback === 'function') {
-            callback.call(null, err);
+          if (typeof actualCallback === 'function') {
+            actualCallback.call(null, err);
           } else {
             throw err;
           }
@@ -549,15 +576,44 @@ async function initializeTables(pool) {
         custom_ingredient_id INT NOT NULL,
         selection_type TEXT DEFAULT 'multiple',
         price_override DECIMAL(10,2),
+        ingredient_group_id INT,
+        ingredient_group TEXT,
+        is_required TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE,
         FOREIGN KEY (custom_ingredient_id) REFERENCES custom_ingredients(id) ON DELETE CASCADE,
+        FOREIGN KEY (ingredient_group_id) REFERENCES ingredient_groups(id) ON DELETE SET NULL,
         UNIQUE KEY unique_item_ingredient (menu_item_id, custom_ingredient_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
     await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'selection_type', "TEXT DEFAULT 'multiple'");
     await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'price_override', 'DECIMAL(10,2)');
+    await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'ingredient_group_id', 'INT');
+    await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'ingredient_group', 'TEXT');
+    await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'is_required', 'TINYINT(1) DEFAULT 0');
+
+    await createTable(pool, 'ingredient_groups', `
+      CREATE TABLE IF NOT EXISTS ingredient_groups (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name_he TEXT NOT NULL,
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+
+    await createTable(pool, 'ingredient_group_custom_ingredients', `
+      CREATE TABLE IF NOT EXISTS ingredient_group_custom_ingredients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ingredient_group_id INT NOT NULL,
+        custom_ingredient_id INT NOT NULL,
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ingredient_group_id) REFERENCES ingredient_groups(id) ON DELETE CASCADE,
+        FOREIGN KEY (custom_ingredient_id) REFERENCES custom_ingredients(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_group_ingredient (ingredient_group_id, custom_ingredient_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
 
     await createTable(pool, 'menu_category_custom_ingredients', `
       CREATE TABLE IF NOT EXISTS menu_category_custom_ingredients (
@@ -566,19 +622,24 @@ async function initializeTables(pool) {
         custom_ingredient_id INT NOT NULL,
         selection_type TEXT DEFAULT 'multiple',
         price_override DECIMAL(10,2),
+        ingredient_group_id INT,
         ingredient_group TEXT,
         is_required TINYINT(1) DEFAULT 0,
         volume_prices TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (category_id) REFERENCES menu_categories(id) ON DELETE CASCADE,
         FOREIGN KEY (custom_ingredient_id) REFERENCES custom_ingredients(id) ON DELETE CASCADE,
+        FOREIGN KEY (ingredient_group_id) REFERENCES ingredient_groups(id) ON DELETE SET NULL,
         UNIQUE KEY unique_category_ingredient (category_id, custom_ingredient_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
     await addColumnIfNotExists(pool, 'menu_category_custom_ingredients', 'volume_prices', 'TEXT');
+    await addColumnIfNotExists(pool, 'menu_category_custom_ingredients', 'ingredient_group_id', 'INT');
     await addColumnIfNotExists(pool, 'menu_category_custom_ingredients', 'ingredient_group', 'TEXT');
     await addColumnIfNotExists(pool, 'menu_category_custom_ingredients', 'is_required', 'TINYINT(1) DEFAULT 0');
+
+    await migrateIngredientGroups(pool);
 
     // Create volumes tables (these depend on menu_categories, menu_items, custom_ingredients)
     // Note: These may fail if parent tables don't exist yet, but that's OK - they'll be created on next run
@@ -683,7 +744,7 @@ async function initializeTables(pool) {
         bot_id TEXT,
         api_token TEXT,
         is_enabled TINYINT(1) DEFAULT 0,
-        reminder_interval_minutes INT DEFAULT 3,
+        reminder_interval_minutes INT DEFAULT 5,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -692,13 +753,17 @@ async function initializeTables(pool) {
     await createTable(pool, 'telegram_couriers', `
       CREATE TABLE IF NOT EXISTS telegram_couriers (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        telegram_id TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
+        telegram_id VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'delivery',
         is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    // Add role column if it doesn't exist (for existing databases)
+    await addColumnIfNotExists(pool, 'telegram_couriers', 'role', "VARCHAR(20) DEFAULT 'delivery'");
 
     await createTable(pool, 'order_telegram_notifications', `
       CREATE TABLE IF NOT EXISTS order_telegram_notifications (
@@ -771,6 +836,22 @@ async function initializeTables(pool) {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Add performance indexes for frequently queried columns
+    await addIndexIfNotExists(pool, 'menu_items', 'idx_category_id', 'category_id');
+    await addIndexIfNotExists(pool, 'menu_items', 'idx_is_available', 'is_available');
+    await addIndexIfNotExists(pool, 'menu_item_custom_ingredients', 'idx_menu_item_id', 'menu_item_id');
+    await addIndexIfNotExists(pool, 'menu_item_custom_ingredients', 'idx_custom_ingredient_id', 'custom_ingredient_id');
+    await addIndexIfNotExists(pool, 'menu_item_custom_ingredients', 'idx_ingredient_group_id', 'ingredient_group_id');
+    await addIndexIfNotExists(pool, 'menu_category_custom_ingredients', 'idx_category_id', 'category_id');
+    await addIndexIfNotExists(pool, 'menu_category_custom_ingredients', 'idx_custom_ingredient_id', 'custom_ingredient_id');
+    await addIndexIfNotExists(pool, 'menu_category_custom_ingredients', 'idx_ingredient_group_id', 'ingredient_group_id');
+    await addIndexIfNotExists(pool, 'custom_ingredients', 'idx_is_available', 'is_available');
+    await addIndexIfNotExists(pool, 'ingredient_group_custom_ingredients', 'idx_ingredient_group_id', 'ingredient_group_id');
+    await addIndexIfNotExists(pool, 'ingredient_group_custom_ingredients', 'idx_custom_ingredient_id', 'custom_ingredient_id');
+    await addIndexIfNotExists(pool, 'menu_item_volumes', 'idx_menu_item_id', 'menu_item_id');
+    await addIndexIfNotExists(pool, 'menu_item_additional_items', 'idx_menu_item_id', 'menu_item_id');
+    await addIndexIfNotExists(pool, 'menu_item_additional_items', 'idx_is_available', 'is_available');
+
     console.log('All tables initialized successfully');
   } catch (err) {
     console.error('Error initializing tables:', err);
@@ -812,6 +893,23 @@ async function addColumnIfNotExists(pool, tableName, columnName, columnDefinitio
   }
 }
 
+async function addIndexIfNotExists(pool, tableName, indexName, columnName) {
+  try {
+    const [indexes] = await pool.query(`SHOW INDEX FROM ?? WHERE Key_name = ?`, [tableName, indexName]);
+    if (indexes.length === 0) {
+      await pool.query(`CREATE INDEX ?? ON ?? (${columnName})`, [indexName, tableName]);
+      if (process.env.VERBOSE_DB_INIT === 'true') {
+        console.log(`Index created on ${tableName}.${columnName}: ${indexName}`);
+      }
+    }
+  } catch (err) {
+    // Ignore if index already exists or table doesn't exist yet
+    if (!err.message.includes('Duplicate key') && !err.message.includes("doesn't exist") && !err.message.includes('already exists')) {
+      console.error(`Error adding index ${indexName} to ${tableName}:`, err.message);
+    }
+  }
+}
+
 async function migrateStatusColumn(pool, tableName) {
   try {
     // Check if table exists and get column info
@@ -829,6 +927,51 @@ async function migrateStatusColumn(pool, tableName) {
     if (!err.message.includes("doesn't exist")) {
       console.error(`Error migrating status column in ${tableName}:`, err.message);
     }
+  }
+}
+
+async function migrateIngredientGroups(pool) {
+  try {
+    const [rows] = await pool.query(`
+      SELECT DISTINCT TRIM(g) as name_he FROM (
+        SELECT ingredient_group as g FROM menu_category_custom_ingredients WHERE ingredient_group IS NOT NULL AND TRIM(ingredient_group) <> ''
+        UNION
+        SELECT ingredient_group as g FROM menu_item_custom_ingredients WHERE ingredient_group IS NOT NULL AND TRIM(ingredient_group) <> ''
+      ) t WHERE g IS NOT NULL AND TRIM(g) <> ''
+    `);
+
+    if (!rows || rows.length === 0) return;
+
+    for (const row of rows) {
+      const name = row.name_he;
+      if (!name) continue;
+
+      await pool.query(
+        `INSERT INTO ingredient_groups (name_he) 
+         SELECT * FROM (SELECT ?) AS tmp 
+         WHERE NOT EXISTS (SELECT 1 FROM ingredient_groups WHERE name_he = ?)`,
+        [name, name]
+      );
+
+      const [[groupRow]] = await pool.query(`SELECT id FROM ingredient_groups WHERE name_he = ? LIMIT 1`, [name]);
+      if (!groupRow?.id) continue;
+
+      await pool.query(
+        `UPDATE menu_category_custom_ingredients 
+         SET ingredient_group_id = ? 
+         WHERE ingredient_group IS NOT NULL AND TRIM(ingredient_group) = ? AND (ingredient_group_id IS NULL OR ingredient_group_id = 0)`,
+        [groupRow.id, name]
+      );
+
+      await pool.query(
+        `UPDATE menu_item_custom_ingredients 
+         SET ingredient_group_id = ? 
+         WHERE ingredient_group IS NOT NULL AND TRIM(ingredient_group) = ? AND (ingredient_group_id IS NULL OR ingredient_group_id = 0)`,
+        [groupRow.id, name]
+      );
+    }
+  } catch (err) {
+    console.warn('[database] migrateIngredientGroups warning:', err?.message || err);
   }
 }
 

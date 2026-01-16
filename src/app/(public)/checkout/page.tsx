@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { translateToHebrew } from '@/lib/translations';
-import { ShoppingBag, Lock, CreditCard, Loader2, ArrowRight, Trash2, AlertCircle } from 'lucide-react';
+import { useLoading } from '@/lib/loading-context';
+import { CreditCard, Loader2, ArrowRight, AlertCircle, ArrowLeft, Lock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -12,6 +13,7 @@ import styles from './page.module.css';
 export default function CheckoutPage() {
   const { cart, getTotalPrice, clearCart } = useCart();
   const router = useRouter();
+  const { setLoading: setGlobalLoading } = useLoading();
   
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -34,23 +36,23 @@ export default function CheckoutPage() {
   // Form validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!customerInfo.name.trim()) {
-      newErrors.name = translateToHebrew('Name is required');
+      newErrors.name = translateToHebrew('name is required');
     }
-    
+
     if (!customerInfo.email.trim()) {
-      newErrors.email = translateToHebrew('Email is required');
+      newErrors.email = translateToHebrew('email is required');
     } else if (!/\S+@\S+\.\S+/.test(customerInfo.email)) {
-      newErrors.email = translateToHebrew('Please enter a valid email address');
+      newErrors.email = translateToHebrew('please enter a valid email address');
     }
-    
+
     if (!customerInfo.phone.trim()) {
-      newErrors.phone = translateToHebrew('Phone number is required');
+      newErrors.phone = translateToHebrew('phone number is required');
     } else if (!/^[\d\s\-\+\(\)]{8,}$/.test(customerInfo.phone)) {
-      newErrors.phone = translateToHebrew('Please enter a valid phone number');
+      newErrors.phone = translateToHebrew('please enter a valid phone number');
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,6 +67,7 @@ export default function CheckoutPage() {
     }
     
     setIsProcessing(true);
+    setGlobalLoading(true);
     
     try {
       const response = await fetch('/api/checkout', {
@@ -79,24 +82,27 @@ export default function CheckoutPage() {
       });
       
       const data = await response.json();
-      
+
       if (!response.ok || !data.success) {
-        setApiError(data.error || translateToHebrew('Failed to process checkout. Please try again.'));
+        setApiError(data.error || translateToHebrew('failed to process checkout. please try again.'));
         setIsProcessing(false);
+        setGlobalLoading(false);
         return;
       }
-      
+
       // Redirect to PayPlus payment page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        setApiError(translateToHebrew('Failed to generate payment link. Please try again.'));
+        setApiError(translateToHebrew('failed to generate payment link. please try again.'));
         setIsProcessing(false);
+        setGlobalLoading(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      setApiError(translateToHebrew('Network error. Please check your connection and try again.'));
+      setApiError(translateToHebrew('network error. please check your connection and try again.'));
       setIsProcessing(false);
+      setGlobalLoading(false);
     }
   };
   
@@ -119,33 +125,37 @@ export default function CheckoutPage() {
   return (
     <div className={styles['checkout-page']}>
       <div className={styles['checkout-container']}>
+        {/* Back Button */}
+        <Link
+          href="/menu"
+          className={styles['back-button']}
+          onClick={(e) => {
+            if (isProcessing) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <ArrowLeft size={20} />
+          {translateToHebrew('back')}
+        </Link>
+
         {/* Header */}
         <div className={styles['checkout-header']}>
-          <div className={styles['header-content']}>
-            <ShoppingBag size={32} />
-            <h1>{translateToHebrew('Secure Checkout')}</h1>
-            <div className={styles['security-badge']}>
-              <Lock size={16} />
-              <span>{translateToHebrew('Secure Payment')}</span>
-            </div>
-          </div>
-          <p className={styles['header-subtitle']}>
-            {translateToHebrew('Review your order and complete payment via PayPlus')}
-          </p>
+          <h1>{translateToHebrew('checkout')}</h1>
         </div>
         
         <div className={styles['checkout-content']}>
           {/* Order Summary */}
           <div className={styles['order-summary']}>
-            <h2>{translateToHebrew('Order Summary')}</h2>
-            
+            <h2>{translateToHebrew('order summary')}</h2>
+
             <div className={styles['cart-items']}>
               {cart.map((item, index) => (
                 <div key={index} className={styles['cart-item']}>
                   {item.image && (
                     <div className={styles['item-image']}>
-                      <Image 
-                        src={item.image} 
+                      <Image
+                        src={item.image}
                         alt={item.name}
                         width={80}
                         height={80}
@@ -153,7 +163,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                   )}
-                  
+
                   <div className={styles['item-details']}>
                     <h3>{item.name}</h3>
                     {item.volume && (
@@ -162,7 +172,7 @@ export default function CheckoutPage() {
                     {item.customIngredients && item.customIngredients.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
-                          {translateToHebrew('Custom Ingredients')}:
+                          {translateToHebrew('custom ingredients')}:
                         </span>
                         {item.customIngredients.map((ing: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
@@ -174,7 +184,7 @@ export default function CheckoutPage() {
                     {item.additionalItems && item.additionalItems.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
-                          {translateToHebrew('Additional Items')}:
+                          {translateToHebrew('additional items')}:
                         </span>
                         {item.additionalItems.map((addItem: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
@@ -184,40 +194,40 @@ export default function CheckoutPage() {
                       </div>
                     )}
                     <div className={styles['item-quantity']}>
-                      {translateToHebrew('Quantity')}: {item.quantity}
+                      {translateToHebrew('quantity')}: {item.quantity}
                     </div>
                   </div>
-                  
+
                   <div className={styles['item-price']}>
                     ₪{calculateItemTotal(item)}
                   </div>
                 </div>
               ))}
             </div>
-            
+
             <div className={styles['order-total']}>
-              <span>{translateToHebrew('Total Amount')}</span>
+              <span>{translateToHebrew('total amount')}</span>
               <span className={styles['total-price']}>
                 ₪{getTotalPrice()}
               </span>
             </div>
           </div>
-          
+
           {/* Customer Information Form */}
           <div className={styles['customer-form']}>
-            <h2>{translateToHebrew('Contact Information')}</h2>
-            
+            <h2>{translateToHebrew('contact information')}</h2>
+
             {apiError && (
               <div className={styles['error-message']}>
                 <AlertCircle size={20} />
                 <span>{apiError}</span>
               </div>
             )}
-            
+
             <form onSubmit={handleCheckout}>
               <div className={styles['form-group']}>
                 <label htmlFor="name">
-                  {translateToHebrew('Full Name')} <span className={styles['required']}>*</span>
+                  {translateToHebrew('full name')} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="text"
@@ -226,14 +236,14 @@ export default function CheckoutPage() {
                   onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                   className={errors.name ? styles['input-error'] : ''}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('Enter your full name')}
+                  placeholder={translateToHebrew('enter your full name')}
                 />
                 {errors.name && <span className={styles['field-error']}>{errors.name}</span>}
               </div>
-              
+
               <div className={styles['form-group']}>
                 <label htmlFor="email">
-                  {translateToHebrew('Email Address')} <span className={styles['required']}>*</span>
+                  {translateToHebrew('email address')} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="email"
@@ -246,10 +256,10 @@ export default function CheckoutPage() {
                 />
                 {errors.email && <span className={styles['field-error']}>{errors.email}</span>}
               </div>
-              
+
               <div className={styles['form-group']}>
                 <label htmlFor="phone">
-                  {translateToHebrew('Phone Number')} <span className={styles['required']}>*</span>
+                  {translateToHebrew('phone number')} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="tel"
@@ -262,17 +272,17 @@ export default function CheckoutPage() {
                 />
                 {errors.phone && <span className={styles['field-error']}>{errors.phone}</span>}
               </div>
-              
+
               <div className={styles['form-group']}>
                 <label htmlFor="deliveryAddress">
-                  {translateToHebrew('Delivery Address')} <span className={styles['optional']}>({translateToHebrew('Optional')})</span>
+                  {translateToHebrew('delivery address')} <span className={styles['optional']}>({translateToHebrew('optional')})</span>
                 </label>
                 <textarea
                   id="deliveryAddress"
                   value={customerInfo.deliveryAddress}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryAddress: e.target.value })}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('Street address, city, postal code')}
+                  placeholder={translateToHebrew('street address, city, postal code')}
                   rows={3}
                 />
               </div>
@@ -284,24 +294,24 @@ export default function CheckoutPage() {
                   <span>PayPlus</span>
                 </div>
                 <p className={styles['payment-description']}>
-                  {translateToHebrew('You will be redirected to PayPlus secure payment page to complete your payment. All payment information is processed securely by PayPlus.')}
+                  {translateToHebrew('you will be redirected to payplus secure payment page to complete your payment. all payment information is processed securely by payplus.')}
                 </p>
                 <div className={styles['security-features']}>
                   <div className={styles['security-feature']}>
                     <Lock size={16} />
-                    <span>{translateToHebrew('Encrypted Connection')}</span>
+                    <span>{translateToHebrew('encrypted connection')}</span>
                   </div>
                   <div className={styles['security-feature']}>
                     <CreditCard size={16} />
-                    <span>{translateToHebrew('PCI DSS Compliant')}</span>
+                    <span>{translateToHebrew('pci dss compliant')}</span>
                   </div>
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               <div className={styles['form-actions']}>
-                <Link 
-                  href="/menu" 
+                <Link
+                  href="/menu"
                   className={styles['btn-secondary']}
                   onClick={(e) => {
                     if (isProcessing) {
@@ -309,9 +319,9 @@ export default function CheckoutPage() {
                     }
                   }}
                 >
-                  {translateToHebrew('Back to Menu')}
+                  {translateToHebrew('back to menu')}
                 </Link>
-                
+
                 <button
                   type="submit"
                   className={styles['btn-primary']}
@@ -320,11 +330,11 @@ export default function CheckoutPage() {
                   {isProcessing ? (
                     <>
                       <Loader2 size={20} className={styles['spinner']} />
-                      {translateToHebrew('Processing...')}
+                      {translateToHebrew('processing...')}
                     </>
                   ) : (
                     <>
-                      {translateToHebrew('Proceed to Payment')}
+                      {translateToHebrew('proceed to payment')}
                       <ArrowRight size={20} />
                     </>
                   )}
