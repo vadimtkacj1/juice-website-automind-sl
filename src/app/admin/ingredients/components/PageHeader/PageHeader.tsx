@@ -2,7 +2,11 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function PageHeader() {
+interface PageHeaderProps {
+  t: (key: string) => string; // Define the type for your translation function
+}
+
+export default function PageHeader({ t }: PageHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 pb-6 border-slate-100">
       <div>
