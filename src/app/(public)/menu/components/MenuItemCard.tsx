@@ -71,7 +71,7 @@ export default function MenuItemCard({
       <div className={styles.productImage}>
         {hasValidImage ? (
           <Image
-            src={item.image}
+            src={item.image as string}
             alt={translateToHebrew(item.name)}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
