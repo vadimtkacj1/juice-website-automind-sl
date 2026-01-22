@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { verifyPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,8 +52,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Create session
-    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    // Create session with cryptographically secure random token
+    const sessionToken = crypto.randomBytes(32).toString('hex');
 
     const response = NextResponse.json({
         success: true,

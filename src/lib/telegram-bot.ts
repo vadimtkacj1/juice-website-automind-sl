@@ -285,6 +285,8 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                 const kitchenMessage = `🍳 הזמנה חדשה #${order.id}\n\n` +
                   `👤 לקוח: ${order.customer_name}\n` +
                   `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
+                  `📧 אימייל: ${order.customer_email || 'לא צוין'}\n` +
+                  (order.delivery_address ? `📍 כתובת למשלוח: ${order.delivery_address}\n` : '') +
                   `💰 סכום: ₪${order.total_amount}\n\n` +
                   `📦 פרטי ההזמנה:\n${order.items || 'אין פריטים'}\n\n` +
                   (order.notes ? `📝 הערות: ${order.notes}\n\n` : '') +
@@ -305,6 +307,7 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                 // Observer message (info only)
                 const observerMessage = `👁️ הזמנה חדשה (מידע) #${order.id}\n\n` +
                   `👤 לקוח: ${order.customer_name}\n` +
+                  (order.delivery_address ? `📍 כתובת: ${order.delivery_address}\n` : '') +
                   `💰 סכום: ₪${order.total_amount}\n` +
                   `📦 פריטים: ${order.items?.split('\n').length || 0}\n` +
                   `⏰ זמן: ${new Date(order.created_at).toLocaleString('he-IL')}`;

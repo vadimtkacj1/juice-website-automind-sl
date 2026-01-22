@@ -66,6 +66,7 @@ export async function generatePayPlusLink(options: {
   amount: number;
   currency_code?: string;
   orderNumber: string;
+  orderToken?: string; // Token for webhook identification
   callbackUrl: string;
   customerEmail?: string;
   customerName?: string;
@@ -174,7 +175,8 @@ export async function generatePayPlusLink(options: {
       refURL_callback: callbackUrl,
       initial_invoice: true,
       hide_identification_id: false,
-      more_info: options.orderNumber || '',
+      // Use orderToken for webhook identification, fallback to orderNumber for display
+      more_info: options.orderToken || options.orderNumber || '',
     };
     
     // Add customer object only if email is provided (for invoice generation)
@@ -186,9 +188,8 @@ export async function generatePayPlusLink(options: {
     }
 
     console.log('PayPlus Request Body:', JSON.stringify(requestBody, null, 2));
-    console.log('PayPlus API Key (first 10 chars):', PAYPLUS_API_KEY.substring(0, 10) + '...');
     console.log('PayPlus API URL:', PAYPLUS_BASE_URL);
-    
+
     // PayPlus authentication: Authorization header with JSON string containing api_key and secret_key
     // Format: Authorization: {"api_key":"...","secret_key":"..."}
     // IMPORTANT: Header must be a STRING, not an object!
@@ -197,12 +198,10 @@ export async function generatePayPlusLink(options: {
       'Content-Type': 'application/json',
       'Authorization': authHeaderValue, // Must be a JSON string, not an object
     };
-    
+
     console.log('🔐 Using PayPlus authentication: JSON object in Authorization header');
-    console.log('   API Key (cleaned):', apiKey);
-    console.log('   Secret Key (cleaned):', secretKey.substring(0, 10) + '...');
-    console.log('   API Key length:', apiKey.length);
-    console.log('   Authentication format: Authorization: {"api_key":"...","secret_key":"..."}');
+    console.log('   API Key configured:', apiKey.length > 0 ? '✓' : '✗');
+    console.log('   Secret Key configured:', secretKey.length > 0 ? '✓' : '✗');
     
     // Make the request with Authorization header containing JSON
     const response = await fetch(PAYPLUS_BASE_URL, {

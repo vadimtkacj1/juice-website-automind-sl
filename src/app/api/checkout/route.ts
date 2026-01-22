@@ -234,6 +234,7 @@ export async function POST(request: NextRequest) {
         amount: total,
         currency_code: 'ILS',
         orderNumber: pendingOrder.orderNumber,
+        orderToken: pendingOrder.orderToken, // For webhook identification
         callbackUrl: callbackUrl,
         customerEmail: customer.email,
         customerName: customer.name || customer.email.split('@')[0],

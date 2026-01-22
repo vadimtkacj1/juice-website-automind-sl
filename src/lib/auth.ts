@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
@@ -10,6 +11,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 export function generateToken(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  // Use cryptographically secure random bytes instead of Math.random()
+  return crypto.randomBytes(32).toString('hex');
 }
 

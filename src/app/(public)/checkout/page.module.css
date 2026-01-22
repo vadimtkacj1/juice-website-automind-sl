@@ -613,3 +613,36 @@
     color: var(--dark);
   }
 }
+
+/* Ensure inputs and textareas are aligned for Hebrew */
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  text-align: right; /* Aligns text to the right */
+  direction: rtl;    /* Forces right-to-left flow */
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* Special handling for phone inputs to keep digits right-aligned */
+.form-group input[type="tel"] {
+  text-align: right;
+  direction: ltr; /* Keeps numbers in logical order while right-aligned */
+  unicode-bidi: plaintext; 
+}
+
+/* Ensure the button content is ordered correctly for RTL */
+.btn-primary {
+  display: flex;
+  flex-direction: row; /* Flex items follow the dir="rtl" of parent */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Placeholder color and alignment */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  text-align: right;
+}

@@ -171,6 +171,7 @@ const hebrewTranslations: Record<string, string> = {
   'please enter a valid phone number': 'אנא הזן מספר טלפון תקין',
   'email is required': 'נדרש אימייל',
   'please enter a valid email': 'אנא הזן אימייל תקין',
+  'delivery address is required': 'נדרשת כתובת למשלוח',
   'failed to start checkout': 'נכשל להתחיל תשלום',
   'please try again': 'נסה שוב',
   'try again': 'נסה שוב',

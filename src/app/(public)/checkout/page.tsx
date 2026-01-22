@@ -15,6 +15,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { setLoading: setGlobalLoading } = useLoading();
   
+  // Customer state management
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -26,14 +27,14 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   
-  // Redirect if cart is empty
+  // Redirect to menu if the cart becomes empty
   useEffect(() => {
     if (cart.length === 0 && !isProcessing) {
       router.push('/menu');
     }
   }, [cart, router, isProcessing]);
   
-  // Form validation
+  // Form validation logic
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -53,11 +54,15 @@ export default function CheckoutPage() {
       newErrors.phone = translateToHebrew('please enter a valid phone number');
     }
 
+    if (!customerInfo.deliveryAddress.trim()) {
+      newErrors.deliveryAddress = translateToHebrew('delivery address is required');
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   
-  // Handle form submission
+  // Handle form submission and PayPlus integration
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
@@ -90,7 +95,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Redirect to PayPlus payment page
+      // Redirect user to the PayPlus hosted payment page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
@@ -106,7 +111,7 @@ export default function CheckoutPage() {
     }
   };
   
-  // Calculate total including custom ingredients and additional items
+  // Calculate price for individual items including extras
   const calculateItemTotal = (item: any) => {
     let total = Number(item.price);
     if (item.customIngredients) {
@@ -119,33 +124,65 @@ export default function CheckoutPage() {
   };
   
   if (cart.length === 0 && !isProcessing) {
-    return null; // Will redirect to menu
+    return null;
   }
   
   return (
-    <div className={styles['checkout-page']}>
+    /* dir="rtl" ensures the layout and text alignment follow Hebrew standards */
+    <div className={styles['checkout-page']} dir="rtl">
       <div className={styles['checkout-container']}>
-        {/* Back Button */}
-        <Link
-          href="/menu"
-          className={styles['back-button']}
-          onClick={(e) => {
-            if (isProcessing) {
-              e.preventDefault();
-            }
-          }}
-        >
-          <ArrowLeft size={20} />
-          {translateToHebrew('back')}
-        </Link>
+        
+{/* Header section with 3-column grid for perfect centering */}
+<div 
+  className={styles['header-wrapper']} 
+  style={{ 
+    display: 'grid', 
+    gridTemplateColumns: '1fr auto 1fr', // Grid ensures title is always centered
+    alignItems: 'center', 
+    marginBottom: '3rem',
+    width: '100%',
+    color: '#000' // High visibility black
+  }}
+>
+  {/* Column 1: Back Button with arrow on the left */}
+  <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+    <Link
+      href="/menu"
+      className={styles['back-button']}
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.5rem',
+        color: '#000', 
+        textDecoration: 'none',
+        fontWeight: '700', // Bold text
+        fontSize: '1.2rem'
+      }}
+      onClick={(e) => { if (isProcessing) e.preventDefault(); }}
+    >
+      {/* In RTL, putting the text first makes the icon appear on the left */}
+      <span>חזרה לתפריט</span>
+      <ArrowLeft size={24} /> 
+    </Link>
+  </div>
 
-        {/* Header */}
-        <div className={styles['checkout-header']}>
-          <h1>{translateToHebrew('checkout')}</h1>
-        </div>
+  {/* Column 2: Centered Large Title */}
+  <h1 style={{ 
+    margin: 0, 
+    fontSize: '3.5rem',  // Larger font size
+    fontWeight: '900',   // Extra bold black
+    color: '#000',
+    textAlign: 'center'
+  }}>
+    קופה
+  </h1>
+
+  {/* Column 3: Empty spacer for symmetry */}
+  <div />
+</div>
         
         <div className={styles['checkout-content']}>
-          {/* Order Summary */}
+          {/* Right Column: Order Summary */}
           <div className={styles['order-summary']}>
             <h2>{translateToHebrew('order summary')}</h2>
 
@@ -166,9 +203,9 @@ export default function CheckoutPage() {
 
                   <div className={styles['item-details']}>
                     <h3>{item.name}</h3>
-                    {item.volume && (
-                      <p className={styles['item-volume']}>{item.volume}</p>
-                    )}
+                    {item.volume && <p className={styles['item-volume']}>{item.volume}</p>}
+                    
+                    {/* Display extra ingredients if any */}
                     {item.customIngredients && item.customIngredients.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
@@ -181,6 +218,8 @@ export default function CheckoutPage() {
                         ))}
                       </div>
                     )}
+                    
+                    {/* Display additional items if any */}
                     {item.additionalItems && item.additionalItems.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
@@ -207,13 +246,11 @@ export default function CheckoutPage() {
 
             <div className={styles['order-total']}>
               <span>{translateToHebrew('total amount')}</span>
-              <span className={styles['total-price']}>
-                ₪{getTotalPrice()}
-              </span>
+              <span className={styles['total-price']}>₪{getTotalPrice()}</span>
             </div>
           </div>
 
-          {/* Customer Information Form */}
+          {/* Left Column: Customer Details & Form */}
           <div className={styles['customer-form']}>
             <h2>{translateToHebrew('contact information')}</h2>
 
@@ -268,26 +305,28 @@ export default function CheckoutPage() {
                   onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                   className={errors.phone ? styles['input-error'] : ''}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('05X-XXX-XXXX')}
+                  placeholder="05X-XXX-XXXX"
                 />
                 {errors.phone && <span className={styles['field-error']}>{errors.phone}</span>}
               </div>
 
               <div className={styles['form-group']}>
                 <label htmlFor="deliveryAddress">
-                  {translateToHebrew('delivery address')} <span className={styles['optional']}>({translateToHebrew('optional')})</span>
+                  {translateToHebrew('delivery address')} <span className={styles['required']}>*</span>
                 </label>
                 <textarea
                   id="deliveryAddress"
                   value={customerInfo.deliveryAddress}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryAddress: e.target.value })}
+                  className={errors.deliveryAddress ? styles['input-error'] : ''}
                   disabled={isProcessing}
                   placeholder={translateToHebrew('street address, city, postal code')}
                   rows={3}
                 />
+                {errors.deliveryAddress && <span className={styles['field-error']}>{errors.deliveryAddress}</span>}
               </div>
               
-              {/* PayPlus Security Info */}
+              {/* Security and Trust Badges for PayPlus */}
               <div className={styles['payment-info']}>
                 <div className={styles['payplus-logo']}>
                   <CreditCard size={24} />
@@ -314,9 +353,7 @@ export default function CheckoutPage() {
                   href="/menu"
                   className={styles['btn-secondary']}
                   onClick={(e) => {
-                    if (isProcessing) {
-                      e.preventDefault();
-                    }
+                    if (isProcessing) e.preventDefault();
                   }}
                 >
                   {translateToHebrew('back to menu')}
@@ -335,7 +372,8 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       {translateToHebrew('proceed to payment')}
-                      <ArrowRight size={20} />
+                      {/* ArrowLeft points forward in Hebrew RTL layout */}
+                      <ArrowLeft size={20} />
                     </>
                   )}
                 </button>
@@ -347,4 +385,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-
