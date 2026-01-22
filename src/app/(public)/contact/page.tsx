@@ -1,20 +1,6 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'צור קשר | נשמח לשמוע ממך',
-  description: 'צרו קשר עם נטורליי מרענן. נשמח לענות על שאלות, לקבל הצעות ולעזור בכל נושא. טלפון, אימייל ופרטי התקשרות.',
-  keywords: ['צור קשר', 'שירות לקוחות', 'טלפון', 'אימייל', 'פניות', 'תמיכה'],
-  openGraph: {
-    title: 'צור קשר | נטורליי מרענן',
-    description: 'צרו קשר עם נטורליי מרענן. נשמח לעזור!',
-    type: 'website',
-  },
-  alternates: {
-    canonical: '/contact',
-  },
-};
-
 'use client';
+
+import type { Metadata } from 'next';
 
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageSquare, Clock, MapPin, ArrowRight } from 'lucide-react';
