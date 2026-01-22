@@ -1,0 +1,43 @@
+{
+  "name": "נטורליי מרענן - מיצים טבעיים",
+  "short_name": "נטורליי מרענן",
+  "description": "חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a365d",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "he",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "shopping"],
+  "shortcuts": [
+    {
+      "name": "תפריט",
+      "short_name": "תפריט",
+      "description": "גלה את התפריט שלנו",
+      "url": "/menu",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "סניפים",
+      "short_name": "סניפים",
+      "description": "מצא סניף קרוב",
+      "url": "/locations",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

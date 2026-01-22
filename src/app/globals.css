@@ -2,7 +2,8 @@
    GLOBAL CSS - MAIN ENTRY POINT
    ============================================ */
 
-/* Font Imports are handled in layout.tsx for better performance */
+/* Local Font Imports */
+@import './styles/fonts.css';
 
 /* Tailwind */
 @tailwind base;

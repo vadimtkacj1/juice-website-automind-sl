@@ -472,12 +472,14 @@ async function initializeTables(pool) {
     await createTable(pool, 'pending_orders', `
       CREATE TABLE IF NOT EXISTS pending_orders (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        order_token TEXT NOT NULL UNIQUE,
+        order_token VARCHAR(255) NOT NULL UNIQUE,
         order_data TEXT NOT NULL,
         total_amount DECIMAL(10,2) NOT NULL,
-        payment_uid TEXT,
+        payment_uid VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP NULL
+        expires_at TIMESTAMP NULL,
+        INDEX idx_order_token (order_token),
+        INDEX idx_expires_at (expires_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 

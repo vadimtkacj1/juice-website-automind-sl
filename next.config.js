@@ -9,6 +9,12 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // SEO optimizations
+  generateEtags: true,
+  
+  // Enable static page generation where possible
+  trailingSlash: false,
+  
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -44,7 +50,8 @@ const nextConfig = {
   
   // Experimental features for better performance
   experimental: {
-    // optimizeCss: true, // Disabled - requires critters package
+    optimizeCss: true, // Enable CSS optimization with critters
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
   },
 
   // Headers for caching and security

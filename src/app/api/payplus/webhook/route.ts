@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
+const { sendOrderConfirmationEmail, sendAdminOrderNotification } = require('@/lib/email.js');
 
 /**
  * PayPlus Webhook Handler
@@ -127,16 +128,25 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[PayPlus Webhook] Received webhook notification');
+    console.log('');
+    console.log('='.repeat(80));
+    console.log('🔔 PAYPLUS WEBHOOK CALLED');
+    console.log('='.repeat(80));
+    console.log('[PayPlus Webhook] Timestamp:', new Date().toISOString());
+    console.log('[PayPlus Webhook] Request URL:', request.url);
+    console.log('[PayPlus Webhook] Request Method:', request.method);
+    console.log('[PayPlus Webhook] Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
 
     const body: PayPlusWebhookData = await request.json();
 
-    console.log('[PayPlus Webhook] Webhook data:', {
+    console.log('[PayPlus Webhook] 📦 Full webhook data:', JSON.stringify(body, null, 2));
+    console.log('[PayPlus Webhook] 🔑 Key fields:', {
       status: body.status,
       status_code: body.status_code,
       transaction_uid: body.transaction_uid,
       page_request_uid: body.page_request_uid,
       more_info: body.more_info,
+      more_info_6: body.more_info_6,
       amount: body.amount,
     });
 
@@ -236,22 +246,63 @@ export async function POST(request: NextRequest) {
                   () => {}
                 );
 
-                console.log('[PayPlus Webhook] Order created successfully!');
+                console.log('');
+                console.log('=== Order Created Successfully (Webhook) ===');
                 console.log('[PayPlus Webhook] - Order ID:', orderResult.orderId);
                 console.log('[PayPlus Webhook] - Order Number:', orderResult.orderNumber);
                 console.log('[PayPlus Webhook] - Total: ₪', orderResult.total);
 
                 // Send Telegram notification
                 console.log('[PayPlus Webhook] Sending Telegram notification...');
-                sendOrderNotification(orderResult.orderId).then((success) => {
-                  if (success) {
+                try {
+                  const telegramSuccess = await sendOrderNotification(orderResult.orderId);
+                  if (telegramSuccess) {
                     console.log('[PayPlus Webhook] ✅ Telegram notification sent');
                   } else {
                     console.log('[PayPlus Webhook] ⚠️ Failed to send Telegram notification');
                   }
-                }).catch((error) => {
+                } catch (error) {
                   console.error('[PayPlus Webhook] ❌ Error sending Telegram notification:', error);
-                });
+                }
+
+                // Send email notifications
+                console.log('[PayPlus Webhook] Sending email notifications...');
+                const emailData = {
+                  orderNumber: orderResult.orderNumber,
+                  customerName: orderData.customer.name || 'Customer',
+                  customerEmail: orderData.customer.email,
+                  items: orderData.items.map((item: any) => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                  })),
+                  total: orderResult.total,
+                  deliveryAddress: orderData.customer.deliveryAddress
+                };
+
+                // Send customer confirmation email
+                try {
+                  const customerEmailSuccess = await sendOrderConfirmationEmail(emailData);
+                  if (customerEmailSuccess) {
+                    console.log('[PayPlus Webhook] ✅ Customer confirmation email sent');
+                  } else {
+                    console.log('[PayPlus Webhook] ⚠️ Failed to send customer email');
+                  }
+                } catch (error) {
+                  console.error('[PayPlus Webhook] ❌ Error sending customer email:', error);
+                }
+
+                // Send admin notification email
+                try {
+                  const adminEmailSuccess = await sendAdminOrderNotification(emailData);
+                  if (adminEmailSuccess) {
+                    console.log('[PayPlus Webhook] ✅ Admin notification email sent');
+                  } else {
+                    console.log('[PayPlus Webhook] ⚠️ Failed to send admin email');
+                  }
+                } catch (error) {
+                  console.error('[PayPlus Webhook] ❌ Error sending admin email:', error);
+                }
 
                 resolve(NextResponse.json({
                   success: true,
@@ -281,8 +332,17 @@ export async function POST(request: NextRequest) {
 
 // Handle GET requests (for webhook verification if needed)
 export async function GET(request: NextRequest) {
+  console.log('');
+  console.log('='.repeat(80));
+  console.log('🔔 PAYPLUS WEBHOOK GET REQUEST');
+  console.log('='.repeat(80));
+  console.log('[PayPlus Webhook GET] Timestamp:', new Date().toISOString());
+  console.log('[PayPlus Webhook GET] Request URL:', request.url);
+  console.log('[PayPlus Webhook GET] Query Params:', Object.fromEntries(request.nextUrl.searchParams.entries()));
+  
   return NextResponse.json({
     message: 'PayPlus Webhook Endpoint',
     status: 'active',
+    timestamp: new Date().toISOString(),
   });
 }

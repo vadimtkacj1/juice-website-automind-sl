@@ -4,6 +4,7 @@ import PageLoader from '@/components/PageLoader';
 import GlobalLoader from '@/components/GlobalLoader';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import CookieConsent from '@/components/CookieConsent';
+import StructuredData from '@/components/StructuredData';
 import { TextModeProvider } from '@/lib/text-mode-context';
 import { LoadingProvider } from '@/lib/loading-context';
 import CartProviderWrapper from '@/components/CartProviderWrapper';
@@ -89,6 +90,16 @@ export const metadata: Metadata = {
     },
   },
   category: 'food & drink',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'נטורליי מרענן',
+  },
+  verification: {
+    google: 'google-site-verification-code-here',
+    yandex: 'yandex-verification-code-here',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -96,19 +107,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="he" dir="rtl">
       <head>
         {/* Preconnect to external resources for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
         
         {/* DNS prefetch for critical resources */}
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         
-        {/* Load fonts directly for reliability */}
+        {/* Preload critical local fonts */}
         <link 
-          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" 
-          rel="stylesheet"
+          rel="preload"
+          href="/fonts/Heebo-VariableFont_wght.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
         />
         
         {/* Mobile support script */}
@@ -193,7 +203,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body style={{ fontFamily: 'Heebo, Assistant, Segoe UI, system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <body style={{ fontFamily: 'Heebo, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
         <TextModeProvider>
           <LoadingProvider>
             <CartProviderWrapper>

@@ -33,6 +33,18 @@ async function savePendingOrder(items: CartItem[], customer: CustomerInfo, total
 }> {
   return new Promise((resolve, reject) => {
     const dbInstance = getDatabase();
+    
+    // Clean up expired orders first to prevent auto-increment issues
+    dbInstance.run(
+      `DELETE FROM pending_orders WHERE expires_at < NOW()`,
+      [],
+      (cleanupErr: any) => {
+        if (cleanupErr) {
+          console.warn('[Checkout] Warning: Failed to clean up expired orders', cleanupErr);
+        }
+      }
+    );
+    
     const orderToken = crypto.randomBytes(32).toString('hex');
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
     
@@ -69,31 +81,13 @@ async function savePendingOrder(items: CartItem[], customer: CustomerInfo, total
           return;
         }
 
-        // Verify the inserted order and log its timestamps
-        dbInstance.get(
-          `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders WHERE id = ?`,
-          [this.lastID],
-          (verifyErr: any, insertedOrder: any) => {
-            if (!verifyErr && insertedOrder) {
-              console.log('[Checkout] Pending order saved successfully', {
-                orderToken: orderToken.substring(0, 16) + '...',
-                orderNumber,
-                insertId: this.lastID,
-                changes: this.changes,
-                expiresAt: insertedOrder.expires_at,
-                createdAt: insertedOrder.created_at,
-                currentTime: insertedOrder.current_time
-              });
-            } else {
-              console.log('[Checkout] Pending order saved (could not verify timestamps)', {
-                orderToken: orderToken.substring(0, 16) + '...',
-                orderNumber,
-                insertId: this.lastID,
-                changes: this.changes
-              });
-            }
-          }
-        );
+        // Log success immediately and resolve
+        console.log('[Checkout] Pending order saved successfully', {
+          orderToken: orderToken.substring(0, 16) + '...',
+          orderNumber,
+          insertId: this.lastID,
+          changes: this.changes
+        });
 
         resolve({ orderToken, orderNumber });
       }

@@ -176,7 +176,8 @@ export async function POST(request: NextRequest) {
     
     // Call directly (not via setImmediate for better error handling)
     try {
-      const db = (await import('@/lib/database')).default;
+      const getDatabase = (await import('@/lib/database')).default;
+      const db = getDatabase(); // Call the function to get the database wrapper
       const { getBotInstance } = await import('@/lib/telegram-bot');
       
       console.log('[Telegram Notify] Getting bot instance...');

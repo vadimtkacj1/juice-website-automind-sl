@@ -29,7 +29,11 @@ const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
 
 export async function GET() {
   const requestId = `[${Date.now()}]`;
-  console.error(`${requestId} [Menu API] ===== GET /api/menu called =====`);
+  const isDev = process.env.NODE_ENV !== 'production';
+  
+  if (isDev) {
+    console.log(`${requestId} [Menu API] GET /api/menu called`);
+  }
 
   try {
     // 1. Resolve Database Path (for debugging)
@@ -38,8 +42,6 @@ export async function GET() {
                     ? '/app/data/juice_website.db' 
                     : path.join(process.cwd(), 'juice_website.db'));
 
-    console.error(`${requestId} [Menu API] DB Path: ${dbPath} | Exists: ${fs.existsSync(dbPath)}`);
-
     const db = getDatabase();
     if (!db) {
       throw new Error('Database connection failed');
@@ -47,16 +49,15 @@ export async function GET() {
 
     // 2. Fetch Data Concurrently
     // We fetch categories, items, and volumes in parallel to improve performance
-    const [categories, items, volumes, stats] = await Promise.all([
+    const [categories, items, volumes] = await Promise.all([
       dbAll(db, 'SELECT * FROM menu_categories WHERE is_active = 1 ORDER BY sort_order'),
       dbAll(db, 'SELECT * FROM menu_items WHERE is_available = 1 ORDER BY sort_order'),
-      dbAll(db, 'SELECT * FROM menu_category_volumes ORDER BY category_id, sort_order, volume'),
-      dbGet(db, 'SELECT (SELECT COUNT(*) FROM menu_categories) as catCount, (SELECT COUNT(*) FROM menu_items) as itemCount')
+      dbAll(db, 'SELECT * FROM menu_category_volumes ORDER BY category_id, sort_order, volume')
     ]);
 
-    console.error(`${requestId} [Menu API] Found ${categories.length}/${stats.catCount} active categories`);
-    console.error(`${requestId} [Menu API] Found ${items.length}/${stats.itemCount} available items`);
-    console.error(`${requestId} [Menu API] Found ${volumes.length} volume options`);
+    if (isDev) {
+      console.log(`${requestId} [Menu API] Found ${categories.length} active categories, ${items.length} available items, ${volumes.length} volumes`);
+    }
 
     // 3. Group volumes by category_id for quick lookup
     const volumesByCategory = new Map<number, any[]>();
@@ -83,10 +84,6 @@ export async function GET() {
           .sort((a: any, b: any) => (Number(a?.sort_order) || 0) - (Number(b?.sort_order) || 0))
           .map((item: any) => translateObject(item));
 
-        if (categoryItems.length === 0) {
-          console.error(`${requestId} [Menu API] Category "${category.name}" (ID: ${categoryId}) has no items.`);
-        }
-
         // Get volumes for this category and sort them
         const categoryVolumes = (volumesByCategory.get(categoryId) || [])
           .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -112,7 +109,7 @@ export async function GET() {
 
     // 4. Handle Empty Menu Scenario
     if (menu.length === 0) {
-      console.error(`${requestId} [Menu API] WARNING: Resulting menu is empty!`);
+      console.warn(`${requestId} [Menu API] WARNING: Resulting menu is empty!`);
       return NextResponse.json({
         menu: [],
         debug: {
@@ -124,7 +121,9 @@ export async function GET() {
       });
     }
 
-    console.error(`${requestId} [Menu API] Success: Returning ${menu.length} categories.`);
+    if (isDev) {
+      console.log(`${requestId} [Menu API] Success: Returning ${menu.length} categories`);
+    }
     return NextResponse.json({ menu });
 
   } catch (error: any) {

@@ -10,17 +10,13 @@ export function useProductModalLogic(
   onClose: () => void
 ) {
   // Get data from your custom hook
-  const { customIngredients, volumeOptions, additionalItems } = useProductModalData(item, isOpen);
+  const { customIngredients, volumeOptions, additionalItems, isLoading } = useProductModalData(item, isOpen);
   
   // States for selections
   const [selectedVolume, setSelectedVolume] = useState<string | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [selectedSingleByGroup, setSelectedSingleByGroup] = useState<Map<string, number>>(new Map());
   const [selectedAdditionalItems, setSelectedAdditionalItems] = useState<Set<number>>(new Set());
-
-  // Define isLoading: it is loading if the modal is open but volume options haven't loaded yet
-  // Or if the item itself is null
-  const isLoading = isOpen && item && volumeOptions.length === 0;
 
   // Reset modal state on item change
   useEffect(() => {

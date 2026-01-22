@@ -164,6 +164,12 @@ export async function generatePayPlusLink(options: {
       console.warn('API Key may be a placeholder or incorrect format');
     }
 
+    // Build webhook URL (server-to-server notification)
+    // Extract base URL from callback URL
+    const callbackUrlObj = new URL(callbackUrl);
+    const baseUrl = `${callbackUrlObj.protocol}//${callbackUrlObj.host}`;
+    const webhookUrl = `${baseUrl}/api/payplus/webhook`;
+    
     // Build payment request - PayPlus requires Authorization header, not credentials in body
     const requestBody: any = {
       payment_page_uid: PAYPLUS_PAGE_UID.trim(),
@@ -177,6 +183,8 @@ export async function generatePayPlusLink(options: {
       hide_identification_id: false,
       // Use orderToken for webhook identification, fallback to orderNumber for display
       more_info: options.orderToken || options.orderNumber || '',
+      // Add webhook URL for server-to-server notifications (PayPlus field: more_info_6)
+      more_info_6: webhookUrl,
     };
     
     // Add customer object only if email is provided (for invoice generation)
@@ -187,8 +195,16 @@ export async function generatePayPlusLink(options: {
       };
     }
 
-    console.log('PayPlus Request Body:', JSON.stringify(requestBody, null, 2));
-    console.log('PayPlus API URL:', PAYPLUS_BASE_URL);
+    console.log('');
+    console.log('='.repeat(80));
+    console.log('💳 CREATING PAYPLUS PAYMENT LINK');
+    console.log('='.repeat(80));
+    console.log('📋 PayPlus Request Body:', JSON.stringify(requestBody, null, 2));
+    console.log('🌐 PayPlus API URL:', PAYPLUS_BASE_URL);
+    console.log('📡 PayPlus Webhook URL (more_info_6):', webhookUrl);
+    console.log('🔄 PayPlus Callback URL (refURL_callback):', callbackUrl);
+    console.log('🔑 Order Token (more_info):', options.orderToken || options.orderNumber || 'NOT SET');
+    console.log('='.repeat(80));
 
     // PayPlus authentication: Authorization header with JSON string containing api_key and secret_key
     // Format: Authorization: {"api_key":"...","secret_key":"..."}
@@ -274,7 +290,17 @@ export async function generatePayPlusLink(options: {
     const paymentUid = data.data?.page_request_uid || data.results?.uid;
     
     if (isSuccess && paymentLink) {
-      console.log('✅ PayPlus payment link generated successfully');
+      console.log('');
+      console.log('='.repeat(80));
+      console.log('✅ PAYPLUS PAYMENT LINK GENERATED SUCCESSFULLY');
+      console.log('='.repeat(80));
+      console.log('Payment URL:', paymentLink);
+      console.log('Order:', options.orderNumber);
+      console.log('Amount:', formattedAmount, options.currency_code || 'ILS');
+      console.log('🔔 Webhook will be called by PayPlus at:', webhookUrl);
+      console.log('🔙 User will be redirected to:', callbackUrl);
+      console.log('='.repeat(80));
+      console.log('');
       return {
         success: true,
         paymentUrl: paymentLink,

@@ -5,19 +5,21 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Home, ShoppingBag, X } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
+import { useCart } from '@/lib/cart-context';
 import styles from './success.module.css';
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order');
   const error = searchParams.get('error');
+  const { clearCart } = useCart();
 
   useEffect(() => {
     // Clear cart on successful order (only if no error)
     if (!error) {
-      localStorage.removeItem('cart');
+      clearCart();
     }
-  }, [error]);
+  }, [error, clearCart]);
 
   // Handle error cases
   if (error) {

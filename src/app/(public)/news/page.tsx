@@ -1,3 +1,19 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'חדשות ועדכונים | טיפים לבריאות ומתכונים חדשים',
+  description: 'קראו על חידושי המיצים החדשים שלנו, טיפים לבריאות, מתכונים מומלצים וחדשות מעולם נטורליי מרענן.',
+  keywords: ['חדשות', 'מתכונים', 'טיפים לבריאות', 'מיצים חדשים', 'עדכונים', 'בלוג מיצים'],
+  openGraph: {
+    title: 'חדשות ועדכונים | נטורליי מרענן',
+    description: 'קראו על חידושי המיצים החדשים שלנו וטיפים לבריאות',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/news',
+  },
+};
+
 'use client';
 
 import { useEffect, useState } from 'react';

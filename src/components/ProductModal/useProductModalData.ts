@@ -97,12 +97,14 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
   const [customIngredients, setCustomIngredients] = useState<CustomIngredient[]>([]);
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([]);
   const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isOpen || !item) {
       setCustomIngredients([]);
       setVolumeOptions([]);
       setAdditionalItems([]);
+      setIsLoading(false);
       return;
     }
 
@@ -115,10 +117,12 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
         setCustomIngredients(processIngredients(cached.ingredients));
         setVolumeOptions(processVolumes(cached.volumes, item));
         setAdditionalItems(cached.additionalItems);
+        setIsLoading(false);
         return;
       }
 
       console.log('Fetching all modal data for menu item:', itemId);
+      setIsLoading(true);
 
       try {
         const response = await fetch(`/api/menu-items/${itemId}/modal-data`);
@@ -128,6 +132,7 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
           setCustomIngredients([]);
           setVolumeOptions([]);
           setAdditionalItems([]);
+          setIsLoading(false);
           return;
         }
 
@@ -146,17 +151,19 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
         setCustomIngredients(processIngredients(data.ingredients || []));
         setVolumeOptions(processVolumes(data.volumes || [], item));
         setAdditionalItems(data.additionalItems || []);
+        setIsLoading(false);
 
       } catch (err) {
         console.error('Error fetching modal data:', err);
         setCustomIngredients([]);
         setVolumeOptions([]);
         setAdditionalItems([]);
+        setIsLoading(false);
       }
     };
 
     fetchModalData(item.id);
   }, [isOpen, item]);
 
-  return { customIngredients, volumeOptions, additionalItems };
+  return { customIngredients, volumeOptions, additionalItems, isLoading };
 }

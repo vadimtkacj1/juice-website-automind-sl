@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
+const { sendOrderConfirmationEmail, sendAdminOrderNotification } = require('@/lib/email.js');
 
 /**
  * PayPlus callback handler
@@ -87,11 +88,20 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
+    
+    console.log('');
+    console.log('='.repeat(80));
+    console.log('🔙 PAYPLUS CALLBACK RECEIVED (GET)');
+    console.log('='.repeat(80));
+    console.log('[PayPlus Callback GET] Timestamp:', new Date().toISOString());
+    console.log('[PayPlus Callback GET] Full URL:', request.url);
+    console.log('[PayPlus Callback GET] Query Params:', Object.fromEntries(searchParams.entries()));
+    console.log('[PayPlus Callback GET] Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
 
     // Get order token from callback URL
     const orderToken = searchParams.get('token');
     if (!orderToken) {
-      console.error('PayPlus callback: Missing order token');
+      console.error('[PayPlus Callback] ❌ Missing order token');
 
       // Construct proper redirect URL
       let baseUrl = process.env.DEPLOYMENT_URL;
@@ -136,7 +146,7 @@ export async function GET(request: NextRequest) {
 
     // First, check if this specific token exists at all (ignoring expiration)
     dbInstance.get(
-      `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders WHERE order_token = ?`,
+      `SELECT order_token, expires_at, created_at, NOW() as db_now FROM pending_orders WHERE order_token = ?`,
       [orderToken],
       (specificErr: any, specificOrder: any) => {
         if (!specificErr && specificOrder) {
@@ -144,8 +154,8 @@ export async function GET(request: NextRequest) {
             token: specificOrder.order_token?.substring(0, 16) + '...',
             expiresAt: specificOrder.expires_at,
             createdAt: specificOrder.created_at,
-            currentTime: specificOrder.current_time,
-            isExpired: specificOrder.expires_at <= specificOrder.current_time
+            currentTime: specificOrder.db_now,
+            isExpired: specificOrder.expires_at <= specificOrder.db_now
           });
         } else {
           console.log('[PayPlus Callback] Token NOT found in database at all');
@@ -155,18 +165,18 @@ export async function GET(request: NextRequest) {
 
     // Also check all pending orders for context
     dbInstance.all(
-      `SELECT order_token, expires_at, created_at, NOW() as current_time FROM pending_orders ORDER BY created_at DESC LIMIT 10`,
+      `SELECT order_token, expires_at, created_at, NOW() as db_now FROM pending_orders ORDER BY created_at DESC LIMIT 10`,
       [],
       (debugErr: any, allOrders: any) => {
         if (!debugErr && allOrders) {
           console.log('[PayPlus Callback] Recent pending orders in database:', {
             count: allOrders.length,
-            currentTime: allOrders[0]?.current_time,
+            currentTime: allOrders[0]?.db_now,
             orders: allOrders.map((o: any) => ({
               token: o.order_token?.substring(0, 16) + '...',
               expiresAt: o.expires_at,
               createdAt: o.created_at,
-              isExpired: o.expires_at <= o.current_time
+              isExpired: o.expires_at <= o.db_now
             }))
           });
         } else if (debugErr) {
@@ -263,21 +273,64 @@ export async function GET(request: NextRequest) {
             );
 
             // Send Telegram notification for successful payment
-            console.log(`[PayPlus Callback] Order created successfully!`);
-            console.log(`[PayPlus Callback] - Order ID: ${orderResult.orderId}`);
-            console.log(`[PayPlus Callback] - Order Number: ${orderResult.orderNumber}`);
-            console.log(`[PayPlus Callback] - Total: ₪${orderResult.total}`);
+            console.log('');
+            console.log('=== Order Created Successfully ===');
+            console.log(`[PayPlus Callback] Order ID: ${orderResult.orderId}`);
+            console.log(`[PayPlus Callback] Order Number: ${orderResult.orderNumber}`);
+            console.log(`[PayPlus Callback] Total: ₪${orderResult.total}`);
             console.log(`[PayPlus Callback] Sending Telegram notification for order #${orderResult.orderId}...`);
-            sendOrderNotification(orderResult.orderId).then((success) => {
-              if (success) {
+            
+            // Send notifications synchronously to ensure they complete before redirect
+            try {
+              const telegramSuccess = await sendOrderNotification(orderResult.orderId);
+              if (telegramSuccess) {
                 console.log(`[PayPlus Callback] ✅ Telegram notification sent successfully for order #${orderResult.orderId}`);
               } else {
                 console.log(`[PayPlus Callback] ⚠️ Failed to send Telegram notification for order #${orderResult.orderId}`);
                 console.log(`[PayPlus Callback] ⚠️ Check that Telegram bot is configured and recipients are added in admin panel`);
               }
-            }).catch((error) => {
+            } catch (error) {
               console.error(`[PayPlus Callback] ❌ Error sending Telegram notification:`, error);
-            });
+            }
+
+            // Send email notifications
+            console.log(`[PayPlus Callback] Sending email notifications...`);
+            const emailData = {
+              orderNumber: orderResult.orderNumber,
+              customerName: orderData.customer.name || 'Customer',
+              customerEmail: orderData.customer.email,
+              items: orderData.items.map((item: any) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price
+              })),
+              total: orderResult.total,
+              deliveryAddress: orderData.customer.deliveryAddress
+            };
+
+            // Send customer confirmation email
+            try {
+              const customerEmailSuccess = await sendOrderConfirmationEmail(emailData);
+              if (customerEmailSuccess) {
+                console.log(`[PayPlus Callback] ✅ Customer confirmation email sent to ${orderData.customer.email}`);
+              } else {
+                console.log(`[PayPlus Callback] ⚠️ Failed to send customer email`);
+              }
+            } catch (error) {
+              console.error(`[PayPlus Callback] ❌ Error sending customer email:`, error);
+            }
+
+            // Send admin notification email
+            try {
+              const adminEmailSuccess = await sendAdminOrderNotification(emailData);
+              if (adminEmailSuccess) {
+                console.log(`[PayPlus Callback] ✅ Admin notification email sent`);
+              } else {
+                console.log(`[PayPlus Callback] ⚠️ Failed to send admin email`);
+              }
+            } catch (error) {
+              console.error(`[PayPlus Callback] ❌ Error sending admin email:`, error);
+            }
             
             // Construct proper redirect URL using DEPLOYMENT_URL or request origin
             let baseUrl = process.env.DEPLOYMENT_URL;
@@ -336,8 +389,18 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('');
+    console.log('='.repeat(80));
+    console.log('🔙 PAYPLUS CALLBACK RECEIVED (POST)');
+    console.log('='.repeat(80));
+    console.log('[PayPlus Callback POST] Timestamp:', new Date().toISOString());
+    console.log('[PayPlus Callback POST] Request URL:', request.url);
+    
     const body = await request.json().catch(() => ({}));
     const searchParams = request.nextUrl.searchParams;
+    
+    console.log('[PayPlus Callback POST] Body:', JSON.stringify(body, null, 2));
+    console.log('[PayPlus Callback POST] Query Params:', Object.fromEntries(searchParams.entries()));
     
     // Get order token from callback URL
     const orderToken = searchParams.get('token') || body.token;
@@ -427,16 +490,58 @@ export async function POST(request: NextRequest) {
             console.log(`[PayPlus Callback POST] - Order Number: ${orderResult.orderNumber}`);
             console.log(`[PayPlus Callback POST] - Total: ₪${orderResult.total}`);
             console.log(`[PayPlus Callback POST] Sending Telegram notification for order #${orderResult.orderId}...`);
-            sendOrderNotification(orderResult.orderId).then((success) => {
-              if (success) {
+            
+            // Send notifications synchronously to ensure they complete
+            try {
+              const telegramSuccess = await sendOrderNotification(orderResult.orderId);
+              if (telegramSuccess) {
                 console.log(`[PayPlus Callback POST] ✅ Telegram notification sent successfully for order #${orderResult.orderId}`);
               } else {
                 console.log(`[PayPlus Callback POST] ⚠️ Failed to send Telegram notification for order #${orderResult.orderId}`);
                 console.log(`[PayPlus Callback POST] ⚠️ Check that Telegram bot is configured and recipients are added in admin panel`);
               }
-            }).catch((error) => {
+            } catch (error) {
               console.error(`[PayPlus Callback POST] ❌ Error sending Telegram notification:`, error);
-            });
+            }
+
+            // Send email notifications
+            console.log(`[PayPlus Callback POST] Sending email notifications...`);
+            const emailData = {
+              orderNumber: orderResult.orderNumber,
+              customerName: orderData.customer.name || 'Customer',
+              customerEmail: orderData.customer.email,
+              items: orderData.items.map((item: any) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price
+              })),
+              total: orderResult.total,
+              deliveryAddress: orderData.customer.deliveryAddress
+            };
+
+            // Send customer confirmation email
+            try {
+              const customerEmailSuccess = await sendOrderConfirmationEmail(emailData);
+              if (customerEmailSuccess) {
+                console.log(`[PayPlus Callback POST] ✅ Customer confirmation email sent to ${orderData.customer.email}`);
+              } else {
+                console.log(`[PayPlus Callback POST] ⚠️ Failed to send customer email`);
+              }
+            } catch (error) {
+              console.error(`[PayPlus Callback POST] ❌ Error sending customer email:`, error);
+            }
+
+            // Send admin notification email
+            try {
+              const adminEmailSuccess = await sendAdminOrderNotification(emailData);
+              if (adminEmailSuccess) {
+                console.log(`[PayPlus Callback POST] ✅ Admin notification email sent`);
+              } else {
+                console.log(`[PayPlus Callback POST] ⚠️ Failed to send admin email`);
+              }
+            } catch (error) {
+              console.error(`[PayPlus Callback POST] ❌ Error sending admin email:`, error);
+            }
 
             resolve(NextResponse.json({
               success: true,

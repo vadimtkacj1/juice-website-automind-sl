@@ -25,43 +25,7 @@ export async function GET(
       );
     }
 
-    const pool = (db as any).pool || (db as any)._pool;
-
-    // Ensure ingredient groups table and columns exist
-    if (pool) {
-      try {
-        await pool.query(`
-          CREATE TABLE IF NOT EXISTS ingredient_groups (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name_he TEXT NOT NULL,
-            sort_order INT DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        `);
-
-        // Check and add missing columns (non-destructive)
-        const columnChecks = [
-          { table: 'menu_item_custom_ingredients', column: 'ingredient_group_id', type: 'INT' },
-          { table: 'menu_item_custom_ingredients', column: 'ingredient_group', type: 'TEXT' },
-          { table: 'menu_item_custom_ingredients', column: 'is_required', type: 'TINYINT(1) DEFAULT 0' },
-        ];
-
-        for (const { table, column, type } of columnChecks) {
-          const [cols] = await pool.query(
-            `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-            [table, column]
-          );
-          if ((cols as any[])?.length === 0) {
-            await pool.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
-          }
-        }
-      } catch (err: any) {
-        if (!String(err?.message || '').includes('Duplicate column')) {
-          console.warn('Warning: could not ensure ingredient group columns', err);
-        }
-      }
-    }
+    // Schema checks moved to migration/setup - not needed on every request
 
     const dbGet = promisify(db.get).bind(db);
     const dbAll = promisify(db.all).bind(db);
@@ -142,7 +106,9 @@ export async function GET(
     const finalIngredients = Array.from(uniqueIngredients.values());
     const translatedAdditionalItems = (additionalItems as any[] || []).map((item: any) => translateObject(item));
 
-    console.log(`[Optimized API] Fetched modal data for item ${id}: ${finalIngredients.length} ingredients, ${(volumes as any[]).length} volumes, ${translatedAdditionalItems.length} additional items`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[Modal API] Item ${id}: ${finalIngredients.length} ingredients, ${(volumes as any[]).length} volumes, ${translatedAdditionalItems.length} additional items`);
+    }
 
     return NextResponse.json({
       ingredients: finalIngredients,
