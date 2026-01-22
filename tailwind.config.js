@@ -27,7 +27,7 @@ module.exports = {
       },
       // Custom font families (Heebo for Hebrew support)
       fontFamily: {
-        sans: ['Heebo', 'sans-serif', 'system-ui'],
+        sans: ['Heebo', 'sans-serif'],
         display: ['Heebo', 'sans-serif'],
       },
       // Map Shadcn UI colors to HSL variables defined in globals.css

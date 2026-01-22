@@ -5,7 +5,7 @@
 
 /* === Base Reset & Typography === */
 #admin-layout-root {
-  font-family: 'Heebo', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Heebo', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

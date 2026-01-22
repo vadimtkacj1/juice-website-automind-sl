@@ -50,7 +50,7 @@ function AdminLoginContent() {
     <div 
       className="min-h-screen flex items-center justify-center bg-slate-50 p-4 transition-colors duration-300" 
       dir={direction}
-      style={{ fontFamily: "'Heebo', 'Segoe UI', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Heebo', sans-serif" }}
     >
       <Card className="w-full max-w-sm border-slate-200 shadow-xl bg-white">
         <CardHeader className="space-y-3 text-center pb-2">

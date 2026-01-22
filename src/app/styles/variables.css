@@ -3,7 +3,7 @@
    ============================================ */
 :root {
   /* Typography */
-  --font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: 'Heebo', sans-serif;
   
   /* Primary Colors */
   --primary: #7322ff;

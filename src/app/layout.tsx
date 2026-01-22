@@ -203,7 +203,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body style={{ fontFamily: 'Heebo, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
+      <body style={{ fontFamily: 'Heebo, sans-serif' }}>
         <TextModeProvider>
           <LoadingProvider>
             <CartProviderWrapper>

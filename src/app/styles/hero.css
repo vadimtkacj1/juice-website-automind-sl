@@ -42,7 +42,7 @@
 }
 
 .hero-title {
-  font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Heebo', sans-serif;
   font-size: 120px;
   font-weight: 900;
   color: var(--white);
@@ -61,7 +61,7 @@
 }
 
 .hero-subtitle {
-  font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Heebo', sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
@@ -75,7 +75,7 @@
 
 /* Large hero subtitle for special pages */
 .hero-subtitle-large {
-  font-family: 'Heebo', 'Assistant', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Heebo', sans-serif;
   font-size: 130px;
   font-weight: 900;
   color: rgba(255, 255, 255, 0.9);

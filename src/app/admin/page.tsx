@@ -30,7 +30,7 @@ export default function AdminPage() {
     <div 
       className="min-h-screen flex items-center justify-center bg-slate-50" 
       dir={language}
-      style={{ fontFamily: "'Heebo', 'Segoe UI', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Heebo', sans-serif" }}
     >
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" strokeWidth={1.5} />
