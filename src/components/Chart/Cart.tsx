@@ -5,6 +5,7 @@ import { X, Minus, Plus, ShoppingBag, Trash2, Loader2, Phone, Mail, ArrowLeft } 
 import { useEffect, useState } from 'react';
 import { translateToHebrew } from '@/lib/translations';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './Cart.module.css';
 
 export default function Cart() {
@@ -21,6 +22,7 @@ export default function Cart() {
   } = useCart();
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isPrefetching, setIsPrefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'cart' | 'contact'>('cart');
   
@@ -30,6 +32,14 @@ export default function Cart() {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [emailError, setEmailError] = useState('');
+
+  // Prefetch checkout page when cart has items
+  useEffect(() => {
+    if (cart.length > 0 && !isPrefetching) {
+      setIsPrefetching(true);
+      router.prefetch('/checkout');
+    }
+  }, [cart.length, router, isPrefetching]);
 
   // Reset step when cart opens/closes
   useEffect(() => {
@@ -52,6 +62,7 @@ export default function Cart() {
   function handleProceedToContact() {
     if (cart.length === 0) return;
     closeCart();
+    // Use startTransition for smoother navigation
     router.push('/checkout');
   }
 

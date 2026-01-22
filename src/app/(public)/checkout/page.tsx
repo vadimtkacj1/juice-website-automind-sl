@@ -9,6 +9,7 @@ import { CreditCard, Loader2, ArrowRight, AlertCircle, ArrowLeft, Lock } from 'l
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
+import dynamic from 'next/dynamic';
 
 export default function CheckoutPage() {
   const { cart, getTotalPrice, clearCart } = useCart();
@@ -197,6 +198,10 @@ export default function CheckoutPage() {
                         width={80}
                         height={80}
                         style={{ objectFit: 'cover' }}
+                        loading="lazy"
+                        quality={75}
+                        placeholder="blur"
+                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
                       />
                     </div>
                   )}
