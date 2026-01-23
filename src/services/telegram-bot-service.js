@@ -137,19 +137,26 @@ function setupBotHandlers(bot) {
     const deliveryTelegramId = query.from.id.toString();
 
     try {
+      // Answer immediately to prevent timeout
+      await bot.answerCallbackQuery(query.id);
+
       if (data?.startsWith('order_accept_')) {
         const orderId = parseInt(data.replace('order_accept_', ''));
         await handleOrderAccept(orderId, deliveryTelegramId);
-        bot.answerCallbackQuery(query.id, { text: 'Заказ принят!' });
-      }
-
-      if (data?.startsWith('order_delivered_')) {
+      } else if (data?.startsWith('order_delivered_')) {
         const orderId = parseInt(data.replace('order_delivered_', ''));
         await handleOrderDelivered(orderId, deliveryTelegramId);
-        bot.answerCallbackQuery(query.id, { text: 'Заказ доставлен!' });
       }
     } catch (error) {
       console.error('[Telegram Service] Callback query error:', error.message);
+      try {
+        await bot.answerCallbackQuery(query.id, { 
+          text: '❌ Ошибка обработки',
+          show_alert: false 
+        });
+      } catch (e) {
+        // Ignore if answer already sent
+      }
     }
   });
 }

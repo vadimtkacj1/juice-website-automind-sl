@@ -169,16 +169,27 @@ function setupBotHandlers(bot: TelegramBot) {
     const data = query.data;
     const deliveryTelegramId = query.from.id.toString();
 
-    if (data?.startsWith('order_accept_')) {
-      const orderId = parseInt(data.replace('order_accept_', ''));
-      await handleOrderAccept(orderId, deliveryTelegramId);
-      bot.answerCallbackQuery(query.id, { text: 'ההזמנה התקבלה!' }); // Order accepted!
-    }
+    try {
+      // Answer immediately to prevent timeout
+      await bot.answerCallbackQuery(query.id);
 
-    if (data?.startsWith('order_delivered_')) {
-      const orderId = parseInt(data.replace('order_delivered_', ''));
-      await handleOrderDelivered(orderId, deliveryTelegramId);
-      bot.answerCallbackQuery(query.id, { text: 'ההזמנה נמסרה!' }); // Order delivered!
+      if (data?.startsWith('order_accept_')) {
+        const orderId = parseInt(data.replace('order_accept_', ''));
+        await handleOrderAccept(orderId, deliveryTelegramId);
+      } else if (data?.startsWith('order_delivered_')) {
+        const orderId = parseInt(data.replace('order_delivered_', ''));
+        await handleOrderDelivered(orderId, deliveryTelegramId);
+      }
+    } catch (error: any) {
+      console.error('[Telegram Bot] Error handling callback query:', error.message);
+      try {
+        await bot.answerCallbackQuery(query.id, { 
+          text: '❌ שגיאה בעיבוד הפעולה',
+          show_alert: false 
+        });
+      } catch (e) {
+        // Ignore if answer already sent
+      }
     }
   });
 }

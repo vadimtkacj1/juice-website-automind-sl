@@ -164,9 +164,9 @@ export async function sendAdminOrderNotification(orderData: OrderEmailData): Pro
       return false;
     }
 
-    const adminEmail = process.env.EMAIL_ADMIN || process.env.EMAIL_SERVER_USER || process.env.EMAIL_USER;
+    const adminEmail = process.env.EMAIL_ADMIN;
     if (!adminEmail) {
-      console.warn('[Email] Admin email not configured');
+      console.log('[Email] Skipping admin email notification - EMAIL_ADMIN not set');
       return false;
     }
 
