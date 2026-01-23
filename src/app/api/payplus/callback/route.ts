@@ -119,6 +119,15 @@ export async function GET(request: NextRequest) {
     const paymentUid = searchParams.get('uid') || searchParams.get('payment_uid');
     const transactionId = searchParams.get('transaction_id');
     const isTestMode = searchParams.get('test_mode') === 'true';
+    
+    // Log ALL query parameters to debug production status values
+    console.log('[PayPlus Callback] 📊 Payment Status Details:', {
+      status,
+      paymentUid,
+      transactionId,
+      isTestMode,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
 
     // In test mode, automatically mark as success
     if (isTestMode) {
@@ -230,16 +239,28 @@ export async function GET(request: NextRequest) {
 
           // Determine payment status - PayPlus may send status in different formats
           // In test mode, always succeed
+          // IMPORTANT: If no status parameter, assume success (PayPlus redirects without status on success)
           const isSuccess = isTestMode || 
+            !status || // No status = success (PayPlus default behavior)
             status === 'success' || 
             status === 'approved' || 
             status === '1' ||
             status === 'Success' ||
             status === 'SUCCESS' ||
             status === 'paid' ||
-            status === 'Paid';
+            status === 'Paid' ||
+            status === 'completed' ||
+            status === 'COMPLETED';
+          
+          console.log('[PayPlus Callback GET] 🔍 Payment Status Check:', {
+            isSuccess,
+            statusValue: status || 'null/undefined',
+            reasoning: !status ? 'No status parameter - treating as success (PayPlus default)' : `Status value: ${status}`,
+            willCreateOrder: isSuccess
+          });
           
           if (!isSuccess) {
+            console.log('[PayPlus Callback GET] ❌ Payment failed, deleting pending order');
             // Payment failed - delete pending order and redirect
             dbInstance.run(
               `DELETE FROM pending_orders WHERE order_token = ?`,
@@ -450,16 +471,28 @@ export async function POST(request: NextRequest) {
 
           // Determine payment status - PayPlus may send status in different formats
           // In test mode, always succeed
+          // IMPORTANT: If no status parameter, assume success (PayPlus may send POST without status)
           const isSuccess = isTestMode || 
+            !status || // No status = success (PayPlus default behavior)
             status === 'success' || 
             status === 'approved' || 
             status === '1' ||
             status === 'Success' ||
             status === 'SUCCESS' ||
             status === 'paid' ||
-            status === 'Paid';
+            status === 'Paid' ||
+            status === 'completed' ||
+            status === 'COMPLETED';
+          
+          console.log('[PayPlus Callback POST] 🔍 Payment Status Check:', {
+            isSuccess,
+            statusValue: status || 'null/undefined',
+            reasoning: !status ? 'No status parameter - treating as success (PayPlus default)' : `Status value: ${status}`,
+            willCreateOrder: isSuccess
+          });
           
           if (!isSuccess) {
+            console.log('[PayPlus Callback POST] ❌ Payment failed, deleting pending order');
             // Payment failed - delete pending order
             dbInstance.run(
               `DELETE FROM pending_orders WHERE order_token = ?`,

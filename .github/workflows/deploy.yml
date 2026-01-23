@@ -110,6 +110,11 @@ jobs:
             PAYPLUS_SECRET_KEY=${{ secrets.PAYPLUS_SECRET_KEY }}
             PAYPLUS_PAGE_UID=${{ secrets.PAYPLUS_PAGE_UID }}
             PAYPLUS_TEST_MODE=${{ secrets.PAYPLUS_TEST_MODE }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+            EMAIL_USER=${{ secrets.EMAIL_USER }}
+            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+            EMAIL_FROM=${{ secrets.EMAIL_FROM }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
             MYSQL_HOST=localhost
