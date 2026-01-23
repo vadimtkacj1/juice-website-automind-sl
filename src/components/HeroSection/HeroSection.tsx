@@ -82,14 +82,23 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Parallax scroll effect
+  // Parallax scroll effect with throttling to prevent jerking
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      if (heroRef.current) {
-        const rect = heroRef.current.getBoundingClientRect();
-        if (rect.bottom > 0) {
-          setScrollY(window.scrollY);
-        }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (heroRef.current) {
+            const rect = heroRef.current.getBoundingClientRect();
+            // Only update if hero is visible
+            if (rect.bottom > 0 && rect.top < window.innerHeight) {
+              setScrollY(window.scrollY);
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 

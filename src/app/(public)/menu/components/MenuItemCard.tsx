@@ -45,6 +45,7 @@ export default function MenuItemCard({
   const hasDiscount = discount > 0;
 
   const handleClick = () => {
+    console.log('MenuItemCard clicked:', item.name, 'ID:', item.id);
     onItemClick({ ...item, category_id: item.category_id || categoryId });
   };
 

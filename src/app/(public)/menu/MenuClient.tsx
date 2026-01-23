@@ -39,6 +39,11 @@ export default function MenuClient() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const { addToCart } = useCart();
 
+  // Debug: log when selected item changes
+  useEffect(() => {
+    console.log('Selected item changed:', selectedItem ? selectedItem.name : 'null');
+  }, [selectedItem]);
+
   const {
     allMenuItems,
     displayedMenu,
