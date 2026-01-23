@@ -260,7 +260,8 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                 }
 
                 // Create or update notification record
-                const now = new Date().toISOString();
+                // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 if (existing) {
                   db.run(
                     `UPDATE order_telegram_notifications
@@ -426,7 +427,8 @@ export async function handleOrderAccept(orderId: number, deliveryTelegramId: str
           'SELECT name FROM telegram_couriers WHERE telegram_id = ?',
           [deliveryTelegramId],
           async (courierErr: Error | null, courier: any) => {
-            const now = new Date().toISOString();
+            // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+            const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
             if (notification) {
               db.run(
                 `UPDATE order_telegram_notifications
@@ -559,7 +561,8 @@ export async function handleOrderDelivered(orderId: number, deliveryTelegramId: 
           return;
         }
 
-        const now = new Date().toISOString();
+        // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+        const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
         db.run(
           `UPDATE order_telegram_notifications
            SET status = 'delivered', delivered_at = ?

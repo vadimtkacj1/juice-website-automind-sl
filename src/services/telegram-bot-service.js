@@ -200,7 +200,8 @@ async function handleOrderAccept(orderId, deliveryTelegramId) {
           return;
         }
 
-        const now = new Date().toISOString();
+        // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+        const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
         if (notification) {
           db.run(
             `UPDATE order_telegram_notifications
@@ -276,7 +277,8 @@ async function handleOrderAccept(orderId, deliveryTelegramId) {
                     async (checkErr, notif) => {
                       if (!checkErr && notif && notif.status === 'in_progress') {
                         try {
-                          const now = new Date().toISOString();
+                          // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+                          const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
                           db.run(
                             'UPDATE order_telegram_notifications SET last_reminder_at = ? WHERE order_id = ?',
                             [now, orderId]
@@ -341,7 +343,8 @@ async function handleOrderDelivered(orderId, deliveryTelegramId) {
           return;
         }
 
-        const now = new Date().toISOString();
+        // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+        const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
         db.run(
           `UPDATE order_telegram_notifications
            SET status = 'delivered', delivered_at = ?
@@ -432,7 +435,8 @@ async function sendOrderNotification(orderId) {
                   return;
                 }
 
-                const now = new Date().toISOString();
+                // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 if (existing) {
                   db.run(
                     `UPDATE order_telegram_notifications

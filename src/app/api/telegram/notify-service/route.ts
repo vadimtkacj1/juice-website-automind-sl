@@ -53,7 +53,8 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
                   return;
                 }
 
-                const now = new Date().toISOString();
+                // Convert ISO string to MySQL DATETIME format (YYYY-MM-DD HH:MM:SS)
+                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 if (existing) {
                   db.run(
                     `UPDATE order_telegram_notifications 
