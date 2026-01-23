@@ -438,7 +438,6 @@ const hebrewTranslations: Record<string, string> = {
   'no notes': 'אין הערות',
   'order items': 'פריטי הזמנה',
   'subtotal': 'סיכום ביניים',
-  'close': 'סגור',
   'delete order': 'מחק הזמנה',
   'are you sure you want to delete this order? this action cannot be undone.': 'האם אתה בטוח שברצונך למחוק הזמנה זו? פעולה זו לא ניתנת לביטול',
   'loading orders...': 'טוען הזמנות...',
