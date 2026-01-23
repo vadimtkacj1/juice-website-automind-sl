@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useLayoutEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Home, ShoppingBag, X } from 'lucide-react';
@@ -8,18 +8,57 @@ import { translateToHebrew } from '@/lib/translations';
 import { useCart } from '@/lib/cart-context';
 import styles from './success.module.css';
 
+// Helper function to immediately clear cart cookies/localStorage
+// This runs BEFORE React hydration to prevent race conditions
+function clearCartStorage() {
+  if (typeof window === 'undefined') return;
+  
+  console.log('🧹 [Success Page] Immediately clearing cart storage (before React hydration)');
+  
+  // Clear cookies
+  document.cookie = 'cart=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+  document.cookie = 'cart_storage=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+  
+  // Clear localStorage
+  try {
+    localStorage.removeItem('cart');
+    localStorage.removeItem('cart_storage');
+    console.log('✅ [Success Page] Cart storage cleared successfully');
+  } catch (e) {
+    console.error('❌ [Success Page] Error clearing localStorage:', e);
+  }
+}
+
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order');
   const error = searchParams.get('error');
   const { clearCart } = useCart();
+  const hasCleared = useRef(false);
 
-  useEffect(() => {
-    // Clear cart on successful order (only if no error)
-    if (!error) {
-      clearCart();
+  // CRITICAL: Use useLayoutEffect to clear cart BEFORE cart context loads from cookies
+  // useLayoutEffect runs synchronously after render but BEFORE useEffect
+  // This ensures cookies are deleted before CartProvider's useEffect tries to load them
+  useLayoutEffect(() => {
+    if (!error && !hasCleared.current) {
+      console.log('🚀 [Success Page] useLayoutEffect - clearing cart storage synchronously');
+      clearCartStorage();
+      hasCleared.current = true;
     }
-  }, [error, clearCart]);
+  }, [error]);
+
+  // Also clear cart state in useEffect
+  useEffect(() => {
+    console.log('🛒 [Success Page] useEffect triggered', { error, orderNumber });
+    if (!error) {
+      console.log('✅ [Success Page] Payment successful - clearing cart state');
+      // Clear cart state
+      clearCart();
+      console.log('✅ [Success Page] Cart state cleared successfully');
+    } else {
+      console.log('❌ [Success Page] NOT clearing cart - error present:', error);
+    }
+  }, [error, orderNumber, clearCart]);
 
   // Handle error cases
   if (error) {

@@ -18,6 +18,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'),
   title: {
     default: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
     template: '%s | נטורליי מרענן'
@@ -49,9 +50,27 @@ export const metadata: Metadata = {
     address: false,
     telephone: true,
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/images/logo.svg',
+        color: '#FF8C00',
+      },
+    ],
+  },
   openGraph: {
     type: 'website',
     locale: 'he_IL',
+    url: '/',
     title: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
     description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום ללא חומרים משמרים.',
     siteName: 'נטורליי מרענן',
@@ -61,6 +80,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'נטורליי מרענן - מיצים טבעיים טריים',
+        type: 'image/jpeg',
       },
     ],
   },
@@ -69,11 +89,14 @@ export const metadata: Metadata = {
     title: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
     description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות.',
     images: ['/og-image.jpg'],
+    creator: '@naturallyrefreshing',
+    site: '@naturallyrefreshing',
   },
   alternates: {
     canonical: '/',
     languages: {
       'he-IL': '/',
+      'en': '/en',
     },
   },
   robots: {
@@ -95,6 +118,12 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'נטורליי מרענן',
+    startupImage: [
+      {
+        url: '/apple-touch-icon.png',
+        media: '(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)',
+      },
+    ],
   },
   verification: {
     google: 'google-site-verification-code-here',
@@ -140,66 +169,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         
-        {/* Organization Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'נטורליי מרענן',
-              alternateName: 'Naturalay Refreshing',
-              description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות',
-              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
-              logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'}/images/logo.png`,
-              sameAs: [],
-              contactPoint: {
-                '@type': 'ContactPoint',
-                contactType: 'customer service',
-                availableLanguage: ['Hebrew', 'English'],
-              },
-            }),
+        {/* Structured Data for SEO */}
+        <StructuredData
+          type="organization"
+          data={{
+            name: 'נטורליי מרענן',
+            description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום מפירות וירקות איכותיים ללא חומרים משמרים.',
+            url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
+            logo: '/icon-512x512.png',
+            sameAs: [
+              // Add your social media links here
+              // 'https://www.facebook.com/yourpage',
+              // 'https://www.instagram.com/yourpage',
+            ],
           }}
         />
         
-        {/* LocalBusiness Schema for SEO */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'LocalBusiness',
-              '@id': process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
-              name: 'נטורליי מרענן',
-              image: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'}/og-image.jpg`,
-              priceRange: '$$',
-              servesCuisine: ['מיצים טבעיים', 'סמוזי', 'מזון בריא'],
-              address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'IL',
-              },
-            }),
-          }}
-        />
-        
-        {/* WebSite Schema for search */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebSite',
-              name: 'נטורליי מרענן',
-              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
-              potentialAction: {
-                '@type': 'SearchAction',
-                target: {
-                  '@type': 'EntryPoint',
-                  urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'}/menu?search={search_term_string}`,
-                },
-                'query-input': 'required name=search_term_string',
-              },
-            }),
+        <StructuredData
+          type="website"
+          data={{
+            name: 'נטורליי מרענן',
+            description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות',
+            url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
           }}
         />
       </head>

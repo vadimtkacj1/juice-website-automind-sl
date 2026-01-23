@@ -13,7 +13,6 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
         height={size}
         aria-hidden="true"
       >
-        {/* Background circle with gradient */}
         <defs>
           <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FF8C00" />
@@ -25,10 +24,8 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
           </linearGradient>
         </defs>
         
-        {/* Orange circle (representing orange/citrus) */}
         <circle cx="30" cy="32" r="24" fill="url(#logoGradient)" />
         
-        {/* Orange segments pattern */}
         <path
           d="M30 32 L30 8 A24 24 0 0 1 54 32 Z"
           fill="rgba(255,255,255,0.15)"
@@ -42,10 +39,8 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
           fill="rgba(255,255,255,0.05)"
         />
         
-        {/* Center highlight */}
         <circle cx="30" cy="32" r="6" fill="rgba(255,255,255,0.3)" />
         
-        {/* Leaf on top */}
         <path
           d="M30 8 Q35 2 42 4 Q38 8 35 12 Q32 8 30 8 Z"
           fill="url(#leafGradient)"
@@ -57,7 +52,6 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
           fill="none"
         />
         
-        {/* Hebrew letter נ (Nun) stylized in center */}
         <text
           x="30"
           y="38"

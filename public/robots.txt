@@ -1,4 +1,6 @@
 # Robots.txt for Naturally Refreshing Juice Website
+# This file is now generated dynamically by src/app/robots.ts
+# Edit robots.ts for changes
 
 User-agent: *
 Allow: /
@@ -27,5 +29,6 @@ Allow: /uploads/
 Crawl-delay: 1
 
 # Sitemap location
+# Note: This URL will be automatically updated from robots.ts based on NEXT_PUBLIC_BASE_URL
 Sitemap: https://yourdomain.com/sitemap.xml
 

@@ -132,19 +132,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadCart = () => {
       try {
+        // Don't load cart on success page (it should be cleared after payment)
+        if (typeof window !== 'undefined' && window.location.pathname === '/checkout/success') {
+          console.log('🚫 [Cart Context] On success page - skipping cart load from storage');
+          return;
+        }
+        
         const cookieCart = getCookie('cart');
         if (cookieCart) {
           const savedCart = JSON.parse(cookieCart);
           if (Array.isArray(savedCart) && savedCart.length > 0) {
-            console.log('Loaded cart from storage:', savedCart);
+            console.log('📥 [Cart Context] Loaded cart from storage:', savedCart.length, 'items');
             savedCart.forEach((item: CartItem, index: number) => {
-              console.log(`Cart item ${index}:`, item.name, 'has ingredients?', item.customIngredients && item.customIngredients.length > 0, 'ingredients:', item.customIngredients);
+              console.log(`   Cart item ${index}:`, item.name, 'has ingredients?', item.customIngredients && item.customIngredients.length > 0, 'ingredients:', item.customIngredients);
             });
             setCart(savedCart);
           }
         }
       } catch (e) {
-        console.error('Error loading cart from storage:', e);
+        console.error('❌ [Cart Context] Error loading cart from storage:', e);
       }
     };
     
@@ -272,12 +278,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCart = () => {
+    console.log('🧹 [Cart Context] clearCart() called');
+    console.log('🧹 [Cart Context] Current cart before clearing:', cart);
     setCart([]);
+    console.log('🧹 [Cart Context] Cart state set to empty array');
     // Clear cookie
     try {
       deleteCookie('cart');
+      console.log('✅ [Cart Context] Cart cookie deleted successfully');
     } catch (e) {
-      console.error('Error clearing cart from cookies:', e);
+      console.error('❌ [Cart Context] Error clearing cart from cookies:', e);
     }
   };
 

@@ -1,0 +1,60 @@
+<svg
+  viewBox="0 0 60 60"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  width="60"
+  height="60"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8C00" />
+      <stop offset="100%" stop-color="#FF6B00" />
+    </linearGradient>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4CAF50" />
+      <stop offset="100%" stop-color="#2E7D32" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="30" cy="32" r="24" fill="url(#logoGradient)" />
+  
+  <path
+    d="M30 32 L30 8 A24 24 0 0 1 54 32 Z"
+    fill="rgba(255,255,255,0.15)"
+  />
+  <path
+    d="M30 32 L54 32 A24 24 0 0 1 30 56 Z"
+    fill="rgba(255,255,255,0.1)"
+  />
+  <path
+    d="M30 32 L30 56 A24 24 0 0 1 6 32 Z"
+    fill="rgba(255,255,255,0.05)"
+  />
+  
+  <circle cx="30" cy="32" r="6" fill="rgba(255,255,255,0.3)" />
+  
+  <path
+    d="M30 8 Q35 2 42 4 Q38 8 35 12 Q32 8 30 8 Z"
+    fill="url(#leafGradient)"
+  />
+  <path
+    d="M36 6 Q38 4 40 5"
+    stroke="#2E7D32"
+    stroke-width="1"
+    fill="none"
+  />
+  
+  <text
+    x="30"
+    y="38"
+    text-anchor="middle"
+    fill="white"
+    font-size="20"
+    font-weight="900"
+    font-family="'Heebo', sans-serif"
+    style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);"
+  >
+    נמ
+  </text>
+</svg>

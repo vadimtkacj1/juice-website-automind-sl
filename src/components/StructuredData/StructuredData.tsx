@@ -85,9 +85,15 @@ interface MenuData {
   }>;
 }
 
+interface WebSiteData {
+  name: string;
+  description: string;
+  url: string;
+}
+
 interface StructuredDataProps {
-  type: 'organization' | 'localBusiness' | 'product' | 'article' | 'menu' | 'breadcrumb';
-  data: OrganizationData | LocalBusinessData | ProductData | ArticleData | MenuData | any;
+  type: 'organization' | 'localBusiness' | 'product' | 'article' | 'menu' | 'breadcrumb' | 'website';
+  data: OrganizationData | LocalBusinessData | ProductData | ArticleData | MenuData | WebSiteData | any;
 }
 
 export default function StructuredData({ type, data }: StructuredDataProps) {
@@ -99,11 +105,23 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
         const orgData = data as OrganizationData;
         return {
           '@context': 'https://schema.org',
-          '@type': 'Organization',
+          '@type': ['Organization', 'FoodEstablishment'],
+          '@id': `${baseUrl}/#organization`,
           name: orgData.name,
           description: orgData.description,
           url: orgData.url || baseUrl,
-          logo: `${baseUrl}${orgData.logo}`,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${baseUrl}${orgData.logo}`,
+            width: 512,
+            height: 512,
+          },
+          image: {
+            '@type': 'ImageObject',
+            url: `${baseUrl}/og-image.jpg`,
+            width: 1200,
+            height: 630,
+          },
           telephone: orgData.telephone,
           email: orgData.email,
           address: orgData.address ? {
@@ -111,6 +129,10 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             ...orgData.address,
           } : undefined,
           sameAs: orgData.sameAs || [],
+          servesCuisine: ['Juice Bar', 'Healthy Food', 'Smoothies', 'Fresh Juices'],
+          priceRange: '₪₪',
+          paymentAccepted: ['Cash', 'Credit Card', 'Online Payment'],
+          currenciesAccepted: 'ILS',
         };
 
       case 'localBusiness':
@@ -118,10 +140,10 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
         return {
           '@context': 'https://schema.org',
           '@type': 'FoodEstablishment',
-          '@id': `${baseUrl}/#local-business`,
+          '@id': `${baseUrl}/locations/#${businessData.name.replace(/\s+/g, '-').toLowerCase()}`,
           name: businessData.name,
           description: businessData.description,
-          image: businessData.image,
+          image: [businessData.image, `${baseUrl}/og-image.jpg`],
           address: {
             '@type': 'PostalAddress',
             ...businessData.address,
@@ -132,6 +154,7 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             longitude: businessData.geo.longitude,
           } : undefined,
           telephone: businessData.telephone,
+          url: `${baseUrl}/locations`,
           openingHoursSpecification: businessData.openingHours?.map(hours => ({
             '@type': 'OpeningHoursSpecification',
             dayOfWeek: hours.split(':')[0],
@@ -139,8 +162,11 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             closes: hours.split(':')[1]?.split('-')[1],
           })),
           priceRange: businessData.priceRange || '₪₪',
-          servesCuisine: 'Healthy Juice Bar',
+          servesCuisine: ['Juice Bar', 'Healthy Food', 'Smoothies', 'Fresh Juices'],
           acceptsReservations: 'False',
+          paymentAccepted: ['Cash', 'Credit Card', 'Online Payment'],
+          currenciesAccepted: 'ILS',
+          hasMenu: `${baseUrl}/menu`,
         };
 
       case 'product':
@@ -148,20 +174,34 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
         return {
           '@context': 'https://schema.org',
           '@type': 'Product',
+          '@id': `${productData.offers.url}#product`,
           name: productData.name,
           description: productData.description,
           image: productData.image,
+          category: 'Food & Beverages',
+          brand: {
+            '@type': 'Brand',
+            name: 'נטורליי מרענן',
+          },
           offers: {
             '@type': 'Offer',
             price: productData.offers.price,
             priceCurrency: productData.offers.priceCurrency,
             availability: `https://schema.org/${productData.offers.availability}`,
             url: productData.offers.url,
+            priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            seller: {
+              '@type': 'Organization',
+              '@id': `${baseUrl}/#organization`,
+              name: 'נטורליי מרענן',
+            },
           },
           aggregateRating: productData.aggregateRating ? {
             '@type': 'AggregateRating',
             ratingValue: productData.aggregateRating.ratingValue,
             reviewCount: productData.aggregateRating.reviewCount,
+            bestRating: 5,
+            worstRating: 1,
           } : undefined,
         };
 
@@ -223,6 +263,44 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             name: item.name,
             item: `${baseUrl}${item.url}`,
           })),
+        };
+
+      case 'website':
+        const websiteData = data as WebSiteData;
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          '@id': `${baseUrl}/#website`,
+          name: websiteData.name,
+          description: websiteData.description,
+          url: websiteData.url || baseUrl,
+          potentialAction: [
+            {
+              '@type': 'SearchAction',
+              target: {
+                '@type': 'EntryPoint',
+                urlTemplate: `${baseUrl}/menu?search={search_term_string}`,
+              },
+              'query-input': 'required name=search_term_string',
+            },
+            {
+              '@type': 'OrderAction',
+              target: {
+                '@type': 'EntryPoint',
+                urlTemplate: `${baseUrl}/menu`,
+                actionPlatform: [
+                  'http://schema.org/DesktopWebPlatform',
+                  'http://schema.org/MobileWebPlatform',
+                ],
+              },
+            },
+          ],
+          publisher: {
+            '@type': 'Organization',
+            '@id': `${baseUrl}/#organization`,
+            name: websiteData.name,
+          },
+          inLanguage: 'he',
         };
 
       default:
