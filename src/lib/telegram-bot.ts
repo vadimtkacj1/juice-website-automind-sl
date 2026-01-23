@@ -6,6 +6,54 @@ let botPolling: boolean = false;
 let pollingErrorCount: number = 0;
 const MAX_POLLING_ERRORS = 5;
 
+// Export polling status for diagnostics
+export function getBotStatus() {
+  return {
+    isRunning: botInstance !== null,
+    isPolling: botPolling,
+    pollingErrors: pollingErrorCount
+  };
+}
+
+// Auto-initialize bot on server startup
+let autoInitPromise: Promise<void> | null = null;
+
+export function autoInitializeBot() {
+  // Prevent multiple simultaneous initializations
+  if (autoInitPromise) {
+    return autoInitPromise;
+  }
+
+  autoInitPromise = (async () => {
+    try {
+      // Wait a bit for server to fully start
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      console.log('[Telegram] 🤖 Auto-initializing bot on server startup...');
+      const bot = await getBotInstance(true);
+
+      if (bot) {
+        console.log('[Telegram] ✅ Bot auto-initialized successfully and polling started');
+      } else {
+        console.log('[Telegram] ⚠️ Bot not configured or disabled. Configure it in admin panel.');
+      }
+    } catch (error: any) {
+      console.error('[Telegram] ❌ Error auto-initializing bot:', error.message);
+    } finally {
+      // Clear the promise after completion
+      autoInitPromise = null;
+    }
+  })();
+
+  return autoInitPromise;
+}
+
+// Auto-initialize bot when this module is loaded (server startup)
+if (typeof window === 'undefined') {
+  // Only run on server side
+  autoInitializeBot();
+}
+
 // Simplified notification system - single interval per order
 let orderReminderIntervals: Map<number, NodeJS.Timeout> = new Map();
 

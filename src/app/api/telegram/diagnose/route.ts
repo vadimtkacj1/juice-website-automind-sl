@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
-import { getBotInstance } from '@/lib/telegram-bot';
+import { getBotInstance, getBotStatus } from '@/lib/telegram-bot';
 import TelegramBot from 'node-telegram-bot-api';
 
 // Promisify db.get for async/await
@@ -90,9 +90,16 @@ export async function GET() {
         diagnostics.errors.push(`Error fetching couriers: ${courierErr.message}`);
       }
 
-      // Check if bot instance is initialized and test sending
+      // Check if bot instance is initialized and polling status
       const bot = await getBotInstance();
+      const botStatus = getBotStatus();
       diagnostics.bot_instance_ready = bot !== null;
+      diagnostics.bot_polling = botStatus.isPolling;
+      diagnostics.polling_errors = botStatus.pollingErrors;
+
+      if (!botStatus.isPolling && bot) {
+        diagnostics.errors.push('⚠️ CRITICAL: Bot is not polling! Bot cannot receive button clicks without polling. Call /api/telegram/setup to start polling.');
+      }
       
       // Test if bot can send messages to couriers
       if (bot && diagnostics.bot_token_valid && couriers && couriers.length > 0) {
