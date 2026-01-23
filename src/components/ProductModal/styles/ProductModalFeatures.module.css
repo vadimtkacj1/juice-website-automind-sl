@@ -1,0 +1,35 @@
+/* ============================================
+   PRODUCT MODAL FEATURES - Feature Pills/Badges
+   ============================================ */
+
+
+/* --- Features --- */
+.modal-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--modal-text-primary);
+  background: var(--modal-bg-secondary);
+  border: 1.5px solid transparent;
+  padding: 10px 16px;
+  border-radius: 50px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.04);
+}
+
+.feature-item:hover {
+  background: white;
+  border-color: var(--modal-text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.1);
+}

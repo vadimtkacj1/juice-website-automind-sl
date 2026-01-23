@@ -15,61 +15,61 @@ interface HeroSectionProps {
 const floatingOranges = [
   {
     id: 1,
-    src: '/oranges/orange-wedge.png',
+    src: '/oranges/orange-wedge.webp',
     alt: 'פרוסת תפוז טרייה',
     className: 'floating-orange-1'
   },
   {
     id: 2,
-    src: '/oranges/orange-slice-2.png',
+    src: '/oranges/orange-slice-2.webp',
     alt: 'תפוז חתוך טרי למיץ',
     className: 'floating-orange-2'
   },
   {
     id: 3,
-    src: '/images/rasberry.png',
+    src: '/images/rasberry.webp',
     alt: 'פלח תפוז עסיסי',
     className: 'floating-orange-3'
   },
   {
     id: 4,
-    src: '/oranges/orange-slice-2.png',
+    src: '/oranges/orange-slice-2.webp',
     alt: 'תפוז טרי מהטבע',
     className: 'floating-orange-4'
   },
   {
     id: 5,
-    src: '/oranges/orange-slice-1.png',
+    src: '/oranges/orange-slice-1.webp',
     alt: 'פרוסת תפוז למשקאות',
     className: 'floating-orange-5'
   },
   {
     id: 6,
-    src: '/images/apple.png',
+    src: '/images/apple.webp',
     alt: 'פלח תפוז טבעי',
     className: 'floating-orange-6'
   },
   {
     id: 7,
-    src: '/images/pomegranede.png',
+    src: '/images/pomegranede.webp',
     alt: 'פרוסת תפוז עסיסית',
     className: 'floating-orange-7'
   },
   {
     id: 8,
-    src: '/images/strawberry.png',
+    src: '/images/strawberry.webp',
     alt: 'פלח תפוז מתוק',
     className: 'floating-orange-8'
   },
   {
     id: 9,
-    src: '/oranges/orange-slice-2.png',
+    src: '/oranges/orange-slice-2.webp',
     alt: 'תפוז טרי וטעים',
     className: 'floating-orange-9'
   },
   {
     id: 10,
-    src: '/oranges/orange-slice-1.png',
+    src: '/oranges/orange-slice-1.webp',
     alt: 'פרוסת תפוז ויטמין C',
     className: 'floating-orange-10'
   },

@@ -139,9 +139,12 @@
   position: relative;
 }
 
-.card-shop:hover {
-  transform: translateY(-15px);
-  box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .card-shop:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
+  }
 }
 
 .card-img-wrapper {
@@ -158,8 +161,10 @@
   transition: transform 0.8s var(--spring-ease);
 }
 
-.card-shop:hover img {
-  transform: scale(1.1);
+@media (hover: hover) and (pointer: fine) {
+  .card-shop:hover img {
+    transform: scale(1.1);
+  }
 }
 
 .card-footer-info {
@@ -192,9 +197,11 @@
   transition: all 0.4s var(--spring-ease);
 }
 
-.card-shop:hover .price-pill {
-  background-color: var(--secondary);
-  transform: scale(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .card-shop:hover .price-pill {
+    background-color: var(--secondary);
+    transform: scale(1.05);
+  }
 }
 
 /* ============================================
@@ -222,9 +229,12 @@
   width: 100%;
 }
 
-.value-card:hover {
-  background: var(--secondary);
-  transform: translateY(-5px);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .value-card:hover {
+    background: var(--secondary);
+    transform: translateY(-5px);
+  }
 }
 
 .value-icon-wrapper {
@@ -240,9 +250,11 @@
   transition: all 0.3s var(--spring-ease);
 }
 
-.value-card:hover .value-icon-wrapper {
-  background: var(--primary);
-  color: var(--white);
+@media (hover: hover) and (pointer: fine) {
+  .value-card:hover .value-icon-wrapper {
+    background: var(--primary);
+    color: var(--white);
+  }
 }
 
 .value-title {
@@ -305,8 +317,11 @@
   transition: background 0.3s ease;
 }
 
-.sub-form button:hover {
-  background: var(--primary-dark);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .sub-form button:hover {
+    background: var(--primary-dark);
+  }
 }
 
 /* ============================================
@@ -365,9 +380,12 @@
   margin-block: 10px;
 }
 
-.news-view-all:hover {
-  gap: 12px;
-  color: var(--dark);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .news-view-all:hover {
+    gap: 12px;
+    color: var(--dark);
+  }
 }
 
 .news-grid {
@@ -388,9 +406,12 @@
   transition: all 0.4s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.news-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .news-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
+  }
 }
 
 .news-card-image {
@@ -427,8 +448,10 @@
   transition: color 0.3s ease;
 }
 
-.news-card:hover .news-card-title {
-  color: var(--primary);
+@media (hover: hover) and (pointer: fine) {
+  .news-card:hover .news-card-title {
+    color: var(--primary);
+  }
 }
 
 .news-card-excerpt {
@@ -455,8 +478,10 @@
   transition: gap 0.3s ease;
 }
 
-.news-card:hover .news-card-link {
-  gap: 12px;
+@media (hover: hover) and (pointer: fine) {
+  .news-card:hover .news-card-link {
+    gap: 12px;
+  }
 }
 
 .news-loading,
@@ -489,9 +514,12 @@
   transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.news-view-all-mobile a:hover {
-  gap: 12px;
-  color: var(--dark);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .news-view-all-mobile a:hover {
+    gap: 12px;
+    color: var(--dark);
+  }
 }
 
 /* ============================================
@@ -522,10 +550,13 @@
   background: transparent;
 }
 
-.menu-item-row:hover {
-  background: #fcfcfd;
-  transform: translateX(12px);
-  border-radius: 20px;
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .menu-item-row:hover {
+    background: #fcfcfd;
+    transform: translateX(12px);
+    border-radius: 20px;
+  }
 }
 
 .menu-category-section {
@@ -632,9 +663,12 @@
   transition: all 0.3s var(--spring-ease);
 }
 
-.menu-add-btn:hover {
-  transform: scale(1.1);
-  background: var(--dark);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .menu-add-btn:hover {
+    transform: scale(1.1);
+    background: var(--dark);
+  }
 }
 
 .menu-item-volume {

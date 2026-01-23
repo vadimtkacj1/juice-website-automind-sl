@@ -1,7 +1,7 @@
 'use client';
 
 import { Truck, Award, Leaf, Zap } from 'lucide-react';
-import styles from './ProductModal.module.css';
+import styles from './styles/ProductModalFeatures.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
 export default function ProductModalFeatures() {

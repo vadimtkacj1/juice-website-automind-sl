@@ -22,6 +22,9 @@
     "telegram:dev": "concurrently \"npm run dev\" \"npm run telegram:service\"",
     "dev:all": "concurrently \"npm run dev\" \"npm run telegram:service\"",
     "optimize-images": "node scripts/optimize-existing-images.js",
+    "optimize:critical": "node scripts/optimize-critical-images.js",
+    "optimize:oranges": "node scripts/optimize-oranges.js",
+    "optimize:all": "npm run optimize:critical && npm run optimize:oranges",
     "seo:report": "node scripts/generate-seo-report.js",
     "seo:verify": "bash scripts/verify-seo-setup.sh",
     "test:email": "node scripts/test-email.js"

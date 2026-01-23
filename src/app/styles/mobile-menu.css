@@ -56,9 +56,12 @@
   z-index: 10;
 }
 
-.mobile-menu-close:hover {
-  background: rgba(29, 26, 64, 0.2);
-  transform: rotate(90deg) scale(1.1);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .mobile-menu-close:hover {
+    background: rgba(29, 26, 64, 0.2);
+    transform: rotate(90deg) scale(1.1);
+  }
 }
 
 .mobile-menu-content {
@@ -86,9 +89,12 @@
   color: var(--primary);
 }
 
-.mobile-menu-link:hover {
-  color: var(--primary);
-  transform: translateX(10px);
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .mobile-menu-link:hover {
+    color: var(--primary);
+    transform: translateX(10px);
+  }
 }
 
 .mobile-menu-cart {

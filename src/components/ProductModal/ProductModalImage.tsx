@@ -1,7 +1,7 @@
 'use client';
 
 import { ShoppingBag, Droplets } from 'lucide-react';
-import styles from './ProductModal.module.css';
+import styles from './styles/ProductModalImage.module.css';
 
 interface ProductModalImageProps {
   image?: string;

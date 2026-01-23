@@ -1,6 +1,6 @@
 'use client';
 
-import styles from './ProductModal.module.css';
+import styles from './styles/ProductModalHeader.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
 interface ProductModalHeaderProps {

@@ -4,7 +4,14 @@
       "Bash(npm run build:*)",
       "Bash(node:*)",
       "Bash(mysql:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(du:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(for file in *.module.css)",
+      "Bash(do sed -i '/@import.*shared-variables/d' \"$file\")",
+      "Bash(done)",
+      "Bash(grep:*)"
     ]
   }
 }

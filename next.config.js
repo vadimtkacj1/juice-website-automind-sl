@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   
   // Enable standalone output for Docker (disabled for development)
-  output: 'standalone',
+  ...(process.env.NODE_ENV === 'production' ? { output: 'standalone' } : {}),
   
   // Performance optimizations
   compress: true,

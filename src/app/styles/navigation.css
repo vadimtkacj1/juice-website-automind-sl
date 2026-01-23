@@ -92,6 +92,8 @@ body:has(.nav-sticky.is-active) .nav-main {
   text-decoration: none;
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .roll-inner {
@@ -110,9 +112,10 @@ body:has(.nav-sticky.is-active) .nav-main {
 }
 
 .roll-inner span {
-  display: block;
-  font-weight: 900;
-  font-size: 28px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 16px;
   line-height: 24px;
   height: 24px;
   color: #1d1a40 !important;
@@ -128,18 +131,21 @@ body:has(.nav-sticky.is-active) .nav-main {
   transform: translateY(24px);
 }
 
-.menu-item:hover .roll-inner {
-  transform: translateY(-24px);
-}
+/* Hover effects only on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .menu-item:hover .roll-inner {
+    transform: translateY(-24px);
+  }
 
-.menu-item:hover .roll-inner span:first-child {
-  opacity: 0;
-  transform: translateY(-24px);
-}
+  .menu-item:hover .roll-inner span:first-child {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
 
-.menu-item:hover .roll-inner .hvr {
-  opacity: 1;
-  transform: translateY(0);
+  .menu-item:hover .roll-inner .hvr {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Cart Button */

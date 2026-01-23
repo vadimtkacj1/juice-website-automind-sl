@@ -2,7 +2,8 @@
 'use client';
 
 import { translateToHebrew } from '@/lib/translations';
-import styles from './ProductModal.module.css';
+import styles from './styles/AdditionalItemsSection.module.css';
+import baseStyles from './styles/ProductModalBase.module.css';
 
 interface AdditionalItem {
   id: number;
@@ -29,8 +30,8 @@ export default function AdditionalItemsSection({
   }
 
   return (
-    <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>
+    <div className={baseStyles['modal-section']}>
+      <h3 className={baseStyles['section-title']}>
         {translateToHebrew('Additional Options')}
       </h3>
       <div className={styles['options-grid']}>

@@ -39,18 +39,35 @@ html {
   }
 }
 
-/* Optimize animations on mobile */
+/* Optimize animations on mobile - use more reasonable durations */
 @media (max-width: 768px) {
+  /* Disable hover transitions on mobile to prevent "jumping" */
   * {
-    animation-duration: 0.2s !important;
-    transition-duration: 0.2s !important;
+    transition-duration: 0.3s !important;
   }
-  
-  /* Keep important animations */
+
+  /* Keep smooth animations for UI elements */
+  .mobile-menu,
+  .mobile-menu-overlay,
+  .mobile-menu-link,
+  [class*="modal"],
+  [class*="dialog"] {
+    animation-duration: 0.3s !important;
+    transition-duration: 0.3s !important;
+  }
+
+  /* Keep important animations at normal speed */
   .loading-spinner,
   .spinner-ring,
   [class*="spinner"] {
     animation-duration: 1s !important;
+  }
+
+  /* Disable transform transitions on touch to prevent hover issues */
+  @media (hover: none) {
+    *:not([class*="menu"]):not([class*="modal"]) {
+      transition-property: opacity, color, background-color, border-color !important;
+    }
   }
 }
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { Package } from 'lucide-react';
-import styles from './ProductModal.module.css';
+import styles from './styles/VolumeSelector.module.css';
+import baseStyles from './styles/ProductModalBase.module.css';
 import { translateToHebrew } from '@/lib/translations';
 
 interface VolumeOption {
@@ -31,8 +32,8 @@ export default function VolumeSelector({
   }
 
   return (
-    <div className={styles['modal-section']}>
-      <h3 className={styles['section-title']}>
+    <div className={baseStyles['modal-section']}>
+      <h3 className={baseStyles['section-title']}>
         {translateToHebrew('Select Size')}
       </h3>
       <div className={styles['volume-grid']}>

@@ -1,0 +1,80 @@
+/* ============================================
+   ADDITIONAL ITEMS SECTION - Extra Options
+   ============================================ */
+
+
+/* --- Additional Options --- */
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--modal-border);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.option-item:hover {
+  border-color: rgba(29, 26, 64, 0.3);
+  background: var(--modal-bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.06);
+}
+
+.option-item-selected {
+  border-color: var(--modal-accent);
+  border-width: 2px;
+  background: rgba(29, 26, 64, 0.05);
+  box-shadow: 0 3px 10px rgba(29, 26, 64, 0.08);
+  transform: translateY(-1px);
+}
+
+.option-checkbox {
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--modal-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.option-name {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--modal-text-primary);
+}
+
+.option-price {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--modal-text-primary);
+}
+
+.option-description {
+  font-family: var(--font-family);
+  font-size: 12px;
+  color: var(--modal-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}

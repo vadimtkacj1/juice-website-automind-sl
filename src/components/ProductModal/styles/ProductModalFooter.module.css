@@ -1,0 +1,119 @@
+/* ============================================
+   PRODUCT MODAL FOOTER - Total & Add to Cart Button
+   ============================================ */
+
+
+/* Container to handle sticky behavior correctly on mobile */
+.footer-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Footer --- */
+.modal-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 0 0;
+  border-top: 2px solid var(--modal-bg-secondary);
+}
+
+.total-label {
+  font-family: var(--font-family);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--modal-text-secondary);
+  letter-spacing: -0.2px;
+}
+
+.total-price {
+  font-family: var(--font-family);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--modal-accent);
+  letter-spacing: -0.5px;
+}
+
+.modal-add-btn {
+  margin-top: 24px;
+  width: 100%;
+  background: var(--modal-accent);
+  color: white;
+  border: none;
+  padding: 18px 24px;
+  border-radius: 14px;
+  font-family: var(--font-family);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(29, 26, 64, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Disabled State (Fixed transparency issue) --- */
+.modal-add-btn:disabled,
+.modal-add-btn.is-disabled {
+  background: #B0B0C3; /* Solid muted color */
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none;
+  opacity: 1; /* Force full visibility of the button itself */
+}
+
+.modal-add-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.modal-add-btn:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.modal-add-btn:hover:not(:disabled) {
+  background: var(--modal-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(29, 26, 64, 0.25);
+}
+
+.modal-add-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(29, 26, 64, 0.2);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 900px) {
+  .footer-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 16px;
+    margin: 24px -20px -20px; /* Offset parent padding if necessary */
+    border-top: 1px solid var(--modal-bg-secondary);
+    z-index: 100;
+  }
+
+  .modal-total {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .modal-add-btn {
+    margin-top: 12px;
+  }
+}

@@ -1,0 +1,109 @@
+/* ============================================
+   PRODUCT MODAL HEADER - Title, Price, Subtitle
+   ============================================ */
+
+
+/* --- Header Section --- */
+.modal-header {
+  margin-bottom: 28px;
+}
+
+.modal-title {
+  font-family: var(--font-family);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--modal-text-primary);
+  margin: 0 0 16px;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.modal-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--modal-bg-secondary);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--modal-text-secondary);
+  margin-bottom: 24px;
+  border: 1px solid rgba(29, 26, 64, 0.08);
+}
+
+.modal-price {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.price-main {
+  font-family: var(--font-family);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--modal-text-primary);
+  letter-spacing: -0.5px;
+}
+
+.price-old {
+  font-family: var(--font-family);
+  font-size: 18px;
+  color: #a0a5b8;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+
+.discount-tag {
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 100%);
+  color: white;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  transform: translateY(-3px);
+  box-shadow: 0 3px 10px rgba(255, 71, 87, 0.3);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 900px) {
+  .modal-title {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .price-main {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 481px) {
+  .modal-title {
+    font-size: 26px;
+  }
+
+  .price-main {
+    font-size: 26px;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) and (max-width: 900px) {
+  .modal-title {
+    font-size: 22px;
+  }
+
+  .price-main {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-title {
+    font-size: 24px;
+  }
+
+  .price-main {
+    font-size: 24px;
+  }
+}
