@@ -4,10 +4,11 @@ import { getBotInstance } from '@/lib/telegram-bot';
 import TelegramBot from 'node-telegram-bot-api';
 
 // Direct notification function (without setImmediate for better error handling)
+// Now properly filters by role like the main telegram-bot.ts implementation
 async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db: any): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     db.get(
-      `SELECT o.*, 
+      `SELECT o.*,
         GROUP_CONCAT(CONCAT(oi.item_name, ' x', oi.quantity) SEPARATOR '\n') as items
        FROM orders o
        LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -23,20 +24,20 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
 
         db.all(
           'SELECT * FROM telegram_couriers WHERE is_active = 1',
-          async (courierErr: Error | null, couriers: any[]) => {
+          async (courierErr: Error | null, recipients: any[]) => {
             if (courierErr) {
               console.error('[Telegram] Error fetching couriers:', courierErr);
               resolve(false);
               return;
             }
-            
-            if (!couriers || couriers.length === 0) {
+
+            if (!recipients || recipients.length === 0) {
               console.error('[Telegram] No active couriers found. Please add couriers in admin panel.');
               resolve(false);
               return;
             }
-            
-            console.log(`[Telegram] Found ${couriers.length} active courier(s):`, couriers.map(c => `${c.name} (${c.telegram_id})`).join(', '));
+
+            console.log(`[Telegram] Found ${recipients.length} active courier(s):`, recipients.map(c => `${c.name} (${c.telegram_id}) [${c.role}]`).join(', '));
 
             db.get(
               'SELECT * FROM order_telegram_notifications WHERE order_id = ?',
@@ -57,7 +58,7 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
                 const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 if (existing) {
                   db.run(
-                    `UPDATE order_telegram_notifications 
+                    `UPDATE order_telegram_notifications
                      SET last_notification_sent_at = ?, status = 'pending'
                      WHERE order_id = ?`,
                     [now, orderId]
@@ -70,52 +71,111 @@ async function sendOrderNotificationDirect(orderId: number, bot: TelegramBot, db
                   );
                 }
 
-                const orderMessage = `🆕 New Order #${order.id}\n\n` +
-                  `👤 Customer: ${order.customer_name}\n` +
-                  `📞 Phone: ${order.customer_phone || 'Not provided'}\n` +
-                  `📧 Email: ${order.customer_email || 'Not provided'}\n` +
-                  (order.delivery_address ? `📍 Delivery Address: ${order.delivery_address}\n` : '') +
-                  `💰 Total: ₪${order.total_amount}\n\n` +
-                  `📦 Items:\n${order.items || 'No items'}\n\n` +
-                  (order.notes ? `📝 Notes: ${order.notes}\n\n` : '') +
-                  `⏰ Order Time: ${new Date(order.created_at).toLocaleString('en-US')}\n\n` +
-                  `❓ Did you deliver the order? Click the button to update status.`;
+                // Filter recipients by role
+                const kitchenRecipients = recipients.filter(r => r.role === 'kitchen');
+                const deliveryRecipients = recipients.filter(r => r.role === 'delivery');
+                const observerRecipients = recipients.filter(r => r.role === 'observer');
 
-                const keyboard = {
+                // Kitchen message (no buttons) - Hebrew
+                const kitchenMessage = `🍳 הזמנה חדשה #${order.id}\n\n` +
+                  `👤 לקוח: ${order.customer_name}\n` +
+                  `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
+                  `📧 אימייל: ${order.customer_email || 'לא צוין'}\n` +
+                  (order.delivery_address ? `📍 כתובת למשלוח: ${order.delivery_address}\n` : '') +
+                  `💰 סכום: ₪${order.total_amount}\n\n` +
+                  `📦 פרטי ההזמנה:\n${order.items || 'אין פריטים'}\n\n` +
+                  (order.notes ? `📝 הערות: ${order.notes}\n\n` : '') +
+                  `⏰ זמן הזמנה: ${new Date(order.created_at).toLocaleString('he-IL')}`;
+
+                // Delivery message (with buttons) - Hebrew
+                const deliveryMessage = `🚗 משלוח חדש #${order.id}\n\n` +
+                  `👤 לקוח: ${order.customer_name}\n` +
+                  `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
+                  `📧 אימייל: ${order.customer_email || 'לא צוין'}\n` +
+                  (order.delivery_address ? `📍 כתובת למשלוח: ${order.delivery_address}\n` : '') +
+                  `💰 סכום: ₪${order.total_amount}\n\n` +
+                  `📦 פרטי ההזמנה:\n${order.items || 'אין פריטים'}\n\n` +
+                  (order.notes ? `📝 הערות: ${order.notes}\n\n` : '') +
+                  `⏰ זמן הזמנה: ${new Date(order.created_at).toLocaleString('he-IL')}\n\n` +
+                  `❓ תרצה לקחת את ההזמנה?`;
+
+                // Observer message (info only) - Hebrew
+                const observerMessage = `👁️ הזמנה חדשה (מידע) #${order.id}\n\n` +
+                  `👤 לקוח: ${order.customer_name}\n` +
+                  (order.delivery_address ? `📍 כתובת: ${order.delivery_address}\n` : '') +
+                  `💰 סכום: ₪${order.total_amount}\n` +
+                  `📦 פריטים: ${order.items?.split('\n').length || 0}\n` +
+                  `⏰ זמן: ${new Date(order.created_at).toLocaleString('he-IL')}`;
+
+                const deliveryKeyboard = {
                   inline_keyboard: [[
-                    { text: '✅ In Progress', callback_data: `order_accept_${orderId}` }
+                    { text: '✅ אישור הזמנה', callback_data: `order_accept_${orderId}` }
                   ]]
                 };
 
                 let sentCount = 0;
                 let errorCount = 0;
-                const sendPromises = couriers.map(async (courier: any) => {
+
+                // Send to Kitchen (no buttons)
+                for (const recipient of kitchenRecipients) {
                   try {
-                    console.log(`[Telegram] Attempting to send to courier ${courier.name} (ID: ${courier.telegram_id})...`);
-                    await bot.sendMessage(courier.telegram_id, orderMessage, {
-                      reply_markup: keyboard
-                    });
-                    console.log(`[Telegram] ✅ Successfully sent to courier ${courier.name} (${courier.telegram_id})`);
+                    console.log(`[Telegram] Sending to kitchen ${recipient.name} (ID: ${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, kitchenMessage);
+                    console.log(`[Telegram] ✅ Successfully sent to kitchen ${recipient.name}`);
                     sentCount++;
                   } catch (error: any) {
                     errorCount++;
-                    console.error(`[Telegram] ❌ Error sending to ${courier.name} (${courier.telegram_id}):`, error.message);
+                    console.error(`[Telegram] ❌ Error sending to kitchen ${recipient.name}:`, error.message);
                     if (error.message?.includes('chat not found') || error.message?.includes('bot was blocked')) {
-                      console.error(`[Telegram] ⚠️ Courier ${courier.name} needs to start a chat with the bot first!`);
+                      console.error(`[Telegram] ⚠️ Courier ${recipient.name} needs to start a chat with the bot first!`);
                     }
                   }
-                });
+                }
 
-                await Promise.all(sendPromises);
-                console.log(`[Telegram] Summary: Sent ${sentCount}/${couriers.length} notifications for order #${orderId}, ${errorCount} errors`);
-                
+                // Send to Delivery (with buttons)
+                for (const recipient of deliveryRecipients) {
+                  try {
+                    console.log(`[Telegram] Sending to delivery ${recipient.name} (ID: ${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, deliveryMessage, {
+                      reply_markup: deliveryKeyboard
+                    });
+                    console.log(`[Telegram] ✅ Successfully sent to delivery ${recipient.name}`);
+                    sentCount++;
+                  } catch (error: any) {
+                    errorCount++;
+                    console.error(`[Telegram] ❌ Error sending to delivery ${recipient.name}:`, error.message);
+                    if (error.message?.includes('chat not found') || error.message?.includes('bot was blocked')) {
+                      console.error(`[Telegram] ⚠️ Courier ${recipient.name} needs to start a chat with the bot first!`);
+                    }
+                  }
+                }
+
+                // Send to Observer (info only)
+                for (const recipient of observerRecipients) {
+                  try {
+                    console.log(`[Telegram] Sending to observer ${recipient.name} (ID: ${recipient.telegram_id})...`);
+                    await bot.sendMessage(recipient.telegram_id, observerMessage);
+                    console.log(`[Telegram] ✅ Successfully sent to observer ${recipient.name}`);
+                    sentCount++;
+                  } catch (error: any) {
+                    errorCount++;
+                    console.error(`[Telegram] ❌ Error sending to observer ${recipient.name}:`, error.message);
+                    if (error.message?.includes('chat not found') || error.message?.includes('bot was blocked')) {
+                      console.error(`[Telegram] ⚠️ Courier ${recipient.name} needs to start a chat with the bot first!`);
+                    }
+                  }
+                }
+
+                console.log(`[Telegram] Summary: Sent ${sentCount}/${recipients.length} notifications for order #${orderId}, ${errorCount} errors`);
+                console.log(`[Telegram] Breakdown: Kitchen=${kitchenRecipients.length}, Delivery=${deliveryRecipients.length}, Observer=${observerRecipients.length}`);
+
                 if (sentCount === 0) {
                   console.error('[Telegram] ⚠️ No notifications were sent! Check:');
                   console.error('  1. Bot token is valid');
                   console.error('  2. Couriers have started a chat with the bot (/start)');
                   console.error('  3. Courier Telegram IDs are correct');
                 }
-                
+
                 resolve(sentCount > 0);
               }
             );
