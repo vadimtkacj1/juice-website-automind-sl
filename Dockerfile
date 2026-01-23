@@ -83,8 +83,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy scripts directory for database initialization
+# Copy scripts and services directories
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/src/services ./services
 
 # Persist PayPlus credentials for tools expecting a nano file (requested)
 RUN printf "PAYPLUS_API_KEY=%s\nPAYPLUS_SECRET_KEY=%s\nPAYPLUS_PAGE_UID=%s\nPAYPLUS_TEST_MODE=%s\n" \
@@ -101,9 +102,10 @@ RUN if [ ! -d "node_modules/sharp" ]; then \
 # Ensure server.js exists (it's in the standalone output)
 RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)
 
-# Copy entrypoint script
+# Copy entrypoint and startup scripts
 COPY --chown=root:root docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --chown=nextjs:nodejs start-all-services.sh /app/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh /app/start-all-services.sh
 
 # Create data directory for database
 RUN mkdir -p /app/data /app/public/uploads && \
@@ -126,5 +128,5 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:80/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
-# Start the application using standalone server
-CMD ["node", "server.js"]
+# Start both Next.js and Telegram bot service
+CMD ["sh", "/app/start-all-services.sh"]

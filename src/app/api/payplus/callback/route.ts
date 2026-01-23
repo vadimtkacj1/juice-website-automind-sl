@@ -341,17 +341,7 @@ export async function GET(request: NextRequest) {
               console.error(`[PayPlus Callback] ❌ Error sending customer email:`, error);
             }
 
-            // Send admin notification email
-            try {
-              const adminEmailSuccess = await sendAdminOrderNotification(emailData);
-              if (adminEmailSuccess) {
-                console.log(`[PayPlus Callback] ✅ Admin notification email sent`);
-              } else {
-                console.log(`[PayPlus Callback] ⚠️ Failed to send admin email`);
-              }
-            } catch (error) {
-              console.error(`[PayPlus Callback] ❌ Error sending admin email:`, error);
-            }
+            // Admin notification email removed - not needed
             
             // Construct proper redirect URL using DEPLOYMENT_URL or request origin
             let baseUrl = process.env.DEPLOYMENT_URL;
@@ -564,17 +554,7 @@ export async function POST(request: NextRequest) {
               console.error(`[PayPlus Callback POST] ❌ Error sending customer email:`, error);
             }
 
-            // Send admin notification email
-            try {
-              const adminEmailSuccess = await sendAdminOrderNotification(emailData);
-              if (adminEmailSuccess) {
-                console.log(`[PayPlus Callback POST] ✅ Admin notification email sent`);
-              } else {
-                console.log(`[PayPlus Callback POST] ⚠️ Failed to send admin email`);
-              }
-            } catch (error) {
-              console.error(`[PayPlus Callback POST] ❌ Error sending admin email:`, error);
-            }
+            // Admin notification email removed - not needed
 
             resolve(NextResponse.json({
               success: true,
