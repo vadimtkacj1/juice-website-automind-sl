@@ -86,12 +86,151 @@ async function initBot() {
     // Start polling
     await startPolling();
 
+    // Recover pending orders after restart
+    await recoverPendingOrders();
+
     console.log('[Telegram Service] Bot initialized successfully');
     return true;
   } catch (error) {
     console.error('[Telegram Service] Bot initialization error:', error.message);
     return false;
   }
+}
+
+// Recover pending orders after restart
+async function recoverPendingOrders() {
+  console.log('[Telegram Service] 🔄 Recovering pending orders after restart...');
+  
+  return new Promise((resolve) => {
+    db.all(
+      `SELECT otn.*, o.customer_name, o.delivery_address, o.total_amount, o.created_at as order_created_at
+       FROM order_telegram_notifications otn
+       JOIN orders o ON otn.order_id = o.id
+       WHERE otn.status IN ('pending', 'in_progress')
+       ORDER BY otn.created_at ASC`,
+      async (err, notifications) => {
+        if (err) {
+          console.error('[Telegram Service] Error fetching pending notifications:', err);
+          resolve();
+          return;
+        }
+
+        if (!notifications || notifications.length === 0) {
+          console.log('[Telegram Service] ✅ No pending orders to recover');
+          resolve();
+          return;
+        }
+
+        console.log(`[Telegram Service] 📦 Found ${notifications.length} pending order(s) to recover`);
+
+        const settings = await getBotSettings();
+        const reminderInterval = ((settings?.reminder_interval_minutes) || 5) * 60 * 1000;
+
+        for (const notif of notifications) {
+          const orderId = notif.order_id;
+          
+          const orderAge = Date.now() - new Date(notif.order_created_at).getTime();
+          const maxOrderAge = 24 * 60 * 60 * 1000; // 24 hours
+
+          if (orderAge > maxOrderAge) {
+            console.log(`[Telegram Service] ⏰ Order #${orderId} is too old (${Math.floor(orderAge / 3600000)}h), marking as expired`);
+            db.run(
+              'UPDATE order_telegram_notifications SET status = ? WHERE order_id = ?',
+              ['expired', orderId]
+            );
+            continue;
+          }
+
+          if (notif.status === 'pending') {
+            console.log(`[Telegram Service] 🔄 Reactivating reminders for pending order #${orderId}`);
+            await restartOrderReminders(orderId, reminderInterval, 'pending');
+          } else if (notif.status === 'in_progress' && notif.courier_telegram_id) {
+            console.log(`[Telegram Service] 🚗 Reactivating reminders for in-progress order #${orderId}`);
+            await restartOrderReminders(orderId, reminderInterval, 'in_progress', notif.courier_telegram_id);
+          }
+        }
+
+        console.log('[Telegram Service] ✅ Order recovery completed');
+        resolve();
+      }
+    );
+  });
+}
+
+// Restart order reminders
+async function restartOrderReminders(orderId, reminderInterval, status, courierTelegramId) {
+  if (orderReminderIntervals.has(orderId)) {
+    clearInterval(orderReminderIntervals.get(orderId));
+    orderReminderIntervals.delete(orderId);
+  }
+
+  const interval = setInterval(() => {
+    db.get(
+      'SELECT otn.*, o.* FROM order_telegram_notifications otn JOIN orders o ON otn.order_id = o.id WHERE otn.order_id = ?',
+      [orderId],
+      async (checkErr, data) => {
+        if (!checkErr && data && data.status === status) {
+          try {
+            if (status === 'pending') {
+              db.all(
+                'SELECT * FROM telegram_couriers WHERE is_active = 1 AND role = ?',
+                ['delivery'],
+                async (couriersErr, couriers) => {
+                  if (!couriersErr && couriers && couriers.length > 0) {
+                    const reminderMessage = `🔔 תזכורת: הזמנה #${orderId}\n\n` +
+                      `👤 לקוח: ${data.customer_name}\n` +
+                      (data.delivery_address ? `📍 כתובת: ${data.delivery_address}\n` : '') +
+                      `💰 סכום: ₪${data.total_amount}\n\n` +
+                      `❓ תרצה לקחת את ההזמנה?`;
+
+                    for (const courier of couriers) {
+                      try {
+                        await bot.sendMessage(courier.telegram_id, reminderMessage, {
+                          reply_markup: {
+                            inline_keyboard: [[
+                              { text: '✅ אישור הזמנה', callback_data: `order_accept_${orderId}` }
+                            ]]
+                          }
+                        });
+                      } catch (error) {
+                        console.error(`[Telegram Service] Error sending reminder to courier ${courier.name}:`, error.message);
+                      }
+                    }
+
+                    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                    db.run(
+                      'UPDATE order_telegram_notifications SET last_notification_sent_at = ? WHERE order_id = ?',
+                      [now, orderId]
+                    );
+                  }
+                }
+              );
+            } else if (status === 'in_progress' && courierTelegramId) {
+              const reminderMsg = `⏰ תזכורת: הזמנה #${orderId}\n\n` +
+                `👤 לקוח: ${data.customer_name}\n` +
+                (data.delivery_address ? `📍 כתובת: ${data.delivery_address}\n` : '') +
+                `\n❓ ההזמנה נמסרה?`;
+
+              await bot.sendMessage(courierTelegramId, reminderMsg, {
+                reply_markup: {
+                  inline_keyboard: [[
+                    { text: '✅ נמסר', callback_data: `order_delivered_${orderId}` }
+                  ]]
+                }
+              });
+            }
+          } catch (error) {
+            console.error(`[Telegram Service] Error sending reminder for order #${orderId}:`, error.message);
+          }
+        } else {
+          clearInterval(interval);
+          orderReminderIntervals.delete(orderId);
+        }
+      }
+    );
+  }, reminderInterval);
+
+  orderReminderIntervals.set(orderId, interval);
 }
 
 // Start polling
@@ -135,17 +274,72 @@ function setupBotHandlers(bot) {
   bot.on('callback_query', async (query) => {
     const data = query.data;
     const deliveryTelegramId = query.from.id.toString();
+    const messageId = query.message?.message_id;
+    const chatId = query.message?.chat.id;
 
     try {
-      // Answer immediately to prevent timeout
-      await bot.answerCallbackQuery(query.id);
+      console.log(`[Telegram Service] 📨 Received callback query: ${data} from user ${deliveryTelegramId}`);
 
       if (data?.startsWith('order_accept_')) {
         const orderId = parseInt(data.replace('order_accept_', ''));
-        await handleOrderAccept(orderId, deliveryTelegramId);
+        const result = await handleOrderAccept(orderId, deliveryTelegramId);
+        
+        if (result) {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '✅ ההזמנה התקבלה בהצלחה!',
+            show_alert: false 
+          });
+          
+          // Remove buttons from message after acceptance
+          if (messageId && chatId) {
+            try {
+              await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                chat_id: chatId,
+                message_id: messageId
+              });
+            } catch (e) {
+              // Ignore if message is too old or already modified
+            }
+          }
+        } else {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '❌ ההזמנה כבר נלקחה',
+            show_alert: true 
+          });
+        }
       } else if (data?.startsWith('order_delivered_')) {
         const orderId = parseInt(data.replace('order_delivered_', ''));
-        await handleOrderDelivered(orderId, deliveryTelegramId);
+        const result = await handleOrderDelivered(orderId, deliveryTelegramId);
+        
+        if (result) {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '✅ תודה! ההזמנה סומנה כנמסרה',
+            show_alert: false 
+          });
+          
+          // Remove buttons from message after delivery
+          if (messageId && chatId) {
+            try {
+              await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                chat_id: chatId,
+                message_id: messageId
+              });
+            } catch (e) {
+              // Ignore if message is too old or already modified
+            }
+          }
+        } else {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '❌ שגיאה: לא ניתן לסמן כנמסר',
+            show_alert: true 
+          });
+        }
+      } else {
+        // Unknown command or outdated message
+        await bot.answerCallbackQuery(query.id, { 
+          text: 'פעולה לא זמינה',
+          show_alert: false 
+        });
       }
     } catch (error) {
       console.error('[Telegram Service] Callback query error:', error.message);
@@ -158,6 +352,11 @@ function setupBotHandlers(bot) {
         // Ignore if answer already sent
       }
     }
+  });
+
+  // Log all received messages for diagnostics
+  bot.on('message', (msg) => {
+    console.log(`[Telegram Service] 💬 Received message from ${msg.from?.id}: ${msg.text?.substring(0, 50) || '[no text]'}`);
   });
 }
 

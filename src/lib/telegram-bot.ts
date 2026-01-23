@@ -98,6 +98,8 @@ export async function getBotInstance(enablePolling: boolean = false): Promise<Te
 
           if (enablePolling && !serviceAvailable) {
             await startPollingSafely(botInstance);
+            // Відновлюємо стан замовлень після перезапуску
+            await recoverPendingOrders(botInstance, db);
           }
 
           resolve(botInstance);
@@ -126,11 +128,169 @@ async function startPollingSafely(bot: TelegramBot) {
 
     botPolling = true;
     pollingErrorCount = 0;
-    console.log('Telegram bot polling started');
+    console.log('[Telegram] Bot polling started');
   } catch (error: any) {
-    console.error('Error starting Telegram bot polling:', error.message);
+    console.error('[Telegram] Error starting bot polling:', error.message);
     botPolling = false;
   }
+}
+
+// Відновлення стану замовлень після перезапуску програми
+async function recoverPendingOrders(bot: TelegramBot, db: any): Promise<void> {
+  console.log('[Telegram] 🔄 Recovering pending orders after restart...');
+  
+  return new Promise((resolve) => {
+    // Знаходимо всі замовлення, які очікують на обробку або в процесі доставки
+    db.all(
+      `SELECT otn.*, o.customer_name, o.delivery_address, o.total_amount, o.created_at as order_created_at
+       FROM order_telegram_notifications otn
+       JOIN orders o ON otn.order_id = o.id
+       WHERE otn.status IN ('pending', 'in_progress')
+       ORDER BY otn.created_at ASC`,
+      async (err: Error | null, notifications: any[]) => {
+        if (err) {
+          console.error('[Telegram] Error fetching pending notifications:', err);
+          resolve();
+          return;
+        }
+
+        if (!notifications || notifications.length === 0) {
+          console.log('[Telegram] ✅ No pending orders to recover');
+          resolve();
+          return;
+        }
+
+        console.log(`[Telegram] 📦 Found ${notifications.length} pending order(s) to recover`);
+
+        // Отримуємо налаштування інтервалу нагадувань
+        db.get(
+          'SELECT reminder_interval_minutes FROM telegram_bot_settings WHERE is_enabled = 1 ORDER BY id DESC LIMIT 1',
+          async (settingsErr: Error | null, settings: any) => {
+            const reminderInterval = ((settings?.reminder_interval_minutes) || 5) * 60 * 1000;
+
+            for (const notif of notifications) {
+              const orderId = notif.order_id;
+              
+              // Перевіряємо, чи не завершене замовлення
+              const orderAge = Date.now() - new Date(notif.order_created_at).getTime();
+              const maxOrderAge = 24 * 60 * 60 * 1000; // 24 години
+
+              if (orderAge > maxOrderAge) {
+                console.log(`[Telegram] ⏰ Order #${orderId} is too old (${Math.floor(orderAge / 3600000)}h), marking as expired`);
+                db.run(
+                  'UPDATE order_telegram_notifications SET status = ? WHERE order_id = ?',
+                  ['expired', orderId]
+                );
+                continue;
+              }
+
+              if (notif.status === 'pending') {
+                console.log(`[Telegram] 🔄 Reactivating reminders for pending order #${orderId}`);
+                // Відновлюємо нагадування для замовлень, що очікують
+                await restartOrderReminders(bot, db, orderId, reminderInterval, 'pending');
+              } else if (notif.status === 'in_progress' && notif.courier_telegram_id) {
+                console.log(`[Telegram] 🚗 Reactivating reminders for in-progress order #${orderId}`);
+                // Відновлюємо нагадування для замовлень в доставці
+                await restartOrderReminders(bot, db, orderId, reminderInterval, 'in_progress', notif.courier_telegram_id);
+              }
+            }
+
+            console.log('[Telegram] ✅ Order recovery completed');
+            resolve();
+          }
+        );
+      }
+    );
+  });
+}
+
+// Відновлення нагадувань для конкретного замовлення
+async function restartOrderReminders(
+  bot: TelegramBot, 
+  db: any, 
+  orderId: number, 
+  reminderInterval: number,
+  status: 'pending' | 'in_progress',
+  courierTelegramId?: string
+): Promise<void> {
+  // Якщо вже є інтервал для цього замовлення, очищаємо його
+  if (orderReminderIntervals.has(orderId)) {
+    clearInterval(orderReminderIntervals.get(orderId)!);
+    orderReminderIntervals.delete(orderId);
+  }
+
+  // Створюємо новий інтервал нагадувань
+  const interval = setInterval(() => {
+    db.get(
+      'SELECT otn.*, o.* FROM order_telegram_notifications otn JOIN orders o ON otn.order_id = o.id WHERE otn.order_id = ?',
+      [orderId],
+      async (checkErr: Error | null, data: any) => {
+        if (!checkErr && data && data.status === status) {
+          try {
+            if (status === 'pending') {
+              // Надсилаємо нагадування всім кур'єрам
+              db.all(
+                'SELECT * FROM telegram_couriers WHERE is_active = 1 AND role = ?',
+                ['delivery'],
+                async (couriersErr: Error | null, couriers: any[]) => {
+                  if (!couriersErr && couriers && couriers.length > 0) {
+                    const reminderMessage = `🔔 НАГАДУВАННЯ: Замовлення #${orderId}\n\n` +
+                      `👤 Клієнт: ${data.customer_name}\n` +
+                      (data.delivery_address ? `📍 Адреса: ${data.delivery_address}\n` : '') +
+                      `💰 Сума: ₪${data.total_amount}\n\n` +
+                      `❓ Візьмете замовлення?`;
+
+                    for (const courier of couriers) {
+                      try {
+                        await bot.sendMessage(courier.telegram_id, reminderMessage, {
+                          reply_markup: {
+                            inline_keyboard: [[
+                              { text: '✅ אישור הזמנה', callback_data: `order_accept_${orderId}` }
+                            ]]
+                          }
+                        });
+                      } catch (error: any) {
+                        console.error(`[Telegram] Error sending reminder to courier ${courier.name}:`, error.message);
+                      }
+                    }
+
+                    // Оновлюємо час останнього нагадування
+                    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                    db.run(
+                      'UPDATE order_telegram_notifications SET last_notification_sent_at = ? WHERE order_id = ?',
+                      [now, orderId]
+                    );
+                  }
+                }
+              );
+            } else if (status === 'in_progress' && courierTelegramId) {
+              // Надсилаємо нагадування конкретному кур'єру
+              const reminderMsg = `⏰ НАГАДУВАННЯ: Замовлення #${orderId}\n\n` +
+                `👤 Клієнт: ${data.customer_name}\n` +
+                (data.delivery_address ? `📍 Адреса: ${data.delivery_address}\n` : '') +
+                `\n❓ Замовлення доставлено?`;
+
+              await bot.sendMessage(courierTelegramId, reminderMsg, {
+                reply_markup: {
+                  inline_keyboard: [[
+                    { text: '✅ נמסר', callback_data: `order_delivered_${orderId}` }
+                  ]]
+                }
+              });
+            }
+          } catch (error: any) {
+            console.error(`[Telegram] Error sending reminder for order #${orderId}:`, error.message);
+          }
+        } else {
+          // Замовлення більше не в цьому статусі, зупиняємо нагадування
+          clearInterval(interval);
+          orderReminderIntervals.delete(orderId);
+        }
+      }
+    );
+  }, reminderInterval);
+
+  orderReminderIntervals.set(orderId, interval);
 }
 
 function setupErrorHandlers(bot: TelegramBot) {
@@ -168,17 +328,72 @@ function setupBotHandlers(bot: TelegramBot) {
   bot.on('callback_query', async (query) => {
     const data = query.data;
     const deliveryTelegramId = query.from.id.toString();
+    const messageId = query.message?.message_id;
+    const chatId = query.message?.chat.id;
 
     try {
-      // Answer immediately to prevent timeout
-      await bot.answerCallbackQuery(query.id);
+      console.log(`[Telegram] 📨 Received callback query: ${data} from user ${deliveryTelegramId}`);
 
       if (data?.startsWith('order_accept_')) {
         const orderId = parseInt(data.replace('order_accept_', ''));
-        await handleOrderAccept(orderId, deliveryTelegramId);
+        const result = await handleOrderAccept(orderId, deliveryTelegramId);
+        
+        if (result) {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '✅ ההזמנה התקבלה בהצלחה!',
+            show_alert: false 
+          });
+          
+          // Видаляємо кнопки з повідомлення після прийняття
+          if (messageId && chatId) {
+            try {
+              await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                chat_id: chatId,
+                message_id: messageId
+              });
+            } catch (e) {
+              // Ignore if message is too old or already modified
+            }
+          }
+        } else {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '❌ ההזמנה כבר נלקחה',
+            show_alert: true 
+          });
+        }
       } else if (data?.startsWith('order_delivered_')) {
         const orderId = parseInt(data.replace('order_delivered_', ''));
-        await handleOrderDelivered(orderId, deliveryTelegramId);
+        const result = await handleOrderDelivered(orderId, deliveryTelegramId);
+        
+        if (result) {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '✅ תודה! ההזמנה סומנה כנמסרה',
+            show_alert: false 
+          });
+          
+          // Видаляємо кнопки з повідомлення після доставки
+          if (messageId && chatId) {
+            try {
+              await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                chat_id: chatId,
+                message_id: messageId
+              });
+            } catch (e) {
+              // Ignore if message is too old or already modified
+            }
+          }
+        } else {
+          await bot.answerCallbackQuery(query.id, { 
+            text: '❌ שגיאה: לא ניתן לסמן כנמסר',
+            show_alert: true 
+          });
+        }
+      } else {
+        // Невідома команда або застаріле повідомлення
+        await bot.answerCallbackQuery(query.id, { 
+          text: 'פעולה לא זמינה',
+          show_alert: false 
+        });
       }
     } catch (error: any) {
       console.error('[Telegram Bot] Error handling callback query:', error.message);
@@ -191,6 +406,11 @@ function setupBotHandlers(bot: TelegramBot) {
         // Ignore if answer already sent
       }
     }
+  });
+
+  // Логування всіх отриманих повідомлень для діагностики
+  bot.on('message', (msg) => {
+    console.log(`[Telegram] 💬 Received message from ${msg.from?.id}: ${msg.text?.substring(0, 50) || '[no text]'}`);
   });
 }
 
