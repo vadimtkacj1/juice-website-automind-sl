@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm run build:*)",
       "Bash(node:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

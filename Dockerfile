@@ -103,8 +103,8 @@ RUN if [ ! -d "node_modules/sharp" ]; then \
 RUN test -f server.js || (echo "Error: server.js not found in standalone output" && exit 1)
 
 # Copy entrypoint and startup scripts
-COPY --chown=root:root docker-entrypoint.sh /usr/local/bin/
-COPY --chown=nextjs:nodejs start-all-services.sh /app/
+COPY --from=builder --chown=root:root /app/docker-entrypoint.sh /usr/local/bin/
+COPY --from=builder --chown=nextjs:nodejs /app/start-all-services.sh /app/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh /app/start-all-services.sh
 
 # Create data directory for database
