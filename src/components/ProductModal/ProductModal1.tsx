@@ -114,8 +114,14 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
           
           {/* Main Layout */}
           {isLoading ? (
-            <div className="flex h-[400px] w-full items-center justify-center">
-               <LoadingSpinner size="lg" text={translateToHebrew('Loading details...')} />
+            <div style={{ 
+              display: 'flex', 
+              height: '400px', 
+              width: '100%', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}>
+               <LoadingSpinner size="lg" text={translateToHebrew('loading details...')} />
             </div>
           ) : (
             <>

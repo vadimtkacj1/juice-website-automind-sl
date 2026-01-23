@@ -39,7 +39,7 @@ export default function AdminAuthWrapper({ children }: { children: React.ReactNo
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="lg" text="Loading..." />
+        <LoadingSpinner size="lg" text="טוען..." />
       </div>
     );
   }

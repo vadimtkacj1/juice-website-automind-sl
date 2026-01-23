@@ -14,8 +14,14 @@ export default function LoadMoreTrigger({ observerTarget, hasMore }: LoadMoreTri
   if (!hasMore) return null;
 
   return (
-    <div ref={observerTarget} className={styles.loadMoreTrigger}>
-      <LoadingSpinner size="md" text={translateToHebrew('Loading more items...')} />
+    <div ref={observerTarget} style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center',
+      padding: '40px 20px',
+      width: '100%'
+    }}>
+      <LoadingSpinner size="md" text={translateToHebrew('loading more items')} />
     </div>
   );
 }

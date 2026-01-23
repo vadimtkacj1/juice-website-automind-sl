@@ -90,8 +90,19 @@ const handleAddToCart = useCallback((item: AddToCartArgs) => {
 
   if (loading && allMenuItems.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading menu...')} />
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        minHeight: '100vh',
+        width: '100vw'
+      }}>
+        <LoadingSpinner size="lg" text={translateToHebrew('loading delicious menu')} />
       </div>
     );
   }
@@ -125,9 +136,15 @@ const handleAddToCart = useCallback((item: AddToCartArgs) => {
         ))}
       </div>
 
-      <div ref={observerTarget} className="py-10 flex justify-center">
+      <div ref={observerTarget} style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        padding: '40px 20px',
+        width: '100%'
+      }}>
         {loadingMore && (
-          <LoadingSpinner size="md" text={translateToHebrew('Loading more items...')} />
+          <LoadingSpinner size="md" text={translateToHebrew('loading more items')} />
         )}
       </div>
 

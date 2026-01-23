@@ -9,6 +9,13 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Compiler options for better performance
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+  
   // SEO optimizations
   generateEtags: true,
   
@@ -50,8 +57,10 @@ const nextConfig = {
   
   // Experimental features for better performance
   experimental: {
-    optimizeCss: true, // Enable CSS optimization with critters
+    optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+    // Turbopack для более быстрой сборки в dev режиме
+    turbo: {},
   },
 
   // Headers for caching and security

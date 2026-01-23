@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageSquare, Clock, MapPin, ArrowRight } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { translateToHebrew } from '@/lib/translations';
 import { useLoading } from '@/lib/loading-context';
 import styles from './contact.module.css';
@@ -212,8 +213,21 @@ export default function ContactPage() {
       {/* Main Content */}
       <div className={styles['contact-content']}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-            <p style={{ fontSize: '18px', color: '#70758c' }}>{translateToHebrew('Loading contacts...')}</p>
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            minHeight: '100vh',
+            width: '100vw',
+            background: 'rgba(255, 255, 255, 0.95)',
+            zIndex: 9999
+          }}>
+            <LoadingSpinner size="lg" text={translateToHebrew('loading contacts...')}/>
           </div>
         ) : (
           <>

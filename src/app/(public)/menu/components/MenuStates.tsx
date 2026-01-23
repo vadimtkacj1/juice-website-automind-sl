@@ -11,14 +11,24 @@ interface MenuLoadingStateProps {
 
 export function MenuLoadingState({ text }: MenuLoadingStateProps) {
   return (
-    <div className={styles.menuPage}>
-      <div className={styles.menuLoading}>
-        <LoadingSpinner
-          size="lg"
-          text={text || translateToHebrew('Loading delicious menu...')}
-          fullPage
-        />
-      </div>
+    <div style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      right: 0, 
+      bottom: 0, 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      minHeight: '100vh',
+      width: '100vw',
+      background: 'rgba(255, 255, 255, 0.95)',
+      zIndex: 9999
+    }}>
+      <LoadingSpinner
+        size="lg"
+        text={text || translateToHebrew('loading delicious menu')}
+      />
     </div>
   );
 }
