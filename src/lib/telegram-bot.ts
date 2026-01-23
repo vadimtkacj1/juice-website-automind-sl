@@ -331,19 +331,26 @@ function setupBotHandlers(bot: TelegramBot) {
     const messageId = query.message?.message_id;
     const chatId = query.message?.chat.id;
 
+    let callbackAnswered = false;
+
     try {
       console.log(`[Telegram] 📨 Received callback query: ${data} from user ${deliveryTelegramId}`);
+      console.log(`[Telegram] 📋 Query ID: ${query.id}, Chat ID: ${chatId}, Message ID: ${messageId}`);
 
       if (data?.startsWith('order_accept_')) {
         const orderId = parseInt(data.replace('order_accept_', ''));
+        console.log(`[Telegram] 🔄 Processing order accept for order #${orderId}`);
+
         const result = await handleOrderAccept(orderId, deliveryTelegramId);
-        
+
         if (result) {
-          await bot.answerCallbackQuery(query.id, { 
+          console.log(`[Telegram] ✅ Order #${orderId} accepted successfully`);
+          await bot.answerCallbackQuery(query.id, {
             text: '✅ ההזמנה התקבלה בהצלחה!',
-            show_alert: false 
+            show_alert: false
           });
-          
+          callbackAnswered = true;
+
           // Видаляємо кнопки з повідомлення після прийняття
           if (messageId && chatId) {
             try {
@@ -351,26 +358,33 @@ function setupBotHandlers(bot: TelegramBot) {
                 chat_id: chatId,
                 message_id: messageId
               });
-            } catch (e) {
-              // Ignore if message is too old or already modified
+              console.log(`[Telegram] 🗑️ Buttons removed from message ${messageId}`);
+            } catch (e: any) {
+              console.log(`[Telegram] ⚠️ Could not remove buttons: ${e.message}`);
             }
           }
         } else {
-          await bot.answerCallbackQuery(query.id, { 
+          console.log(`[Telegram] ❌ Order #${orderId} already taken`);
+          await bot.answerCallbackQuery(query.id, {
             text: '❌ ההזמנה כבר נלקחה',
-            show_alert: true 
+            show_alert: true
           });
+          callbackAnswered = true;
         }
       } else if (data?.startsWith('order_delivered_')) {
         const orderId = parseInt(data.replace('order_delivered_', ''));
+        console.log(`[Telegram] 🔄 Processing order delivery for order #${orderId}`);
+
         const result = await handleOrderDelivered(orderId, deliveryTelegramId);
-        
+
         if (result) {
-          await bot.answerCallbackQuery(query.id, { 
+          console.log(`[Telegram] ✅ Order #${orderId} marked as delivered`);
+          await bot.answerCallbackQuery(query.id, {
             text: '✅ תודה! ההזמנה סומנה כנמסרה',
-            show_alert: false 
+            show_alert: false
           });
-          
+          callbackAnswered = true;
+
           // Видаляємо кнопки з повідомлення після доставки
           if (messageId && chatId) {
             try {
@@ -378,32 +392,54 @@ function setupBotHandlers(bot: TelegramBot) {
                 chat_id: chatId,
                 message_id: messageId
               });
-            } catch (e) {
-              // Ignore if message is too old or already modified
+              console.log(`[Telegram] 🗑️ Buttons removed from message ${messageId}`);
+            } catch (e: any) {
+              console.log(`[Telegram] ⚠️ Could not remove buttons: ${e.message}`);
             }
           }
         } else {
-          await bot.answerCallbackQuery(query.id, { 
+          console.log(`[Telegram] ❌ Could not mark order #${orderId} as delivered`);
+          await bot.answerCallbackQuery(query.id, {
             text: '❌ שגיאה: לא ניתן לסמן כנמסר',
-            show_alert: true 
+            show_alert: true
           });
+          callbackAnswered = true;
         }
       } else {
         // Невідома команда або застаріле повідомлення
-        await bot.answerCallbackQuery(query.id, { 
+        console.log(`[Telegram] ⚠️ Unknown callback data: ${data}`);
+        await bot.answerCallbackQuery(query.id, {
           text: 'פעולה לא זמינה',
-          show_alert: false 
+          show_alert: false
         });
+        callbackAnswered = true;
       }
     } catch (error: any) {
-      console.error('[Telegram Bot] Error handling callback query:', error.message);
+      console.error('[Telegram Bot] ❌ Error handling callback query:', error);
+      console.error('[Telegram Bot] Error stack:', error.stack);
+
+      // Обов'язково відповідаємо, навіть якщо була помилка
+      if (!callbackAnswered) {
+        try {
+          await bot.answerCallbackQuery(query.id, {
+            text: '❌ שגיאה בעיבוד הפעולה',
+            show_alert: true
+          });
+          callbackAnswered = true;
+          console.log('[Telegram Bot] 📤 Error response sent to user');
+        } catch (answerError: any) {
+          console.error('[Telegram Bot] ❌ Could not send error response:', answerError.message);
+        }
+      }
+    }
+
+    // Останній fallback - якщо з якоїсь причини не відповіли
+    if (!callbackAnswered) {
       try {
-        await bot.answerCallbackQuery(query.id, { 
-          text: '❌ שגיאה בעיבוד הפעולה',
-          show_alert: false 
-        });
-      } catch (e) {
-        // Ignore if answer already sent
+        await bot.answerCallbackQuery(query.id);
+        console.log('[Telegram Bot] 📤 Fallback empty response sent');
+      } catch (e: any) {
+        console.error('[Telegram Bot] ❌ Fallback response failed:', e.message);
       }
     }
   });
