@@ -99,6 +99,27 @@ export default function OrdersPage() {
     });
   };
 
+  const deleteAllOrders = async () => {
+    setConfirmDialog({
+      open: true,
+      title: t('Delete All Orders'),
+      description: t('Are you sure you want to delete ALL orders? This action cannot be undone and will remove all order history.'),
+      onConfirm: async () => {
+        try {
+          const response = await fetch('/api/orders', {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            fetchOrders();
+          }
+        } catch (error) {
+          console.error('Failed to delete all orders:', error);
+        }
+      },
+    });
+  };
+
   const filteredOrders = statusFilter === 'all' 
     ? orders 
     : orders.filter(order => order.status === statusFilter);
@@ -130,21 +151,34 @@ export default function OrdersPage() {
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-base font-medium">{t('All Orders')}</CardTitle>
-            <div className="flex gap-1.5">
-              {filterButtons.map((btn) => (
-                <button
-                  key={btn.key}
-                  onClick={() => setStatusFilter(btn.key)}
-                  className={cn(
-                    'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-                    statusFilter === btn.key
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  )}
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1.5">
+                {filterButtons.map((btn) => (
+                  <button
+                    key={btn.key}
+                    onClick={() => setStatusFilter(btn.key)}
+                    className={cn(
+                      'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+                      statusFilter === btn.key
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    )}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+              </div>
+              {orders.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={deleteAllOrders}
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
-                  {btn.label}
-                </button>
-              ))}
+                  <Trash2 className="h-4 w-4 mr-1.5" strokeWidth={1.75} />
+                  {t('Delete All')}
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>

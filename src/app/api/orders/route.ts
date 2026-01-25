@@ -159,3 +159,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function DELETE() {
+  try {
+    const db = getDatabase();
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
+
+    // Delete all order items first (foreign key constraint)
+    await dbRun(db, 'DELETE FROM order_items');
+    
+    // Then delete all orders
+    const result = await dbRun(db, 'DELETE FROM orders');
+
+    return NextResponse.json({
+      success: true,
+      message: 'All orders deleted successfully',
+      deletedCount: result.changes
+    });
+  } catch (error: any) {
+    console.error('Error deleting all orders:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+

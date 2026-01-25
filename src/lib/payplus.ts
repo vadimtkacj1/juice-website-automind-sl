@@ -13,7 +13,7 @@ if (PAYPLUS_TEST_MODE) {
   console.log('✅ PayPlus TEST MODE is DISABLED - Payment will be requested via PayPlus');
 }
 // Use PAYPLUS_API_URL if provided (full URL), otherwise use base URL
-const PAYPLUS_API_URL = process.env.PAYPLUS_API_URL || 'https://restapidev.payplus.co.il/api/v1.0/PaymentPages/generateLink';
+const PAYPLUS_API_URL = process.env.PAYPLUS_API_URL || 'https://restapi.payplus.co.il/api/v1.0/PaymentPages/generateLink';
 const PAYPLUS_BASE_URL = PAYPLUS_API_URL.includes('/PaymentPages/generateLink') 
   ? PAYPLUS_API_URL 
   : `${PAYPLUS_API_URL}/PaymentPages/generateLink`;
