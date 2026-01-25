@@ -163,7 +163,7 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
         opacity: imageLoaded ? 1 : 0.95,
         transition: 'opacity 0.3s ease-in-out'
       }}
-      aria-label="אזור ראשי - נטורליי מרענן"
+      aria-label="אזור ראשי - טבעי שזה מרענן"
     >
       {/* Main Navigation */}
       <NavBarShell 

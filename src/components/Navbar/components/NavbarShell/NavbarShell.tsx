@@ -22,7 +22,7 @@ const NavBarShell = React.forwardRef<HTMLDivElement, NavBarShellProps>((
   return (
     <div ref={ref} className={className}>
       <nav className="nav-content">
-        <Link href="/" className="logo" aria-label="נטורליי מרענן">
+        <Link href="/" className="logo" aria-label="טבעי שזה מרענן">
           <BrandLogo compact={compact} />
         </Link>
         

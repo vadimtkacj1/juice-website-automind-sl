@@ -7,7 +7,7 @@
  * Generate page title with proper formatting
  */
 export function generatePageTitle(title: string, includeSiteName: boolean = true): string {
-  const siteName = 'נטורליי מרענן';
+  const siteName = 'טבעי שזה מרענן';
   return includeSiteName ? `${title} | ${siteName}` : title;
 }
 
@@ -132,7 +132,7 @@ export function generateArticleSchema(article: {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'נטורליי מרענן',
+      name: 'טבעי שזה מרענן',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/images/logo.png`,

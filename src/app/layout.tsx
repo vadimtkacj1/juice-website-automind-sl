@@ -20,8 +20,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'),
   title: {
-    default: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
-    template: '%s | נטורליי מרענן'
+    default: 'טבעי שזה מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
+    template: '%s | טבעי שזה מרענן'
   },
   description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום מפירות וירקות איכותיים ללא חומרים משמרים. הזמינו אונליין או בקרו בסניפים שלנו.',
   keywords: [
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
     'תפוזים טריים',
     'מיץ תפוזים'
   ],
-  authors: [{ name: 'נטורליי מרענן' }],
-  creator: 'נטורליי מרענן',
-  publisher: 'נטורליי מרענן',
+  authors: [{ name: 'טבעי שזה מרענן' }],
+  creator: 'טבעי שזה מרענן',
+  publisher: 'טבעי שזה מרענן',
   formatDetection: {
     email: false,
     address: false,
@@ -71,22 +71,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'he_IL',
     url: '/',
-    title: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
+    title: 'טבעי שזה מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
     description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום ללא חומרים משמרים.',
-    siteName: 'נטורליי מרענן',
+    siteName: 'טבעי שזה מרענן',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'נטורליי מרענן - מיצים טבעיים טריים',
+        alt: 'טבעי שזה מרענן - מיצים טבעיים טריים',
         type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'נטורליי מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
+    title: 'טבעי שזה מרענן | מיצים טבעיים טריים ומשקאות פרימיום',
     description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות.',
     images: ['/og-image.jpg'],
     creator: '@naturallyrefreshing',
@@ -117,7 +117,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'נטורליי מרענן',
+    title: 'טבעי שזה מרענן',
     startupImage: [
       {
         url: '/apple-touch-icon.png',
@@ -169,11 +169,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         
+        {/* Sienna Accessibility Widget */}
+        <script 
+          src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" 
+          defer
+        />
+        
         {/* Structured Data for SEO */}
         <StructuredData
           type="organization"
           data={{
-            name: 'נטורליי מרענן',
+            name: 'טבעי שזה מרענן',
             description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות. מוצרים טריים מדי יום מפירות וירקות איכותיים ללא חומרים משמרים.',
             url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
             logo: '/icon-512x512.png',
@@ -188,7 +194,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StructuredData
           type="website"
           data={{
-            name: 'נטורליי מרענן',
+            name: 'טבעי שזה מרענן',
             description: 'חנות מיצים טבעיים טריים, סמוזי, סלטי פירות וצלחות בריאות',
             url: process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com',
           }}

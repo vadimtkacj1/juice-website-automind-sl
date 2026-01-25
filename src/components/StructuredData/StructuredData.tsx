@@ -181,7 +181,7 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
           category: 'Food & Beverages',
           brand: {
             '@type': 'Brand',
-            name: 'נטורליי מרענן',
+            name: 'טבעי שזה מרענן',
           },
           offers: {
             '@type': 'Offer',
@@ -193,7 +193,7 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             seller: {
               '@type': 'Organization',
               '@id': `${baseUrl}/#organization`,
-              name: 'נטורליי מרענן',
+              name: 'טבעי שזה מרענן',
             },
           },
           aggregateRating: productData.aggregateRating ? {

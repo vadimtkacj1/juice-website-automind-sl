@@ -93,7 +93,7 @@ async function sendOrderConfirmationEmail(orderData) {
           
           <div class="footer">
             <p>תודה שבחרת בנו! 🥤</p>
-            <p>נטורליי מרענן - מיצים טבעיים טריים</p>
+            <p>טבעי שזה מרענן - מיצים טבעיים טריים</p>
           </div>
         </div>
       </body>
@@ -118,11 +118,11 @@ ${itemsList}
 נעדכן אותך בהמשך על סטטוס ההזמנה.
 
 תודה שבחרת בנו!
-נטורליי מרענן - מיצים טבעיים טריים
+טבעי שזה מרענן - מיצים טבעיים טריים
     `;
 
     const emailFrom = process.env.EMAIL_SERVER_USER || process.env.EMAIL_FROM || process.env.EMAIL_USER;
-    const emailFromName = process.env.EMAIL_FROM_NAME || 'נטורליי מרענן';
+    const emailFromName = process.env.EMAIL_FROM_NAME || 'טבעי שזה מרענן';
 
     await transporter.sendMail({
       from: `"${emailFromName}" <${emailFrom}>`,
@@ -216,7 +216,7 @@ async function sendAdminOrderNotification(orderData) {
     `;
 
     const emailFrom = process.env.EMAIL_SERVER_USER || process.env.EMAIL_FROM || process.env.EMAIL_USER;
-    const emailFromName = process.env.EMAIL_FROM_NAME || 'נטורליי מרענן';
+    const emailFromName = process.env.EMAIL_FROM_NAME || 'טבעי שזה מרענן';
 
     await transporter.sendMail({
       from: `"${emailFromName}" <${emailFrom}>`,

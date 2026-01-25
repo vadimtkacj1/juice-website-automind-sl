@@ -12,6 +12,7 @@ const footerLinks = [
 const legalLinks = [
   { href: '/privacy', label: translateToHebrew('Privacy Policy') },
   { href: '/terms', label: translateToHebrew('Terms & Conditions') },
+  { href: '/accessibility', label: translateToHebrew('Accessibility Statement') },
 ];
 
 export default function Footer() {
@@ -21,7 +22,7 @@ export default function Footer() {
     <footer className={styles.footerMain} role="contentinfo" aria-label="כותרת תחתונה">
       {/* Brand Name */}
       <div className={styles.footerBrand} aria-label="שם המותג">
-        נטורליי מרענן
+        טבעי שזה מרענן
       </div>
 
       {/* Navigation Links */}
@@ -44,7 +45,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <p className={styles.footerCopyright}>
-        © {currentYear} נטורליי מרענן. כל הזכויות שמורות.
+        © {currentYear} טבעי שזה מרענן. כל הזכויות שמורות.
       </p>
     </footer>
   );
