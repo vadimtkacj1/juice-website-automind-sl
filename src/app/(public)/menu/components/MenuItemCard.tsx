@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import { ShoppingBag } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
@@ -28,7 +28,7 @@ interface MenuItemCardProps {
   getDiscountedPrice: (price: number | string, discountPercent: number | string) => number;
 }
 
-export default function MenuItemCard({
+const MenuItemCard = memo(function MenuItemCard({
   item,
   categoryId,
   itemIndex,
@@ -38,16 +38,15 @@ export default function MenuItemCard({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Парсимо значення один раз при рендері
+  // Parse values once during render
   const price = Number(item.price) || 0;
   const discount = Number(item.discount_percent) || 0;
   const discountedPrice = getDiscountedPrice(price, discount);
   const hasDiscount = discount > 0;
 
-  const handleClick = () => {
-    console.log('MenuItemCard clicked:', item.name, 'ID:', item.id);
+  const handleClick = useCallback(() => {
     onItemClick({ ...item, category_id: item.category_id || categoryId });
-  };
+  }, [item, categoryId, onItemClick]);
 
   // Prefetch modal data on hover for faster loading
   const handleMouseEnter = useCallback(() => {
@@ -75,11 +74,13 @@ export default function MenuItemCard({
             src={item.image as string}
             alt={translateToHebrew(item.name)}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
             className={imageLoaded ? styles.imageLoaded : ''}
             style={{ objectFit: 'cover' }}
+            loading="lazy"
+            quality={75}
           />
         ) : (
           <div className={styles.productImagePlaceholder}>
@@ -131,4 +132,15 @@ export default function MenuItemCard({
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison for better performance
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.price === nextProps.item.price &&
+    prevProps.item.discount_percent === nextProps.item.discount_percent &&
+    prevProps.item.image === nextProps.item.image &&
+    prevProps.itemIndex === nextProps.itemIndex
+  );
+});
+
+export default MenuItemCard;

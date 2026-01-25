@@ -15,16 +15,13 @@
   transition: opacity 0.2s ease;
 }
 
-/* Hover effects only on devices with mouse */
-@media (hover: hover) and (pointer: fine) {
-  .cart-button:hover {
-    cursor: pointer;
-    opacity: 0.8;
-  }
+.cart-button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
 
-  .cart-button:hover .cart-icon-wrapper :global(svg) {
-    color: #1d1a40;
-  }
+.cart-button:hover .cart-icon-wrapper :global(svg) {
+  color: #1d1a40;
 }
 
 .cart-icon-wrapper {
@@ -103,11 +100,8 @@
   transition: background 0.2s ease;
 }
 
-/* Hover effects only on devices with mouse */
-@media (hover: hover) and (pointer: fine) {
-  .mobile-menu-btn:hover {
-    background: rgba(29, 26, 64, 0.1);
-  }
+.mobile-menu-btn:hover {
+  background: rgba(29, 26, 64, 0.1);
 }
 
 /* Burger menu only on smaller screens (mobile/tablet) */

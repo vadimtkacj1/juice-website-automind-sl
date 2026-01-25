@@ -27,6 +27,10 @@ const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
   });
 };
 
+// In-memory cache for menu data (5 minutes TTL)
+let menuCache: { data: any; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export async function GET() {
   const requestId = `[${Date.now()}]`;
   const isDev = process.env.NODE_ENV !== 'production';
@@ -36,6 +40,14 @@ export async function GET() {
   }
 
   try {
+    // Check cache first
+    if (menuCache && (Date.now() - menuCache.timestamp) < CACHE_TTL) {
+      if (isDev) {
+        console.log(`${requestId} [Menu API] Returning cached data`);
+      }
+      return NextResponse.json(menuCache.data);
+    }
+
     // 1. Resolve Database Path (for debugging)
     const dbPath = process.env.DATABASE_PATH || 
                   (process.env.NODE_ENV === 'production' && process.cwd() === '/app' 
@@ -124,7 +136,15 @@ export async function GET() {
     if (isDev) {
       console.log(`${requestId} [Menu API] Success: Returning ${menu.length} categories`);
     }
-    return NextResponse.json({ menu });
+
+    // Cache the result
+    const responseData = { menu };
+    menuCache = {
+      data: responseData,
+      timestamp: Date.now()
+    };
+
+    return NextResponse.json(responseData);
 
   } catch (error: any) {
     console.error(`${requestId} [Menu API] CRITICAL ERROR:`, error);

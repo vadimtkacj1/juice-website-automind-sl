@@ -37,10 +37,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     setMounted(true);
   }, []);
 
-  // Debug: log modal state
-  useEffect(() => {
-    console.log('ProductModal state:', { isOpen, hasItem: !!item, mounted, itemName: item?.name });
-  }, [isOpen, item, mounted]);
+  // Removed debug logs for performance
 
   const {
     customIngredients,
@@ -96,13 +93,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
 
   // Don't render if not open, no item, or not mounted (SSR)
   if (!isOpen || !item || !mounted) {
-    if (isOpen) {
-      console.log('ProductModal not rendering:', { isOpen, hasItem: !!item, mounted });
-    }
     return null;
   }
-
-  console.log('ProductModal rendering for:', item.name);
 
   const modalContent = (
     <div className={styles['modal-wrapper']} role="dialog" aria-modal="true">

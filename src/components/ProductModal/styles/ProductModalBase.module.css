@@ -12,19 +12,20 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* --- Backdrop --- */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(29, 26, 64, 0.65);
+  background: rgba(29, 26, 64, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 99998;
   animation: fadeIn 0.3s ease-out forwards;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 /* --- Product Modal Container --- */
@@ -48,12 +49,13 @@
   height: auto;
   min-height: 500px;
   max-height: 90vh;
-  background: var(--modal-bg);
+  background: #ffffff;
   border-radius: var(--modal-radius);
   box-shadow: var(--modal-shadow);
   overflow: hidden;
   position: relative;
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 100000;
 }
 
 /* --- Close Button --- */
@@ -88,7 +90,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 48px 56px;
+  padding: 40px 56px 48px;
   display: flex;
   flex-direction: column;
   scrollbar-width: thin;

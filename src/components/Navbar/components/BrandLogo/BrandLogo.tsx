@@ -38,9 +38,7 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
           d="M30 32 L30 56 A24 24 0 0 1 6 32 Z"
           fill="rgba(255,255,255,0.05)"
         />
-        
-        <circle cx="30" cy="32" r="6" fill="rgba(255,255,255,0.3)" />
-        
+
         <path
           d="M30 8 Q35 2 42 4 Q38 8 35 12 Q32 8 30 8 Z"
           fill="url(#leafGradient)"
@@ -51,19 +49,7 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
           strokeWidth="1"
           fill="none"
         />
-        
-        <text
-          x="30"
-          y="38"
-          textAnchor="middle"
-          fill="white"
-          fontSize="20"
-          fontWeight="900"
-          fontFamily="'Heebo', sans-serif"
-          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}
-        >
-          נמ
-        </text>
+      
       </svg>
       
     </div>

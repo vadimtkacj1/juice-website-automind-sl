@@ -18,26 +18,26 @@ export default function ProductModalHeader({
   discountedPrice,
   discountPercent,
 }: ProductModalHeaderProps) {
+  // Форматуємо ціну один раз
+  const formatPrice = (val: number) => `₪${(val || 0).toFixed(0)}`;
+
   return (
     <div className={styles['modal-header']}>
       <h2 className={styles['modal-title']}>{translateToHebrew(name)}</h2>
+      
       {selectedVolume && (
         <p className={styles['modal-subtitle']}>
-          <span style={{ 
-            width: '6px', 
-            height: '6px', 
-            borderRadius: '50%', 
-            background: 'linear-gradient(135deg, #7322ff 0%, #93f3aa 100%)',
-            display: 'inline-block'
-          }} />
+          <span className={styles['status-dot']} />
           {translateToHebrew(selectedVolume)}
         </p>
       )}
+
       <div className={styles['modal-price']}>
         {discountPercent > 0 && (
-          <span className={styles['price-old']}>₪{(typeof basePrice === 'number' && !isNaN(basePrice) ? basePrice : 0).toFixed(0)}</span>
+          <span className={styles['price-old']}>{formatPrice(basePrice)}</span>
         )}
-        <span className={styles['price-main']}>₪{(typeof discountedPrice === 'number' && !isNaN(discountedPrice) ? discountedPrice : 0).toFixed(0)}</span>
+        <span className={styles['price-main']}>{formatPrice(discountedPrice)}</span>
+        
         {discountPercent > 0 && (
           <span className={styles['discount-tag']}>
             {translateToHebrew('Save')} {discountPercent}%

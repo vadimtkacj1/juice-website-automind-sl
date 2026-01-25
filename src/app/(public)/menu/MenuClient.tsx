@@ -39,10 +39,7 @@ export default function MenuClient() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const { addToCart } = useCart();
 
-  // Debug: log when selected item changes
-  useEffect(() => {
-    console.log('Selected item changed:', selectedItem ? selectedItem.name : 'null');
-  }, [selectedItem]);
+  // Removed debug logs for performance
 
   const {
     allMenuItems,
@@ -93,6 +90,11 @@ const handleAddToCart = useCallback((item: AddToCartArgs) => {
     return calculateFinalPrice(price, discount);
   }, []);
 
+  // Memoize handlers to prevent re-renders
+  const handleItemClick = useCallback((item: MenuItem) => {
+    setSelectedItem(item);
+  }, []);
+
   if (loading && allMenuItems.length === 0) {
     return (
       <div style={{ 
@@ -135,7 +137,7 @@ const handleAddToCart = useCallback((item: AddToCartArgs) => {
             key={category.id}
             category={category}
             categoryIndex={categoryIdx}
-            onItemClick={setSelectedItem}
+            onItemClick={handleItemClick}
             getDiscountedPrice={getDiscountedPrice}
           />
         ))}

@@ -1,35 +1,69 @@
 /* ============================================
-   PRODUCT MODAL FEATURES - Feature Pills/Badges
+   PRODUCT MODAL FEATURES - Premium Pills
    ============================================ */
 
-
-/* --- Features --- */
 .modal-features {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 32px;
+  /* Direction RTL ensures icons and text flow correctly for Hebrew */
+  direction: rtl; 
+  gap: 8px;
+  margin-bottom: 24px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-family);
-  font-size: 14px;
+  /* Space between icon and text */
+  gap: 6px; 
+  font-family: var(--font-family, sans-serif);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--modal-text-primary);
-  background: var(--modal-bg-secondary);
-  border: 1.5px solid transparent;
-  padding: 10px 16px;
-  border-radius: 50px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.04);
+  color: #1D1D1F;
+  /* Ultra-light gray background from your screenshots */
+  background: #F5F5F7; 
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  border-radius: 100px;
+  transition: all 0.2s ease-in-out;
+  /* Prevents text from wrapping inside the pill */
+  white-space: nowrap; 
 }
 
+/* Subtle interaction without being distracting */
 .feature-item:hover {
-  background: white;
-  border-color: var(--modal-text-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(29, 26, 64, 0.1);
+  background: #E8E8ED;
+  transform: translateY(-1px);
+}
+
+/* Icon styling inside the pill */
+.feature-item i, 
+.feature-item svg {
+  font-size: 14px;
+  color: #86868B; /* Muted icon color for a cleaner look */
+}
+
+/* --- Mobile Optimization --- */
+
+@media (max-width: 480px) {
+  .modal-features {
+    gap: 6px;
+    margin-bottom: 20px;
+    /* Optional: allows pills to scroll horizontally if there are too many */
+    overflow-x: auto;
+    padding-bottom: 4px;
+    /* Hide scrollbar for a cleaner mobile look */
+    scrollbar-width: none; 
+  }
+  
+  .modal-features::-webkit-scrollbar {
+    display: none;
+  }
+
+  .feature-item {
+    font-size: 12px;
+    padding: 5px 12px;
+    /* Slightly more compact icons on mobile */
+    gap: 4px; 
+  }
 }

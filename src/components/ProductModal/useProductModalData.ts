@@ -44,8 +44,6 @@ function processIngredients(ingredients: any[]): CustomIngredient[] {
     return [];
   }
 
-  console.log(`Found ${ingredients.length} ingredients from optimized API`);
-
   return ingredients.map((ing: any) => {
     const ingredient: CustomIngredient = {
       id: ing.id,
@@ -113,7 +111,6 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
       // Check cache first
       const cached = modalDataCache.get(itemId);
       if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
-        console.log('Using cached modal data for menu item:', itemId);
         setCustomIngredients(processIngredients(cached.ingredients));
         setVolumeOptions(processVolumes(cached.volumes, item));
         setAdditionalItems(cached.additionalItems);
@@ -121,14 +118,12 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
         return;
       }
 
-      console.log('Fetching all modal data for menu item:', itemId);
       setIsLoading(true);
 
       try {
         const response = await fetch(`/api/menu-items/${itemId}/modal-data`);
 
         if (!response.ok) {
-          console.error('Failed to fetch modal data for menu item', itemId, 'Status:', response.status);
           setCustomIngredients([]);
           setVolumeOptions([]);
           setAdditionalItems([]);
@@ -137,7 +132,6 @@ export function useProductModalData(item: ProductModalItem | null, isOpen: boole
         }
 
         const data = await response.json();
-        console.log('Fetched modal data for menu item', itemId, ':', data);
 
         // Store in cache
         modalDataCache.set(itemId, {

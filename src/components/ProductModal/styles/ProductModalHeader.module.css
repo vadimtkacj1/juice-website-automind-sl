@@ -1,109 +1,135 @@
 /* ============================================
-   PRODUCT MODAL HEADER - Title, Price, Subtitle
+   PRODUCT MODAL HEADER - Pixel Perfect RTL
    ============================================ */
 
-
-/* --- Header Section --- */
 .modal-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* В RTL flex-start — це правий край */
+  text-align: right;
+  direction: rtl;
 }
 
 .modal-title {
-  font-family: var(--font-family);
-  font-size: 36px;
+  font-family: var(--font-family, sans-serif);
+  font-size: 28px; /* Оптимальний розмір для заголовку */
   font-weight: 800;
-  color: var(--modal-text-primary);
-  margin: 0 0 16px;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
+  color: #1D1D1F;
+  margin: 0 0 10px 0;
+  line-height: 1.25;
+  /* Прибираємо letter-spacing для івриту, щоб текст не «плив» */
+  letter-spacing: 0;
 }
 
 .modal-subtitle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: var(--modal-bg-secondary);
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--modal-text-secondary);
-  margin-bottom: 24px;
-  border: 1px solid rgba(29, 26, 64, 0.08);
-}
-
-.modal-price {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.price-main {
-  font-family: var(--font-family);
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--modal-text-primary);
-  letter-spacing: -0.5px;
-}
-
-.price-old {
-  font-family: var(--font-family);
-  font-size: 18px;
-  color: #a0a5b8;
-  text-decoration: line-through;
-  font-weight: 600;
-}
-
-.discount-tag {
-  background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 100%);
-  color: white;
-  font-family: var(--font-family);
+  justify-content: center;
+  background: #F2F2F7;
+  padding: 5px 14px;
+  border-radius: 100px; /* Повна «пігулка» */
   font-size: 13px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 8px;
-  transform: translateY(-3px);
-  box-shadow: 0 3px 10px rgba(255, 71, 87, 0.3);
+  font-weight: 600;
+  color: #86868B;
+  margin-bottom: 14px;
+  border: none;
+  width: fit-content;
 }
 
-/* --- Responsive Design --- */
+/* Основна ціна під заголовком */
+.price-main {
+  display: block;
+  font-family: var(--font-family, sans-serif);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--modal-accent, #4B49FF);
+  margin-bottom: 16px;
+}
+
+/* Короткий опис */
+.modal-description-text {
+  font-size: 15px;
+  color: #86868B;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  max-width: 90%; /* Щоб текст не розтягувався на всю ширину */
+}
+
+/* --- Benefit Tags (Теги переваг) --- */
+.benefit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px; /* Менший відступ до наступної секції */
+}
+
+.benefit-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #F5F5F7;
+  padding: 7px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #48484A;
+  transition: background 0.2s ease;
+}
+
+.benefit-tag:hover {
+  background: #EBEBED;
+}
+
+/* --- Mobile Fixes --- */
+
 @media (max-width: 900px) {
+  .modal-header {
+    margin-bottom: 20px;
+  }
+  
   .modal-title {
-    font-size: 28px;
-    margin-bottom: 12px;
+    font-size: 24px;
   }
-
-  .price-main {
-    font-size: 26px;
-  }
-}
-
-@media (max-width: 768px) and (min-width: 481px) {
-  .modal-title {
-    font-size: 26px;
-  }
-
-  .price-main {
-    font-size: 26px;
-  }
-}
-
-@media (max-height: 600px) and (orientation: landscape) and (max-width: 900px) {
-  .modal-title {
-    font-size: 22px;
-  }
-
+  
   .price-main {
     font-size: 22px;
   }
 }
 
 @media (max-width: 480px) {
+  .modal-header {
+    margin-bottom: 18px;
+    padding: 0; /* На мобілці прибираємо зайвий паддінг */
+  }
+
   .modal-title {
-    font-size: 24px;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    font-size: 12px;
+    padding: 4px 12px;
+    margin-bottom: 12px;
   }
 
   .price-main {
-    font-size: 24px;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .modal-description-text {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .benefit-tags {
+    gap: 6px;
+  }
+
+  .benefit-tag {
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }

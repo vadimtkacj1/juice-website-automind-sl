@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { translateToHebrew } from '@/lib/translations';
 import MenuItemCard, { MenuItem } from './MenuItemCard';
 import styles from '../menu.module.css';
@@ -18,7 +19,7 @@ interface MenuCategorySectionProps {
   getDiscountedPrice: (price: number | string, discountPercent: number | string) => number;
 }
 
-export default function MenuCategorySection({
+const MenuCategorySection = memo(function MenuCategorySection({
   category,
   categoryIndex,
   onItemClick,
@@ -51,5 +52,14 @@ export default function MenuCategorySection({
       </div>
     </section>
   );
-}
+}, (prevProps, nextProps) => {
+  // Only re-render if category data actually changed
+  return (
+    prevProps.category.id === nextProps.category.id &&
+    prevProps.category.items.length === nextProps.category.items.length &&
+    prevProps.categoryIndex === nextProps.categoryIndex
+  );
+});
+
+export default MenuCategorySection;
 
