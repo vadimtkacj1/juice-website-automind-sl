@@ -32,7 +32,7 @@ export default function AdditionalItemsSection({
   return (
     <div className={baseStyles['modal-section']}>
       <h3 className={baseStyles['section-title']}>
-        {translateToHebrew('Additional Options')}
+        {'אפשרויות נוספות'}
       </h3>
       <div className={styles['options-grid']}>
         {additionalItems.map((item) => (

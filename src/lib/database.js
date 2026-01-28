@@ -381,6 +381,7 @@ async function initializeTables(pool) {
         id INT AUTO_INCREMENT PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
+        image TEXT,
         sort_order INT DEFAULT 0,
         is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

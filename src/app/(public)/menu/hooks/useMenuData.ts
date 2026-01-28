@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { useLoading } from '@/lib/loading-context';
-import { translateToHebrew } from '@/lib/translations';
 import { MenuCategory } from '../components/MenuCategorySection';
 import { MenuItem } from '../components/MenuItemCard';
 
@@ -52,7 +51,7 @@ export function useMenuData() {
         await processAndSetMenu(data.menu || []);
       }
     } catch (err: any) {
-      setError(translateToHebrew('Failed to load menu'));
+      setError('נכשל לטעון תפריט');
       console.error('Failed to fetch menu', err);
     } finally {
       setLoading(false);

@@ -3,8 +3,6 @@
 import { Package } from 'lucide-react';
 import styles from './styles/VolumeSelector.module.css';
 import baseStyles from './styles/ProductModalBase.module.css';
-import { translateToHebrew } from '@/lib/translations';
-
 interface VolumeOption {
   id?: number;
   volume: string;
@@ -34,7 +32,7 @@ export default function VolumeSelector({
   return (
     <div className={baseStyles['modal-section']}>
       <h3 className={baseStyles['section-title']}>
-        {translateToHebrew('Select Size')}
+        בחר גודל
       </h3>
       <div className={styles['volume-grid']}>
         {volumeOptions.map((vol, index) => {
@@ -65,11 +63,11 @@ export default function VolumeSelector({
               <div className={styles['volume-card']}>
                 {vol.is_default && (
                   <span className={styles['volume-badge']}>
-                    {translateToHebrew('Popular')}
+                    {'פופולרי'}
                   </span>
                 )}
                 <span className={styles['volume-label']}>
-                  {translateToHebrew(vol.volume)}
+                  {vol.volume}
                 </span>
                 <span className={styles['volume-price']}>
                   ₪{finalPrice.toFixed(0)}

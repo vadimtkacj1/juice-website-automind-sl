@@ -3,7 +3,6 @@
 import { useCart } from '@/lib/cart-context';
 import { X, Minus, Plus, ShoppingBag, Trash2, Loader2, Phone, Mail, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { translateToHebrew } from '@/lib/translations';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Cart.module.css';
@@ -76,20 +75,20 @@ export default function Cart() {
     let hasError = false;
 
     if (!phone.trim()) {
-      setPhoneError(translateToHebrew('Phone number is required'));
+      setPhoneError('נדרש מספר טלפון');
       hasError = true;
     } else if (!validatePhone(phone)) {
-      setPhoneError(translateToHebrew('Please enter a valid phone number'));
+      setPhoneError('אנא הזן מספר טלפון תקין');
       hasError = true;
     } else {
       setPhoneError('');
     }
 
     if (!email.trim()) {
-      setEmailError(translateToHebrew('Email is required'));
+      setEmailError('נדרש אימייל');
       hasError = true;
     } else if (!validateEmail(email)) {
-      setEmailError(translateToHebrew('Please enter a valid email'));
+      setEmailError('אנא הזן אימייל תקין');
       hasError = true;
     } else {
       setEmailError('');
@@ -135,7 +134,7 @@ export default function Cart() {
         window.location.href = `/checkout/success?order=${data.orderNumber}`;
       }
     } catch (err) {
-      setError(translateToHebrew('Failed to start checkout. Please try again.'));
+      setError('נכשל להתחיל תשלום. אנא נסה שוב.');
       console.error('Checkout error:', err);
     } finally {
       setIsLoading(false);
@@ -188,7 +187,7 @@ export default function Cart() {
                   )}
                 </div>
               )}
-              <h2>{step === 'cart' ? translateToHebrew('Your Cart') : translateToHebrew('Contact Details')}</h2>
+              <h2>{step === 'cart' ? 'עגלת הקניות שלך' : 'פרטי קשר'}</h2>
             </div>
             <button onClick={closeCart} className={styles.cartCloseBtn}>
               <X size={24} />
@@ -203,10 +202,10 @@ export default function Cart() {
                     <div className={styles.cartEmptyIcon}>
                       <ShoppingBag size={64} />
                     </div>
-                    <h3>{translateToHebrew('Your cart is empty')}</h3>
-                    <p>{translateToHebrew('Add some items from the menu!')}</p>
+                    <h3>עגלה ריקה</h3>
+                    <p>הוסף פריטים מהתפריט!</p>
                     <button onClick={closeCart} className={styles.cartBrowseBtn}>
-                      {translateToHebrew('Browse Menu')}
+                      {'עיין בתפריט'}
                     </button>
                   </div>
                 ) : (
@@ -245,7 +244,7 @@ export default function Cart() {
                             
                             {item.customIngredients && item.customIngredients.length > 0 && (
                               <div className={styles.cartItemIngredients}>
-                                <span className={styles.cartItemIngredientsLabel}>{translateToHebrew('With')}: </span>
+                                <span className={styles.cartItemIngredientsLabel}>{'עם'}: </span>
                                 <span className={styles.cartItemIngredientsList}>
                                   {item.customIngredients.map((ingredient, idx) => (
                                     <span key={ingredient.id}>
@@ -263,7 +262,7 @@ export default function Cart() {
                                 {item.additionalItems.map(addItem => (
                                   <div key={addItem.id} className={styles.cartItemAddon}>
                                     <span className={styles.cartItemAddonName}>
-                                      + {translateToHebrew(addItem.name)}
+                                      + {addItem.name}
                                     </span>
                                     <span className={styles.cartItemAddonPrice}>
                                       +₪{(typeof addItem.price === 'number' ? addItem.price : parseFloat(String(addItem.price)) || 0).toFixed(0)}
@@ -311,14 +310,14 @@ export default function Cart() {
               {cart.length > 0 && (
                 <div className={styles.cartFooter}>
                   <div className={styles.cartTotal}>
-                    <span>{translateToHebrew('Total')}</span>
+                    <span>{'סה'}</span>
                     <span className={styles.cartTotalPrice}>₪{getTotalPrice().toFixed(0)}</span>
                   </div>
                   <button 
                     className={styles.cartCheckoutBtn}
                     onClick={handleProceedToContact}
                   >
-                    {translateToHebrew('Continue to Checkout')}
+                    {'המשך לתשלום'}
                   </button>
                 </div>
               )}
@@ -328,19 +327,19 @@ export default function Cart() {
               <div className={styles.cartItems}>
                 <div className={styles.contactForm}>
                   <div className={styles.contactInfoText}>
-                    <p>{translateToHebrew('Please provide your contact details so we can send you the order confirmation and reach out if needed.')}</p>
+                    <p>{'אנא ספק את פרטי הקשר שלך כדי שנוכל לשלוח לך את אישור ההזמנה ולהיות בקשר במידת הצורך.'}</p>
                   </div>
 
                   <div className={styles.formGroup}>
                     <label htmlFor="phone">
                       <Phone size={18} />
-                      {translateToHebrew('Phone Number')} *
+                      {'מספר טלפון'} *
                     </label>
                     <input
                       type="tel"
                       id="phone"
                       dir="ltr"
-                      placeholder={translateToHebrew('+972 50 123 4567')}
+                      placeholder="+972 50 123 4567"
                       value={phone}
                       onChange={(e) => {
                         setPhone(e.target.value);
@@ -354,13 +353,13 @@ export default function Cart() {
                   <div className={styles.formGroup}>
                     <label htmlFor="email">
                       <Mail size={18} />
-                      {translateToHebrew('Email Address')} *
+                      {'כתובת אימייל'} *
                     </label>
                     <input
                       type="email"
                       id="email"
                       dir="ltr"
-                      placeholder={translateToHebrew('your@email.com')}
+                      placeholder="your@email.com"
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -373,11 +372,11 @@ export default function Cart() {
 
                   <div className={styles.formGroup}>
                     <label htmlFor="deliveryAddress">
-                      📍 {translateToHebrew('Delivery Address')} *
+                      📍 {'כתובת משלוח'} *
                     </label>
                     <textarea
                       id="deliveryAddress"
-                      placeholder={translateToHebrew('Enter full delivery address (street, building, apartment, etc.)')}
+                      placeholder="הזן כתובת משלוח מלאה (רחוב, בניין, דירה וכו')"
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       rows={3}
@@ -387,7 +386,7 @@ export default function Cart() {
                   </div>
 
                   <div className={styles.orderSummary}>
-                    <h4>{translateToHebrew('Order Summary')}</h4>
+                    <h4>{'סיכום הזמנה'}</h4>
                     <div className={styles.summaryItems}>
                       {cart.map((item, itemIndex) => { // ИСПРАВЛЕНО: добавлен itemIndex
                         const ingredientsTotal = (item.customIngredients || []).reduce((total, ingredient) => 
@@ -410,7 +409,7 @@ export default function Cart() {
                               <div className={styles.summarySubItems}>
                                 {item.customIngredients.map((ingredient) => (
                                   <div key={ingredient.id} className={styles.summarySubItem}>
-                                    <span>  + {translateToHebrew(ingredient.name)}</span>
+                                    <span>  + {ingredient.name}</span>
                                     <span>+₪{Number(ingredient.price) * Number(item.quantity)}</span>
                                   </div>
                                 ))}
@@ -421,7 +420,7 @@ export default function Cart() {
                               <div className={styles.summarySubItems}>
                                 {item.additionalItems.map((addItem) => (
                                   <div key={addItem.id} className={styles.summarySubItem}>
-                                    <span>  + {translateToHebrew(addItem.name)}</span>
+                                    <span>  + {addItem.name}</span>
                                     <span>+₪{Number(addItem.price * item.quantity)}</span>
                                   </div>
                                 ))}
@@ -442,7 +441,7 @@ export default function Cart() {
                   </div>
                 )}
                 <div className={styles.cartTotal}>
-                  <span>{translateToHebrew('Total')}</span>
+                  <span>{'סה'}</span>
                   <span className={styles.cartTotalPrice}>₪{getTotalPrice().toFixed(0)}</span>
                 </div>
                 <button 
@@ -453,10 +452,10 @@ export default function Cart() {
                   {isLoading ? (
                     <>
                       <Loader2 className={styles.cartSpinner} size={20} />
-                      {translateToHebrew('Processing')}...
+                      {'מעבד'}...
                     </>
                   ) : (
-                    translateToHebrew('Place Order')
+                    'הזמן הזמנה'
                   )}
                 </button>
               </div>

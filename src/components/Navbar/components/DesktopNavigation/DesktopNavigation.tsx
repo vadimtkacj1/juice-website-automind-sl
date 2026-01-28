@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { translateToHebrew } from '@/lib/translations';
 
 const navLinks = [
-  { href: '/menu', label: translateToHebrew('Menu') },
-  { href: '/locations', label: translateToHebrew('Locations') },
-  { href: '/contact', label: translateToHebrew('Contact') },
+  { href: '/', label: 'תפריט' },
+  { href: '/locations', label: 'מיקומים' },
+  { href: '/contact', label: 'צור קשר' },
 ];
 
 export default function DesktopNavigation() {

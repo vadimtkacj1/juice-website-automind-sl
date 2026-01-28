@@ -40,7 +40,7 @@ export default function ProductModalHeader({
         
         {discountPercent > 0 && (
           <span className={styles['discount-tag']}>
-            {translateToHebrew('Save')} {discountPercent}%
+            {'שמור'} {discountPercent}%
           </span>
         )}
       </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { Menu, X } from 'lucide-react';
-import { translateToHebrew } from '@/lib/translations';
 import navbarStyles from '../../Navbar.module.css';
 
 interface MobileActionsProps {
@@ -18,7 +17,7 @@ export default function MobileActions({ mobileMenuOpen, setMobileMenuOpen }: Mob
           setMobileMenuOpen(!mobileMenuOpen);
         }}
         className={navbarStyles['mobile-menu-btn']}
-        aria-label={mobileMenuOpen ? translateToHebrew('Close menu') : translateToHebrew('Open menu')}
+        aria-label={mobileMenuOpen ? 'סגור תפריט' : 'פתח תפריט'}
       >
         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>

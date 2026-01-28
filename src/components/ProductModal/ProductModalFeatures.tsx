@@ -2,14 +2,12 @@
 
 import { Truck, Award, Leaf, Zap } from 'lucide-react';
 import styles from './styles/ProductModalFeatures.module.css';
-import { translateToHebrew } from '@/lib/translations';
-
 export default function ProductModalFeatures() {
   const features = [
-    { icon: Truck, label: translateToHebrew('Fast Delivery') },
-    { icon: Award, label: translateToHebrew('Premium Quality') },
-    { icon: Leaf, label: translateToHebrew('100% Natural') },
-    { icon: Zap, label: translateToHebrew('Fresh Made') },
+    { icon: Truck, label: 'משלוח מהיר' },
+    { icon: Award, label: 'איכות פרמיום' },
+    { icon: Leaf, label: '100% טבעי' },
+    { icon: Zap, label: 'מוכן טרי' },
   ];
 
   return (

@@ -1,132 +1,131 @@
 'use client';
 
 import HeroSection from '@/components/HeroSection';
-import { translateToHebrew } from '@/lib/translations';
 import styles from './privacy.module.css';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className={styles['legal-page']}>
       <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080">
-        <h1 className="hero-title">{translateToHebrew('Privacy Policy')}</h1>
+        <h1 className="hero-title">{'מדיניות פרטיות'}</h1>
       </HeroSection>
 
       <div className={styles['legal-content']} dir="rtl">
         <div className={styles.container}>
           <div className={styles['legal-section']}>
-            <p className={styles['last-updated']}>{translateToHebrew('Last Updated:')} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className={styles['last-updated']}>{'עודכן לאחרונה:'} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
             <section>
-              <h2>1. {translateToHebrew('Introduction')}</h2>
+              <h2>1. {'הקדמה'}</h2>
               <p>
-                {translateToHebrew('Welcome to REVIVA ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.')}
+                {'ברוכים הבאים לראביבה ("אנחנו", "שלנו" או "אותנו"). אנו מחויבים להגן על המידע האישי שלך ועל זכותך לפרטיות. מדיניות פרטיות זו מסבירה כיצד אנו אוספים, משתמשים, חושפים ומגנים על המידע שלך כשאתה מבקר באתר שלנו ומשתמש בשירותים שלנו.'}
               </p>
               <p>
-                {translateToHebrew('Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.')}
+                {'אנא קרא את מדיניות הפרטיות הזו בעיון. אם אינך מסכים לתנאי מדיניות הפרטיות הזו, אנא אל תגש לאתר'}
               </p>
             </section>
 
             <section>
-              <h2>2. {translateToHebrew('Information We Collect')}</h2>
+              <h2>2. {'מידע שאנו אוספים'}</h2>
               
-              <h3>2.1 {translateToHebrew('Information You Provide to Us')}</h3>
-              <p>{translateToHebrew('We collect information that you provide directly to us, including:')}</p>
+              <h3>2.1 {'מידע שאתה מספק לנו'}</h3>
+              <p>{'אנו אוספים מידע שאתה מספק לנו ישירות, כולל:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Personal Information:')}</strong> {translateToHebrew('Name, email address, phone number, and shipping address when you place an order')}</li>
-                <li><strong>{translateToHebrew('Payment Information:')}</strong> {translateToHebrew('Payment card details processed through our secure payment gateway (we do not store full card details)')}</li>
-                <li><strong>{translateToHebrew('Account Information:')}</strong> {translateToHebrew('Username and password for admin accounts')}</li>
-                <li><strong>{translateToHebrew('Communication Data:')}</strong> {translateToHebrew('Messages, feedback, and correspondence you send to us')}</li>
+                <li><strong>{'מידע אישי:'}</strong> {'שם, כתובת אימייל, מספר טלפון וכתובת משלוח בעת ביצוע הזמנה'}</li>
+                <li><strong>{'מידע תשלום:'}</strong> {'פרטי כרטיס תשלום המעובדים דרך שער התשלום המאובטח שלנו (אנו לא שומרים פרטי כרטיס מלאים)'}</li>
+                <li><strong>{'מידע חשבון:'}</strong> {'שם משתמש וסיסמה לחשבונות מנהל'}</li>
+                <li><strong>{'נתוני תקשורת:'}</strong> {'הודעות, משוב והתכתבות שאתה שולח לנו'}</li>
               </ul>
 
-              <h3>2.2 {translateToHebrew('Information Automatically Collected')}</h3>
-              <p>{translateToHebrew('When you visit our website, we automatically collect certain information, including:')}</p>
+              <h3>2.2 {'מידע שנאסף אוטומטית'}</h3>
+              <p>{'כאשר אתה מבקר באתר שלנו, אנו אוספים אוטומטית מידע מסוים, כולל:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Usage Data:')}</strong> {translateToHebrew('Pages visited, time spent on pages, click patterns, and navigation paths')}</li>
-                <li><strong>{translateToHebrew('Device Information:')}</strong> {translateToHebrew('IP address, browser type, device type, operating system, and screen resolution')}</li>
-                <li><strong>{translateToHebrew('Cookies and Tracking Technologies:')}</strong> {translateToHebrew('We use cookies to enhance your experience and analyze site usage')}</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2>3. {translateToHebrew('How We Use Your Information')}</h2>
-              <p>{translateToHebrew('We use the information we collect for the following purposes:')}</p>
-              <ul>
-                <li>{translateToHebrew('To process and fulfill your orders')}</li>
-                <li>{translateToHebrew('To communicate with you about your orders, account, and our services')}</li>
-                <li>{translateToHebrew('To send you marketing communications (with your consent)')}</li>
-                <li>{translateToHebrew('To improve our website, products, and services')}</li>
-                <li>{translateToHebrew('To prevent fraud and ensure security')}</li>
-                <li>{translateToHebrew('To comply with legal obligations')}</li>
-                <li>{translateToHebrew('To respond to your inquiries and provide customer support')}</li>
+                <li><strong>{'נתוני שימוש:'}</strong> {'דפים שבוקרו, זמן שהושקע בדפים, דפוסי לחיצה ונתיבי ניווט'}</li>
+                <li><strong>{'מידע מכשיר:'}</strong> {'כתובת IP, סוג דפדפן, סוג מכשיר, מערכת הפעלה ורזולוציית מסך'}</li>
+                <li><strong>{'עוגיות וטכנולוגיות מעקב:'}</strong> {'אנו משתמשים בעוגיות כדי לשפר את החוויה שלך ולנתח את השימוש באתר'}</li>
               </ul>
             </section>
 
             <section>
-              <h2>4. {translateToHebrew('Information Sharing and Disclosure')}</h2>
-              <p>{translateToHebrew('We do not sell your personal information. We may share your information in the following circumstances:')}</p>
+              <h2>3. {'איך אנו משתמשים במידע שלך'}</h2>
+              <p>{'אנו משתמשים במידע שאנו אוספים למטרות הבאות:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Service Providers:')}</strong> {translateToHebrew('With third-party service providers who perform services on our behalf (payment processing, shipping, analytics)')}</li>
-                <li><strong>{translateToHebrew('Legal Requirements:')}</strong> {translateToHebrew('When required by law or to protect our rights and safety')}</li>
-                <li><strong>{translateToHebrew('Business Transfers:')}</strong> {translateToHebrew('In connection with a merger, acquisition, or sale of assets')}</li>
-                <li><strong>{translateToHebrew('With Your Consent:')}</strong> {translateToHebrew('When you have given us explicit permission to share your information')}</li>
+                <li>{'לעבד ולמלא את ההזמנות שלך'}</li>
+                <li>{'לתקשר איתך לגבי ההזמנות שלך, החשבון והשירותים שלנו'}</li>
+                <li>{'לשלוח לך תקשורת שיווקית (עם הסכמתך)'}</li>
+                <li>{'לשפר את האתר, המוצרים והשירותים שלנו'}</li>
+                <li>{'למנוע הונאה ולהבטיח אבטחה'}</li>
+                <li>{'לעמוד בהתחייבויות משפטיות'}</li>
+                <li>{'להגיב לשאלות שלך ולספק תמיכה ללקוחות'}</li>
               </ul>
             </section>
 
             <section>
-              <h2>5. {translateToHebrew('Data Security')}</h2>
-              <p>
-                {translateToHebrew('We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.')}
-              </p>
-            </section>
-
-            <section>
-              <h2>6. {translateToHebrew('Your Rights and Choices')}</h2>
-              <p>{translateToHebrew('You have the following rights regarding your personal information:')}</p>
+              <h2>4. {'שיתוף וחשיפת מידע'}</h2>
+              <p>{'אנו לא מוכרים את המידע האישי שלך. אנו עשויים לשתף את המידע שלך בנסיבות הבאות:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Access:')}</strong> {translateToHebrew('Request access to your personal information')}</li>
-                <li><strong>{translateToHebrew('Correction:')}</strong> {translateToHebrew('Request correction of inaccurate or incomplete information')}</li>
-                <li><strong>{translateToHebrew('Deletion:')}</strong> {translateToHebrew('Request deletion of your personal information')}</li>
-                <li><strong>{translateToHebrew('Opt-Out:')}</strong> {translateToHebrew('Unsubscribe from marketing communications')}</li>
-                <li><strong>{translateToHebrew('Data Portability:')}</strong> {translateToHebrew('Request a copy of your data in a portable format')}</li>
+                <li><strong>{'ספקי שירותים:'}</strong> {'עם ספקי שירותים צד שלישי המבצעים שירותים בשמנו (עיבוד תשלומים, משלוח, אנליטיקה)'}</li>
+                <li><strong>{'דרישות משפטיות:'}</strong> {'כאשר נדרש על פי חוק או כדי להגן על הזכויות והבטיחות שלנו'}</li>
+                <li><strong>{'העברות עסקיות:'}</strong> {'בקשר למיזוג, רכישה או מכירת נכסים'}</li>
+                <li><strong>{'עם הסכמתך:'}</strong> {'כאשר נתת לנו הרשאה מפורשת לשתף את המידע שלך'}</li>
               </ul>
-              <p>{translateToHebrew('To exercise these rights, please contact us using the information provided in the "Contact Us" section.')}</p>
             </section>
 
             <section>
-              <h2>7. {translateToHebrew('Cookies and Tracking Technologies')}</h2>
+              <h2>5. {'אבטחת נתונים'}</h2>
               <p>
-                {translateToHebrew('We use cookies and similar tracking technologies to track activity on our website and store certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our website.')}
+                {'אנו מיישמים אמצעי אבטחה טכניים וארגוניים מתאימים כדי להגן על המידע האישי שלך מפני גישה לא מורשית, שינוי, חשיפה או הרס. עם זאת, אין שיטת העברה דרך האינטרנט או אחסון אלקטרוני שהיא מאובטחת ב-100%, ואנו לא יכולים להבטיח אבטחה מוחלטת'}
               </p>
             </section>
 
             <section>
-              <h2>8. {translateToHebrew('Children\'s Privacy')}</h2>
-              <p>
-                {translateToHebrew('Our services are not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.')}
-              </p>
-            </section>
-
-            <section>
-              <h2>9. {translateToHebrew('International Data Transfers')}</h2>
-              <p>
-                {translateToHebrew('Your information may be transferred to and maintained on computers located outside of your state, province, country, or other governmental jurisdiction where data protection laws may differ. By using our services, you consent to the transfer of your information to these facilities.')}
-              </p>
-            </section>
-
-            <section>
-              <h2>10. {translateToHebrew('Changes to This Privacy Policy')}</h2>
-              <p>
-                {translateToHebrew('We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.')}
-              </p>
-            </section>
-
-            <section>
-              <h2>11. {translateToHebrew('Contact Us')}</h2>
-              <p>{translateToHebrew('If you have any questions about this Privacy Policy, please contact us:')}</p>
+              <h2>6. {'הזכויות והבחירות שלך'}</h2>
+              <p>{'יש לך את הזכויות הבאות לגבי המידע האישי שלך:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Email:')}</strong> privacy@reviva.com</li>
-                <li><strong>{translateToHebrew('Phone:')}</strong> +972 50-123-4567</li>
-                <li><strong>{translateToHebrew('Address:')}</strong> [Your Business Address]</li>
+                <li><strong>{'גישה:'}</strong> {'בקש גישה למידע האישי שלך'}</li>
+                <li><strong>{'תיקון:'}</strong> {'בקש תיקון של מידע לא מדויק או לא מלא'}</li>
+                <li><strong>{'מחיקה:'}</strong> {'בקש מחיקה של המידע האישי שלך'}</li>
+                <li><strong>{'הסרה:'}</strong> {'הסר הרשמה מתקשורת שיווקית'}</li>
+                <li><strong>{'ניידות נתונים:'}</strong> {'בקש עותק של הנתונים שלך בפורמט נייד'}</li>
+              </ul>
+              <p>{'כדי לממש זכויות אלו, אנא צור איתנו קשר באמצעות המידע המופיע בסעיף "צור קשר".'}</p>
+            </section>
+
+            <section>
+              <h2>7. {'עוגיות וטכנולוגיות מעקב'}</h2>
+              <p>
+                {'אנו משתמשים בעוגיות וטכנולוגיות מעקב דומות כדי לעקוב אחר פעילות באתר שלנו ולאחסן מידע מסוים. אתה יכול להורות לדפדפן שלך לסרב לכל העוגיות או לציין מתי נשלחת עוגיה. עם זאת, אם אינך מקבל עוגיות, ייתכן שלא תוכל להשתמש בחלקים מסוימים באתר שלנו'}
+              </p>
+            </section>
+
+            <section>
+              <h2>8. {'פרטיות ילדים'}</h2>
+              <p>
+                {'השירותים שלנו לא מיועדים לאנשים מתחת לגיל 18. אנו לא אוספים במודע מידע אישי מילדים. אם אתה הורה או אפוטרופוס ומאמין שילדך סיפק לנו מידע אישי, אנא צור איתנו קשר מיד'}
+              </p>
+            </section>
+
+            <section>
+              <h2>9. {'העברות נתונים בינלאומיות'}</h2>
+              <p>
+                {'המידע שלך עשוי להיות מועבר ונשמר במחשבים הממוקמים מחוץ למדינה, למחוז, למדינה או לשיפוט ממשלתי אחר שלך שבו חוקי הגנת הנתונים עשויים להיות שונים. על ידי שימוש בשירותים שלנו, אתה מסכים להעברת המידע שלך למתקנים אלה'}
+              </p>
+            </section>
+
+            <section>
+              <h2>10. {'שינויים במדיניות פרטיות זו'}</h2>
+              <p>
+                {'אנו עשויים לעדכן את מדיניות הפרטיות הזו מעת לעת. אנו נודיע לך על כל שינוי על ידי פרסום מדיניות הפרטיות החדשה בעמוד זה ועדכון תאריך "עודכן לאחרונה". מומלץ לעיין במדיניות פרטיות זו מעת לעת לכל שינוי.'}
+              </p>
+            </section>
+
+            <section>
+              <h2>11. {'צור קשר'}</h2>
+              <p>{'אם יש לך שאלות כלשהן לגבי מדיניות פרטיות זו, אנא צור איתנו קשר:'}</p>
+              <ul>
+                <li><strong>{'אימייל:'}</strong> privacy@reviva.com</li>
+                <li><strong>{'טלפון:'}</strong> +972 50-123-4567</li>
+                <li><strong>כתובת:</strong> [כתובת העסק שלך]</li>
               </ul>
             </section>
           </div>

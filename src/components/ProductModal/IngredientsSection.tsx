@@ -76,7 +76,7 @@ export default function IngredientsSection({
       {/* 1. Main Header - Cleaned up (no purple line, Hebrew only) */}
       <div className="mb-8 text-center sm:text-right">
         <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-          {translateToHebrew('הוסף מרכיבים')}
+          {'הוסף מרכיבים'}
         </h3>
       </div>
       

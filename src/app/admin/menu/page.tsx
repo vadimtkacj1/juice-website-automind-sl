@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import { useAdminLanguage } from '@/lib/admin-language-context';
 import { cn } from '@/lib/utils';
+import ImageUpload from '@/components/ImageUpload/ImageUpload';
 import {
   Dialog,
   DialogContent,
@@ -56,6 +57,7 @@ interface MenuCategory {
   id: number;
   name: string;
   description?: string;
+  image?: string;
   sort_order: number;
   is_active: boolean;
 }
@@ -76,11 +78,12 @@ export default function AdminMenu() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [newDiscount, setNewDiscount] = useState('');
   const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [categoryForm, setCategoryForm] = useState({ 
-    name: '', 
-    description: '', 
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    description: '',
+    image: '',
     sort_order: '0',
-    is_active: true 
+    is_active: true
   });
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
   const [showAddIngredientDialog, setShowAddIngredientDialog] = useState(false);
@@ -650,6 +653,18 @@ export default function AdminMenu() {
         >
           <GripVertical className="h-4 w-4" />
         </button>
+        {category.image && (
+          <img
+            src={category.image}
+            alt={category.name}
+            className="w-12 h-12 rounded-md object-cover border border-slate-200"
+          />
+        )}
+        {!category.image && (
+          <div className="w-12 h-12 rounded-md bg-slate-100 flex items-center justify-center border border-slate-200">
+            <FolderOpen className="h-6 w-6 text-slate-400" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-slate-900 truncate">{t(category.name)}</p>
           {category.description && (
@@ -1015,17 +1030,19 @@ export default function AdminMenu() {
   function openCategoryDialog(category?: MenuCategory) {
     if (category) {
       setEditingCategory(category);
-      setCategoryForm({ 
-        name: category.name, 
+      setCategoryForm({
+        name: category.name,
         description: category.description || '',
+        image: category.image || '',
         sort_order: (category.sort_order || 0).toString(),
         is_active: category.is_active !== undefined ? category.is_active : true
       });
     } else {
       setEditingCategory(null);
-      setCategoryForm({ 
-        name: '', 
+      setCategoryForm({
+        name: '',
         description: '',
+        image: '',
         sort_order: '0',
         is_active: true
       });
@@ -1053,6 +1070,7 @@ export default function AdminMenu() {
       const payload = {
         name: categoryForm.name.trim(),
         description: categoryForm.description.trim() || null,
+        image: categoryForm.image.trim() || null,
         sort_order: parseInt(categoryForm.sort_order) || 0,
         ...(editingCategory ? { is_active: categoryForm.is_active } : {})
       };
@@ -1414,6 +1432,14 @@ export default function AdminMenu() {
                   onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                   placeholder={t('Category description (optional)')}
                   className="mt-1"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <ImageUpload
+                  value={categoryForm.image}
+                  onChange={(url) => setCategoryForm({ ...categoryForm, image: url })}
+                  folder="categories"
+                  label={t('Category Image')}
                 />
               </div>
               <div>

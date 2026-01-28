@@ -2,7 +2,7 @@
 
 import { useState, useCallback, memo } from 'react';
 import Image from 'next/image';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Plus } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
 import { prefetchModalData } from '@/components/ProductModal/useProductModalData';
 import styles from '../menu.module.css';
@@ -38,17 +38,18 @@ const MenuItemCard = memo(function MenuItemCard({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Parse values once during render
+  // Parse price and discount
   const price = Number(item.price) || 0;
   const discount = Number(item.discount_percent) || 0;
   const discountedPrice = getDiscountedPrice(price, discount);
   const hasDiscount = discount > 0;
 
+  // Handle clicks for the modal
   const handleClick = useCallback(() => {
     onItemClick({ ...item, category_id: item.category_id || categoryId });
   }, [item, categoryId, onItemClick]);
 
-  // Prefetch modal data on hover for faster loading
+  // Performance: Prefetch modal data when user hovers
   const handleMouseEnter = useCallback(() => {
     prefetchModalData(item.id);
   }, [item.id]);
@@ -61,35 +62,44 @@ const MenuItemCard = memo(function MenuItemCard({
       style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
-      {/* Discount Badge */}
+      {/* Discount Badge - Purple Style */}
       {hasDiscount && (
-        <div className={styles.discountBadge}>-{discount}%</div>
+        <div className={styles.discountBadge}>
+          {'שמור'} {discount}%
+        </div>
       )}
 
-      {/* Image Container */}
-      <div className={styles.productImage}>
+      {/* Image Container with Fixed Aspect Ratio */}
+      <div className={styles.productImageWrapper}>
         {hasValidImage ? (
           <Image
             src={item.image as string}
             alt={translateToHebrew(item.name)}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 768px) 50vw, 25vw"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
-            className={imageLoaded ? styles.imageLoaded : ''}
-            style={{ objectFit: 'cover' }}
+            className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
             loading="lazy"
-            quality={75}
+            quality={85}
           />
         ) : (
           <div className={styles.productImagePlaceholder}>
-            <ShoppingBag size={40} />
+            <ShoppingBag size={42} strokeWidth={1.2} />
           </div>
         )}
       </div>
 
-      {/* Info Section */}
+      {/* Product Information */}
       <div className={styles.productInfo}>
         <div className={styles.productText}>
           <h3 className={styles.productName}>{translateToHebrew(item.name)}</h3>
@@ -98,25 +108,14 @@ const MenuItemCard = memo(function MenuItemCard({
           )}
         </div>
 
+        {/* Footer: Prices and Add Button */}
         <div className={styles.productFooter}>
-          {item.categoryVolumes?.length ? (
-            <div className={styles.volumesList}>
-              {item.categoryVolumes.map((vol, idx) => (
-                <div key={idx} className={styles.volumeBadge}>
-                  <span className={styles.volumeLabel}>{translateToHebrew(vol.volume)}</span>
-                  <span className={styles.volumeSeparator}>•</span>
-                  <span className={styles.volumePrice}>₪{discountedPrice.toFixed(0)}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={styles.priceBadge}>
-              {hasDiscount && (
-                <span className={styles.priceOld}>₪{price.toFixed(0)}</span>
-              )}
-              <span className={styles.priceCurrent}>₪{discountedPrice.toFixed(0)}</span>
-            </div>
-          )}
+          <div className={styles.priceSection}>
+            {hasDiscount && (
+              <span className={styles.priceOld}>₪{price.toFixed(0)}</span>
+            )}
+            <span className={styles.priceCurrent}>₪{discountedPrice.toFixed(0)}</span>
+          </div>
 
           <button
             className={styles.addBtn}
@@ -124,16 +123,15 @@ const MenuItemCard = memo(function MenuItemCard({
               e.stopPropagation();
               handleClick();
             }}
-            aria-label={`Add ${item.name} to cart`}
+            aria-label="הוסף לעגלה"
           >
-            <span>+</span>
+            <Plus size={20} strokeWidth={3} />
           </button>
         </div>
       </div>
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Custom comparison for better performance
   return (
     prevProps.item.id === nextProps.item.id &&
     prevProps.item.price === nextProps.item.price &&

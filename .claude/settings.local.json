@@ -11,7 +11,10 @@
       "Bash(for file in *.module.css)",
       "Bash(do sed -i '/@import.*shared-variables/d' \"$file\")",
       "Bash(done)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(sqlite3:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)"
     ]
   }
 }

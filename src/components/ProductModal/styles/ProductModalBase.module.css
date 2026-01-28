@@ -1,7 +1,6 @@
 /* ============================================
-   PRODUCT MODAL BASE - Container & Backdrop
+   PRODUCT MODAL BASE - Optimized for Large Media
    ============================================ */
-
 
 /* --- Modal Wrapper --- */
 .modal-wrapper {
@@ -19,42 +18,29 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(29, 26, 64, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better focus */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 99998;
   animation: fadeIn 0.3s ease-out forwards;
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-/* --- Product Modal Container --- */
-.product-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  pointer-events: none;
 }
 
 /* --- Main Container --- */
 .modal-container {
   pointer-events: auto;
-  display: flex;
+  display: grid; 
+  /* Changed: Left side is narrower (40%), Right side (Image) is wider (60%) */
+  grid-template-columns: 0.8fr 1.2fr; 
   width: 100%;
-  max-width: 1200px;
+  max-width: 1200px; /* Increased max-width for bigger presence */
   height: auto;
-  min-height: 500px;
   max-height: 90vh;
   background: #ffffff;
-  border-radius: var(--modal-radius);
-  box-shadow: var(--modal-shadow);
-  overflow: hidden;
+  border-radius: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  overflow: hidden; 
   position: relative;
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   z-index: 100000;
 }
 
@@ -63,192 +49,119 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 20;
+  z-index: 100;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: white;
-  border: 1px solid var(--modal-border);
-  color: var(--modal-text-primary);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .modal-close:hover {
-  background: var(--modal-accent);
-  color: white;
-  transform: rotate(90deg);
+  transform: scale(1.1);
+  background: #fff;
 }
 
-/* --- Content Container --- */
+/* --- Image Section (Right) --- */
+/* This container now fills 60% of the modal with NO padding */
+.modal-image-side {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Force the image to fill the entire right half */
+.modal-image-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This is key: it fills the space completely */
+  display: block;
+}
+
+/* --- Content Section (Left) --- */
 .modal-content {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 40px 56px 48px;
+  padding: 40px 40px; /* Balanced padding to reduce "empty" look */
   display: flex;
   flex-direction: column;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(29, 26, 64, 0.15) transparent;
+  gap: 24px;
+  direction: rtl; 
+  background: white;
 }
 
-.modal-content::-webkit-scrollbar {
-  width: 5px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-  background-color: rgba(29, 26, 64, 0.15);
-  border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(29, 26, 64, 0.25);
-}
-
-/* --- Description Section --- */
+/* --- Details & Typography --- */
 .modal-description {
-  margin-bottom: 28px;
+  border-right: 4px solid #7c3aed;
+  padding-right: 16px;
+  max-width: 90%; /* Keeps text compact and readable */
 }
 
 .modal-description p {
-  font-family: var(--font-family);
-  font-size: 16px;
-  line-height: 1.65;
-  color: var(--modal-text-secondary);
+  font-family: "Heebo", sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #4a5568;
   margin: 0;
-  letter-spacing: 0.1px;
 }
 
-/* --- Common Section Styles --- */
-.modal-section {
-  margin-bottom: 36px;
-  border-top: 2px solid var(--modal-bg-secondary);
-  padding-top: 28px;
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(30px); } 
+  to { opacity: 1; transform: translateY(0); } 
 }
 
-.section-title {
-  font-family: var(--font-family);
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 18px;
-  color: var(--modal-text-primary);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: -0.3px;
-}
+/* ============================================
+   MOBILE RESPONSIVE - Maximum Image Impact
+   ============================================ */
 
-/* --- Responsive Design --- */
-@media (max-width: 900px) {
-  .product-modal {
-    padding: 0;
-    align-items: flex-end;
-  }
-
+@media (max-width: 960px) {
   .modal-container {
-    flex-direction: column;
-    height: 100vh;
-    max-height: 100vh;
-    min-height: 100vh;
-    border-radius: 0;
-    overflow: hidden;
-  }
-
-  .modal-close {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    z-index: 10000;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-  }
-
-  .modal-content {
-    flex: 1;
-    width: 100%;
+    grid-template-columns: 1fr;
+    max-height: 96vh;
     border-radius: 24px 24px 0 0;
-    margin-top: -24px;
-    background: white;
-    padding: 32px 24px 24px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-    z-index: 2;
+    align-self: flex-end;
+    display: flex;
+    flex-direction: column;
   }
 
-  .modal-description {
-    margin-bottom: 20px;
-  }
-
-  .modal-description p {
-    font-size: 15px;
-    line-height: 1.6;
-  }
-}
-
-/* Tablet and medium screens */
-@media (max-width: 768px) and (min-width: 481px) {
-  .modal-content {
-    padding: 36px 28px 24px;
-  }
-}
-
-/* Landscape orientation on mobile devices */
-@media (max-height: 600px) and (orientation: landscape) and (max-width: 900px) {
-  .modal-container {
-    flex-direction: row;
-    height: 100vh;
+  /* Large Image Header on Mobile */
+  .modal-image-side {
+    height: 40vh; /* Takes 40% of the screen height */
+    min-height: 300px;
+    order: 1;
   }
 
   .modal-content {
-    width: 55%;
-    margin-top: 0;
-    border-radius: 0;
-    padding: 70px 32px 24px;
+    order: 2;
+    padding: 30px 20px 100px;
+    margin-top: -30px; 
+    border-radius: 30px 30px 0 0;
+    z-index: 10;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
   }
 
-  .modal-close {
-    top: 16px;
-    right: 16px;
-  }
-
-  .modal-description p {
-    font-size: 13px;
+  .modal-wrapper {
+    align-items: flex-end;
+    padding: 0;
   }
 }
 
 @media (max-width: 480px) {
-  .modal-content {
-    padding: 28px 20px 20px;
-    margin-top: -20px;
-  }
-
-  .modal-description p {
-    font-size: 14px;
-  }
-
-  .modal-close {
-    top: 16px;
-    right: 16px;
-    width: 36px;
-    height: 36px;
-  }
-
-  .modal-section {
-    margin-bottom: 24px;
-    padding-top: 20px;
+  .modal-image-side {
+    height: 35vh;
   }
 }

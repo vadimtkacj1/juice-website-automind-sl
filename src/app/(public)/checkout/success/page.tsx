@@ -62,29 +62,29 @@ function CheckoutSuccessContent() {
 
   // Handle error cases
   if (error) {
-    let errorMessage = translateToHebrew('An error occurred during payment processing.');
-    let errorTitle = translateToHebrew('Payment Error');
+    let errorMessage = 'An error occurred during payment processing.';
+    let errorTitle = 'Payment Error';
     
     switch (error) {
       case 'payment_failed':
-        errorMessage = translateToHebrew('Payment was not successful. Please try again or contact support.');
-        errorTitle = translateToHebrew('Payment Failed');
+        errorMessage = 'Payment was not successful. Please try again or contact support.';
+        errorTitle = 'Payment Failed';
         break;
       case 'order_not_found':
-        errorMessage = translateToHebrew('Order not found or expired. Please place a new order.');
-        errorTitle = translateToHebrew('Order Not Found');
+        errorMessage = 'Order not found or expired. Please place a new order.';
+        errorTitle = 'Order Not Found';
         break;
       case 'order_creation_failed':
-        errorMessage = translateToHebrew('Payment was successful but order creation failed. Please contact support with your payment details.');
-        errorTitle = translateToHebrew('Order Creation Error');
+        errorMessage = 'Payment was successful but order creation failed. Please contact support with your payment details.';
+        errorTitle = 'Order Creation Error';
         break;
       case 'callback_error':
-        errorMessage = translateToHebrew('An error occurred while processing your payment. Please contact support.');
-        errorTitle = translateToHebrew('Processing Error');
+        errorMessage = 'An error occurred while processing your payment. Please contact support.';
+        errorTitle = 'Processing Error';
         break;
       case 'missing_token':
-        errorMessage = translateToHebrew('Invalid payment callback. Please try again.');
-        errorTitle = translateToHebrew('Invalid Request');
+        errorMessage = 'Invalid payment callback. Please try again.';
+        errorTitle = 'Invalid Request';
         break;
     }
 
@@ -101,11 +101,11 @@ function CheckoutSuccessContent() {
           <div className={styles['success-actions']}>
             <Link href="/" className="btn-primary">
               <Home size={20} />
-              {translateToHebrew('Back to Home')}
+              {'חזרה לבית'}
             </Link>
             <Link href="/menu" className="btn-secondary">
               <ShoppingBag size={20} />
-              {translateToHebrew('Try Again')}
+              {'נסה שוב'}
             </Link>
           </div>
         </div>
@@ -120,12 +120,12 @@ function CheckoutSuccessContent() {
           <CheckCircle size={80} />
         </div>
         
-        <h1>{translateToHebrew('Order Confirmed!')}</h1>
-        <p>{translateToHebrew("Thank you for your order. We've received your order and will start preparing your items right away. You will receive a confirmation email shortly.")}</p>
+        <h1>ההזמנה אושרה!</h1>
+        <p>תודה על ההזמנה שלך. קיבלנו את ההזמנה שלך ונתחיל להכין את הפריטים שלך מיד. תקבל אימייל אישור בקרוב.</p>
         
         {orderNumber && (
           <div className={styles['order-id']}>
-            <span>{translateToHebrew('Order Number')}:</span>
+            <span>{'מספר הזמנה'}:</span>
             <code>{orderNumber}</code>
           </div>
         )}
@@ -133,11 +133,11 @@ function CheckoutSuccessContent() {
         <div className={styles['success-actions']}>
           <Link href="/" className="btn-primary">
             <Home size={20} />
-            {translateToHebrew('Back to Home')}
+            {'חזרה לבית'}
           </Link>
           <Link href="/menu" className="btn-secondary">
             <ShoppingBag size={20} />
-            {translateToHebrew('Order More')}
+            {'הזמן עוד'}
           </Link>
         </div>
       </div>
@@ -153,8 +153,8 @@ export default function CheckoutSuccessPage() {
           <div className={styles['success-icon']}>
             <CheckCircle size={80} />
           </div>
-          <h1>{translateToHebrew('Order Confirmed!')}</h1>
-          <p>{translateToHebrew("Thank you for your order. We've received your order and will start preparing your items right away.")}</p>
+          <h1>ההזמנה אושרה!</h1>
+          <p>תודה על ההזמנה שלך. קיבלנו את ההזמנה שלך ונתחיל להכין את הפריטים שלך מיד.</p>
         </div>
       </div>
     }>

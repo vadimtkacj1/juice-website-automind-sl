@@ -46,11 +46,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, sort_order, is_active } = body;
+    const { name, description, image, sort_order, is_active } = body;
 
     const getDatabase = require('@/lib/database');
     const db = getDatabase();
-    
+
     if (!db) {
       return NextResponse.json(
         { error: 'Database connection failed' },
@@ -60,13 +60,14 @@ export async function PUT(
 
     return new Promise<NextResponse>((resolve) => {
       db.run(
-        `UPDATE menu_categories SET 
+        `UPDATE menu_categories SET
           name = COALESCE(?, name),
           description = COALESCE(?, description),
+          image = COALESCE(?, image),
           sort_order = COALESCE(?, sort_order),
           is_active = COALESCE(?, is_active)
         WHERE id = ?`,
-        [name, description, sort_order, is_active !== undefined ? (is_active ? 1 : 0) : null, id],
+        [name, description, image, sort_order, is_active !== undefined ? (is_active ? 1 : 0) : null, id],
         function (this: any, err: any) {
           if (err) {
             console.error('Database error:', err);

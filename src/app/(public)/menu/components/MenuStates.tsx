@@ -27,7 +27,7 @@ export function MenuLoadingState({ text }: MenuLoadingStateProps) {
     }}>
       <LoadingSpinner
         size="lg"
-        text={text || translateToHebrew('loading delicious menu')}
+        text={text || 'טוען תפריט טעים'}
       />
     </div>
   );
@@ -44,7 +44,7 @@ export function MenuErrorState({ error, onRetry }: MenuErrorStateProps) {
       <div className={styles.menuError}>
         <p>{translateToHebrew(error || '')}</p>
         <button onClick={onRetry} className={styles.retryBtn}>
-          {translateToHebrew('Try again')}
+          {'נסה שוב'}
         </button>
       </div>
     </div>
@@ -57,11 +57,11 @@ export function MenuEmptyState() {
       <HeroSection
         backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080"
       >
-        <h1 className="hero-title">{translateToHebrew('OUR MENU')}</h1>
+        <h1 className="hero-title">{'התפריט שלנו'}</h1>
       </HeroSection>
       <div className={styles.menuEmpty}>
-        <h2>{translateToHebrew('Menu is empty')}</h2>
-        <p>{translateToHebrew('Delicious items coming soon!')}</p>
+        <h2>{'תפריט ריק'}</h2>
+        <p>פריטים טעימים בקרוב!</p>
       </div>
     </div>
   );

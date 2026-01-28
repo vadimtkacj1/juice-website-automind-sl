@@ -137,15 +137,15 @@ export default function ContactPage() {
     // Fallback to default labels
     switch (contact.type.toLowerCase()) {
       case 'email':
-        return 'Email Us';
+        return 'שלח אימייל';
       case 'phone':
-        return 'Call Us';
+        return 'התקשר אלינו';
       case 'whatsapp':
-        return 'WhatsApp';
+        return 'וואטסאפ';
       case 'address':
-        return 'Visit Us';
+        return 'בקר אותנו';
       default:
-        return 'Contact Us';
+        return 'צור קשר';
     }
   }
 
@@ -154,15 +154,15 @@ export default function ContactPage() {
     // Fallback to default descriptions
     switch (contact.type.toLowerCase()) {
       case 'email':
-        return "We'll respond within 24 hours";
+        return "נגיב תוך 24 שעות";
       case 'phone':
-        return 'Mon-Fri, 8AM-6PM';
+        return 'ב-ו, 8:00-18:00';
       case 'whatsapp':
-        return 'Chat with us anytime';
+        return 'שוחח איתנו בכל זמן';
       case 'address':
-        return 'Our location';
+        return 'המיקום שלנו';
       default:
-        return 'Get in touch with us';
+        return 'צור קשר איתנו';
     }
   }
 
@@ -206,8 +206,8 @@ export default function ContactPage() {
   return (
     <div className={styles['contact-page']}>
       <HeroSection showFloatingOranges={true}>
-        <h1 className="hero-title">{translateToHebrew('Contact Us')}</h1>
-        <p className="hero-subtitle">{translateToHebrew("Have a question or feedback? We'd love to hear from you!")}</p>
+        <h1 className="hero-title">{'צור קשר'}</h1>
+        <p className="hero-subtitle">יש לך שאלה או משוב? נשמח לשמוע ממך!</p>
       </HeroSection>
 
       {/* Main Content */}
@@ -227,7 +227,7 @@ export default function ContactPage() {
             background: 'rgba(255, 255, 255, 0.95)',
             zIndex: 9999
           }}>
-            <LoadingSpinner size="lg" text={translateToHebrew('loading contacts...')}/>
+            <LoadingSpinner size="lg" text={'טוען אנשי קשר...'}/>
           </div>
         ) : (
           <>
@@ -244,7 +244,7 @@ export default function ContactPage() {
                       <Phone size={32} />
                     </div>
                     <div className={styles['main-contact-info']}>
-                      <h2>{translateToHebrew(phoneContact.label || 'Call Us')}</h2>
+                      <h2>{translateToHebrew(phoneContact.label || 'התקשר אלינו')}</h2>
                       <p className={styles['main-contact-value']}>{phoneContact.value}</p>
                       {phoneContact.description && (
                         <p className={styles['main-contact-desc']}>{translateToHebrew(phoneContact.description)}</p>
@@ -265,7 +265,7 @@ export default function ContactPage() {
                       <MapPin size={32} />
                     </div>
                     <div className={styles['main-contact-info']}>
-                      <h2>{translateToHebrew(addressContact.label || 'Visit Us')}</h2>
+                      <h2>{translateToHebrew(addressContact.label || 'בקר אותנו')}</h2>
                       <p className={styles['main-contact-value']}>{addressContact.value}</p>
                       {addressContact.description && (
                         <p className={styles['main-contact-desc']}>{translateToHebrew(addressContact.description)}</p>
@@ -311,7 +311,7 @@ export default function ContactPage() {
                 <div className={`${styles['info-card']} ${styles['info-card-large']} reveal`} style={{ ['--delay' as string]: '0.5s' }}>
                   <div className={styles['info-card-header']}>
                     <Clock size={24} />
-                    <h3>{translateToHebrew('Business Hours')}</h3>
+                    <h3>{'שעות פעילות'}</h3>
                   </div>
                   <div className={styles['hours-list']}>
                     {businessHours.map((item, index) => (
@@ -328,13 +328,13 @@ export default function ContactPage() {
               <div className={`${styles['info-card']} ${styles['info-card-large']} reveal`} style={{ ['--delay' as string]: '0.6s' }}>
                 <div className={styles['info-card-header']}>
                   <MapPin size={24} />
-                  <h3>{translateToHebrew('Visit Us')}</h3>
+                  <h3>{'בואו לבקר אותנו'}</h3>
                 </div>
                 <p className={styles['info-text']}>
-                  {translateToHebrew('Find our juice bars across multiple locations. Fresh juices and smoothies await you!')}
+                  מצא אותנו במיקומים מרובים. מיצים טריים וסמוזים מחכים לך!
                 </p>
                 <a href="/locations" className={styles['info-link']}>
-                  {translateToHebrew('View All Locations')}
+                  {'צפה בכל המיקומים'}
                   <ArrowRight size={16} />
                 </a>
               </div>

@@ -1,18 +1,17 @@
 import Link from 'next/link';
-import { translateToHebrew } from '@/lib/translations';
 import styles from './Footer.module.css';
 
 const footerLinks = [
-  { href: '/', label: translateToHebrew('Home') },
-  { href: '/menu', label: translateToHebrew('Menu') },
-  { href: '/locations', label: translateToHebrew('Locations') },
-  { href: '/contact', label: translateToHebrew('Contact') },
+  { href: '/', label: 'בית' },
+  { href: '/menu', label: 'תפריט' },
+  { href: '/locations', label: 'מיקומים' },
+  { href: '/contact', label: 'צור קשר' },
 ];
 
 const legalLinks = [
-  { href: '/privacy', label: translateToHebrew('Privacy Policy') },
-  { href: '/terms', label: translateToHebrew('Terms & Conditions') },
-  { href: '/accessibility', label: translateToHebrew('Accessibility Statement') },
+  { href: '/privacy', label: 'מדיניות פרטיות' },
+  { href: '/terms', label: 'תנאים והגבלות' },
+  { href: '/accessibility', label: 'הצהרת נגישות' },
 ];
 
 export default function Footer() {

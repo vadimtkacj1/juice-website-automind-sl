@@ -1,120 +1,119 @@
 'use client';
 
 import HeroSection from '@/components/HeroSection';
-import { translateToHebrew } from '@/lib/translations';
 import styles from './terms.module.css';
 
 export default function TermsAndConditionsPage() {
   return (
     <div className={styles['legal-page']}>
       <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080">
-        <h1 className="hero-title">{translateToHebrew('Terms and Conditions')}</h1>
+        <h1 className="hero-title">{'תנאים והגבלות'}</h1>
       </HeroSection>
 
       <div className={styles['legal-content']} dir="rtl">
         <div className={styles.container}>
           <div className={styles['legal-section']}>
-            <p className={styles['last-updated']}>{translateToHebrew('Last Updated:')} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className={styles['last-updated']}>{'עודכן לאחרונה:'} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
             <section>
-              <h2>1. {translateToHebrew('Acceptance of Terms')}</h2>
+              <h2>1. {'קבלת תנאים'}</h2>
               <p>
-                {translateToHebrew('By accessing and using the REVIVA website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.')}
+                {'על ידי גישה לשימוש באתר ובשירותי ראביבה, אתה מקבל ומסכים להיות מחויב לתנאים והוראות של הסכם זה. אם אינך מסכים לפעול לפי האמור לעיל, אנא אל תשתמש בשירות זה'}
               </p>
             </section>
 
             <section>
-              <h2>2. {translateToHebrew('Use License')}</h2>
+              <h2>2. {'רישיון שימוש'}</h2>
               <p>
-                {translateToHebrew('Permission is granted to temporarily access the materials on REVIVA\'s website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:')}
+                {'ניתנת הרשאה לגשת זמנית לחומרים באתר ראביבה לצפייה אישית ולא מסחרית בלבד. זוהי מתן רישיון, לא העברת בעלות, ותחת רישיון זה אינך רשאי:'}
               </p>
               <ul>
-                <li>{translateToHebrew('Modify or copy the materials')}</li>
-                <li>{translateToHebrew('Use the materials for any commercial purpose or for any public display')}</li>
-                <li>{translateToHebrew('Attempt to reverse engineer any software contained on the website')}</li>
-                <li>{translateToHebrew('Remove any copyright or other proprietary notations from the materials')}</li>
-                <li>{translateToHebrew('Transfer the materials to another person or "mirror" the materials on any other server')}</li>
+                <li>{'לשנות או להעתיק את החומרים'}</li>
+                <li>{'להשתמש בחומרים למטרה מסחרית כלשהי או לתצוגה ציבורית כלשהי'}</li>
+                <li>{'לנסות להנדס לאחור כל תוכנה הכלולה באתר'}</li>
+                <li>{'להסיר כל זכויות יוצרים או סימונים קנייניים אחרים מהחומרים'}</li>
+                <li>{'להעביר את החומרים לאדם אחר או "לשקף" את החומרים בשרת אחר'}</li>
               </ul>
             </section>
 
             <section>
-              <h2>3. {translateToHebrew('Orders and Payment')}</h2>
+              <h2>3. {'הזמנות ותשלום'}</h2>
               
-              <h3>3.1 {translateToHebrew('Order Acceptance')}</h3>
+              <h3>3.1 {'קבלת הזמנה'}</h3>
               <p>
-                {translateToHebrew('All orders are subject to acceptance by REVIVA. We reserve the right to refuse or cancel any order for any reason, including but not limited to product availability, errors in pricing or product information, or suspected fraud.')}
+                {'כל ההזמנות כפופות לקבלה על ידי ראביבה. אנו שומרים לעצמנו את הזכות לסרב או לבטל כל הזמנה מכל סיבה שהיא, כולל אך לא רק זמינות מוצר, שגיאות במחירים או במידע על המוצר, או חשד להונאה'}
               </p>
 
-              <h3>3.2 {translateToHebrew('Pricing')}</h3>
+              <h3>3.2 {'תמחור'}</h3>
               <p>
-                {translateToHebrew('All prices are displayed in the currency specified on the website. Prices are subject to change without notice. We reserve the right to correct any pricing errors, even after an order has been placed.')}
+                {'כל המחירים מוצגים במטבע שצוין באתר. המחירים כפופים לשינוי ללא הודעה מוקדמת. אנו שומרים לעצמנו את הזכות לתקן כל שגיאות תמחור, גם לאחר ביצוע הזמנה'}
               </p>
 
-              <h3>3.3 {translateToHebrew('Payment')}</h3>
+              <h3>3.3 {'תשלום'}</h3>
               <p>
-                {translateToHebrew('Payment must be made at the time of order. We accept payment through our secure payment gateway. By providing payment information, you represent and warrant that you are authorized to use the payment method provided.')}
+                {'התשלום חייב להתבצע בעת ההזמנה. אנו מקבלים תשלום דרך שער התשלום המאובטח שלנו. על ידי מתן מידע תשלום, אתה מצהיר ומבטיח שיש לך הרשאה להשתמש בשיטת התשלום שסופקה'}
               </p>
 
-              <h3>3.4 {translateToHebrew('Order Confirmation')}</h3>
+              <h3>3.4 {'אישור הזמנה'}</h3>
               <p>
-                {translateToHebrew('You will receive an order confirmation email once your order has been received. This confirmation does not constitute acceptance of your order, but merely confirms that we have received it.')}
+                {'תקבל אימייל אישור הזמנה ברגע שההזמנה שלך התקבלה. אישור זה אינו מהווה קבלה של ההזמנה שלך, אלא רק מאשר שקיבלנו אותה'}
               </p>
             </section>
 
             <section>
-              <h2>4. {translateToHebrew('Products and Services')}</h2>
+              <h2>4. {'מוצרים ושירותים'}</h2>
               
-              <h3>4.1 {translateToHebrew('Product Availability')}</h3>
+              <h3>4.1 {'זמינות מוצר'}</h3>
               <p>
-                {translateToHebrew('We strive to maintain accurate inventory information, but we cannot guarantee that all products will be available at all times. If a product becomes unavailable after you place an order, we will notify you and provide a refund or alternative.')}
+                {'אנו שואפים לשמור על מידע מלאי מדויק, אך איננו יכולים להבטיח שכל המוצרים יהיו זמינים בכל עת. אם מוצר הופך ללא זמין לאחר שביצעת הזמנה, אנו נודיע לך ונספק החזר או חלופה'}
               </p>
 
-              <h3>4.2 {translateToHebrew('Product Descriptions')}</h3>
+              <h3>4.2 {'תיאורי מוצר'}</h3>
               <p>
-                {translateToHebrew('We attempt to be as accurate as possible in product descriptions. However, we do not warrant that product descriptions or other content on this site is accurate, complete, reliable, current, or error-free.')}
+                {'אנו מנסים להיות מדויקים ככל האפשר בתיאורי מוצרים. עם זאת, אנו לא מבטיחים שתיאורי מוצרים או תוכן אחר באתר זה מדויקים, מלאים, אמינים, עדכניים או נטולי שגיאות'}
               </p>
 
-              <h3>4.3 {translateToHebrew('Customization')}</h3>
+              <h3>4.3 {'התאמה אישית'}</h3>
               <p>
-                {translateToHebrew('Customized products (including ingredients, volumes, and addons) are prepared according to your specifications. Once an order is placed, changes may not be possible. Please review your order carefully before confirming.')}
+                {'מוצרים מותאמים אישית (כולל מרכיבים, נפחים ותוספות) מוכנים לפי המפרטים שלך. לאחר ביצוע הזמנה, ייתכן שלא ניתן לבצע שינויים. אנא בדוק את ההזמנה שלך בעיון לפני אישור'}
               </p>
             </section>
 
             <section>
-              <h2>5. {translateToHebrew('Delivery and Shipping')}</h2>
+              <h2>5. {'משלוח ומסירה'}</h2>
               
-              <h3>5.1 {translateToHebrew('Delivery Areas')}</h3>
+              <h3>5.1 {'אזורי משלוח'}</h3>
               <p>
-                {translateToHebrew('We deliver to the areas specified on our website. Delivery times are estimates and not guaranteed. We are not liable for delays caused by circumstances beyond our control.')}
+                {'אנו מספקים לאזורים שצוינו באתר שלנו. זמני משלוח הם הערכות ולא מובטחים. אנו לא אחראים לעיכובים הנגרמים על ידי נסיבות שמחוץ לשליטתנו'}
               </p>
 
-              <h3>5.2 {translateToHebrew('Delivery Charges')}</h3>
+              <h3>5.2 {'עמלות משלוח'}</h3>
               <p>
-                {translateToHebrew('Delivery charges, if applicable, will be displayed at checkout. These charges are in addition to the product price.')}
+                {'עמלות משלוח, אם חלות, יוצגו בקופה. עמלות אלה בנוסף למחיר המוצר'}
               </p>
 
-              <h3>5.3 {translateToHebrew('Risk of Loss')}</h3>
+              <h3>5.3 {'סיכון אובדן'}</h3>
               <p>
-                {translateToHebrew('All items purchased from REVIVA are made pursuant to a shipment contract. The risk of loss and title for such items pass to you upon delivery to the carrier.')}
+                {'כל הפריטים שנרכשו מראביבה נעשים בהתאם לחוזה משלוח. סיכון האובדן והבעלות על פריטים אלה עוברים אליך בעת המסירה למוביל'}
               </p>
             </section>
 
             <section>
-              <h2>6. {translateToHebrew('Returns and Refunds')}</h2>
+              <h2>6. {'החזרות והחזרים'}</h2>
               
-              <h3>6.1 {translateToHebrew('Return Policy')}</h3>
+              <h3>6.1 {'מדיניות החזרות'}</h3>
               <p>
-                {translateToHebrew('Due to the perishable nature of our products, returns are generally not accepted. However, if you receive a damaged or incorrect item, please contact us within 24 hours of delivery.')}
+                {'בגלל אופי המוצרים המתכלים שלנו, החזרות בדרך כלל לא מתקבלות. עם זאת, אם קיבלת פריט פגום או שגוי, אנא צור איתנו קשר תוך 24 שעות מהמשלוח'}
               </p>
 
-              <h3>6.2 {translateToHebrew('Refunds')}</h3>
+              <h3>6.2 {'החזרים'}</h3>
               <p>
-                {translateToHebrew('Refunds will be processed to the original payment method within 5-10 business days. We reserve the right to refuse refunds if we determine that the product was not defective or incorrectly delivered.')}
+                {'החזרים יעובדו לשיטת התשלום המקורית תוך 5-10 ימי עסקים. אנו שומרים לעצמנו את הזכות לסרב להחזרים אם נקבע שהמוצר לא היה פגום או נמסר בצורה שגויה'}
               </p>
 
-              <h3>6.3 {translateToHebrew('Cancellations')}</h3>
+              <h3>6.3 {'ביטולים'}</h3>
               <p>
-                {translateToHebrew('Orders may be cancelled before preparation begins. Once preparation has started, cancellations may not be possible. Contact us immediately if you need to cancel an order.')}
+                {'הזמנות יכולות להתבטל לפני תחילת ההכנה. לאחר שההכנה החלה, ייתכן שלא ניתן לבטל. צור איתנו קשר מיד אם אתה צריך לבטל הזמנה'}
               </p>
 
               <h3>6.4 ביטול עסקה בהתאם לחוק הגנת הצרכן</h3>
@@ -139,67 +138,67 @@ export default function TermsAndConditionsPage() {
             </section>
 
             <section>
-              <h2>7. {translateToHebrew('User Accounts')}</h2>
+              <h2>7. {'חשבונות משתמשים'}</h2>
               <p>
-                {translateToHebrew('If you create an account on our website, you are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.')}
+                {'אם אתה יוצר חשבון באתר שלנו, אתה אחראי לשמירה על סודיות החשבון והסיסמה שלך. אתה מסכים לקבל אחריות על כל הפעילויות המתרחשות תחת החשבון שלך'}
               </p>
             </section>
 
             <section>
-              <h2>8. {translateToHebrew('Prohibited Uses')}</h2>
-              <p>{translateToHebrew('You may not use our website:')}</p>
+              <h2>8. {'שימושים אסורים'}</h2>
+              <p>{'אינך רשאי להשתמש באתר שלנו:'}</p>
               <ul>
-                <li>{translateToHebrew('In any way that violates any applicable law or regulation')}</li>
-                <li>{translateToHebrew('To transmit any malicious code or viruses')}</li>
-                <li>{translateToHebrew('To impersonate or attempt to impersonate the company or any employee')}</li>
-                <li>{translateToHebrew('To engage in any automated use of the system')}</li>
-                <li>{translateToHebrew('To interfere with or disrupt the website or servers')}</li>
-                <li>{translateToHebrew('To collect or track personal information of others')}</li>
+                <li>{'בכל דרך המפרה כל חוק או תקנה חלים'}</li>
+                <li>{'להעביר כל קוד זדוני או וירוסים'}</li>
+                <li>{'להתחזות או לנסות להתחזות לחברה או לכל עובד'}</li>
+                <li>{'לעסוק בכל שימוש אוטומטי במערכת'}</li>
+                <li>{'להפריע או לשבש את האתר או השרתים'}</li>
+                <li>{'לאסוף או לעקוב אחר מידע אישי של אחרים'}</li>
               </ul>
             </section>
 
             <section>
-              <h2>9. {translateToHebrew('Intellectual Property')}</h2>
+              <h2>9. {'קניין רוחני'}</h2>
               <p>
-                {translateToHebrew('All content on this website, including text, graphics, logos, images, and software, is the property of REVIVA or its content suppliers and is protected by copyright, trademark, and other intellectual property laws.')}
+                {'כל התוכן באתר זה, כולל טקסט, גרפיקה, לוגואים, תמונות ותוכנה, הוא רכוש של ראביבה או ספקי התוכן שלה ומוגן על ידי חוקי זכויות יוצרים, סימן מסחרי וקניין רוחני אחרים'}
               </p>
             </section>
 
             <section>
-              <h2>10. {translateToHebrew('Limitation of Liability')}</h2>
+              <h2>10. {'הגבלת אחריות'}</h2>
               <p>
-                {translateToHebrew('To the fullest extent permitted by law, REVIVA shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of our services.')}
+                {'במידה המקסימלית המותרת על פי חוק, ראביבה לא תהיה אחראית לכל נזקים עקיפים, מקריים, מיוחדים, תוצאתיים או עונשיים, או כל אובדן רווחים או הכנסות, בין אם נגרמו ישירות או בעקיפין, או כל אובדן נתונים, שימוש, מוניטין או הפסדים בלתי מוחשיים אחרים הנובעים משימוש שלך בשירותים שלנו'}
               </p>
             </section>
 
             <section>
-              <h2>11. {translateToHebrew('Indemnification')}</h2>
+              <h2>11. {'פיצוי'}</h2>
               <p>
-                {translateToHebrew('You agree to defend, indemnify, and hold harmless REVIVA and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorney\'s fees, arising out of or in any way connected with your use of our services or violation of these Terms.')}
+                {'אתה מסכים להגן, לשפות ולהחזיק את ראביבה ונושאי המשרה, הדירקטורים, העובדים והסוכנים שלה ללא נזק מכל תביעות, התחייבויות, נזקים, הפסדים והוצאות, כולל שכר טרחת עורכי דין סבירים, הנובעים מהשימוש שלך בשירותים שלנו או הפרה של תנאים אלה או בכל דרך הקשורה אליהם.'}
               </p>
             </section>
 
             <section>
-              <h2>12. {translateToHebrew('Governing Law')}</h2>
+              <h2>12. {'דין שולט'}</h2>
               <p>
-                {translateToHebrew('These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions. Any disputes arising under or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts of [Your Jurisdiction].')}
+                {'תנאים אלה יוסדרו ויפורשו בהתאם לחוקי [השיפוט שלך], ללא התחשבות בהוראות סכסוך החוקים שלו. כל סכסוכים הנובעים או הקשורים לתנאים אלה יהיו כפופים לשיפוט הבלעדי של בתי המשפט של [השיפוט שלך]'}
               </p>
             </section>
 
             <section>
-              <h2>13. {translateToHebrew('Changes to Terms')}</h2>
+              <h2>13. {'שינויים בתנאים'}</h2>
               <p>
-                {translateToHebrew('We reserve the right to modify these Terms at any time. We will notify users of any material changes by posting the new Terms on this page and updating the "Last Updated" date. Your continued use of our services after such changes constitutes acceptance of the new Terms.')}
+                {'אנו שומרים לעצמנו את הזכות לשנות את התנאים הללו בכל עת. אנו נודיע למשתמשים על כל שינוי מהותי על ידי פרסום התנאים החדשים בעמוד זה ועדכון תאריך "עודכן לאחרונה". המשך השימוש שלך בשירותים שלנו לאחר שינויים כאלה מהווה קבלה של התנאים החדשים.'}
               </p>
             </section>
 
             <section>
-              <h2>14. {translateToHebrew('Contact Information')}</h2>
-              <p>{translateToHebrew('If you have any questions about these Terms and Conditions, please contact us:')}</p>
+              <h2>14. {'פרטי יצירת קשר'}</h2>
+              <p>{'אם יש לך שאלות כלשהן לגבי תנאים והגבלות אלה, אנא צור איתנו קשר:'}</p>
               <ul>
-                <li><strong>{translateToHebrew('Email:')}</strong> legal@reviva.com</li>
-                <li><strong>{translateToHebrew('Phone:')}</strong> +972 50-123-4567</li>
-                <li><strong>{translateToHebrew('Address:')}</strong> [Your Business Address]</li>
+                <li><strong>{'אימייל:'}</strong> legal@reviva.com</li>
+                <li><strong>{'טלפון:'}</strong> +972 50-123-4567</li>
+                <li><strong>כתובת:</strong> [כתובת העסק שלך]</li>
               </ul>
             </section>
             </div>

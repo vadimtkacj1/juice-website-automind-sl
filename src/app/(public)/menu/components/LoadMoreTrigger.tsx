@@ -1,7 +1,6 @@
 'use client';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
 import styles from '../menu.module.css';
 import { RefObject } from 'react';
 
@@ -21,7 +20,7 @@ export default function LoadMoreTrigger({ observerTarget, hasMore }: LoadMoreTri
       padding: '40px 20px',
       width: '100%'
     }}>
-      <LoadingSpinner size="md" text={translateToHebrew('loading more items')} />
+      <LoadingSpinner size="md" text={'טוען פריטים נוספים'} />
     </div>
   );
 }

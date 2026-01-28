@@ -1,0 +1,170 @@
+/* Layout & Typography */
+.homePage {
+  padding-bottom: 80px;
+  background-color: #ffffff;
+}
+
+.categoriesSection {
+  padding: 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-family: "Heebo", sans-serif;
+  font-weight: 900;
+  font-size: clamp(40px, 8vw, 64px);
+  color: #1d1a40;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.sectionDescription {
+  font-size: 18px;
+  color: #666;
+}
+
+/* Categories Grid */
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+/* Card Interaction Base */
+.categoryCard {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.categoryCard:hover {
+  transform: translateY(-8px);
+}
+
+/* Image Wrapper (Fixed 1:1 Aspect Ratio) */
+.categoryImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #f1f3f5;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.categoryImage {
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+/* Fixed Placeholder: Center the ShoppingBag Icon */
+.categoryImagePlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #adb5bd;
+  direction: ltr; /* Ensures icon alignment isn't affected by RTL text */
+}
+
+/* Hover Hint: Purple Button Overlay */
+.hoverHint {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.hintBadge {
+  background: #7c3aed; /* Vibrant Purple */
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Heebo", sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  direction: rtl; /* Proper Hebrew Right-to-Left flow */
+  transform: translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+
+/* Activation triggers for hover states */
+.categoryCard:hover .hoverHint {
+  opacity: 1;
+}
+
+.categoryCard:hover .hintBadge {
+  transform: translateY(0);
+}
+
+.categoryCard:hover .categoryImage {
+  transform: scale(1.1);
+}
+
+/* Category Title Styling */
+.categoryContent {
+  padding: 20px 8px;
+  text-align: center;
+}
+
+.categoryName {
+  font-family: "Heebo", sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #1d1a40;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.categoryCard:hover .categoryName {
+  color: #7c3aed;
+}
+
+/* States & Adaptive Design */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+@media (max-width: 768px) {
+  .categoriesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .categoryImageWrapper {
+    border-radius: 20px;
+  }
+
+  .categoryName {
+    font-size: 1.25rem;
+  }
+  
+  .hintBadge {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+}

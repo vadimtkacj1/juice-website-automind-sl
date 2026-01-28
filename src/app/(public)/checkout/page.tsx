@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
-import { translateToHebrew } from '@/lib/translations';
 import { useLoading } from '@/lib/loading-context';
 import { CreditCard, Loader2, ArrowRight, AlertCircle, ArrowLeft, Lock } from 'lucide-react';
 import Image from 'next/image';
@@ -40,23 +39,23 @@ export default function CheckoutPage() {
     const newErrors: Record<string, string> = {};
 
     if (!customerInfo.name.trim()) {
-      newErrors.name = translateToHebrew('name is required');
+      newErrors.name = 'name is required';
     }
 
     if (!customerInfo.email.trim()) {
-      newErrors.email = translateToHebrew('email is required');
+      newErrors.email = 'נדרש אימייל';
     } else if (!/\S+@\S+\.\S+/.test(customerInfo.email)) {
-      newErrors.email = translateToHebrew('please enter a valid email address');
+      newErrors.email = 'please enter a valid email address';
     }
 
     if (!customerInfo.phone.trim()) {
-      newErrors.phone = translateToHebrew('phone number is required');
+      newErrors.phone = 'נדרש מספר טלפון';
     } else if (!/^[\d\s\-\+\(\)]{8,}$/.test(customerInfo.phone)) {
-      newErrors.phone = translateToHebrew('please enter a valid phone number');
+      newErrors.phone = 'אנא הזן מספר טלפון תקין';
     }
 
     if (!customerInfo.deliveryAddress.trim()) {
-      newErrors.deliveryAddress = translateToHebrew('delivery address is required');
+      newErrors.deliveryAddress = 'נדרשת כתובת למשלוח';
     }
 
     setErrors(newErrors);
@@ -90,7 +89,7 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setApiError(data.error || translateToHebrew('failed to process checkout. please try again.'));
+        setApiError(data.error || 'failed to process checkout. please try again.');
         setIsProcessing(false);
         setGlobalLoading(false);
         return;
@@ -100,13 +99,13 @@ export default function CheckoutPage() {
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        setApiError(translateToHebrew('failed to generate payment link. please try again.'));
+        setApiError('failed to generate payment link. please try again.');
         setIsProcessing(false);
         setGlobalLoading(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      setApiError(translateToHebrew('network error. please check your connection and try again.'));
+      setApiError('network error. please check your connection and try again.');
       setIsProcessing(false);
       setGlobalLoading(false);
     }
@@ -185,7 +184,7 @@ export default function CheckoutPage() {
         <div className={styles['checkout-content']}>
           {/* Right Column: Order Summary */}
           <div className={styles['order-summary']}>
-            <h2>{translateToHebrew('order summary')}</h2>
+            <h2>{'סיכום הזמנה'}</h2>
 
             <div className={styles['cart-items']}>
               {cart.map((item, index) => (
@@ -214,7 +213,7 @@ export default function CheckoutPage() {
                     {item.customIngredients && item.customIngredients.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
-                          {translateToHebrew('custom ingredients')}:
+                          {'custom ingredients'}:
                         </span>
                         {item.customIngredients.map((ing: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
@@ -228,7 +227,7 @@ export default function CheckoutPage() {
                     {item.additionalItems && item.additionalItems.length > 0 && (
                       <div className={styles['item-extras']}>
                         <span className={styles['extras-label']}>
-                          {translateToHebrew('additional items')}:
+                          {'פריטים נוספים'}:
                         </span>
                         {item.additionalItems.map((addItem: any, idx: number) => (
                           <span key={idx} className={styles['extra-item']}>
@@ -238,7 +237,7 @@ export default function CheckoutPage() {
                       </div>
                     )}
                     <div className={styles['item-quantity']}>
-                      {translateToHebrew('quantity')}: {item.quantity}
+                      {'כמות'}: {item.quantity}
                     </div>
                   </div>
 
@@ -250,14 +249,14 @@ export default function CheckoutPage() {
             </div>
 
             <div className={styles['order-total']}>
-              <span>{translateToHebrew('total amount')}</span>
+              <span>{'סכום כולל'}</span>
               <span className={styles['total-price']}>₪{getTotalPrice()}</span>
             </div>
           </div>
 
           {/* Left Column: Customer Details & Form */}
           <div className={styles['customer-form']}>
-            <h2>{translateToHebrew('contact information')}</h2>
+            <h2>{'פרטי יצירת קשר'}</h2>
 
             {apiError && (
               <div className={styles['error-message']}>
@@ -269,7 +268,7 @@ export default function CheckoutPage() {
             <form onSubmit={handleCheckout}>
               <div className={styles['form-group']}>
                 <label htmlFor="name">
-                  {translateToHebrew('full name')} <span className={styles['required']}>*</span>
+                  {'full name'} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="text"
@@ -278,14 +277,14 @@ export default function CheckoutPage() {
                   onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                   className={errors.name ? styles['input-error'] : ''}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('enter your full name')}
+                  placeholder={'enter your full name'}
                 />
                 {errors.name && <span className={styles['field-error']}>{errors.name}</span>}
               </div>
 
               <div className={styles['form-group']}>
                 <label htmlFor="email">
-                  {translateToHebrew('email address')} <span className={styles['required']}>*</span>
+                  {'כתובת אימייל'} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="email"
@@ -294,14 +293,14 @@ export default function CheckoutPage() {
                   onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
                   className={errors.email ? styles['input-error'] : ''}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('your.email@example.com')}
+                  placeholder={'your.email@example.com'}
                 />
                 {errors.email && <span className={styles['field-error']}>{errors.email}</span>}
               </div>
 
               <div className={styles['form-group']}>
                 <label htmlFor="phone">
-                  {translateToHebrew('phone number')} <span className={styles['required']}>*</span>
+                  {'מספר טלפון'} <span className={styles['required']}>*</span>
                 </label>
                 <input
                   type="tel"
@@ -317,7 +316,7 @@ export default function CheckoutPage() {
 
               <div className={styles['form-group']}>
                 <label htmlFor="deliveryAddress">
-                  {translateToHebrew('delivery address')} <span className={styles['required']}>*</span>
+                  {'כתובת משלוח'} <span className={styles['required']}>*</span>
                 </label>
                 <textarea
                   id="deliveryAddress"
@@ -325,7 +324,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryAddress: e.target.value })}
                   className={errors.deliveryAddress ? styles['input-error'] : ''}
                   disabled={isProcessing}
-                  placeholder={translateToHebrew('street address, city, postal code')}
+                  placeholder={'street address, city, postal code'}
                   rows={3}
                 />
                 {errors.deliveryAddress && <span className={styles['field-error']}>{errors.deliveryAddress}</span>}
@@ -338,16 +337,16 @@ export default function CheckoutPage() {
                   <span>PayPlus</span>
                 </div>
                 <p className={styles['payment-description']}>
-                  {translateToHebrew('you will be redirected to payplus secure payment page to complete your payment. all payment information is processed securely by payplus.')}
+                  {'you will be redirected to payplus secure payment page to complete your payment. all payment information is processed securely by payplus.'}
                 </p>
                 <div className={styles['security-features']}>
                   <div className={styles['security-feature']}>
                     <Lock size={16} />
-                    <span>{translateToHebrew('encrypted connection')}</span>
+                    <span>{'encrypted connection'}</span>
                   </div>
                   <div className={styles['security-feature']}>
                     <CreditCard size={16} />
-                    <span>{translateToHebrew('pci dss compliant')}</span>
+                    <span>{'pci dss compliant'}</span>
                   </div>
                 </div>
               </div>
@@ -361,7 +360,7 @@ export default function CheckoutPage() {
                     if (isProcessing) e.preventDefault();
                   }}
                 >
-                  {translateToHebrew('back to menu')}
+                  {'back to menu'}
                 </Link>
 
                 <button
@@ -372,11 +371,11 @@ export default function CheckoutPage() {
                   {isProcessing ? (
                     <>
                       <Loader2 size={20} className={styles['spinner']} />
-                      {translateToHebrew('processing...')}
+                      {'processing...'}
                     </>
                   ) : (
                     <>
-                      {translateToHebrew('proceed to payment')}
+                      {'proceed to payment'}
                       {/* ArrowLeft points forward in Hebrew RTL layout */}
                       <ArrowLeft size={20} />
                     </>

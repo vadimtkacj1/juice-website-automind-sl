@@ -2,7 +2,6 @@
 
 import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
-import { translateToHebrew } from '@/lib/translations';
 import navbarStyles from '../../Navbar.module.css';
 
 export default function CartButton() {
@@ -13,7 +12,7 @@ export default function CartButton() {
     <button
       onClick={openCart}
       className={navbarStyles['cart-button']}
-      aria-label={translateToHebrew('Shopping cart')}
+      aria-label={'סל קניות'}
     >
       <span className={navbarStyles['cart-icon-wrapper']}>
         <ShoppingBag size={24} />

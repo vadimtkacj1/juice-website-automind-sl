@@ -189,7 +189,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
         <div className={styles.newsArticleContainer}>
           <Link href="/news" className={styles.newsArticleBackLink}>
             <ArrowLeft size={18} />
-            <span>Back to News</span>
+            <span>חזרה לחדשות</span>
           </Link>
 
           <article className={styles.newsArticle} itemScope itemType="https://schema.org/NewsArticle">
@@ -248,7 +248,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.newsArticleShareButton}
-                    aria-label="Share on Twitter"
+                    aria-label="שתף בטוויטר"
                   >
                     Twitter
                   </a>
@@ -257,7 +257,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.newsArticleShareButton}
-                    aria-label="Share on Facebook"
+                    aria-label="שתף בפייסבוק"
                   >
                     Facebook
                   </a>
@@ -266,7 +266,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.newsArticleShareButton}
-                    aria-label="Share on LinkedIn"
+                    aria-label="שתף בלינקדאין"
                   >
                     LinkedIn
                   </a>

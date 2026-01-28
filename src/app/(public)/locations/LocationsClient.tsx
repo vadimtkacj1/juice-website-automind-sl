@@ -5,7 +5,6 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import LocationList from '@/components/LocationList';
 import HeroSection from '@/components/HeroSection';
 import { Location } from '@/types/location';
-import { translateToHebrew } from '@/lib/translations';
 import { useLoading } from '@/lib/loading-context';
 
 export default function LocationsClient() {
@@ -47,7 +46,7 @@ export default function LocationsClient() {
         minHeight: '100vh',
         width: '100vw'
       }}>
-        <LoadingSpinner size="lg" text={translateToHebrew('loading locations...')} />
+        <LoadingSpinner size="lg" text={'טוען מיקומים'} />
       </div>
     );
   }
@@ -55,8 +54,8 @@ export default function LocationsClient() {
   return (
     <div>
       <HeroSection showFloatingOranges={true}>
-        <h1 className="hero-title">{translateToHebrew('OUR LOCATIONS')}</h1>
-        <p className="hero-subtitle">{translateToHebrew('Find us at a location near you!')}</p>
+        <h1 className="hero-title">{'המיקומים שלנו'}</h1>
+        <p className="hero-subtitle">{'מצא אותנו במיקום קרוב אליך'}</p>
       </HeroSection>
       <div className="mx-[15px]">
         <LocationList locations={locations} />

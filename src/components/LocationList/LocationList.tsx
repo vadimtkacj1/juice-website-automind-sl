@@ -2,8 +2,6 @@ import React from 'react';
 import { MapPin } from 'lucide-react';
 import LocationCard from './components/LocationCard/LocationCard';
 import { Location } from '@/types/location';
-import { translateToHebrew } from '@/lib/translations';
-
 interface LocationListProps {
   locations: Location[];
 }
@@ -14,7 +12,7 @@ export default function LocationList({ locations }: LocationListProps) {
       {locations.length === 0 ? (
         <div className="text-center py-16">
           <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <p className="text-xl text-muted-foreground">{translateToHebrew('No locations available at this time.')}</p>
+          <p className="text-xl text-muted-foreground">{'אין מיקומים זמינים כרגע.'}</p>
         </div>
       ) : locations.length === 1 ? (
         <div className="flex justify-center">

@@ -1,574 +1,234 @@
-/* Menu Page Styles */
-
+/* Container for the whole menu page */
 .menuPage {
-  padding-bottom: 80px;
-  position: relative;
+  min-height: 100vh;
+  background: #fcfcfd;
 }
 
-/* Removed heavy background patterns for better performance */
-
-.categorySection > * {
-  position: relative;
-  z-index: 1;
+.menuContent {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-/* Loading, Error, Empty States */
-.menuLoading,
-.menuError,
-.menuEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.retryBtn {
-  margin-top: 20px;
-  padding: 14px 32px;
-  background: var(--dark);
-  color: white;
-  border: none;
-  border-radius: 100px;
-  font-family: "Heebo", sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.retryBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(29, 26, 64, 0.3);
-}
-
+/* Category Title - Darker and more pronounced */
 .categoryHeader {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 3rem;
 }
 
 .categoryTitle {
   font-family: "Heebo", sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
   font-weight: 900;
-  font-size: clamp(48px, 10vw, 76px);
+  color: #111111; /* Very dark for high contrast */
   letter-spacing: -0.03em;
-  color: var(--dark, #1d1a40);
-  margin: 0;
-  line-height: 1;
+  margin-bottom: 0.5rem;
 }
 
-.categoryDesc {
-  font-family: "Heebo", sans-serif;
-  font-size: 18px;
-  color: var(--text-gray, #666);
-  margin: 16px 0 0;
-  font-weight: 400;
-}
-
-.categorySection {
-  padding: 40px 16px;
-  margin-bottom: 24px;
-  background: var(--white);
-  border-radius: 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Products Grid */
-.productsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* Product Card */
+/* Product Card - Enhanced definition */
 .productCard {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 22px;
   overflow: hidden;
-  position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 2px 8px rgba(29, 26, 64, 0.1);
   cursor: pointer;
-  z-index: 1;
-  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Making the card "obvious" with border and shadow */
+  border: 1px solid #edf2f7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  
+  /* Prevent blue highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .productCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(29, 26, 64, 0.15);
+  transform: translateY(-8px);
+  border-color: #7c3aed; /* Purple border on hover */
+  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.12);
 }
 
-/* Discount Badge */
-.discountBadge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: #e53935;
-  color: white;
-  padding: 6px 14px;
-  border-radius: 100px;
-  font-family: "Heebo", sans-serif;
-  font-size: 15px;
-  font-weight: 900;
-  z-index: 2;
-}
-
-/* Product Image */
-.productImage {
-  width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--gray-bg, #eaedf6);
+/* Image Wrapper */
+.productImageWrapper {
   position: relative;
-}
-
-.productImage img,
-.productImageNext {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.image {
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.6s ease;
 }
 
-.productImageNext {
-  position: relative !important;
-}
-
-.productCard:hover .productImage img,
-.productCard:hover .productImageNext {
-  transform: scale(1.05);
+.productCard:hover .image {
+  transform: scale(1.1);
 }
 
 .productImagePlaceholder {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1d1a40;
+  background: #f1f5f9;
+  color: #cbd5e1;
+  direction: ltr;
 }
 
-.imageLoaded {
-  opacity: 1;
+/* Badges */
+.discountBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #7c3aed;
+  color: white;
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
-/* Product Info */
+/* Product Information Area */
 .productInfo {
-  padding: 20px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .productText {
-  margin-bottom: 16px;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
 }
 
 .productName {
   font-family: "Heebo", sans-serif;
-  font-weight: 900;
-  font-size: 28px;
-  color: #1d1a40;
-  margin: 0 0 6px;
-  line-height: 1.3;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a1a1a; /* Dark title */
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .productDesc {
-  font-family: "Heebo", sans-serif;
-  font-size: 18px;
-  color: #1d1a40;
-  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-weight: 900;
 }
 
-/* Product Footer */
+/* Footer Section */
 .productFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  padding-top: 0.5rem;
 }
 
-.priceBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--gray-bg, #eaedf6);
-  padding: 10px 18px;
-  border-radius: 100px;
-  max-width: fit-content;
-  min-width: fit-content;
+.priceSection {
+  display: flex;
+  flex-direction: column;
 }
 
 .priceOld {
-  font-family: "Heebo", sans-serif;
-  font-size: 18px;
-  color: #1d1a40;
+  font-size: 0.9rem;
+  color: #94a3b8;
   text-decoration: line-through;
-  font-weight: 900;
+  margin-bottom: -2px;
 }
 
 .priceCurrent {
-  font-family: "Heebo", sans-serif;
+  font-size: 1.5rem;
   font-weight: 900;
-  font-size: 24px;
-  color: #1d1a40;
+  color: #111111; /* Darker price */
 }
 
-.priceVolume {
-  font-family: "Heebo", sans-serif;
-  font-size: 16px;
-  color: #1d1a40;
-  margin-left: 4px;
-  font-weight: 900;
-}
-
-.volumesList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.volumeBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #eaedf6 100%);
-  padding: 10px 16px;
-  border-radius: 12px;
-  font-family: "Heebo", sans-serif;
-  font-size: 16px;
-  border: 1px solid rgba(29, 26, 64, 0.1);
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  font-weight: 900;
-}
-
-.volumeBadge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(29, 26, 64, 0.12);
-  border-color: rgba(29, 26, 64, 0.2);
-}
-
-.volumeLabel {
-  font-family: "Heebo", sans-serif;
-  color: #1d1a40;
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 0.02em;
-}
-
-.volumeSeparator {
-  color: #1d1a40;
-  font-weight: 700;
-  opacity: 0.5;
-}
-
-.volumePrice {
-  font-family: "Heebo", sans-serif;
-  font-weight: 900;
-  font-size: 20px;
-  color: #1d1a40;
-  letter-spacing: -0.01em;
-}
-
+/* Add Button - Modern Purple Squircle */
 .addBtn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  background: var(--dark);
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #7c3aed;
   color: white;
-  font-family: "Heebo", sans-serif;
-  font-size: 24px;
-  font-weight: 700;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 15px rgba(124, 58, 237, 0.25);
 }
 
 .addBtn:hover {
-  transform: scale(1.08);
-  background: var(--dark, #1d1a40);
+  background: #6d28d9;
+  transform: scale(1.1) rotate(90deg);
 }
 
-.addBtn span {
-  line-height: 1;
-  margin-top: -2px;
+.addBtn:active {
+  transform: scale(0.9);
 }
 
-.loadMoreTrigger {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 0;
-  min-height: 80px;
-}
-
-/* Menu Loading & Error States */
-.menuLoading,
-.menuError,
-.menuEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  text-align: center;
-  gap: 20px;
-}
-
-.loadingSpinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--gray-bg, #eaedf6);
-  border-top-color: var(--primary, #1d1a40);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.menuError p,
-.menuEmpty p {
-  font-family: "Heebo", sans-serif;
-  color: var(--text-gray, #666);
-  font-size: 16px;
-}
-
-.menuEmpty h2 {
-  font-family: "Heebo", sans-serif;
-  font-size: clamp(48px, 8vw, 72px);
-  font-weight: 900;
-  color: var(--dark, #1d1a40);
-  margin: 0;
-  line-height: 1.2;
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-  .productsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 700px) {
-  .productsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 100%;
-    gap: 12px;
-    padding: 0 8px;
+/* Responsive Scaling */
+@media (max-width: 768px) {
+  .menuContent {
+    padding: 1rem 0.75rem;
   }
 
-  .categorySection {
-    padding: 32px 12px;
-    margin-bottom: 20px;
-    border-radius: 16px;
-  }
-
-  .categoryTitle {
-    font-size: clamp(36px, 12vw, 60px);
-  }
-
-  .categoryDesc {
-    font-size: 16px;
-  }
-
-  /* Product Card Mobile */
   .productCard {
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(29, 26, 64, 0.15);
-  }
-
-  .productCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(29, 26, 64, 0.2);
-  }
-
-  .productImage {
-    aspect-ratio: 1;
+    border-radius: 18px;
   }
 
   .productInfo {
-    padding: 12px;
-  }
-
-  .productText {
-    margin-bottom: 8px;
+    padding: 0.9rem;
   }
 
   .productName {
-    font-size: 18px;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }
-
-  .productDesc {
-    font-size: 14px;
-    line-height: 1.4;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-
-  /* Product Footer Mobile */
-  .productFooter {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: nowrap;
-  }
-
-  .priceBadge {
-    padding: 6px 10px;
-    flex: 0 0 auto;
-    max-width: fit-content;
-    min-width: fit-content;
+    font-size: 1.05rem;
   }
 
   .priceCurrent {
-    font-size: 18px;
-  }
-
-  .priceOld {
-    font-size: 14px;
-  }
-
-  .priceVolume {
-    font-size: 12px;
-  }
-
-  .volumesList {
-    flex: 1;
-    min-width: 0;
-    gap: 6px;
-  }
-
-  .volumeBadge {
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 10px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .volumeLabel {
-    font-size: 14px;
-  }
-
-  .volumePrice {
-    font-size: 16px;
-  }
-
-  .volumeSeparator {
-    font-size: 12px;
-  }
-
-  .discountBadge {
-    font-size: 12px;
-    padding: 4px 10px;
-    top: 12px;
-    right: 12px;
+    font-size: 1.25rem;
   }
 
   .addBtn {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    flex-shrink: 0;
-    align-self: flex-end;
-  }
-
-  .addBtn:hover {
-    transform: scale(1.05) rotate(90deg);
-  }
-}
-
-/* Extra small screens */
-@media (max-width: 480px) {
-  .productsGrid {
-    gap: 12px;
-    padding: 0 8px;
-  }
-
-  .categorySection {
-    padding: 24px 8px;
-    margin-bottom: 16px;
+    width: 38px;
+    height: 38px;
     border-radius: 12px;
   }
+}
 
-  .productInfo {
-    padding: 12px;
+/* Scroll Animations */
+.reveal {
+  opacity: 0;
+  animation: slideIn 0.6s ease forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .productName {
-    font-size: 20px;
-  }
-
-  .productDesc {
-    font-size: 13px;
-  }
-
-  .productFooter {
-    gap: 6px;
-  }
-
-  .priceBadge {
-    padding: 6px 12px;
-    flex: 0 0 auto;
-    max-width: fit-content;
-    min-width: fit-content;
-  }
-
-  .priceCurrent {
-    font-size: 18px;
-  }
-
-  .priceOld {
-    font-size: 13px;
-  }
-
-  .volumeBadge {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-
-  .volumeLabel {
-    font-size: 13px;
-  }
-
-  .volumePrice {
-    font-size: 15px;
-  }
-
-  .addBtn {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-
-  .discountBadge {
-    font-size: 11px;
-    padding: 3px 8px;
-    top: 8px;
-    right: 8px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.imageLoaded {
+  animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

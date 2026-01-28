@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, sort_order } = body;
+    const { name, description, image, sort_order } = body;
 
     if (!name) {
       return NextResponse.json(
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
 
     return new Promise<NextResponse>((resolve) => {
       db.run(
-        'INSERT INTO menu_categories (name, description, sort_order) VALUES (?, ?, ?)',
-        [name, description || null, sort_order || 0],
+        'INSERT INTO menu_categories (name, description, image, sort_order) VALUES (?, ?, ?, ?)',
+        [name, description || null, image || null, sort_order || 0],
         function (this: any, err: any) {
           if (err) {
             console.error('Database error:', err);
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           }
           resolve(
             NextResponse.json(
-              { id: this.lastID, name, description, sort_order },
+              { id: this.lastID, name, description, image, sort_order },
               { status: 201 }
             )
           );

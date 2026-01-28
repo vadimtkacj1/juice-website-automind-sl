@@ -11,11 +11,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Plus, Trash } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import ImageUpload from '@/components/ImageUpload/ImageUpload';
 
 interface MenuCategory {
   id: number;
   name: string;
   description?: string;
+  image?: string;
   sort_order: number;
   is_active: boolean;
 }
@@ -37,6 +39,7 @@ export default function EditCategory() {
   const [form, setForm] = useState({
     name: '',
     description: '',
+    image: '',
     sort_order: '0',
     is_active: true
   });
@@ -70,6 +73,7 @@ export default function EditCategory() {
       setForm({
         name: category.name || '',
         description: category.description || '',
+        image: category.image || '',
         sort_order: (category.sort_order || 0).toString(),
         is_active: category.is_active !== undefined ? category.is_active : true
       });
@@ -153,6 +157,7 @@ export default function EditCategory() {
         body: JSON.stringify({
           name: form.name.trim(),
           description: form.description.trim() || null,
+          image: form.image.trim() || null,
           sort_order: parseInt(form.sort_order) || 0,
           is_active: form.is_active
         })
@@ -224,6 +229,15 @@ export default function EditCategory() {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder={t('Category description (optional)')}
                 rows={3}
+              />
+            </div>
+
+            <div>
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => setForm({ ...form, image: url })}
+                folder="categories"
+                label={t('Category Image')}
               />
             </div>
 

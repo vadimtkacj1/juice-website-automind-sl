@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft } from 'lucide-react';
 import { useAdminLanguage } from '@/lib/admin-language-context';
+import ImageUpload from '@/components/ImageUpload/ImageUpload';
 
 export default function AddCategory() {
   const { t, language } = useAdminLanguage();
@@ -18,6 +19,7 @@ export default function AddCategory() {
   const [form, setForm] = useState({
     name: '',
     description: '',
+    image: '',
     sort_order: '0',
     is_active: true
   });
@@ -39,6 +41,7 @@ export default function AddCategory() {
         body: JSON.stringify({
           name: form.name.trim(),
           description: form.description.trim() || null,
+          image: form.image.trim() || null,
           sort_order: parseInt(form.sort_order) || 0
         })
       });
@@ -96,6 +99,15 @@ export default function AddCategory() {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder={t('Category description (optional)')}
                 rows={3}
+              />
+            </div>
+
+            <div>
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => setForm({ ...form, image: url })}
+                folder="categories"
+                label={t('Category Image')}
               />
             </div>
 

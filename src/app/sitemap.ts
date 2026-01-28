@@ -40,7 +40,7 @@ async function getMenuItems() {
 
     return new Promise<any[]>((resolve) => {
       db.all(
-        'SELECT id, updated_at FROM menu_items WHERE is_active = 1 ORDER BY display_order ASC',
+        'SELECT id FROM menu_items WHERE is_active = 1 ORDER BY display_order ASC',
         [],
         (err: Error | null, rows: any[]) => {
           if (err) {
@@ -104,8 +104,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const menuUrls: MetadataRoute.Sitemap = menuItems.map((item) => ({
-    url: `${baseUrl}/menu#item-${item.id}`,
-    lastModified: item.updated_at ? new Date(item.updated_at) : new Date(),
+    url: `${baseUrl}/#item-${item.id}`,
+    lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.6,
   }));
@@ -116,12 +116,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
-    },
-    {
-      url: `${baseUrl}/menu`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.95,
     },
     {
       url: `${baseUrl}/news`,

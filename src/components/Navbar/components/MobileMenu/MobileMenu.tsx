@@ -4,13 +4,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { translateToHebrew } from '@/lib/translations';
 import '@/app/styles/mobile-menu.css'; // Assuming mobile menu styles are global or in a dedicated file
 
 const navLinks = [
-  { href: '/menu', label: translateToHebrew('Menu') },
-  { href: '/locations', label: translateToHebrew('Locations') },
-  { href: '/contact', label: translateToHebrew('Contact') },
+  { href: '/', label: 'תפריט' },
+  { href: '/locations', label: 'מיקומים' },
+  { href: '/contact', label: 'צור קשר' },
 ];
 
 interface MobileMenuProps {
@@ -69,7 +68,7 @@ export default function MobileMenu({
         <button
           onClick={onClose}
           className="mobile-menu-close"
-          aria-label={translateToHebrew('Close menu')}
+          aria-label={'סגור תפריט'}
         >
           <X size={28} />
         </button>

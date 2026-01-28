@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { Calendar, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HeroSection from '@/components/HeroSection';
-import { translateToHebrew } from '@/lib/translations';
 import { useLoading } from '@/lib/loading-context';
 import styles from './news.module.css';
 
@@ -42,7 +41,7 @@ export default function NewsClient() {
       setNewsItems(activeNews);
     } catch (err) {
       console.error('Error fetching news:', err);
-      setError(translateToHebrew('Failed to load news. Please try again later.'));
+      setError('Failed to load news. Please try again later.');
     } finally {
       setLoading(false);
       setGlobalLoading(false);
@@ -63,7 +62,7 @@ export default function NewsClient() {
         minHeight: '100vh',
         width: '100vw'
       }}>
-        <LoadingSpinner size="lg" text={translateToHebrew('Loading news...')} />
+        <LoadingSpinner size="lg" text={'טוען חדשות...'} />
       </div>
     );
   }
@@ -71,8 +70,8 @@ export default function NewsClient() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold text-red-600 mb-4">{translateToHebrew('Error')}</h1>
-        <p className="text-lg text-gray-700">{error}</p>
+        <h1 className="text-4xl font-bold text-red-600 mb-4">שגיאה</h1>
+        <p className="text-lg text-gray-700">נכשל בטעינת החדשות. אנא נסה שוב מאוחר יותר.</p>
       </div>
     );
   }
@@ -80,9 +79,9 @@ export default function NewsClient() {
   return (
     <div className={styles['news-page-container']}>
       <HeroSection showFloatingOranges={true}>
-        <h1 className="hero-title">{translateToHebrew('Latest News & Updates')}</h1>
+        <h1 className="hero-title">חדשות ועדכונים אחרונים</h1>
         <p className="hero-subtitle">
-          {translateToHebrew('Stay updated with our latest juice blends, health tips, and company news')}
+          הישאר מעודכן עם תערובות המיץ החדשות שלנו, טיפים לבריאות וחדשות החברה
         </p>
       </HeroSection>
 
@@ -91,8 +90,8 @@ export default function NewsClient() {
         <div className={styles.container}>
           {newsItems.length === 0 ? (
             <div className={styles['news-empty']}>
-              <h2>{translateToHebrew('No news available')}</h2>
-              <p>{translateToHebrew('Check back soon for exciting updates!')}</p>
+              <h2>אין חדשות זמינות</h2>
+              <p>חזור בקרוב לעדכונים מרגשים!</p>
             </div>
           ) : (
             <div className={styles['news-grid']}>
@@ -113,7 +112,7 @@ export default function NewsClient() {
                     <div className={styles['news-card-content']}>
                       <div className={styles['news-card-date']}>
                         <Calendar size={14} />
-                        <span>{new Date(item.created_at).toLocaleDateString('en-US', { 
+                        <span>{new Date(item.created_at).toLocaleDateString('he-IL', { 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric' 
@@ -127,7 +126,7 @@ export default function NewsClient() {
                       </p>
                       <div className={styles['news-card-footer']}>
                         <span className={styles['news-read-more']}>
-                          {translateToHebrew('Read More')} <ArrowRight size={16} />
+                          {'קרא עוד'} <ArrowRight size={16} />
                         </span>
                       </div>
                     </div>

@@ -111,7 +111,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
           <button 
             className={styles['modal-close']} 
             onClick={onClose}
-            aria-label={translateToHebrew('Close')}
+            aria-label={'סגור'}
           >
             <X size={20} />
           </button>
@@ -125,7 +125,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               alignItems: 'center', 
               justifyContent: 'center' 
             }}>
-               <LoadingSpinner size="lg" text={translateToHebrew('loading details...')} />
+               <LoadingSpinner size="lg" text={'טוען פרטים...'} />
             </div>
           ) : (
             <>
@@ -141,7 +141,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
                 />
 
                 <div className={styles['modal-description']}>
-                  <p>{translateToHebrew(item.description) || translateToHebrew('Natural ingredients experience.')}</p>
+                  <p>{translateToHebrew(item.description) || 'חוויה של מרכיבים טבעיים.'}</p>
                 </div>
 
                 <ProductModalFeatures />

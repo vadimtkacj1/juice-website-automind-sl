@@ -21,10 +21,17 @@ body:has(#admin-layout-root) [class*="accessibility"],
 body:has(#admin-layout-root) [id*="sienna"],
 body:has(#admin-layout-root) [class*="sienna"],
 html:has(#admin-layout-root) [id*="accessibility"],
-html:has(#admin-layout-root) [class*="accessibility"] {
+html:has(#admin-layout-root) [class*="accessibility"],
+body:has(#admin-layout-root) .accessibility-widget-button,
+body:has(#admin-layout-root) .accessibility-widget-panel,
+body:has(#admin-layout-root) .accessibility-widget-overlay,
+body:has(#admin-layout-root) #sienna-accessibility-widget,
+body:has(#admin-layout-root) [data-sienna],
+body:has(#admin-layout-root) sienna-accessibility {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 /* === Color Palette === */

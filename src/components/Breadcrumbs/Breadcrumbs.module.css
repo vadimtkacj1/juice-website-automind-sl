@@ -1,0 +1,67 @@
+.breadcrumbs {
+  background: transparent; /* Blends with the background of your banner */
+  padding: 12px 0;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 1400px;
+  /* margin-inline: auto centers the container while respecting RTL/LTR */
+  margin-inline: auto;
+  padding-inline: 20px;
+  /* Aligns items to the start (Right side in RTL) */
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #ff6b35; /* Using the orange accent from your logo */
+  text-decoration: underline;
+}
+
+.separator {
+  color: #999;
+  flex-shrink: 0;
+}
+
+.current {
+  color: #333; /* Darker color to indicate the current location */
+  font-size: 0.85rem;
+  font-weight: 500;
+  /* Prevents any accidental clicks or interactions */
+  pointer-events: none; 
+}
+
+/* Responsive adjustments for mobile devices */
+@media (max-width: 768px) {
+  .breadcrumbs {
+    padding: 8px 0;
+  }
+  
+  .list {
+    padding-inline: 15px;
+  }
+
+  .link,
+  .current {
+    font-size: 0.75rem;
+  }
+}

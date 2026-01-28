@@ -67,7 +67,7 @@ export default function LocationCard({ location }: LocationCardProps) {
                 className="location-card-map-link hover:text-purple-700 font-medium inline-flex items-center gap-1"
               >
                 <MapPin className="h-3 w-3" />
-                {translateToHebrew('View on Map')}
+                {'צפה במפה'}
               </a>
             </div>
           )}
