@@ -146,42 +146,44 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
               <ProductModalImage image={item.image} name={item.name} />
 
               <div className={styles['modal-content']}>
-                <ProductModalHeader
-                  name={item.name}
-                  selectedVolume={selectedVolume}
-                  basePrice={currentBasePrice}
-                  discountedPrice={currentDiscountedPrice}
-                  discountPercent={discountPercent}
-                />
+                <div className={styles['modal-scrollable-content']}>
+                  <ProductModalHeader
+                    name={item.name}
+                    selectedVolume={selectedVolume}
+                    basePrice={currentBasePrice}
+                    discountedPrice={currentDiscountedPrice}
+                    discountPercent={discountPercent}
+                  />
 
-                <div className={styles['modal-description']}>
-                  <p>{translateToHebrew(item.description) || 'חוויה של מרכיבים טבעיים.'}</p>
-                </div>
+                  <div className={styles['modal-description']}>
+                    <p>{translateToHebrew(item.description) || 'חוויה של מרכיבים טבעיים.'}</p>
+                  </div>
 
-                <ProductModalFeatures />
+                  <ProductModalFeatures />
 
-                <VolumeSelector
-                  volumeOptions={volumeOptions}
-                  selectedVolume={selectedVolume}
-                  onVolumeChange={setSelectedVolume}
-                  discountPercent={discountPercent}
-                />
+                  <VolumeSelector
+                    volumeOptions={volumeOptions}
+                    selectedVolume={selectedVolume}
+                    onVolumeChange={setSelectedVolume}
+                    discountPercent={discountPercent}
+                  />
 
-                <div ref={ingredientsSectionRef}>
-                  <IngredientsSection
-                    ingredients={customIngredients}
-                    selectedIngredients={selectedIngredients}
-                    onIngredientToggle={handleIngredientToggle}
-                    missingRequiredGroups={missingRequiredGroups}
-                    shouldHighlightMissing={shouldHighlightMissing}
+                  <div ref={ingredientsSectionRef}>
+                    <IngredientsSection
+                      ingredients={customIngredients}
+                      selectedIngredients={selectedIngredients}
+                      onIngredientToggle={handleIngredientToggle}
+                      missingRequiredGroups={missingRequiredGroups}
+                      shouldHighlightMissing={shouldHighlightMissing}
+                    />
+                  </div>
+
+                  <AdditionalItemsSection
+                    additionalItems={additionalItems}
+                    selectedItems={selectedAdditionalItems}
+                    onToggle={handleAdditionalItemToggle}
                   />
                 </div>
-
-                <AdditionalItemsSection
-                  additionalItems={additionalItems}
-                  selectedItems={selectedAdditionalItems}
-                  onToggle={handleAdditionalItemToggle}
-                />
 
                 <ProductModalFooter
                   totalPrice={totalPrice}

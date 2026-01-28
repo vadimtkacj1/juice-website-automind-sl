@@ -106,19 +106,17 @@
   transform: none !important;
 }
 
-/* --- Mobile Footer Behavior (Fixed to Bottom) --- */
+/* --- Mobile Footer Behavior (Sticky to Bottom) --- */
 @media (max-width: 960px) {
   .footer-container {
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
     background: #ffffff;
     padding: 16px 20px calc(env(safe-area-inset-bottom) + 16px);
     margin: 0;
     border-top: 1px solid #EDEDED;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    z-index: 10001;
+    z-index: 100;
     /* Prevent accidental touch interactions */
     touch-action: manipulation;
   }
