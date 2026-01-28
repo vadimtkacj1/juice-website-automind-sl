@@ -5,6 +5,8 @@
   /* Added RTL support for Hebrew layout */
   direction: rtl; 
   padding-top: 20px;
+  /* Ensure footer always has space from content above */
+  flex-shrink: 0;
 }
 
 /* --- Price Section (Total) --- */
@@ -104,16 +106,21 @@
   transform: none !important;
 }
 
-/* --- Mobile Footer Behavior (Not Fixed) --- */
+/* --- Mobile Footer Behavior (Fixed to Bottom) --- */
 @media (max-width: 960px) {
   .footer-container {
-    position: static;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: #ffffff;
     padding: 16px 20px calc(env(safe-area-inset-bottom) + 16px);
     margin: 0;
     border-top: 1px solid #EDEDED;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    z-index: 10;
+    z-index: 10001;
+    /* Prevent accidental touch interactions */
+    touch-action: manipulation;
   }
 
   .modal-add-btn {

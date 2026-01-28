@@ -128,6 +128,7 @@
 .modal-content {
   flex: 1;
   min-width: 0;
+  min-height: 0; /* Важно для flex контейнера */
   overflow-y: auto;
   padding: 40px 40px; /* Balanced padding to reduce "empty" look */
   display: flex;
@@ -145,6 +146,7 @@
 /* --- Modal Sections --- */
 .modal-section {
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .section-title {
@@ -154,13 +156,15 @@
   color: #1D1D1F;
   margin-bottom: 16px;
   text-align: right;
+  width: 100%;
 }
 
 /* --- Details & Typography --- */
 .modal-description {
   border-right: 4px solid #7c3aed;
   padding-right: 16px;
-  max-width: 90%; /* Keeps text compact and readable */
+  max-width: 100%; /* Full width for better readability */
+  width: 100%;
 }
 
 .modal-description p {
@@ -169,6 +173,7 @@
   line-height: 1.5;
   color: #4a5568;
   margin: 0;
+  text-align: right;
 }
 
 /* --- Animations --- */
@@ -214,7 +219,7 @@
   /* Контент - обычная прокрутка всего модала */
   .modal-content {
     flex: 1 1 auto;
-    padding: 20px 16px 20px;
+    padding: 20px 16px 120px; /* Добавляем padding-bottom для фиксированного footer */
     margin-top: 0;
     border-radius: 0;
     box-shadow: none;
@@ -222,7 +227,6 @@
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     min-height: 0;
-    /* Footer внутри прокручиваемой области, не нужен padding-bottom */
   }
 
   /* Кнопка закрытия поверх всего */
@@ -270,7 +274,7 @@
   }
 
   .modal-content {
-    padding: 16px 16px 20px;
+    padding: 16px 16px 120px; /* Добавляем padding-bottom для фиксированного footer */
   }
 
   .modal-section {
