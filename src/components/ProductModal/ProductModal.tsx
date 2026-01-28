@@ -37,8 +37,6 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     setMounted(true);
   }, []);
 
-  // Removed debug logs for performance
-
   const {
     customIngredients,
     volumeOptions,
@@ -58,6 +56,17 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
     missingRequiredGroups,
     canAddToCart
   } = useProductModalLogic(item, isOpen, onAddToCart, onClose);
+
+  // Debug logs for mobile troubleshooting
+  useEffect(() => {
+    if (isOpen && item) {
+      console.log('[ProductModal] Item:', item.name);
+      console.log('[ProductModal] Custom Ingredients:', customIngredients.length);
+      console.log('[ProductModal] Volume Options:', volumeOptions.length);
+      console.log('[ProductModal] Additional Items:', additionalItems.length);
+      console.log('[ProductModal] Is Loading:', isLoading);
+    }
+  }, [isOpen, item, customIngredients.length, volumeOptions.length, additionalItems.length, isLoading]);
 
   // Prevent scroll when open
   useScrollLock(isOpen);
@@ -99,14 +108,19 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const modalContent = (
     <div className={styles['modal-wrapper']} role="dialog" aria-modal="true">
       {/* Backdrop with fade-in animation potential */}
-      <div 
-        className={styles['modal-backdrop']} 
+      <div
+        className={styles['modal-backdrop']}
         onClick={onClose}
+        onTouchEnd={onClose}
         aria-hidden="true"
       />
 
       <div className={styles['product-modal']}>
-        <div className={styles['modal-container']} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles['modal-container']}
+          onClick={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+        >
           {/* Close Action */}
           <button 
             className={styles['modal-close']} 

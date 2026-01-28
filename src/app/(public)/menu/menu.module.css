@@ -38,10 +38,15 @@
   /* Making the card "obvious" with border and shadow */
   border: 1px solid #edf2f7;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  
+
   /* Prevent blue highlight on mobile */
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+
+  /* iOS fix: Enable hardware acceleration and touch events */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  touch-action: manipulation;
 }
 
 .productCard:hover {
@@ -166,6 +171,9 @@
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 6px 15px rgba(124, 58, 237, 0.25);
+  /* iOS fix: Better touch response */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .addBtn:hover {

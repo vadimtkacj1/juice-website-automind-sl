@@ -85,14 +85,50 @@
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .volume-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .volume-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .volume-label {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .volume-price {
+    font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
   .volume-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .volume-card {
+    padding: 12px 10px;
+    border-radius: 10px;
+  }
+
+  .volume-label {
+    font-size: 13px;
+  }
+
+  .volume-price {
+    font-size: 12px;
+  }
+
+  .volume-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+    top: -6px;
+    right: -6px;
   }
 }

@@ -1,67 +1,227 @@
+/* --- 1. BREADCRUMBS (Збільшені) --- */
 .breadcrumbs {
-  background: transparent; /* Blends with the background of your banner */
-  padding: 12px 0;
+  background: transparent;
+  padding: 16px 0;
+  direction: rtl;
 }
 
-.list {
+.breadcrumbs .list {
   display: flex;
   align-items: center;
   list-style: none;
   padding: 0;
   margin: 0;
   max-width: 1400px;
-  /* margin-inline: auto centers the container while respecting RTL/LTR */
   margin-inline: auto;
   padding-inline: 20px;
-  /* Aligns items to the start (Right side in RTL) */
   justify-content: flex-start;
-  gap: 6px;
+  gap: 10px;
 }
 
-.item {
+.breadcrumbs .item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 
-.link {
+.breadcrumbs .link {
   color: #666;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 1.05rem; /* Збільшено */
   font-weight: 400;
   transition: color 0.2s ease;
 }
 
-.link:hover {
-  color: #ff6b35; /* Using the orange accent from your logo */
+.breadcrumbs .link:hover {
+  color: #ff6b35;
   text-decoration: underline;
 }
 
-.separator {
+.breadcrumbs .separator {
   color: #999;
-  flex-shrink: 0;
+  font-size: 1.1rem;
 }
 
-.current {
-  color: #333; /* Darker color to indicate the current location */
-  font-size: 0.85rem;
-  font-weight: 500;
-  /* Prevents any accidental clicks or interactions */
+.breadcrumbs .current {
+  color: #1a1a1a;
+  font-size: 1.05rem; /* Збільшено */
+  font-weight: 600;
   pointer-events: none; 
 }
 
-/* Responsive adjustments for mobile devices */
-@media (max-width: 768px) {
-  .breadcrumbs {
-    padding: 8px 0;
-  }
-  
-  .list {
-    padding-inline: 15px;
+/* --- 2. MODAL BASE --- */
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 9998;
+}
+
+.modal-container {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  position: relative;
+  z-index: 10000;
+  direction: rtl;
+}
+
+/* --- 3. IMAGE SIDE --- */
+.modal-image-side {
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 30px;
+}
+
+/* --- 4. CONTENT SIDE --- */
+.modal-content {
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+/* --- 5. YOUR FOOTER STYLES (Збільшені) --- */
+.footer-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  direction: rtl; 
+  padding-top: 24px;
+}
+
+.modal-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border: none; 
+}
+
+.total-label {
+  font-family: inherit;
+  font-size: 20px; /* Було 18px */
+  font-weight: 600;
+  color: var(--modal-text-main);
+}
+
+.total-price {
+  font-family: inherit;
+  font-size: 32px; /* Було 28px */
+  font-weight: 800;
+  color: var(--modal-accent); 
+}
+
+.modal-add-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: var(--modal-accent, #4B49FF) !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 18px 24px; /* Збільшено паддінг */
+  border-radius: 14px;
+  font-size: 20px; /* Було 18px */
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px; 
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(75, 73, 255, 0.2);
+}
+
+.modal-add-btn:hover:not(:disabled) {
+  background: var(--modal-accent-hover, #3D3AF0) !important;
+  transform: translateY(-1px);
+}
+
+.modal-add-btn:disabled {
+  background: #D1D1D6 !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* --- 6. MOBILE RESPONSIVE (Bottom Sheet) --- */
+@media (max-width: 900px) {
+  .modal-wrapper {
+    align-items: flex-end;
+    padding: 0;
   }
 
-  .link,
-  .current {
-    font-size: 0.75rem;
+  .modal-container {
+    grid-template-columns: 1fr;
+    border-radius: 24px 24px 0 0;
+    max-height: 94vh;
   }
+
+  .modal-image-side {
+    height: 35vh;
+  }
+
+  .modal-content {
+    padding: 24px 20px 0;
+  }
+
+  /* Твій Mobile Sticky Footer */
+  .footer-container {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    padding: 16px 20px; 
+    margin: 20px -20px 0;
+    border-top: 1px solid #EDEDED;
+    z-index: 100;
+  }
+
+  .breadcrumbs .link, 
+  .breadcrumbs .current {
+    font-size: 0.95rem; /* Оптимально для мобільних */
+  }
+}
+
+/* Close Button */
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 110;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

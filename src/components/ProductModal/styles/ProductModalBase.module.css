@@ -4,14 +4,17 @@
 
 /* --- Modal Wrapper --- */
 .modal-wrapper {
+  height: 100%;
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  pointer-events: auto;
+  /* iOS fix: Enable touch events */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 /* --- Backdrop --- */
@@ -21,16 +24,18 @@
   background: rgba(0, 0, 0, 0.6); /* Slightly darker for better focus */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  z-index: 99998;
+  z-index: 9998;
   animation: fadeIn 0.3s ease-out forwards;
+  /* iOS fix: Enable hardware acceleration */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 /* --- Main Container --- */
 .modal-container {
-  pointer-events: auto;
-  display: grid; 
+  display: grid;
   /* Changed: Left side is narrower (40%), Right side (Image) is wider (60%) */
-  grid-template-columns: 0.8fr 1.2fr; 
+  grid-template-columns: 0.8fr 1.2fr;
   width: 100%;
   max-width: 1200px; /* Increased max-width for bigger presence */
   height: auto;
@@ -38,10 +43,14 @@
   background: #ffffff;
   border-radius: 32px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-  overflow: hidden; 
+  overflow: hidden;
   position: relative;
   animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  z-index: 100000;
+  z-index: 10000;
+  /* iOS fix: Enable hardware acceleration and touch events */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- Close Button --- */
@@ -62,6 +71,9 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transition: all 0.2s ease;
+  /* iOS fix: Ensure button is tappable */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .modal-close:hover {
@@ -98,8 +110,25 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  direction: rtl; 
+  direction: rtl;
   background: white;
+  /* iOS fix: Enable smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* --- Modal Sections --- */
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-family: var(--font-family, sans-serif);
+  font-size: 20px;
+  font-weight: 800;
+  color: #1D1D1F;
+  margin-bottom: 16px;
+  text-align: right;
 }
 
 /* --- Details & Typography --- */
@@ -125,43 +154,112 @@
 }
 
 /* ============================================
-   MOBILE RESPONSIVE - Maximum Image Impact
+   MOBILE RESPONSIVE - Full Screen Experience
    ============================================ */
 
 @media (max-width: 960px) {
+  /* Убираем padding и делаем полноэкранным */
+  .modal-wrapper {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  /* Контейнер на весь экран */
   .modal-container {
     grid-template-columns: 1fr;
-    max-height: 96vh;
-    border-radius: 24px 24px 0 0;
-    align-self: flex-end;
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
+    animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
   }
 
-  /* Large Image Header on Mobile */
+  /* Изображение занимает верхнюю часть экрана */
   .modal-image-side {
-    height: 40vh; /* Takes 40% of the screen height */
-    min-height: 300px;
-    order: 1;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    flex-shrink: 0;
   }
 
+  /* Контент - обычная прокрутка всего модала */
   .modal-content {
-    order: 2;
-    padding: 30px 20px 100px;
-    margin-top: -30px; 
-    border-radius: 30px 30px 0 0;
-    z-index: 10;
-    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+    flex: 1 1 auto;
+    padding: 20px 16px 20px;
+    margin-top: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+    /* Footer внутри прокручиваемой области, не нужен padding-bottom */
   }
 
-  .modal-wrapper {
-    align-items: flex-end;
-    padding: 0;
+  /* Кнопка закрытия поверх всего */
+  .modal-close {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10001;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Описание более компактное */
+  .modal-description {
+    padding-right: 12px;
+    border-right-width: 3px;
+  }
+
+  .modal-description p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .modal-section {
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .modal-image-side {
-    height: 35vh;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+  }
+
+  .modal-content {
+    padding: 16px 16px 20px;
+  }
+
+  .modal-section {
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+}
+
+/* Анимация для мобильных */
+@keyframes slideUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

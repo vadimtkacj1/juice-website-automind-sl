@@ -78,3 +78,56 @@
   margin: 0;
   line-height: 1.4;
 }
+
+/* --- Mobile Responsive --- */
+@media (max-width: 960px) {
+  .options-grid {
+    gap: 8px;
+  }
+
+  .option-item {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .option-name {
+    font-size: 13px;
+  }
+
+  .option-price {
+    font-size: 12px;
+  }
+
+  .option-description {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .options-grid {
+    gap: 8px;
+  }
+
+  .option-item {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .option-checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .option-name {
+    font-size: 12px;
+  }
+
+  .option-price {
+    font-size: 11px;
+  }
+
+  .option-description {
+    font-size: 10px;
+  }
+}

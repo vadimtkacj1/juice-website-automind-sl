@@ -258,24 +258,114 @@
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 900px) {
-  .ingredients-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 960px) {
+  .ingredients-section-container {
+    margin-top: 24px;
+    padding-top: 20px;
   }
-}
 
-@media (max-width: 480px) {
+  .ingredient-group-container {
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .group-name {
+    font-size: 14px;
+  }
+
+  .group-count,
+  .group-hint,
+  .required-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
   .ingredients-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 
   .ingredient-card {
     padding: 12px 6px;
+    border-radius: 12px;
+  }
+
+  .card-image-wrapper {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 8px;
+  }
+
+  .card-name {
+    font-size: 12px;
+  }
+
+  .card-price {
+    font-size: 11px;
+  }
+
+  .card-group-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    top: 6px;
+    left: 6px;
+  }
+
+  .selection-badge {
+    width: 18px;
+    height: 18px;
+    top: 6px;
+    right: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ingredients-section-container {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  .ingredient-group-container {
+    margin-bottom: 16px;
+    padding: 10px;
+  }
+
+  .group-label {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .ingredients-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .ingredient-card {
+    padding: 10px 6px;
+    border-radius: 10px;
   }
 
   .card-image-wrapper {
     width: 60px;
     height: 60px;
+    margin-bottom: 8px;
+  }
+
+  .card-emoji {
+    font-size: 32px;
+  }
+
+  .card-name {
+    font-size: 11px;
+  }
+
+  .card-price {
+    font-size: 10px;
+  }
+
+  .volume-option-btn {
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }

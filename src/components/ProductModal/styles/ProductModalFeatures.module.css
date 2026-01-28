@@ -45,15 +45,32 @@
 
 /* --- Mobile Optimization --- */
 
+@media (max-width: 960px) {
+  .modal-features {
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .feature-item {
+    font-size: 12px;
+    padding: 5px 12px;
+    gap: 5px;
+  }
+
+  .feature-item i, 
+  .feature-item svg {
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 480px) {
   .modal-features {
     gap: 6px;
-    margin-bottom: 20px;
-    /* Optional: allows pills to scroll horizontally if there are too many */
+    margin-bottom: 16px;
     overflow-x: auto;
     padding-bottom: 4px;
-    /* Hide scrollbar for a cleaner mobile look */
     scrollbar-width: none; 
+    -webkit-overflow-scrolling: touch;
   }
   
   .modal-features::-webkit-scrollbar {
@@ -61,9 +78,13 @@
   }
 
   .feature-item {
-    font-size: 12px;
-    padding: 5px 12px;
-    /* Slightly more compact icons on mobile */
+    font-size: 11px;
+    padding: 5px 10px;
     gap: 4px; 
+  }
+
+  .feature-item i, 
+  .feature-item svg {
+    font-size: 12px;
   }
 }

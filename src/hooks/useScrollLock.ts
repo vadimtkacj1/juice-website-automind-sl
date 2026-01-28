@@ -8,6 +8,9 @@ export function useScrollLock(isOpen: boolean) {
   useEffect(() => {
     if (!isOpen) return;
 
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
     // Get scrollbar width to prevent layout shift
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
@@ -20,34 +23,55 @@ export function useScrollLock(isOpen: boolean) {
     const originalBodyTop = document.body.style.top;
     const originalBodyWidth = document.body.style.width;
     const originalBodyPaddingRight = document.body.style.paddingRight;
+    const originalBodyTouchAction = document.body.style.touchAction;
 
-    // Lock scroll using fixed positioning to prevent scroll jumps
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.overflow = 'hidden';
+    if (isIOS) {
+      // iOS-specific: Use touch-action instead of position fixed to avoid touch event issues
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      document.body.style.position = 'relative';
 
-    // Compensate for scrollbar width to prevent content shift
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      // Prevent scroll on touch events
+      const preventScroll = (e: TouchEvent) => {
+        e.preventDefault();
+      };
+
+      document.body.addEventListener('touchmove', preventScroll, { passive: false });
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.touchAction = originalBodyTouchAction;
+        document.body.style.position = originalBodyPosition;
+        document.body.removeEventListener('touchmove', preventScroll);
+      };
+    } else {
+      // Desktop/Android: Use fixed positioning to prevent scroll jumps
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+
+      // Compensate for scrollbar width to prevent content shift
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+
+      return () => {
+        // Restore original styles FIRST
+        document.body.style.position = originalBodyPosition;
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.paddingRight = originalBodyPaddingRight;
+
+        // THEN restore scroll position WITHOUT animation to prevent jumps
+        window.scrollTo({
+          top: scrollY,
+          left: 0,
+          behavior: 'instant' as ScrollBehavior
+        });
+      };
     }
-
-    return () => {
-      // Restore original styles FIRST
-      document.body.style.position = originalBodyPosition;
-      document.body.style.top = originalBodyTop;
-      document.body.style.width = originalBodyWidth;
-      document.body.style.overflow = originalBodyOverflow;
-      document.body.style.paddingRight = originalBodyPaddingRight;
-
-      // THEN restore scroll position WITHOUT animation to prevent jumps
-      // Use instant scroll instead of scrollTo to prevent visual jumps
-      window.scrollTo({
-        top: scrollY,
-        left: 0,
-        behavior: 'instant' as ScrollBehavior
-      });
-    };
   }, [isOpen]);
 }
 

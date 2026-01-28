@@ -61,9 +61,15 @@ const MenuItemCard = memo(function MenuItemCard({
       className={`${styles.productCard} reveal`}
       style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
       onClick={handleClick}
+      onTouchEnd={(e) => {
+        // iOS fix: Use touchend instead of click for better responsiveness
+        e.preventDefault();
+        handleClick();
+      }}
       onMouseEnter={handleMouseEnter}
       role="button"
       tabIndex={0}
+      aria-label={`${translateToHebrew(item.name)} - הוסף לעגלה`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -121,6 +127,11 @@ const MenuItemCard = memo(function MenuItemCard({
             className={styles.addBtn}
             onClick={(e) => {
               e.stopPropagation();
+              handleClick();
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
               handleClick();
             }}
             aria-label="הוסף לעגלה"
