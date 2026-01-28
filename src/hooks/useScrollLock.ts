@@ -26,25 +26,19 @@ export function useScrollLock(isOpen: boolean) {
     const originalBodyTouchAction = document.body.style.touchAction;
 
     if (isIOS) {
-      // iOS-specific: Lock body scroll but allow modal content to scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      // iOS-specific: Use simple overflow hidden to avoid layout issues
+      const html = document.documentElement;
+      const originalHtmlOverflow = html.style.overflow;
+
       document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      html.style.overflow = 'hidden';
 
       return () => {
         // Restore original styles
-        document.body.style.position = originalBodyPosition;
-        document.body.style.top = originalBodyTop;
-        document.body.style.width = originalBodyWidth;
         document.body.style.overflow = originalBodyOverflow;
-
-        // Restore scroll position
-        window.scrollTo({
-          top: scrollY,
-          left: 0,
-          behavior: 'instant' as ScrollBehavior
-        });
+        document.body.style.touchAction = originalBodyTouchAction;
+        html.style.overflow = originalHtmlOverflow;
       };
     } else {
       // Desktop/Android: Use fixed positioning to prevent scroll jumps

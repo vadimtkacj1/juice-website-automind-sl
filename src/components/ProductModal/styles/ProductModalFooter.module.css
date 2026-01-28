@@ -106,12 +106,10 @@
   transform: none !important;
 }
 
-/* --- Mobile Footer Behavior (Sticky within grid for iOS compatibility) --- */
+/* --- Mobile Footer Behavior (Always at bottom via flex) --- */
 @media (max-width: 960px) {
   .footer-container {
-    position: sticky;
-    position: -webkit-sticky;
-    bottom: 0;
+    flex-shrink: 0;
     background: #ffffff;
     padding: 16px 20px calc(env(safe-area-inset-bottom) + 16px);
     margin: 0;
@@ -120,9 +118,6 @@
     z-index: 100;
     /* Prevent accidental touch interactions */
     touch-action: manipulation;
-    /* iOS Safari fix: Force hardware acceleration */
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
   }
 
   .modal-add-btn {

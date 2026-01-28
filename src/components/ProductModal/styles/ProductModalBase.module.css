@@ -203,7 +203,11 @@
   .modal-wrapper {
     padding: 0;
     align-items: stretch;
+    position: fixed;
     /* iOS Safari fix */
+    height: 100dvh;
+    min-height: 100dvh;
+    /* Fallback */
     height: 100vh;
     height: -webkit-fill-available;
   }
@@ -212,40 +216,44 @@
   .modal-container {
     grid-template-columns: 1fr;
     max-width: 100%;
-    min-height: 100vh; /* Фіксована висота для мобільних */
-    max-height: 100vh;
-    height: 100vh;
+    width: 100vw;
+    height: 100dvh; /* Dynamic viewport height для iOS */
+    min-height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
     display: flex;
     flex-direction: column;
     animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     position: relative;
-    /* iOS Safari fix: Ensure proper height calculation */
+    /* Fallback для старых браузеров */
+    height: 100vh;
     height: -webkit-fill-available;
   }
 
-  /* Изображение занимает верхнюю часть экрана */
+  /* Изображение занимает фиксированную часть экрана */
   .modal-image-side {
-    height: auto;
-    min-height: auto;
-    max-height: none;
+    height: 35vh;
+    min-height: 200px;
+    max-height: 40vh;
     flex-shrink: 0;
   }
 
-  /* Контент - используем grid с явной высотой для iOS */
+  /* Контент - занимает оставшееся пространство */
   .modal-content {
-    flex: 1 1 0;
-    display: grid;
-    grid-template-rows: 1fr auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     min-height: 0;
-    height: 100%;
     position: relative;
+    height: 0; /* Trick для работы flex: 1 на iOS */
   }
 
   /* Scrollable content на мобилке */
   .modal-scrollable-content {
-    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     overflow-x: hidden;
     padding: 20px 16px 24px;
     display: flex;
@@ -253,9 +261,10 @@
     gap: 20px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    /* iOS fix: Force own stacking context and enable hardware acceleration */
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
+    /* iOS fix: Enable GPU acceleration */
+    will-change: scroll-position;
+    /* Allow touch scrolling */
+    touch-action: pan-y;
   }
 
   /* Кнопка закрытия поверх всего */
@@ -292,30 +301,35 @@
 
 @media (max-width: 480px) {
   .modal-container {
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    /* Fallback для старых браузеров */
     height: 100vh;
-    /* iOS Safari fix: Ensure proper height calculation */
     height: -webkit-fill-available;
   }
 
   .modal-image-side {
-    height: auto;
-    min-height: auto;
-    max-height: none;
+    height: 30vh;
+    min-height: 180px;
+    max-height: 35vh;
+    flex-shrink: 0;
   }
 
   .modal-content {
-    flex: 1 1 0;
-    display: grid;
-    grid-template-rows: 1fr auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     min-height: 0;
-    height: 100%;
     position: relative;
+    height: 0; /* Trick для работы flex: 1 на iOS */
   }
 
   .modal-scrollable-content {
-    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     overflow-x: hidden;
     padding: 16px 16px 24px;
     display: flex;
@@ -323,7 +337,8 @@
     gap: 16px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    transform: translate3d(0, 0, 0);
+    will-change: scroll-position;
+    touch-action: pan-y;
   }
 
   .modal-section {
