@@ -26,23 +26,25 @@ export function useScrollLock(isOpen: boolean) {
     const originalBodyTouchAction = document.body.style.touchAction;
 
     if (isIOS) {
-      // iOS-specific: Use touch-action instead of position fixed to avoid touch event issues
+      // iOS-specific: Lock body scroll but allow modal content to scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
-      document.body.style.position = 'relative';
-
-      // Prevent scroll on touch events
-      const preventScroll = (e: TouchEvent) => {
-        e.preventDefault();
-      };
-
-      document.body.addEventListener('touchmove', preventScroll, { passive: false });
 
       return () => {
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.touchAction = originalBodyTouchAction;
+        // Restore original styles
         document.body.style.position = originalBodyPosition;
-        document.body.removeEventListener('touchmove', preventScroll);
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        document.body.style.overflow = originalBodyOverflow;
+
+        // Restore scroll position
+        window.scrollTo({
+          top: scrollY,
+          left: 0,
+          behavior: 'instant' as ScrollBehavior
+        });
       };
     } else {
       // Desktop/Android: Use fixed positioning to prevent scroll jumps
