@@ -29,6 +29,9 @@
   /* iOS fix: Enable hardware acceleration */
   transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
+  /* Prevent accidental touch actions */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- Main Container --- */
@@ -135,6 +138,8 @@
   /* iOS fix: Enable smooth scrolling */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  /* Allow vertical scrolling only */
+  touch-action: pan-y pinch-zoom;
 }
 
 /* --- Modal Sections --- */

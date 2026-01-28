@@ -9,6 +9,7 @@ import { translateToHebrew } from '@/lib/translations';
 import { ProductModalItem } from './types';
 import { useProductModalLogic } from './useProductModalLogic';
 import { useScrollLock } from '../../hooks/useScrollLock';
+import { useTouchHandler } from '@/hooks/useTouchHandler';
 
 // Sub-components
 import ProductModalHeader from './ProductModalHeader';
@@ -32,6 +33,9 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
   const [mounted, setMounted] = useState(false);
   const [shouldHighlightMissing, setShouldHighlightMissing] = useState(false);
   const ingredientsSectionRef = useRef<HTMLDivElement>(null);
+
+  // Touch handler for backdrop to prevent accidental closes during scroll
+  const backdropTouchHandlers = useTouchHandler(onClose, 10);
 
   useEffect(() => {
     setMounted(true);
@@ -111,10 +115,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       <div
         className={styles['modal-backdrop']}
         onClick={onClose}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-          onClose();
-        }}
+        {...backdropTouchHandlers}
         aria-hidden="true"
       />
 
@@ -122,6 +123,8 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
         <div
           className={styles['modal-container']}
           onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
         >
           {/* Close Action */}

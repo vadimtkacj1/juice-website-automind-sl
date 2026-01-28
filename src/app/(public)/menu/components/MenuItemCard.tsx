@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ShoppingBag, Plus } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
 import { prefetchModalData } from '@/components/ProductModal/useProductModalData';
+import { useTouchHandler } from '@/hooks/useTouchHandler';
 import styles from '../menu.module.css';
 
 export interface MenuItem {
@@ -57,6 +58,9 @@ const MenuItemCard = memo(function MenuItemCard({
     }
   }, [item.id]);
 
+  // Touch handler to prevent accidental clicks during scroll
+  const touchHandlers = useTouchHandler(handleClick, 10);
+
   const hasValidImage = item.image?.trim() && !imageError;
 
   return (
@@ -64,11 +68,7 @@ const MenuItemCard = memo(function MenuItemCard({
       className={`${styles.productCard} reveal`}
       style={{ ['--delay' as string]: `${0.05 * (itemIndex + 1)}s` }}
       onClick={handleClick}
-      onTouchEnd={(e) => {
-        // iOS fix: Use touchend instead of click for better responsiveness
-        e.preventDefault();
-        handleClick();
-      }}
+      {...touchHandlers}
       onMouseEnter={handleMouseEnter}
       role="button"
       tabIndex={0}
@@ -130,11 +130,6 @@ const MenuItemCard = memo(function MenuItemCard({
             className={styles.addBtn}
             onClick={(e) => {
               e.stopPropagation();
-              handleClick();
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
               handleClick();
             }}
             aria-label="הוסף לעגלה"
