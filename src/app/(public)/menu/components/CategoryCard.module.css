@@ -7,9 +7,19 @@
   background: transparent;
 }
 
-/* Эффект при наведении на всю карточку */
-.categoryCard:hover {
-  transform: translateY(-5px);
+/* Эффект при наведении на всю карточку - только для desktop устройств с мышкой */
+@media (hover: hover) and (pointer: fine) {
+  .categoryCard:hover {
+    transform: translateY(-5px);
+  }
+  
+  .categoryCard:hover .image {
+    transform: scale(1.08);
+  }
+  
+  .categoryCard:hover .name {
+    color: #000; /* Можно заменить на брендовый цвет */
+  }
 }
 
 /* Контейнер для картинки с фиксированным соотношением сторон (1:1 или 4:3) */
@@ -26,10 +36,6 @@
 .image {
   object-fit: cover;
   transition: transform 0.5s ease;
-}
-
-.categoryCard:hover .image {
-  transform: scale(1.08);
 }
 
 .placeholder {
@@ -55,10 +61,6 @@
   color: #1a1a1a;
   margin: 0;
   transition: color 0.2s ease;
-}
-
-.categoryCard:hover .name {
-  color: #000; /* Можно заменить на брендовый цвет */
 }
 
 /* Анимация появления */

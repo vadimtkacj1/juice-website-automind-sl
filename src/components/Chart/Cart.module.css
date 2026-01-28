@@ -93,9 +93,12 @@
   transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.cartBackBtn:hover {
-  background: rgba(29, 26, 64, 0.2);
-  transform: translateX(-3px);
+/* Hover effects only for devices with mouse (not touch screens) */
+@media (hover: hover) and (pointer: fine) {
+  .cartBackBtn:hover {
+    background: rgba(29, 26, 64, 0.2);
+    transform: translateX(-3px);
+  }
 }
 
 .cartBackBtn svg {
@@ -148,9 +151,11 @@
   transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.cartCloseBtn:hover {
-  background: rgba(29, 26, 64, 0.2);
-  transform: rotate(90deg);
+@media (hover: hover) and (pointer: fine) {
+  .cartCloseBtn:hover {
+    background: rgba(29, 26, 64, 0.2);
+    transform: rotate(90deg);
+  }
 }
 
 .cartCloseBtn svg {
@@ -180,8 +185,10 @@
   border-radius: 3px;
 }
 
-.cartItems::-webkit-scrollbar-thumb:hover {
-  background: rgba(29, 26, 64, 0.3);
+@media (hover: hover) and (pointer: fine) {
+  .cartItems::-webkit-scrollbar-thumb:hover {
+    background: rgba(29, 26, 64, 0.3);
+  }
 }
 
 /* Contact Form Styles */
@@ -313,14 +320,16 @@
   transition: width 0.6s, height 0.6s;
 }
 
-.cartCheckoutBtn:hover::before {
-  width: 300px;
-  height: 300px;
-}
+@media (hover: hover) and (pointer: fine) {
+  .cartCheckoutBtn:hover::before {
+    width: 300px;
+    height: 300px;
+  }
 
-.cartCheckoutBtn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 14px 30px rgba(115, 34, 255, 0.3);
+  .cartCheckoutBtn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(115, 34, 255, 0.3);
+  }
 }
 
 .cartCheckoutBtn:active {
@@ -380,9 +389,11 @@
   transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.cartBrowseBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(115, 34, 255, 0.3);
+@media (hover: hover) and (pointer: fine) {
+  .cartBrowseBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(115, 34, 255, 0.3);
+  }
 }
 
 .cartItemsList {
@@ -411,9 +422,11 @@
 .cartItem:nth-child(4) { animation-delay: 0.4s; }
 .cartItem:nth-child(5) { animation-delay: 0.5s; }
 
-.cartItem:hover {
-  transform: translateX(4px);
-  box-shadow: 0 8px 30px rgba(29, 26, 64, 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .cartItem:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 30px rgba(29, 26, 64, 0.1);
+  }
 }
 
 .cartItemImage {
@@ -538,13 +551,15 @@
   transition: all 0.3s var(--spring-ease, cubic-bezier(0.175, 0.885, 0.32, 1.15));
 }
 
-.cartQtyBtn:hover {
-  background: var(--primary, #7322ff);
-  transform: scale(1.1);
-}
+@media (hover: hover) and (pointer: fine) {
+  .cartQtyBtn:hover {
+    background: var(--primary, #7322ff);
+    transform: scale(1.1);
+  }
 
-.cartQtyBtn:hover svg {
-  color: var(--white, #ffffff);
+  .cartQtyBtn:hover svg {
+    color: var(--white, #ffffff);
+  }
 }
 
 .cartQtyBtn svg {
@@ -578,13 +593,15 @@
   color: var(--text-gray, #70758c);
 }
 
-.cartRemoveBtn:hover {
-  background: rgba(229, 57, 53, 0.1);
-  transform: rotate(90deg) scale(1.1);
-}
+@media (hover: hover) and (pointer: fine) {
+  .cartRemoveBtn:hover {
+    background: rgba(229, 57, 53, 0.1);
+    transform: rotate(90deg) scale(1.1);
+  }
 
-.cartRemoveBtn:hover svg {
-  color: #e53935;
+  .cartRemoveBtn:hover svg {
+    color: #e53935;
+  }
 }
 
 /* Animations */

@@ -49,10 +49,22 @@
   touch-action: manipulation;
 }
 
-.productCard:hover {
-  transform: translateY(-8px);
-  border-color: #7c3aed; /* Purple border on hover */
-  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.12);
+/* Hover effects only for devices with mouse/pointer (not touch screens) */
+@media (hover: hover) and (pointer: fine) {
+  .productCard:hover {
+    transform: translateY(-8px);
+    border-color: #7c3aed; /* Purple border on hover */
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.12);
+  }
+  
+  .productCard:hover .image {
+    transform: scale(1.1);
+  }
+  
+  .addBtn:hover {
+    background: #6d28d9;
+    transform: scale(1.1) rotate(90deg);
+  }
 }
 
 /* Image Wrapper */
@@ -69,9 +81,6 @@
   transition: transform 0.6s ease;
 }
 
-.productCard:hover .image {
-  transform: scale(1.1);
-}
 
 .productImagePlaceholder {
   position: absolute;
@@ -176,10 +185,6 @@
   touch-action: manipulation;
 }
 
-.addBtn:hover {
-  background: #6d28d9;
-  transform: scale(1.1) rotate(90deg);
-}
 
 .addBtn:active {
   transform: scale(0.9);

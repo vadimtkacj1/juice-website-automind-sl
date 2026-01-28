@@ -32,11 +32,25 @@ const CategoryCard = memo(function CategoryCard({
     router.push(`/menu/category/${category.id}`);
   };
 
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleClick();
+  };
+
   return (
     <div
       className={`${styles.categoryCard} reveal`}
       style={{ ['--delay' as string]: `${0.1 * (index + 1)}s` }}
       onClick={handleClick}
+      onTouchEnd={handleTouchEnd}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       {/* Контейнер изображения */}
       <div className={styles.imageWrapper}>

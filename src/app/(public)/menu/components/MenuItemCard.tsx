@@ -49,9 +49,12 @@ const MenuItemCard = memo(function MenuItemCard({
     onItemClick({ ...item, category_id: item.category_id || categoryId });
   }, [item, categoryId, onItemClick]);
 
-  // Performance: Prefetch modal data when user hovers
+  // Performance: Prefetch modal data when user hovers (desktop only)
   const handleMouseEnter = useCallback(() => {
-    prefetchModalData(item.id);
+    // Only prefetch on non-touch devices to avoid triggering on mobile
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      prefetchModalData(item.id);
+    }
   }, [item.id]);
 
   const hasValidImage = item.image?.trim() && !imageError;

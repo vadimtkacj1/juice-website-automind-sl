@@ -54,10 +54,12 @@
   box-shadow: 0 4px 12px rgba(75, 73, 255, 0.2);
 }
 
-/* Hover state: darker purple */
-.modal-add-btn:hover:not(:disabled) {
-  background: var(--modal-accent-hover, #3D3AF0) !important;
-  transform: translateY(-1px);
+/* Hover state: darker purple - only for devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .modal-add-btn:hover:not(:disabled) {
+    background: var(--modal-accent-hover, #3D3AF0) !important;
+    transform: translateY(-1px);
+  }
 }
 
 /* Active state: slight press effect */

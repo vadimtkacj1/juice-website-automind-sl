@@ -111,7 +111,10 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
       <div
         className={styles['modal-backdrop']}
         onClick={onClose}
-        onTouchEnd={onClose}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
         aria-hidden="true"
       />
 
@@ -132,13 +135,7 @@ export default function ProductModal({ item, isOpen, onClose, onAddToCart }: Pro
           
           {/* Main Layout */}
           {isLoading ? (
-            <div style={{ 
-              display: 'flex', 
-              height: '400px', 
-              width: '100%', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
-            }}>
+            <div className={styles['modal-loading-state']}>
                <LoadingSpinner size="lg" text={'טוען פרטים...'} />
             </div>
           ) : (

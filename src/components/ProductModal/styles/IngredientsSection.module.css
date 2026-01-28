@@ -99,10 +99,22 @@
   user-select: none;
 }
 
-.ingredient-card:hover {
-  border-color: rgba(29, 26, 64, 0.3);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+/* Hover effects only for devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .ingredient-card:hover {
+    border-color: rgba(29, 26, 64, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  }
+  
+  .ingredient-card.card-required:hover {
+    border-color: rgba(255, 71, 87, 0.6);
+  }
+  
+  .volume-option-btn:hover {
+    border-color: rgba(29, 26, 64, 0.3);
+    background: var(--modal-bg-secondary);
+  }
 }
 
 .ingredient-card.is-selected {
@@ -116,9 +128,6 @@
   background: rgba(255, 71, 87, 0.02);
 }
 
-.ingredient-card.card-required:hover {
-  border-color: rgba(255, 71, 87, 0.6);
-}
 
 /* --- Бейдж группы на карточке --- */
 .card-group-badge {
@@ -183,9 +192,6 @@
   transition: transform 0.3s ease;
 }
 
-.ingredient-card:hover .card-img {
-  transform: scale(1.08);
-}
 
 .card-emoji {
   font-size: 40px;
@@ -245,10 +251,6 @@
   transition: all 0.2s ease;
 }
 
-.volume-option-btn:hover {
-  border-color: rgba(29, 26, 64, 0.3);
-  background: var(--modal-bg-secondary);
-}
 
 .volume-option-selected {
   border-color: var(--modal-accent);
