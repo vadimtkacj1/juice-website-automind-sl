@@ -106,24 +106,23 @@
   transform: none !important;
 }
 
-/* --- Mobile Footer Behavior (Fixed to Bottom for iOS compatibility) --- */
+/* --- Mobile Footer Behavior (Sticky within grid for iOS compatibility) --- */
 @media (max-width: 960px) {
   .footer-container {
-    position: fixed;
+    position: sticky;
+    position: -webkit-sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
     background: #ffffff;
     padding: 16px 20px calc(env(safe-area-inset-bottom) + 16px);
     margin: 0;
     border-top: 1px solid #EDEDED;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    z-index: 10001;
+    z-index: 100;
     /* Prevent accidental touch interactions */
     touch-action: manipulation;
     /* iOS Safari fix: Force hardware acceleration */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
   .modal-add-btn {

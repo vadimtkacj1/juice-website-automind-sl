@@ -146,12 +146,12 @@
   gap: 24px;
   /* iOS fix: Enable smooth scrolling */
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   /* Allow vertical scrolling only */
   touch-action: pan-y pinch-zoom;
-  /* iOS Safari fix: Force hardware acceleration */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  /* Force hardware acceleration */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 /* --- Modal Sections --- */
@@ -232,29 +232,30 @@
     flex-shrink: 0;
   }
 
-  /* Контент - на мобилке используем flex вместо grid для iOS */
+  /* Контент - используем grid с явной высотой для iOS */
   .modal-content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
+    flex: 1 1 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
     overflow: hidden;
     min-height: 0;
+    height: 100%;
     position: relative;
-    /* iOS fix */
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Scrollable content на мобилке */
   .modal-scrollable-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
-    padding: 20px 16px 200px; /* Увеличенный padding-bottom для fixed footer */
+    padding: 20px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     -webkit-overflow-scrolling: touch;
-    /* iOS fix: Force own stacking context */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: scroll-position;
+    overscroll-behavior-y: contain;
+    /* iOS fix: Force own stacking context and enable hardware acceleration */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
   /* Кнопка закрытия поверх всего */
@@ -304,17 +305,25 @@
   }
 
   .modal-content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
+    flex: 1 1 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
     overflow: hidden;
     min-height: 0;
+    height: 100%;
     position: relative;
   }
 
   .modal-scrollable-content {
-    flex: 1 1 auto;
-    padding: 16px 16px 200px; /* Увеличенный padding-bottom для fixed footer */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 16px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    transform: translate3d(0, 0, 0);
   }
 
   .modal-section {
