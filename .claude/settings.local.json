@@ -14,7 +14,9 @@
       "Bash(grep:*)",
       "Bash(sqlite3:*)",
       "Bash(npm run dev:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(npm run test:email:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { translateObject } from '@/lib/translations';
+import { invalidateMenuCache } from '@/lib/menuCache';
 
 export async function GET(
   request: NextRequest,
@@ -83,6 +84,8 @@ export async function PUT(
 
           // Insert new volumes
           if (volumes.length === 0) {
+            // Invalidate menu cache after clearing volumes
+            invalidateMenuCache();
             resolve(NextResponse.json({ success: true, volumes: [] }));
             return;
           }
@@ -108,6 +111,8 @@ export async function PUT(
                 resolve(NextResponse.json({ error: err.message }, { status: 500 }));
                 return;
               }
+              // Invalidate menu cache after successful volume update
+              invalidateMenuCache();
               resolve(NextResponse.json({ success: true, volumes }));
             }
           );

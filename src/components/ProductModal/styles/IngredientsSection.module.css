@@ -118,7 +118,7 @@
 }
 
 .ingredient-card.is-selected {
-  border-color: var(--modal-accent);
+  border-color: #ed810e;
   background: rgba(29, 26, 64, 0.03);
   box-shadow: 0 4px 12px rgba(29, 26, 64, 0.1);
 }
@@ -137,7 +137,7 @@
   font-family: var(--font-family);
   font-size: 10px;
   font-weight: 600;
-  color: var(--modal-accent);
+  color: #ed810e;
   background: rgba(29, 26, 64, 0.08);
   padding: 3px 8px;
   border-radius: 8px;
@@ -164,7 +164,7 @@
   right: 8px;
   width: 20px;
   height: 20px;
-  background: var(--modal-accent);
+  background: #ed810e;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -221,7 +221,7 @@
   font-family: var(--font-family);
   font-size: 12px;
   font-weight: 700;
-  color: var(--modal-accent);
+  color: #ed810e;
 }
 
 /* --- Ingredient Volume Selector --- */
@@ -253,9 +253,9 @@
 
 
 .volume-option-selected {
-  border-color: var(--modal-accent);
+  border-color: #ed810e;
   background: rgba(29, 26, 64, 0.05);
-  color: var(--modal-accent);
+  color: #ed810e;
   font-weight: 700;
 }
 

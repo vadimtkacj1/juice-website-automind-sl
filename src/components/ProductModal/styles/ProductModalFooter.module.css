@@ -30,16 +30,16 @@
   font-family: inherit;
   font-size: 28px;
   font-weight: 800;
-  /* Matches the purple price in the image */
-  color: var(--modal-accent); 
+  /* Matches the price color */
+  color: #632f00;
 }
 
 /* --- Add to Cart Button --- */
 .modal-add-btn {
   margin-top: 16px;
   width: 100%;
-  /* Solid purple from your design - will NOT turn white */
-  background: var(--modal-accent, #4B49FF) !important;
+  /* Orange accent button */
+  background: #ed810e !important;
   color: #ffffff !important;
   border: none;
   padding: 16px 24px;
@@ -51,15 +51,15 @@
   align-items: center;
   justify-content: center;
   /* Icon gap */
-  gap: 10px; 
+  gap: 10px;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 12px rgba(75, 73, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(237, 129, 14, 0.2);
 }
 
-/* Hover state: darker purple - only for devices with mouse */
+/* Hover state: darker orange - only for devices with mouse */
 @media (hover: hover) and (pointer: fine) {
   .modal-add-btn:hover:not(:disabled) {
-    background: var(--modal-accent-hover, #3D3AF0) !important;
+    background: #d67308 !important;
     transform: translateY(-1px);
   }
 }

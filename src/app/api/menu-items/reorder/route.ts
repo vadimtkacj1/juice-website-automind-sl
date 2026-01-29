@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { invalidateMenuCache } from '@/lib/menuCache';
 
 interface ReorderEntry {
   id: number;
@@ -49,6 +50,8 @@ export async function PUT(request: NextRequest) {
       })
     );
 
+    // Invalidate menu cache after successful reorder
+    invalidateMenuCache();
     return NextResponse.json({ success: true, updated: order.length });
   } catch (error: any) {
     console.error('Error reordering menu items:', error);

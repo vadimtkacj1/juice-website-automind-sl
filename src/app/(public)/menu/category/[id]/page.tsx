@@ -7,6 +7,7 @@ import ProductModal from '@/components/ProductModal';
 import HeroSection from '@/components/HeroSection';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import FloatingFruits from '@/components/FloatingFruits';
 import { translateToHebrew } from '@/lib/translations';
 import MenuItemCard, { MenuItem } from '../../components/MenuItemCard';
 import styles from '../../menu.module.css';
@@ -82,7 +83,8 @@ export default function CategoryPage() {
     <div className={styles.menuPage}>
       <HeroSection
         backgroundImage={category?.image || "https://images.unsplash.com/photo-1628178652615-3974c5d63f03"}
-        showFloatingOranges={true}
+        showFloatingOranges={false}
+        showOverlay={false}
       >
         <div className={categoryStyles.heroInner}>
           <h1 className={categoryStyles.mainTitle}>{translateToHebrew(category?.name || '')}</h1>
@@ -95,6 +97,7 @@ export default function CategoryPage() {
       <Breadcrumbs items={breadcrumbItems} />
 
       <div className={styles.menuContent}>
+        {/* <FloatingFruits /> */}
         <div className={styles.categorySection}>
           {category?.items && category.items.length > 0 ? (
             <div className={categoryStyles.strictGrid}>

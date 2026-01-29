@@ -1,14 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { useLoading } from '@/lib/loading-context';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function GlobalLoader() {
   const { isLoading } = useLoading();
-  const pathname = usePathname();
-  const [isNavigating, setIsNavigating] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Handle initial page load
@@ -27,18 +24,8 @@ export default function GlobalLoader() {
     }
   }, []);
 
-  // Handle route changes
-  useEffect(() => {
-    setIsNavigating(true);
-    const timer = setTimeout(() => {
-      setIsNavigating(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [pathname]);
-
-  // Show loader if any loading state is active
-  const showLoader = isLoading || isNavigating || isInitialLoad;
+  // Show loader only when explicitly requested or during initial page load
+  const showLoader = isLoading || isInitialLoad;
 
   if (!showLoader) return null;
 

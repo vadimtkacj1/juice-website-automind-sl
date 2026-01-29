@@ -44,7 +44,7 @@
 }
 
 .volume-option input:checked + .volume-card {
-  border-color: var(--modal-accent);
+  border-color: #ed810e;
   border-width: 2.5px;
   background: rgba(29, 26, 64, 0.04);
   box-shadow: 0 6px 16px rgba(29, 26, 64, 0.12);
@@ -55,7 +55,7 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  background: var(--modal-accent);
+  background: #ed810e;
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -81,7 +81,7 @@
 }
 
 .volume-option input:checked + .volume-card .volume-price {
-  color: var(--modal-accent);
+  color: #ed810e;
 }
 
 /* --- Responsive Design --- */

@@ -30,7 +30,7 @@
 }
 
 .option-item-selected {
-  border-color: var(--modal-accent);
+  border-color: #ed810e;
   border-width: 2px;
   background: rgba(29, 26, 64, 0.05);
   box-shadow: 0 3px 10px rgba(29, 26, 64, 0.08);
@@ -41,7 +41,7 @@
   margin-top: 2px;
   width: 18px;
   height: 18px;
-  accent-color: var(--modal-accent);
+  accent-color: #ed810e;
   cursor: pointer;
   flex-shrink: 0;
 }

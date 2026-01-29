@@ -10,7 +10,7 @@
   /* Заменили 100vw на 100%, чтобы не было горизонтального скролла */
   max-width: 100%;
   overflow-x: hidden;
-  background-color: #ffffff; /* Прямой цвет для надежности */
+  background-color: #dcbca0; /* Прямой цвет для надежности */
   color: #1d1a40;
 }
 

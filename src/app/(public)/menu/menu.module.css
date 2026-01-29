@@ -1,13 +1,16 @@
 /* Container for the whole menu page */
 .menuPage {
   min-height: 100vh;
-  background: #fcfcfd;
+  background: #dcbca0;
 }
 
 .menuContent {
+  position: relative;
   max-width: 1300px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  overflow: hidden;
+  min-height: 100vh;
 }
 
 /* Category Title - Darker and more pronounced */
@@ -53,16 +56,16 @@
 @media (hover: hover) and (pointer: fine) {
   .productCard:hover {
     transform: translateY(-8px);
-    border-color: #7c3aed; /* Purple border on hover */
-    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.12);
+    border-color: #ed810e; /* Orange border on hover */
+    box-shadow: 0 20px 40px rgba(237, 129, 14, 0.12);
   }
-  
+
   .productCard:hover .image {
     transform: scale(1.1);
   }
-  
+
   .addBtn:hover {
-    background: #6d28d9;
+    background: #d67308;
     transform: scale(1.1) rotate(90deg);
   }
 }
@@ -98,14 +101,14 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  background: #7c3aed;
+  background: #ed810e;
   color: white;
   padding: 5px 14px;
   border-radius: 50px;
   font-size: 0.8rem;
   font-weight: 800;
   z-index: 5;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 12px rgba(237, 129, 14, 0.3);
 }
 
 /* Product Information Area */
@@ -166,12 +169,12 @@
   color: #111111; /* Darker price */
 }
 
-/* Add Button - Modern Purple Squircle */
+/* Add Button - Modern Orange Squircle */
 .addBtn {
   width: 46px;
   height: 46px;
   border-radius: 16px;
-  background: #7c3aed;
+  background: #ed810e;
   color: white;
   border: none;
   cursor: pointer;
@@ -179,7 +182,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 6px 15px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 6px 15px rgba(237, 129, 14, 0.25);
   /* iOS fix: Better touch response */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;

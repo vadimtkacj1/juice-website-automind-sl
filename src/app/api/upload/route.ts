@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { optimizeImage, validateImage, generatePlaceholder } from '@/lib/image-optimizer';
+import { invalidateMenuCache, updateCacheVersion } from '@/lib/menuCache';
 
 // For Next.js 13+ App Router - increase timeout for large file uploads
 export const maxDuration = 30;
@@ -74,6 +75,11 @@ export async function POST(request: NextRequest) {
 
     // Calculate compression ratio
     const compressionRatio = ((1 - optimizedResult.size / file.size) * 100).toFixed(1);
+
+    // Invalidate menu cache since image was uploaded (likely for menu item/category)
+    invalidateMenuCache();
+    updateCacheVersion();
+    console.log('[Upload] Menu cache invalidated after image upload');
 
     return NextResponse.json({
       success: true,

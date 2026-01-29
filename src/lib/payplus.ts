@@ -336,6 +336,92 @@ export async function generatePayPlusLink(options: {
 }
 
 /**
+ * Get PDF receipt from PayPlus for a transaction
+ * @param transactionUid - The PayPlus transaction UID
+ * @returns PDF buffer or null if failed
+ */
+export async function getPayPlusReceipt(transactionUid: string): Promise<{
+  success: boolean;
+  pdfBuffer?: Buffer;
+  error?: string;
+}> {
+  if (!PAYPLUS_API_KEY || !PAYPLUS_SECRET_KEY) {
+    return {
+      success: false,
+      error: 'PayPlus API keys not configured',
+    };
+  }
+
+  try {
+    console.log('[PayPlus] Fetching PDF receipt for transaction:', transactionUid);
+
+    // PayPlus API endpoint for getting invoice/receipt
+    // Note: The actual endpoint might vary - check PayPlus documentation
+    const receiptUrl = `https://restapi.payplus.co.il/api/v1.0/Transactions/${transactionUid}/invoice`;
+
+    // Prepare authentication header
+    const apiKey = PAYPLUS_API_KEY.trim().replace(/\s+/g, '');
+    const secretKey = PAYPLUS_SECRET_KEY.trim().replace(/\s+/g, '');
+    const authHeaderValue = JSON.stringify({ api_key: apiKey, secret_key: secretKey });
+
+    const response = await fetch(receiptUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeaderValue,
+        'Accept': 'application/pdf',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[PayPlus] Failed to fetch receipt:', response.status, response.statusText);
+
+      // Try alternative endpoint - get invoice as PDF
+      const altUrl = `https://restapi.payplus.co.il/api/v1.0/Invoices/GetInvoice`;
+      const altResponse = await fetch(altUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeaderValue,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transaction_uid: transactionUid,
+          format: 'pdf',
+        }),
+      });
+
+      if (!altResponse.ok) {
+        console.error('[PayPlus] Alternative receipt endpoint also failed');
+        return {
+          success: false,
+          error: 'Failed to fetch receipt from PayPlus',
+        };
+      }
+
+      const pdfBuffer = Buffer.from(await altResponse.arrayBuffer());
+      console.log('[PayPlus] ✅ PDF receipt fetched successfully (alt endpoint)');
+      return {
+        success: true,
+        pdfBuffer,
+      };
+    }
+
+    const pdfBuffer = Buffer.from(await response.arrayBuffer());
+    console.log('[PayPlus] ✅ PDF receipt fetched successfully');
+
+    return {
+      success: true,
+      pdfBuffer,
+    };
+  } catch (error: any) {
+    console.error('[PayPlus] Error fetching receipt:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch receipt',
+    };
+  }
+}
+
+/**
  * Check if PayPlus is configured
  */
 export function isPayPlusConfigured(): boolean {

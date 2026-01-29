@@ -58,7 +58,7 @@ body:has(.nav-sticky.is-active) .nav-main {
 }
 
 .nav-content {
-  background-color: var(--secondary);
+  background-color: #ed810e;
   border-radius: var(--radius-full);
   padding: 12px 32px;
   display: flex;

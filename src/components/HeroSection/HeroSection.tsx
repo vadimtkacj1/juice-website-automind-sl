@@ -9,6 +9,7 @@ interface HeroSectionProps {
   children: React.ReactNode;
   backgroundImage?: string;
   showFloatingOranges?: boolean;
+  showOverlay?: boolean;
 }
 
 // Floating orange configuration
@@ -75,7 +76,7 @@ const floatingOranges = [
   },
 ];
 
-export default function HeroSection({ children, backgroundImage, showFloatingOranges = false }: HeroSectionProps) {
+export default function HeroSection({ children, backgroundImage, showFloatingOranges = false, showOverlay = true }: HeroSectionProps) {
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -152,13 +153,13 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       className={`hero ${isVisible ? 'active' : ''}`}
       id="hero"
       style={{
-        backgroundColor: '#7322ff',
+        backgroundColor: showOverlay ? '#7322ff' : '#f5f5f5',
         ...(backgroundImage && imageLoaded ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundBlendMode: 'overlay'
+          ...(showOverlay ? { backgroundBlendMode: 'overlay' } : {})
         } : {}),
         opacity: imageLoaded ? 1 : 0.95,
         transition: 'opacity 0.3s ease-in-out'
@@ -173,7 +174,7 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       />
       
       {/* Animated background gradient overlay */}
-      <div className="hero-gradient-overlay" aria-hidden="true"></div>
+      {showOverlay && <div className="hero-gradient-overlay" aria-hidden="true"></div>}
       
       {/* Floating Oranges Container - Only on home page */}
       {showFloatingOranges && (
@@ -216,20 +217,24 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       </div>
       
       {/* Decorative animated elements */}
-      <div 
-        className="hero-decoration hero-decoration-1" 
-        aria-hidden="true"
-        style={{
-          transform: `translateY(${scrollY * 0.2}px)`,
-        }}
-      ></div>
-      <div 
-        className="hero-decoration hero-decoration-2" 
-        aria-hidden="true"
-        style={{
-          transform: `translateY(${scrollY * 0.15}px)`,
-        }}
-      ></div>
+      {showOverlay && (
+        <>
+          <div
+            className="hero-decoration hero-decoration-1"
+            aria-hidden="true"
+            style={{
+              transform: `translateY(${scrollY * 0.2}px)`,
+            }}
+          ></div>
+          <div
+            className="hero-decoration hero-decoration-2"
+            aria-hidden="true"
+            style={{
+              transform: `translateY(${scrollY * 0.15}px)`,
+            }}
+          ></div>
+        </>
+      )}
       
       {/* Mobile Menu */}
       <MobileMenu 

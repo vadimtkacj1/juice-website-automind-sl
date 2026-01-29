@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, Eye } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { translateToHebrew } from '@/lib/translations';
@@ -71,11 +71,11 @@ export default function HomePage() {
   return (
     <div className={styles.homePage}>
       <HeroSection
-        backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?..."
-        showFloatingOranges={true}
+        backgroundImage="/images/hero.jpg"
+        showFloatingOranges={false}
+        showOverlay={false}
       >
-        <h1 className="hero-title">מיצים טבעיים טריים</h1>
-        <p className="hero-subtitle">בחר את הקטגוריה האהובה עליך</p>
+        <></>
       </HeroSection>
 
       <section className={styles.categoriesSection}>
@@ -93,7 +93,7 @@ export default function HomePage() {
               href={`/menu/category/${category.id}`}
               className={styles.categoryCard}
             >
-              {/* Image Container with Hover Hint */}
+              {/* Image Container */}
               <div className={styles.categoryImageWrapper}>
                 {category.image ? (
                   <Image
@@ -110,14 +110,6 @@ export default function HomePage() {
                     <ShoppingBag size={48} strokeWidth={1.2} />
                   </div>
                 )}
-
-                {/* Purple Hover CTA Badge */}
-                <div className={styles.hoverHint}>
-                  <div className={styles.hintBadge}>
-                    <Eye size={18} />
-                    <span>צפייה בתפריט</span>
-                  </div>
-                </div>
               </div>
 
               {/* Category Name Below Image */}

@@ -1,2 +1,2 @@
-export { default } from '../Chart/Cart';
+export { default } from './Cart';
 

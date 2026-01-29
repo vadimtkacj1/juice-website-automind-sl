@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { translateObject } from '@/lib/translations';
+import { invalidateMenuCache, updateCacheVersion } from '@/lib/menuCache';
 
 export async function GET(
   request: NextRequest,
@@ -98,7 +99,10 @@ export async function PUT(
             resolve(NextResponse.json({ error: 'Item not found' }, { status: 404 }));
             return;
           }
-          resolve(NextResponse.json({ success: true, id }));
+          // Invalidate menu cache after successful update
+          invalidateMenuCache();
+          updateCacheVersion();
+          resolve(NextResponse.json({ success: true, id, cacheVersion: Date.now() }));
         }
       );
     });
@@ -138,6 +142,8 @@ export async function DELETE(
           resolve(NextResponse.json({ error: 'Item not found' }, { status: 404 }));
           return;
         }
+        // Invalidate menu cache after successful deletion
+        invalidateMenuCache();
         resolve(NextResponse.json({ success: true }));
       });
     });

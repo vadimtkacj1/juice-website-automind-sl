@@ -597,12 +597,20 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                 const deliveryRecipients = recipients.filter(r => r.role === 'delivery');
                 const observerRecipients = recipients.filter(r => r.role === 'observer');
 
+                // Extract delivery date from notes if available
+                let deliveryDateStr = '';
+                if (order.notes) {
+                  const dateMatch = order.notes.match(/Delivery Date: (\d{4}-\d{2}-\d{2})/);
+                  if (dateMatch) deliveryDateStr = dateMatch[1];
+                }
+
                 // Kitchen message (no buttons)
                 const kitchenMessage = `🍳 הזמנה חדשה #${order.id}\n\n` +
                   `👤 לקוח: ${order.customer_name}\n` +
                   `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
                   `📧 אימייל: ${order.customer_email || 'לא צוין'}\n` +
                   (order.delivery_address ? `📍 כתובת למשלוח: ${order.delivery_address}\n` : '') +
+                  (deliveryDateStr ? `📅 תאריך משלוח: ${deliveryDateStr}\n` : '') +
                   `💰 סכום: ₪${order.total_amount}\n\n` +
                   `📦 פרטי ההזמנה:\n${order.items || 'אין פריטים'}\n\n` +
                   (order.notes ? `📝 הערות: ${order.notes}\n\n` : '') +
@@ -614,6 +622,7 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                   `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
                   `📧 אימייל: ${order.customer_email || 'לא צוין'}\n` +
                   (order.delivery_address ? `📍 כתובת למשלוח: ${order.delivery_address}\n` : '') +
+                  (deliveryDateStr ? `📅 תאריך משלוח: ${deliveryDateStr}\n` : '') +
                   `💰 סכום: ₪${order.total_amount}\n\n` +
                   `📦 פרטי ההזמנה:\n${order.items || 'אין פריטים'}\n\n` +
                   (order.notes ? `📝 הערות: ${order.notes}\n\n` : '') +
@@ -624,6 +633,7 @@ async function sendOrderNotificationInternal(orderId: number, bot: TelegramBot, 
                 const observerMessage = `👁️ הזמנה חדשה (מידע) #${order.id}\n\n` +
                   `👤 לקוח: ${order.customer_name}\n` +
                   (order.delivery_address ? `📍 כתובת: ${order.delivery_address}\n` : '') +
+                  (deliveryDateStr ? `📅 תאריך: ${deliveryDateStr}\n` : '') +
                   `💰 סכום: ₪${order.total_amount}\n` +
                   `📦 פריטים: ${order.items?.split('\n').length || 0}\n` +
                   `⏰ זמן: ${new Date(order.created_at).toLocaleString('he-IL')}`;
@@ -775,10 +785,18 @@ export async function handleOrderAccept(orderId: number, deliveryTelegramId: str
                   return;
                 }
 
+                // Extract delivery date from notes
+                let deliveryDateStr = '';
+                if (order.notes) {
+                  const dateMatch = order.notes.match(/Delivery Date: (\d{4}-\d{2}-\d{2})/);
+                  if (dateMatch) deliveryDateStr = dateMatch[1];
+                }
+
                 const confirmMessage = `✅ ההזמנה #${orderId} בטיפול!\n\n` +
                   `👤 לקוח: ${order.customer_name}\n` +
                   `📞 טלפון: ${order.customer_phone || 'לא צוין'}\n` +
                   (order.delivery_address ? `📍 כתובת: ${order.delivery_address}\n` : '') +
+                  (deliveryDateStr ? `📅 תאריך משלוח: ${deliveryDateStr}\n` : '') +
                   `\n❓ ההזמנה נמסרה?`;
 
                 try {
@@ -819,6 +837,7 @@ export async function handleOrderAccept(orderId: number, deliveryTelegramId: str
                           const reminderMsg = `⏰ תזכורת: הזמנה #${orderId}\n\n` +
                             `👤 לקוח: ${order.customer_name}\n` +
                             (order.delivery_address ? `📍 כתובת: ${order.delivery_address}\n` : '') +
+                            (deliveryDateStr ? `📅 תאריך משלוח: ${deliveryDateStr}\n` : '') +
                             `\n❓ ההזמנה נמסרה?`;
 
                           await bot.sendMessage(

@@ -6,8 +6,8 @@
   --font-family: 'Heebo', sans-serif;
   
   /* Primary Colors */
-  --primary: #7322ff;
-  --primary-dark: #5a1acc;
+  --primary: #ed810e;
+  --primary-dark: #d67308;
   --secondary: #93f3aa;
   --pink: #fe7bff;
   
@@ -41,8 +41,8 @@
   --radius-lg: 30px;
   --radius-xl: 40px;
   --radius-full: 100px;
-  --modal-accent: #4B49FF; 
-  --modal-accent-hover: #3D3AF0;
+  --modal-accent: #ed810e;
+  --modal-accent-hover: #d67308;
   --modal-text-main: #1D1D1F;
   --modal-text-secondary: #86868B;
   --modal-bg-secondary: #F5F5F7;

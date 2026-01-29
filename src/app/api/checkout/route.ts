@@ -10,13 +10,16 @@ interface CustomerInfo {
   email: string;
   name?: string;
   deliveryAddress?: string;
+  city?: string;
+  deliveryCost?: number;
+  deliveryDate?: string;
 }
 
 // Helper to calculate order total
-function calculateTotal(items: CartItem[]): number {
-  return items.reduce((sum, item) => {
+function calculateTotal(items: CartItem[], deliveryCost: number = 0): number {
+  const itemsTotal = items.reduce((sum, item) => {
     const itemPrice = item.price * item.quantity;
-    const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal, ing) => 
+    const ingredientsPrice = (item.customIngredients || []).reduce((ingTotal, ing) =>
       ingTotal + ing.price * item.quantity, 0
     );
     const additionalItemsPrice = (item.additionalItems || []).reduce((addTotal, addItem) =>
@@ -24,6 +27,8 @@ function calculateTotal(items: CartItem[]): number {
     );
     return sum + itemPrice + ingredientsPrice + additionalItemsPrice;
   }, 0);
+
+  return itemsTotal + deliveryCost;
 }
 
 // Helper to save pending order (before payment)
@@ -119,6 +124,12 @@ async function saveOrder(items: CartItem[], customer: CustomerInfo): Promise<{
     
     // Build notes with ingredient information
     const notesParts = [`Order: ${orderNumber}`];
+
+    // Add delivery date if available
+    if (customer.deliveryDate) {
+      notesParts.push(`Delivery Date: ${customer.deliveryDate}`);
+    }
+
     items.forEach((item, idx) => {
       if (item.customIngredients && item.customIngredients.length > 0) {
         const ingredientsList = item.customIngredients.map(ing => ing.name).join(', ');
@@ -206,7 +217,8 @@ export async function POST(request: NextRequest) {
 
     // Calculate total and save pending order (NOT final order yet)
     try {
-      const total = calculateTotal(items);
+      const deliveryCost = customer.deliveryCost || 0;
+      const total = calculateTotal(items, deliveryCost);
       const pendingOrder = await savePendingOrder(items, customer, total);
       
       // Generate PayPlus payment link

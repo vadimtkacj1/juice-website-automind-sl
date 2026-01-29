@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getDatabase from '@/lib/database';
 import { sendOrderNotification } from '@/lib/telegram-bot';
+import { getPayPlusReceipt } from '@/lib/payplus';
 const { sendOrderConfirmationEmail, sendAdminOrderNotification } = require('@/lib/email.js');
 
 /**
@@ -56,6 +57,12 @@ async function saveOrder(items: any[], customer: any, orderNumber: string): Prom
 
     // Build notes with ingredient information
     const notesParts = [`Order: ${orderNumber}`];
+
+    // Add delivery date if available
+    if (customer.deliveryDate) {
+      notesParts.push(`Delivery Date: ${customer.deliveryDate}`);
+    }
+
     items.forEach((item: any, idx: number) => {
       if (item.customIngredients && item.customIngredients.length > 0) {
         const ingredientsList = item.customIngredients.map((ing: any) => ing.name).join(', ');
@@ -274,17 +281,38 @@ export async function POST(request: NextRequest) {
                   items: orderData.items.map((item: any) => ({
                     name: item.name,
                     quantity: item.quantity,
-                    price: item.price
+                    price: item.price,
+                    customIngredients: item.customIngredients || [],
+                    additionalItems: item.additionalItems || []
                   })),
                   total: orderResult.total,
                   deliveryAddress: orderData.customer.deliveryAddress
                 };
 
-                // Send customer confirmation email
+                // Get PDF receipt from PayPlus
+                let pdfAttachment = null;
+                if (body.transaction_uid) {
+                  console.log('[PayPlus Webhook] Fetching PDF receipt from PayPlus...');
+                  try {
+                    const receiptResult = await getPayPlusReceipt(body.transaction_uid);
+                    if (receiptResult.success && receiptResult.pdfBuffer) {
+                      pdfAttachment = receiptResult.pdfBuffer;
+                      console.log('[PayPlus Webhook] ✅ PDF receipt obtained from PayPlus');
+                    } else {
+                      console.log('[PayPlus Webhook] ⚠️ Could not get PDF receipt from PayPlus:', receiptResult.error);
+                    }
+                  } catch (error) {
+                    console.error('[PayPlus Webhook] ❌ Error fetching PDF receipt:', error);
+                  }
+                } else {
+                  console.log('[PayPlus Webhook] ⚠️ No transaction_uid in webhook, skipping PDF fetch');
+                }
+
+                // Send customer confirmation email with PDF attachment
                 try {
-                  const customerEmailSuccess = await sendOrderConfirmationEmail(emailData);
+                  const customerEmailSuccess = await sendOrderConfirmationEmail(emailData, pdfAttachment);
                   if (customerEmailSuccess) {
-                    console.log('[PayPlus Webhook] ✅ Customer confirmation email sent');
+                    console.log('[PayPlus Webhook] ✅ Customer confirmation email sent' + (pdfAttachment ? ' with PDF attachment' : ''));
                   } else {
                     console.log('[PayPlus Webhook] ⚠️ Failed to send customer email');
                   }

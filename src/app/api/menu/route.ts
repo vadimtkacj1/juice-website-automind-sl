@@ -7,6 +7,8 @@ import { translateObject } from '@/lib/translations';
 import path from 'path';
 import fs from 'fs';
 import getDatabase from '@/lib/database';
+import { getMenuCache, setMenuCache, getCacheVersion } from '@/lib/menuCache';
+import { addCacheVersion } from '@/lib/cache-utils';
 
 // Helper to promisify database queries
 const dbAll = (db: any, query: string, params: any[] = []): Promise<any[]> => {
@@ -27,10 +29,6 @@ const dbGet = (db: any, query: string, params: any[] = []): Promise<any> => {
   });
 };
 
-// In-memory cache for menu data (5 minutes TTL)
-let menuCache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
 export async function GET() {
   const requestId = `[${Date.now()}]`;
   const isDev = process.env.NODE_ENV !== 'production';
@@ -41,11 +39,12 @@ export async function GET() {
 
   try {
     // Check cache first
-    if (menuCache && (Date.now() - menuCache.timestamp) < CACHE_TTL) {
+    const cachedData = getMenuCache();
+    if (cachedData) {
       if (isDev) {
         console.log(`${requestId} [Menu API] Returning cached data`);
       }
-      return NextResponse.json(menuCache.data);
+      return NextResponse.json(cachedData);
     }
 
     // 1. Resolve Database Path (for debugging)
@@ -137,14 +136,27 @@ export async function GET() {
       console.log(`${requestId} [Menu API] Success: Returning ${menu.length} categories`);
     }
 
-    // Cache the result
-    const responseData = { menu };
-    menuCache = {
-      data: responseData,
-      timestamp: Date.now()
-    };
+    // Add cache version to image URLs for cache busting
+    const cacheVersion = getCacheVersion();
+    const menuWithCacheBusting = menu.map((category: any) => ({
+      ...category,
+      image: addCacheVersion(category.image, cacheVersion),
+      items: category.items.map((item: any) => ({
+        ...item,
+        image: addCacheVersion(item.image, cacheVersion),
+      })),
+    }));
 
-    return NextResponse.json(responseData);
+    // Cache the result
+    const responseData = { menu: menuWithCacheBusting, cacheVersion };
+    setMenuCache(responseData);
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'no-store, must-revalidate',
+        'CDN-Cache-Control': 'no-store',
+      },
+    });
 
   } catch (error: any) {
     console.error(`${requestId} [Menu API] CRITICAL ERROR:`, error);

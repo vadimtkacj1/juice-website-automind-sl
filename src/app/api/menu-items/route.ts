@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { translateObject } from '@/lib/translations';
+import { invalidateMenuCache } from '@/lib/menuCache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -108,12 +109,14 @@ export async function POST(request: NextRequest) {
             resolve(NextResponse.json({ error: err.message }, { status: 500 }));
             return;
           }
+          // Invalidate menu cache after successful creation
+          invalidateMenuCache();
           resolve(
             NextResponse.json(
-              { 
-                id: this.lastID, 
+              {
+                id: this.lastID,
                 category_id, name, description,
-                price, volume, image, discount_percent, is_available, sort_order 
+                price, volume, image, discount_percent, is_available, sort_order
               },
               { status: 201 }
             )

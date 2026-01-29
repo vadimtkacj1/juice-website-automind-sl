@@ -4,48 +4,108 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useLoading } from '@/lib/loading-context';
-import { CreditCard, Loader2, ArrowRight, AlertCircle, ArrowLeft, Lock } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import dynamic from 'next/dynamic';
+import OrderSummary from '@/components/checkout/OrderSummary';
+import CheckoutForm from '@/components/checkout/CheckoutForm';
+
+// Delivery configuration
+const DELIVERY_CONFIG = {
+  freeDeliveryThreshold: 300,
+  selfPickup: {
+    name: 'איסוף עצמי',
+    cost: 0,
+    minOrder: 0
+  },
+  cities: {
+    'חולון': { cost: 20, minOrder: 100 },
+    'בת ים': { cost: 20, minOrder: 100 },
+    'אזור': { cost: 20, minOrder: 100 },
+    'ראשון לציון': { cost: 25, minOrder: 200 },
+    'גבעתיים': { cost: 25, minOrder: 200 },
+    'בני ברק': { cost: 25, minOrder: 200 },
+    'תל אביב': { cost: 25, minOrder: 200 },
+    'רמת גן': { cost: 25, minOrder: 200 },
+    'נס ציונה': { cost: 25, minOrder: 200 },
+  }
+};
+
+const cities = ['איסוף עצמי', ...Object.keys(DELIVERY_CONFIG.cities)];
 
 export default function CheckoutPage() {
-  const { cart, getTotalPrice, clearCart } = useCart();
+  const { cart, getTotalPrice } = useCart();
   const router = useRouter();
   const { setLoading: setGlobalLoading } = useLoading();
-  
-  // Customer state management
+
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
-    email: '',
     phone: '',
-    deliveryAddress: '',
+    city: '',
+    street: '',
+    houseNumber: '',
+    apartmentLevel: '',
+    apartmentNumber: '',
+    additionalInfo: '',
+    deliveryDate: '',
   });
-  
+
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  
-  // Redirect to menu if the cart becomes empty
+
+  // Calculate delivery cost
+  const calculateDeliveryCost = (): number => {
+    const subtotal = getTotalPrice();
+
+    if (subtotal >= DELIVERY_CONFIG.freeDeliveryThreshold) {
+      return 0;
+    }
+
+    if (customerInfo.city === 'איסוף עצמי') {
+      return 0;
+    }
+
+    const cityConfig = DELIVERY_CONFIG.cities[customerInfo.city as keyof typeof DELIVERY_CONFIG.cities];
+    if (cityConfig) {
+      return cityConfig.cost;
+    }
+
+    return 0;
+  };
+
+  const deliveryCost = calculateDeliveryCost();
+  const subtotal = getTotalPrice();
+  const totalWithDelivery = subtotal + deliveryCost;
+
+  // Check if order meets minimum requirement
+  const isOrderBelowMinimum = (): boolean => {
+    if (!customerInfo.city || customerInfo.city === 'איסוף עצמי') {
+      return false;
+    }
+
+    const cityConfig = DELIVERY_CONFIG.cities[customerInfo.city as keyof typeof DELIVERY_CONFIG.cities];
+    if (cityConfig) {
+      return subtotal < cityConfig.minOrder;
+    }
+
+    return false;
+  };
+
+  // Redirect to menu if cart is empty
   useEffect(() => {
     if (cart.length === 0 && !isProcessing) {
       router.push('/menu');
     }
   }, [cart, router, isProcessing]);
-  
-  // Form validation logic
+
+  // Form validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!customerInfo.name.trim()) {
-      newErrors.name = 'name is required';
-    }
-
-    if (!customerInfo.email.trim()) {
-      newErrors.email = 'נדרש אימייל';
-    } else if (!/\S+@\S+\.\S+/.test(customerInfo.email)) {
-      newErrors.email = 'please enter a valid email address';
+      newErrors.name = 'נא להזין שם מלא';
     }
 
     if (!customerInfo.phone.trim()) {
@@ -54,27 +114,58 @@ export default function CheckoutPage() {
       newErrors.phone = 'אנא הזן מספר טלפון תקין';
     }
 
-    if (!customerInfo.deliveryAddress.trim()) {
-      newErrors.deliveryAddress = 'נדרשת כתובת למשלוח';
+    if (!customerInfo.city.trim()) {
+      newErrors.city = 'נא לבחור עיר';
+    } else {
+      const cityConfig = DELIVERY_CONFIG.cities[customerInfo.city as keyof typeof DELIVERY_CONFIG.cities];
+      if (cityConfig && subtotal < cityConfig.minOrder) {
+        newErrors.city = `מינימום הזמנה עבור ${customerInfo.city}: ₪${cityConfig.minOrder}`;
+      }
+    }
+
+    if (customerInfo.city !== 'איסוף עצמי') {
+      if (!customerInfo.street.trim()) {
+        newErrors.street = 'נדרש שם רחוב';
+      }
+      if (!customerInfo.houseNumber.trim()) {
+        newErrors.houseNumber = 'נדרש מספר בית';
+      }
+      if (!customerInfo.deliveryDate) {
+        newErrors.deliveryDate = 'נא לבחור תאריך משלוח';
+      }
+    }
+
+    if (!termsAccepted) {
+      newErrors.terms = 'יש לאשר את התקנון';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  // Handle form submission and PayPlus integration
+
+  // Handle form submission
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsProcessing(true);
     setGlobalLoading(true);
-    
+
     try {
+      const deliveryAddress = customerInfo.city === 'איסוף עצמי'
+        ? 'איסוף עצמי'
+        : `${customerInfo.street} ${customerInfo.houseNumber}${
+            customerInfo.apartmentLevel ? `, קומה ${customerInfo.apartmentLevel}` : ''
+          }${
+            customerInfo.apartmentNumber ? `, דירה ${customerInfo.apartmentNumber}` : ''
+          }, ${customerInfo.city}${
+            customerInfo.additionalInfo ? ` - ${customerInfo.additionalInfo}` : ''
+          }`;
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -82,308 +173,94 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           items: cart,
-          customer: customerInfo,
+          customer: {
+            name: customerInfo.name,
+            phone: customerInfo.phone,
+            email: customerInfo.phone + '@placeholder.com',
+            deliveryAddress: deliveryAddress,
+            city: customerInfo.city,
+            deliveryCost: deliveryCost,
+            deliveryDate: customerInfo.deliveryDate,
+          },
         }),
       });
-      
+
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setApiError(data.error || 'failed to process checkout. please try again.');
+        setApiError(data.error || 'נכשל בעיבוד ההזמנה. נא לנסות שוב.');
         setIsProcessing(false);
         setGlobalLoading(false);
         return;
       }
 
-      // Redirect user to the PayPlus hosted payment page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        setApiError('failed to generate payment link. please try again.');
+        setApiError('נכשל ביצירת קישור לתשלום. נא לנסות שוב.');
         setIsProcessing(false);
         setGlobalLoading(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      setApiError('network error. please check your connection and try again.');
+      setApiError('שגיאת רשת. נא לבדוק את החיבור ולנסות שוב.');
       setIsProcessing(false);
       setGlobalLoading(false);
     }
   };
-  
-  // Calculate price for individual items including extras
-  const calculateItemTotal = (item: any) => {
-    let total = Number(item.price);
-    if (item.customIngredients) {
-      total += item.customIngredients.reduce((sum: number, ing: any) => Number(sum) + Number(ing.price), 0);
-    }
-    if (item.additionalItems) {
-      total += item.additionalItems.reduce((sum: number, addItem: any) => Number(sum) + Number(addItem.price), 0);
-    }
-    return Number(total) * Number(item.quantity);
-  };
-  
+
   if (cart.length === 0 && !isProcessing) {
     return null;
   }
-  
+
   return (
-    /* dir="rtl" ensures the layout and text alignment follow Hebrew standards */
-    <div className={styles['checkout-page']} dir="rtl">
-      <div className={styles['checkout-container']}>
-        
-{/* Header section with 3-column grid for perfect centering */}
-<div 
-  className={styles['header-wrapper']} 
-  style={{ 
-    display: 'grid', 
-    gridTemplateColumns: '1fr auto 1fr', // Grid ensures title is always centered
-    alignItems: 'center', 
-    marginBottom: '3rem',
-    width: '100%',
-    color: '#000' // High visibility black
-  }}
->
-  {/* Column 1: Back Button with arrow on the left */}
-  <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-    <Link
-      href="/menu"
-      className={styles['back-button']}
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '0.5rem',
-        color: '#000', 
-        textDecoration: 'none',
-        fontWeight: '700', // Bold text
-        fontSize: '1.2rem'
-      }}
-      onClick={(e) => { if (isProcessing) e.preventDefault(); }}
-    >
-      {/* In RTL, putting the text first makes the icon appear on the left */}
-      <span>חזרה לתפריט</span>
-      <ArrowLeft size={24} /> 
-    </Link>
-  </div>
+    <div className={styles.page} dir="rtl">
+      <div className={styles.container}>
 
-  {/* Column 2: Centered Large Title */}
-  <h1 style={{ 
-    margin: 0, 
-    fontSize: '3.5rem',  // Larger font size
-    fontWeight: '900',   // Extra bold black
-    color: '#000',
-    textAlign: 'center'
-  }}>
-    קופה
-  </h1>
+        {/* Header */}
+        <div className={styles.header}>
+          <Link
+            href="/menu"
+            className={styles.backButton}
+            onClick={(e) => { if (isProcessing) e.preventDefault(); }}
+          >
+            <ArrowLeft size={20} />
+            <span>חזרה לתפריט</span>
+          </Link>
 
-  {/* Column 3: Empty spacer for symmetry */}
-  <div />
-</div>
-        
-        <div className={styles['checkout-content']}>
-          {/* Right Column: Order Summary */}
-          <div className={styles['order-summary']}>
-            <h2>{'סיכום הזמנה'}</h2>
+          <h1>קופה</h1>
 
-            <div className={styles['cart-items']}>
-              {cart.map((item, index) => (
-                <div key={index} className={styles['cart-item']}>
-                  {item.image && (
-                    <div className={styles['item-image']}>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        style={{ objectFit: 'cover' }}
-                        loading="lazy"
-                        quality={75}
-                        placeholder="blur"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-                      />
-                    </div>
-                  )}
+          <div />
+        </div>
 
-                  <div className={styles['item-details']}>
-                    <h3>{item.name}</h3>
-                    {item.volume && <p className={styles['item-volume']}>{item.volume}</p>}
-                    
-                    {/* Display extra ingredients if any */}
-                    {item.customIngredients && item.customIngredients.length > 0 && (
-                      <div className={styles['item-extras']}>
-                        <span className={styles['extras-label']}>
-                          {'custom ingredients'}:
-                        </span>
-                        {item.customIngredients.map((ing: any, idx: number) => (
-                          <span key={idx} className={styles['extra-item']}>
-                            {ing.name} (+₪{ing.price})
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Display additional items if any */}
-                    {item.additionalItems && item.additionalItems.length > 0 && (
-                      <div className={styles['item-extras']}>
-                        <span className={styles['extras-label']}>
-                          {'פריטים נוספים'}:
-                        </span>
-                        {item.additionalItems.map((addItem: any, idx: number) => (
-                          <span key={idx} className={styles['extra-item']}>
-                            {addItem.name} (+₪{Number(addItem.price)})
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className={styles['item-quantity']}>
-                      {'כמות'}: {item.quantity}
-                    </div>
-                  </div>
+        {/* Content Grid */}
+        <div className={styles.content}>
+          {/* Checkout Form */}
+          <CheckoutForm
+            customerInfo={customerInfo}
+            setCustomerInfo={setCustomerInfo}
+            termsAccepted={termsAccepted}
+            setTermsAccepted={setTermsAccepted}
+            errors={errors}
+            apiError={apiError}
+            isProcessing={isProcessing}
+            cities={cities}
+            deliveryConfig={DELIVERY_CONFIG}
+            subtotal={subtotal}
+            deliveryCost={deliveryCost}
+            isOrderBelowMinimum={isOrderBelowMinimum()}
+            onSubmit={handleCheckout}
+          />
 
-                  <div className={styles['item-price']}>
-                    ₪{calculateItemTotal(item)}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className={styles['order-total']}>
-              <span>{'סכום כולל'}</span>
-              <span className={styles['total-price']}>₪{getTotalPrice()}</span>
-            </div>
-          </div>
-
-          {/* Left Column: Customer Details & Form */}
-          <div className={styles['customer-form']}>
-            <h2>{'פרטי יצירת קשר'}</h2>
-
-            {apiError && (
-              <div className={styles['error-message']}>
-                <AlertCircle size={20} />
-                <span>{apiError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleCheckout}>
-              <div className={styles['form-group']}>
-                <label htmlFor="name">
-                  {'full name'} <span className={styles['required']}>*</span>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                  className={errors.name ? styles['input-error'] : ''}
-                  disabled={isProcessing}
-                  placeholder={'enter your full name'}
-                />
-                {errors.name && <span className={styles['field-error']}>{errors.name}</span>}
-              </div>
-
-              <div className={styles['form-group']}>
-                <label htmlFor="email">
-                  {'כתובת אימייל'} <span className={styles['required']}>*</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={customerInfo.email}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                  className={errors.email ? styles['input-error'] : ''}
-                  disabled={isProcessing}
-                  placeholder={'your.email@example.com'}
-                />
-                {errors.email && <span className={styles['field-error']}>{errors.email}</span>}
-              </div>
-
-              <div className={styles['form-group']}>
-                <label htmlFor="phone">
-                  {'מספר טלפון'} <span className={styles['required']}>*</span>
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                  className={errors.phone ? styles['input-error'] : ''}
-                  disabled={isProcessing}
-                  placeholder="05X-XXX-XXXX"
-                />
-                {errors.phone && <span className={styles['field-error']}>{errors.phone}</span>}
-              </div>
-
-              <div className={styles['form-group']}>
-                <label htmlFor="deliveryAddress">
-                  {'כתובת משלוח'} <span className={styles['required']}>*</span>
-                </label>
-                <textarea
-                  id="deliveryAddress"
-                  value={customerInfo.deliveryAddress}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryAddress: e.target.value })}
-                  className={errors.deliveryAddress ? styles['input-error'] : ''}
-                  disabled={isProcessing}
-                  placeholder={'street address, city, postal code'}
-                  rows={3}
-                />
-                {errors.deliveryAddress && <span className={styles['field-error']}>{errors.deliveryAddress}</span>}
-              </div>
-              
-              {/* Security and Trust Badges for PayPlus */}
-              <div className={styles['payment-info']}>
-                <div className={styles['payplus-logo']}>
-                  <CreditCard size={24} />
-                  <span>PayPlus</span>
-                </div>
-                <p className={styles['payment-description']}>
-                  {'you will be redirected to payplus secure payment page to complete your payment. all payment information is processed securely by payplus.'}
-                </p>
-                <div className={styles['security-features']}>
-                  <div className={styles['security-feature']}>
-                    <Lock size={16} />
-                    <span>{'encrypted connection'}</span>
-                  </div>
-                  <div className={styles['security-feature']}>
-                    <CreditCard size={16} />
-                    <span>{'pci dss compliant'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className={styles['form-actions']}>
-                <Link
-                  href="/menu"
-                  className={styles['btn-secondary']}
-                  onClick={(e) => {
-                    if (isProcessing) e.preventDefault();
-                  }}
-                >
-                  {'back to menu'}
-                </Link>
-
-                <button
-                  type="submit"
-                  className={styles['btn-primary']}
-                  disabled={isProcessing || cart.length === 0}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 size={20} className={styles['spinner']} />
-                      {'processing...'}
-                    </>
-                  ) : (
-                    <>
-                      {'proceed to payment'}
-                      {/* ArrowLeft points forward in Hebrew RTL layout */}
-                      <ArrowLeft size={20} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+          {/* Order Summary */}
+          <OrderSummary
+            cart={cart}
+            subtotal={subtotal}
+            deliveryCost={deliveryCost}
+            total={customerInfo.city ? totalWithDelivery : subtotal}
+            showDelivery={!!customerInfo.city}
+            freeDeliveryThreshold={DELIVERY_CONFIG.freeDeliveryThreshold}
+          />
         </div>
       </div>
     </div>
