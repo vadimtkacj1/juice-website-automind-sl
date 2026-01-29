@@ -47,13 +47,13 @@
 .main-contact-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 60px rgba(29, 26, 64, 0.15);
-  border-color: #7322ff;
+  border-color: #ed810e;
 }
 
 .main-contact-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #7322ff, #9b59ff);
+  background: linear-gradient(135deg, #ed810e, #f5a623);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -73,14 +73,14 @@
 .main-contact-value {
   font-weight: 700;
   font-size: 22px;
-  color: #7322ff;
+  color: #ed810e;
   margin: 0 0 8px;
   display: block;
 }
 
 .main-contact-desc {
   font-size: 15px;
-  color: #70758c;
+  color: #632f00;
   margin: 0;
 }
 
@@ -114,7 +114,7 @@
 
 .contact-card:hover {
   transform: translateY(-5px);
-  border-color: #7322ff;
+  border-color: #ed810e;
 }
 
 .contact-card-info h3 {

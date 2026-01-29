@@ -40,7 +40,7 @@
 }
 
 .spinner-ring:nth-child(1) {
-  border-top-color: var(--primary, #7322ff);
+  border-top-color: var(--primary, #ed810e);
   animation-delay: 0s;
   animation: spin-and-grow 1.8s cubic-bezier(0.65, 0.05, 0.36, 1) infinite;
 }
@@ -66,7 +66,7 @@
   transform: translate(-50%, -50%);
   width: 10px; /* Slightly larger dot */
   height: 10px; /* Slightly larger dot */
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
   border-radius: 50%;
   animation: pulse 1.2s ease-in-out infinite; /* Smoother pulse */
 }
@@ -75,7 +75,7 @@
   font-family: "Heebo", sans-serif;
   font-size: 16px; /* Slightly larger text */
   font-weight: 600; /* Bolder text */
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   margin: 0;
   animation: fadeInOut 2s ease-in-out infinite; /* Slower fade for text */
 }

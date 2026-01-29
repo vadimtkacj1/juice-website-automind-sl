@@ -58,6 +58,7 @@ body:has(.nav-sticky.is-active) .nav-main {
 }
 
 .nav-content {
+  /* Kept your original orange background */
   background-color: #ed810e;
   border-radius: var(--radius-full);
   padding: 12px 32px;
@@ -68,7 +69,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   gap: 20px;
   min-width: 0;
   flex-wrap: nowrap;
-  overflow: visible; /* Allow cart badge to be visible */
+  overflow: visible; 
 }
 
 .nav-links {
@@ -77,7 +78,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   align-items: center;
   flex-wrap: nowrap;
   min-width: 0;
-  overflow: visible; /* Allow cart badge to be visible */
+  overflow: visible; 
 }
 
 .logo img {
@@ -115,15 +116,17 @@ body:has(.nav-sticky.is-active) .nav-main {
   font-size: 28px;
   line-height: 24px;
   height: 24px;
-  color: #1d1a40 !important;
+  /* Changed navigation text color to White */
+  color: #ffffff !important;
   letter-spacing: -0.01em;
   transition: opacity 0.3s ease, transform 0.5s var(--spring-ease);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
+/* Hover state color - Changed to a light cream/off-white for contrast */
 .roll-inner .hvr {
-  color: #7322ff !important;
+  color: #f0f0f0 !important; 
   opacity: 0;
   transform: translateY(24px);
 }
@@ -153,7 +156,17 @@ body:has(.nav-sticky.is-active) .nav-main {
   border: none;
   padding: 0;
   margin: 0;
-  overflow: visible !important; /* Allow badge to be visible outside button - override menu-item overflow:hidden */
+  overflow: visible !important; 
+}
+
+/* Changed Cart Icon to White to match the new theme */
+.menu-item.cart-button .cart-icon-wrapper svg {
+  fill: #ffffff !important;
+}
+
+/* Cart Icon hover color */
+.menu-item.cart-button:hover .cart-icon-wrapper svg {
+  fill: #f0f0f0 !important;
 }
 
 .menu-item.cart-button .roll-inner {
@@ -162,7 +175,7 @@ body:has(.nav-sticky.is-active) .nav-main {
   align-items: center;
   width: 100%;
   position: relative;
-  overflow: visible !important; /* Allow badge to be visible - override any inherited overflow */
+  overflow: visible !important; 
 }
 
 .menu-item.cart-button .cart-icon-wrapper {
@@ -173,12 +186,12 @@ body:has(.nav-sticky.is-active) .nav-main {
   height: 40px;
   position: relative;
   margin: 0;
-  overflow: visible !important; /* Allow badge to be visible */
-  z-index: 10; /* Ensure icon wrapper is above other elements */
+  overflow: visible !important; 
+  z-index: 10; 
 }
 
 .menu-item.cart-button .roll-inner .hvr.cart-icon-wrapper {
   position: relative;
   margin: 0 auto;
-  overflow: visible !important; /* Allow badge to be visible */
+  overflow: visible !important; 
 }

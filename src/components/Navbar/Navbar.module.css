@@ -1,116 +1,140 @@
-/* Cart Button Styles */
+/* ============================================
+   NAVIGATION - FULL SYSTEM
+   ============================================ */
+
+.nav-content {
+  background-color: #ed810e;
+  border-radius: var(--radius-full);
+  padding: 12px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(29, 26, 64, 0.1);
+  gap: 20px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+/* --- Desktop Links --- */
+.nav-links {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* --- Roll Animation & Colors --- */
+.menu-item {
+  height: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.roll-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s var(--spring-ease);
+  height: 48px;
+}
+
+.roll-inner span {
+  display: block;
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 24px;
+  height: 24px;
+  color: #ffffff !important; /* Main color: White */
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.roll-inner .hvr {
+  color: #f0f0f0 !important; /* Hover color: Off-white */
+  transform: translateY(24px);
+}
+
+.menu-item:hover .roll-inner {
+  transform: translateY(-24px);
+}
+
+/* --- Cart Button --- */
 .cart-button {
   background: transparent !important;
   border: none !important;
   cursor: pointer;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  width: 28px;
-  transition: opacity 0.2s ease;
-}
-
-/* Hover effects only for devices with mouse (not touch screens) */
-@media (hover: hover) and (pointer: fine) {
-  .cart-button:hover {
-    cursor: pointer;
-    opacity: 0.8;
-  }
-
-  .cart-button:hover .cart-icon-wrapper :global(svg) {
-    color: #1d1a40;
-  }
-  
-  .mobile-menu-btn:hover {
-    background: rgba(29, 26, 64, 0.1);
-  }
+  padding: 0;
+  transition: transform 0.2s ease;
 }
 
 .cart-icon-wrapper {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border-radius: 50%;
-  flex-shrink: 0;
-  overflow: visible !important; /* Ensure badge is not clipped */
-  z-index: 1; /* Ensure wrapper is above other elements */
+  display: flex;
+  color: #ffffff; /* White icon */
 }
 
 .cart-icon-wrapper :global(svg) {
-  color: #70758c;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   stroke-width: 2.5;
-  transition: color 0.2s ease;
+}
+
+.cart-button:hover {
+  transform: scale(1.1);
 }
 
 .cart-badge {
   position: absolute;
-  right: -6px;
-  top: -6px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 3px;
-  z-index: 100000 !important;
-  background: #1d1a40 !important; /* Purple/Dark color */
-  border-radius: 50%;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  color: white !important;
-  font-size: 9px;
+  right: -8px;
+  top: -8px;
+  background: #1d1a40 !important;
+  color: white;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  pointer-events: none; /* Prevent badge from blocking clicks */
-  white-space: nowrap;
-  transform: translateZ(0); /* Force hardware acceleration */
-  isolation: isolate; /* Create new stacking context */
+  padding: 2px 5px;
+  border-radius: 10px;
+  border: 2px solid #ed810e;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
+/* --- HIDDEN BY DEFAULT (Mobile Elements) --- */
 .mobile-actions {
-  display: none;
+  display: none; /* Hidden on Desktop */
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .mobile-menu-btn {
   background: none;
   border: none;
+  color: #ffffff;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1d1a40;
-  transition: background 0.2s ease;
+  padding: 4px;
 }
 
+/* ============================================
+   RESPONSIVE LOGIC
+   ============================================ */
 
-/* Burger menu only on smaller screens (mobile/tablet) */
 @media (max-width: 768px) {
+  /* Hide desktop links on mobile */
+  .nav-links {
+    display: none;
+  }
+
+  /* Show burger and mobile cart */
   .mobile-actions {
     display: flex;
+  }
+
+  .nav-content {
+    padding: 10px 20px;
   }
 }

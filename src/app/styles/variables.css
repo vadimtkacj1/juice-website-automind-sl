@@ -20,7 +20,7 @@
   --dark: #1d1a40;
   --gray-bg: #eaedf6;
   --white: #ffffff;
-  --text-gray: #70758c;
+  --text-gray: #632f00;
   
   /* Animation Easings */
   --spring-ease: cubic-bezier(0.175, 0.885, 0.32, 1.15);
@@ -44,7 +44,7 @@
   --modal-accent: #ed810e;
   --modal-accent-hover: #d67308;
   --modal-text-main: #1D1D1F;
-  --modal-text-secondary: #86868B;
+  --modal-text-secondary: #632f00;
   --modal-bg-secondary: #F5F5F7;
   --nav-height: 72px;
 }

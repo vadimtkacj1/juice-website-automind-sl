@@ -210,7 +210,7 @@
 .contactInfoText p {
   margin: 0;
   font-size: 14px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   line-height: 1.6;
   font-weight: 700;
 }
@@ -357,7 +357,7 @@
 }
 
 .cartEmptyIcon svg {
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
 }
 
 .cartEmpty h3 {
@@ -370,7 +370,7 @@
 }
 
 .cartEmpty p {
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   margin: 0 0 24px;
   font-weight: 700;
   font-size: 16px;
@@ -455,7 +455,7 @@
 }
 
 .cartItemPlaceholder svg {
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
 }
 
 .cartItemInfo {
@@ -487,7 +487,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   font-weight: 700;
 }
 
@@ -502,7 +502,7 @@
 
 .cartItemIngredients {
   font-size: 13px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   margin: 4px 0;
   font-weight: 700;
 }
@@ -590,7 +590,7 @@
 }
 
 .cartRemoveBtn svg {
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
 }
 
 @media (hover: hover) and (pointer: fine) {

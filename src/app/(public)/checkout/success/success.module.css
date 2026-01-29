@@ -38,7 +38,7 @@
 
 .success-page p {
   font-size: 16px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   line-height: 1.6;
   margin: 0 0 32px;
 }
@@ -53,7 +53,7 @@
 .order-id span {
   display: block;
   font-size: 12px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -87,7 +87,7 @@
 }
 
 .success-actions :global(.btn-primary) {
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
   color: white;
 }
 

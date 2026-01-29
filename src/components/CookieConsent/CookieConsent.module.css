@@ -18,7 +18,7 @@
 }
 
 .cookieConsentHeader {
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
   padding: 16px;
   display: flex;
   justify-content: space-between;
@@ -75,13 +75,13 @@
 }
 
 .cookieConsentBtnSecondary:hover {
-  background: var(--text-gray, #70758c);
+  background: var(--text-gray, #632f00);
   color: white;
 }
 
 .cookieConsentBtnLink {
   background: transparent;
-  color: var(--primary, #7322ff);
+  color: var(--primary, #ed810e);
   text-decoration: underline;
   font-size: 14px;
 }
@@ -149,7 +149,7 @@
 
 .cookiePreferenceInfo p {
   font-size: 14px;
-  color: var(--text-gray, #70758c);
+  color: var(--text-gray, #632f00);
   margin: 0;
   font-weight: 500;
 }
@@ -174,11 +174,11 @@
 
 .cookiePreferenceToggle input:checked + .cookieToggleSlider {
   transform: translateX(22px);
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
 }
 
 .cookiePreferenceToggle input:checked ~ .cookieToggleSlider {
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
 }
 
 .cookiePreferenceToggle.disabled {
@@ -199,7 +199,7 @@
 }
 
 .cookiePreferenceToggle input:checked + .cookieToggleSlider {
-  background: var(--primary, #7322ff);
+  background: var(--primary, #ed810e);
 }
 
 .cookieConsentLink {
@@ -214,7 +214,7 @@
 }
 
 .cookieConsentLink:hover {
-  color: #7322ff;
+  color: #ed810e;
   text-decoration: underline;
 }
 
@@ -226,7 +226,7 @@
 }
 
 .cookieConsentInlineLink:hover {
-  color: #7322ff;
+  color: #ed810e;
   text-decoration: underline;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .cookieConsentLegalLink:hover {
-  color: #7322ff;
+  color: #ed810e;
   text-decoration: underline;
 }
 

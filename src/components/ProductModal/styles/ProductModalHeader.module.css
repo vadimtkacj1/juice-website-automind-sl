@@ -31,7 +31,7 @@
   border-radius: 100px; /* Повна «пігулка» */
   font-size: 13px;
   font-weight: 600;
-  color: #86868B;
+  color: #632f00;
   margin-bottom: 14px;
   border: none;
   width: fit-content;
@@ -50,7 +50,7 @@
 /* Короткий опис */
 .modal-description-text {
   font-size: 15px;
-  color: #86868B;
+  color: #632f00;
   line-height: 1.5;
   margin: 0 0 20px 0;
   max-width: 90%; /* Щоб текст не розтягувався на всю ширину */
