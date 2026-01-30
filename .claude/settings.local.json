@@ -16,7 +16,10 @@
       "Bash(npm run dev:*)",
       "Bash(timeout:*)",
       "Bash(npm run test:email:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
