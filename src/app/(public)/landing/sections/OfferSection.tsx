@@ -7,19 +7,19 @@ import styles from './OfferSection.module.css';
 export default function OfferSection() {
   const offers = [
     {
-      image: '/images/strawberry.webp',
+      image: '/images/10.jpg',
       title: 'מגשי פירות מעוצבים',
       description: 'מגשים מרשימים בקומפוזיציות ייחודיות – מושלם למרכז שולחן או להגשה אישית',
       alt: 'מגשי פירות מעוצבים'
     },
     {
-      image: '/images/rasberry.webp',
+      image: '/images/11.jpg',
       title: 'קינוחי פירות אישיים',
       description: 'כוסות פירות, שיפודים, מארזים אישיים – נוח, יפה וטעים',
       alt: 'קינוחי פירות אישיים'
     },
     {
-      image: '/oranges/orange-slice-2.webp',
+      image: '/images/9.jpg',
       title: 'מיצים טבעיים בבקבוקים',
       description: 'מיצים סחוטים במקום, ללא תוספות, אידיאלי לאירועים ולחברות',
       alt: 'מיצים טבעיים בבקבוקים'
@@ -44,6 +44,8 @@ export default function OfferSection() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   style={{ objectFit: 'cover' }}
                   className={styles.offerCardImage}
+                  loading="lazy"
+                  quality={85}
                 />
                 <div className={styles.offerImageOverlay}></div>
               </div>

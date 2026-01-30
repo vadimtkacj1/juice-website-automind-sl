@@ -55,6 +55,24 @@
   flex-shrink: 0;
 }
 
+.desktopLogo {
+  display: flex;
+}
+
+.mobileLogo {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktopLogo {
+    display: none;
+  }
+
+  .mobileLogo {
+    display: flex;
+  }
+}
+
 /* ============================================
    DESKTOP NAVIGATION LINKS
    ============================================ */
@@ -160,7 +178,7 @@
 .mobileActions {
   display: none;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .mobileMenuBtn {
@@ -172,6 +190,28 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.mobileMenuBtn:hover {
+  transform: scale(1.1);
+}
+
+.mobilePhoneButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.2s ease;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.mobilePhoneButton:hover {
+  transform: scale(1.1);
 }
 
 /* ============================================
@@ -230,6 +270,32 @@
   box-shadow: 0 4px 15px rgba(237, 129, 14, 0.3);
 }
 
+.mobileMenuPhone {
+  background: #1d1a40;
+  border: 2px solid #ffffff;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-family: 'Heebo', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.mobileMenuPhone:hover {
+  background: #2a2658;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -242,6 +308,14 @@
 
   .navContent {
     padding: 10px 20px;
+    justify-content: center;
+    position: relative;
+  }
+
+  .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   /* Hide desktop links on mobile */
@@ -252,6 +326,7 @@
   /* Show mobile actions */
   .mobileActions {
     display: flex;
+    margin-left: auto;
   }
 }
 
@@ -262,5 +337,10 @@
 
   .mobileMenu {
     top: 80px;
+  }
+
+  .mobileMenuPhone {
+    font-size: 16px;
+    padding: 14px 28px;
   }
 }

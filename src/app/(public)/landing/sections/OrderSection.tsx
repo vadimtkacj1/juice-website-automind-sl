@@ -37,19 +37,23 @@ export default function OrderSection() {
           <div className={styles.decorationFruit1}>
             <Image
               src="/images/apple.webp"
-              alt="תפוח"
+              alt="תפוח טרי - טבעי שזה מרענן"
               width={150}
               height={150}
               style={{ objectFit: 'contain' }}
+              loading="lazy"
+              quality={85}
             />
           </div>
           <div className={styles.decorationFruit2}>
             <Image
               src="/images/pomegranede.webp"
-              alt="רימון"
+              alt="רימון טרי - טבעי שזה מרענן"
               width={150}
               height={150}
               style={{ objectFit: 'contain' }}
+              loading="lazy"
+              quality={85}
             />
           </div>
         </div>

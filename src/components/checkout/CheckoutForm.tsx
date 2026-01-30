@@ -344,7 +344,7 @@ export default function CheckoutForm({
             />
             <span>
               קראתי ואני מאשר את{' '}
-              <Link href="/terms" target="_blank">
+              <Link href="/regulations" target="_blank">
                 התקנון
               </Link>
               <span className={styles.required}> *</span>

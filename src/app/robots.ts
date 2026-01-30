@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: [
           '/',
+          '/landing',
           '/menu',
           '/menu/*',
           '/news',
@@ -36,6 +37,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: 'Googlebot',
         allow: [
           '/',
+          '/landing',
           '/menu',
           '/menu/*',
           '/news',

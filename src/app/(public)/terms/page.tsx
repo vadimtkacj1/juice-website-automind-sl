@@ -6,14 +6,16 @@ import styles from './terms.module.css';
 export default function TermsAndConditionsPage() {
   return (
     <div className={styles['legal-page']}>
-      <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080">
+      <HeroSection showFloatingOranges={false} showOverlay={false} backgroundColor="#1a365d">
         <h1 className="hero-title">{'תנאים והגבלות'}</h1>
       </HeroSection>
 
       <div className={styles['legal-content']} dir="rtl">
         <div className={styles.container}>
           <div className={styles['legal-section']}>
-            <p className={styles['last-updated']}>{'עודכן לאחרונה:'} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className={styles['last-updated']}>
+              {'עודכן לאחרונה:'} {new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
 
             <section>
               <h2>1. {'קבלת תנאים'}</h2>
@@ -167,7 +169,7 @@ export default function TermsAndConditionsPage() {
             <section>
               <h2>10. {'הגבלת אחריות'}</h2>
               <p>
-                {'במידה המקסימלית המותרת על פי חוק, ראביבה לא תהיה אחראית לכל נזקים עקיפים, מקריים, מיוחדים, תוצאתיים או עונשיים, או כל אובדן רווחים או הכנסות, בין אם נגרמו ישירות או בעקיפין, או כל אובדן נתונים, שימוש, מוניטין או הפסדים בלתי מוחשיים אחרים הנובעים משימוש שלך בשירותים שלנו'}
+                {'במידה המקסימלית המותרת על פי חוק, ראביבה לא תהיה אחראית לכל נזקים עקיפים, מקריים, מיוחדים, תוצאתיים או עונשיים, או כל אובדן רווחים או הכנסות, בין אם נגרמו ישירות או בעקיפין, או כל אובדן ננתונים, שימוש, מוניטין או הפסדים בלתי מוחשיים אחרים הנובעים משימוש שלך בשירותים שלנו'}
               </p>
             </section>
 
@@ -196,15 +198,18 @@ export default function TermsAndConditionsPage() {
               <h2>14. {'פרטי יצירת קשר'}</h2>
               <p>{'אם יש לך שאלות כלשהן לגבי תנאים והגבלות אלה, אנא צור איתנו קשר:'}</p>
               <ul>
-                <li><strong>{'אימייל:'}</strong> legal@reviva.com</li>
-                <li><strong>{'טלפון:'}</strong> +972 50-123-4567</li>
-                <li><strong>כתובת:</strong> [כתובת העסק שלך]</li>
+                <li><strong>{'אימייל:'}</strong> assistant@aiterra.agency</li>
+                <li>
+                  <strong>{'טלפון:'}</strong>{' '}
+                  <span style={{ direction: 'ltr', display: 'inline-block' }}>
+                    +972 52-678-0739
+                  </span>
+                </li>
               </ul>
             </section>
-            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

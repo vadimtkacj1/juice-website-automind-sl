@@ -77,33 +77,7 @@
   backdrop-filter: blur(20px);
   border: 2px solid rgba(255, 255, 255, 0.35);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: default;
   max-width: 90%;
-  animation: pulse-soft 3s ease-in-out infinite;
-}
-
-.featureItem:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.featureItem:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, rgba(237, 129, 14, 0.35) 0%, rgba(237, 129, 14, 0.25) 100%);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  animation: none;
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  }
-  50% {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  }
 }
 
 .heroCta {
@@ -203,25 +177,196 @@
    RESPONSIVE
    ============================================ */
 
+@media (max-width: 992px) {
+  .heroContent {
+    padding: 0 24px;
+  }
+
+  .heroTitle {
+    font-size: clamp(44px, 7vw, 72px);
+    margin-bottom: 20px;
+  }
+
+  .heroSubtitle {
+    font-size: clamp(22px, 3.5vw, 32px);
+    margin-bottom: 18px;
+  }
+
+  .heroDescription {
+    font-size: clamp(15px, 2.2vw, 18px);
+    margin-bottom: 14px;
+  }
+
+  .heroTagline {
+    font-size: clamp(14px, 2vw, 17px);
+    margin-bottom: 28px;
+  }
+
+  .heroFeatures {
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .featureItem {
+    font-size: clamp(14px, 1.8vw, 16px);
+    padding: 14px 28px;
+  }
+
+  .heroCta {
+    gap: 14px;
+    margin-top: 40px;
+  }
+
+  .ctaButton,
+  .ctaButtonSecondary {
+    font-size: clamp(16px, 2.2vw, 20px);
+    padding: 18px 40px;
+  }
+}
+
 @media (max-width: 768px) {
+  .heroContent {
+    padding: 0 20px;
+  }
+
+  .heroTitle {
+    font-size: clamp(40px, 9vw, 56px);
+    margin-bottom: 18px;
+  }
+
+  .heroSubtitle {
+    font-size: clamp(20px, 4.5vw, 28px);
+    margin-bottom: 16px;
+  }
+
+  .heroDescription {
+    font-size: clamp(15px, 2.5vw, 17px);
+    margin-bottom: 12px;
+  }
+
+  .heroTagline {
+    font-size: clamp(14px, 2.2vw, 16px);
+    margin-bottom: 24px;
+  }
+
+  .heroFeatures {
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .featureItem {
+    font-size: clamp(14px, 2.2vw, 15px);
+    padding: 12px 24px;
+    max-width: 95%;
+  }
+
   .heroCta {
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
+    align-items: center;
+    margin-top: 32px;
   }
 
   .ctaButton,
   .ctaButtonSecondary {
     width: 100%;
-    max-width: 320px;
+    max-width: 340px;
     justify-content: center;
+    font-size: clamp(16px, 2.5vw, 18px);
+    padding: 18px 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroContent {
+    padding: 0 16px;
+  }
+
+  .heroTitle {
+    font-size: clamp(36px, 10vw, 48px);
+    margin-bottom: 16px;
+  }
+
+  .heroSubtitle {
+    font-size: clamp(18px, 5vw, 24px);
+    margin-bottom: 14px;
+  }
+
+  .heroDescription {
+    font-size: 15px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .heroTagline {
+    font-size: 14px;
+    margin-bottom: 20px;
   }
 
   .heroFeatures {
     gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .featureItem {
+    font-size: 14px;
+    padding: 12px 20px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .heroCta {
+    gap: 12px;
+    margin-top: 28px;
+    width: 100%;
+  }
+
+  .ctaButton,
+  .ctaButtonSecondary {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+    padding: 16px 28px;
+    border-width: 2px;
+  }
+
+  .ctaButton {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(237, 129, 14, 0.3);
+  }
+
+  .ctaButton:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(237, 129, 14, 0.5);
+  }
+}
+
+@media (max-width: 360px) {
+  .heroContent {
+    padding: 0 12px;
+  }
+
+  .heroTitle {
+    font-size: clamp(32px, 11vw, 42px);
+  }
+
+  .heroSubtitle {
+    font-size: clamp(16px, 5.5vw, 22px);
+  }
+
+  .heroDescription,
+  .heroTagline {
+    font-size: 13px;
   }
 
   .featureItem {
     font-size: 13px;
-    padding: 10px 20px;
+    padding: 10px 16px;
+  }
+
+  .ctaButton,
+  .ctaButtonSecondary {
+    font-size: 15px;
+    padding: 14px 24px;
   }
 }

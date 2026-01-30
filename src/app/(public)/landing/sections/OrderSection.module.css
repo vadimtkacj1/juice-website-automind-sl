@@ -3,11 +3,12 @@
    ============================================ */
 
 .orderSection {
-  /* Increased padding for better breathing room with larger text */
-  padding: 120px 20px;
+  padding: 100px 20px;
   background: linear-gradient(135deg, #ed810e 0%, #d67308 100%);
   position: relative;
   overflow: hidden;
+  /* Critical for Hebrew: sets the layout flow from right to left */
+  direction: rtl; 
 }
 
 .container {
@@ -17,7 +18,7 @@
 
 .orderContent {
   text-align: center;
-  max-width: 900px; /* Increased width to accommodate larger font sizes */
+  max-width: 900px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
@@ -26,163 +27,86 @@
 /* MAIN TITLE - Massive impact typography */
 .orderTitle {
   font-family: 'Heebo', sans-serif;
-  /* Scales from 50px on mobile to 80px on large screens */
-  font-size: clamp(50px, 8vw, 80px);
+  font-size: clamp(48px, 7vw, 72px);
   font-weight: 900;
   color: #ffffff;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   line-height: 1.1;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* PRIMARY DESCRIPTION - High readability */
+/* PRIMARY DESCRIPTION - High readability and larger size */
 .orderDescription {
   font-family: 'Heebo', sans-serif;
-  /* Scales from 22px to 28px */
-  font-size: clamp(22px, 3vw, 28px);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 20px;
-  line-height: 1.5;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
 
 /* SECONDARY DESCRIPTION - Subtext */
 .orderSubDescription {
   font-family: 'Heebo', sans-serif;
-  /* Scales from 18px to 22px */
-  font-size: clamp(18px, 2.2vw, 22px);
+  font-size: clamp(18px, 2.2vw, 24px);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 56px;
-  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 48px;
 }
 
 .orderCta {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
-/* MAIN CALL TO ACTION BUTTON */
-.orderButton {
+/* BUTTONS - Large clickable areas with icons on the left */
+.orderButton, .orderButtonPhone {
   font-family: 'Heebo', sans-serif;
   font-size: clamp(22px, 3vw, 28px);
   font-weight: 900;
-  color: #1d1a40;
-  background: linear-gradient(135deg, #ffffff 0%, #fff5eb 100%);
-  padding: 28px 64px; /* Larger padding for the bigger font */
-  border-radius: 60px;
+  padding: 24px 50px;
+  border-radius: 100px;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
-  gap: 14px;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  animation: pulse-strong 2s ease-in-out infinite;
+  justify-content: center;
+  gap: 16px; /* Space between icon and text */
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Primary Online Store Button */
+.orderButton {
+  color: #1d1a40;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .orderButton:hover {
-  transform: translateY(-6px) scale(1.06);
-  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(135deg, #fffbf5 0%, #ffe8d1 100%);
-  border-color: #ffffff;
-  animation: none;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
-/* BUTTON ANIMATIONS */
-@keyframes pulse-strong {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.3);
-  }
-  50% {
-    transform: translateY(-4px) scale(1.03);
-    box-shadow: 0 20px 64px rgba(0, 0, 0, 0.4);
-  }
-}
-
-.orderDivider {
-  font-family: 'Heebo', sans-serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 10px 0;
-}
-
-/* SECONDARY PHONE BUTTON */
+/* Secondary Phone Button */
 .orderButtonPhone {
-  font-family: 'Heebo', sans-serif;
-  font-size: clamp(22px, 3vw, 28px);
-  font-weight: 900;
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 28px 64px;
-  border-radius: 60px;
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
   border: 3px solid #ffffff;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  animation: pulse-phone 2.2s ease-in-out infinite;
-  animation-delay: 0.4s;
 }
 
 .orderButtonPhone:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 20px 56px rgba(255, 255, 255, 0.3);
-  border-width: 4px;
-  animation: none;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-@keyframes pulse-phone {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  }
-  50% {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.4);
-  }
-}
-
-/* DECORATIVE ELEMENTS - Floating fruit effects */
-.orderDecoration {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.decorationFruit1 {
-  position: absolute;
-  top: 10%;
-  right: 5%;
-  opacity: 0.3;
-  animation: float-decoration-1 8s ease-in-out infinite;
-}
-
-.decorationFruit2 {
-  position: absolute;
-  bottom: 15%;
-  left: 8%;
-  opacity: 0.3;
-  animation: float-decoration-2 10s ease-in-out infinite;
-}
-
-@keyframes float-decoration-1 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-30px) rotate(10deg); }
-}
-
-@keyframes float-decoration-2 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-40px) rotate(-10deg); }
+/* Middle "OR" divider */
+.orderDivider {
+  font-family: 'Heebo', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  opacity: 0.8;
 }
 
 /* ============================================
@@ -191,20 +115,6 @@
 
 @media (max-width: 768px) {
   .orderSection {
-    padding: 80px 20px;
-  }
-
-  .orderButton,
-  .orderButtonPhone {
-    width: 100%;
-    max-width: 400px; /* Increased mobile max-width for bigger text */
-    justify-content: center;
-    padding: 24px 30px; /* Slightly tighter padding on mobile */
-  }
-
-  /* Hide decorations on mobile to focus on the large text */
-  .decorationFruit1,
-  .decorationFruit2 {
-    display: none;
+    padding: 60px 20px;
   }
 }

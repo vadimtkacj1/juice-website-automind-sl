@@ -6,7 +6,7 @@ import styles from './privacy.module.css';
 export default function PrivacyPolicyPage() {
   return (
     <div className={styles['legal-page']}>
-      <HeroSection backgroundImage="https://images.unsplash.com/photo-1628178652615-3974c5d63f03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1ODc1M3wxfDB8c2VhcjI2Mnx8anVpY2UlMjBiYXJ8ZW58MHx8fHwxNzA5NDc0NDcxfDA&ixlib=rb-4.0.3&q=80&w=1080">
+      <HeroSection showFloatingOranges={false} showOverlay={false} backgroundColor="#1a365d">
         <h1 className="hero-title">{'מדיניות פרטיות'}</h1>
       </HeroSection>
 

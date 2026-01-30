@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Phone, Menu, X } from 'lucide-react';
 import BrandLogo from '@/components/Navbar/components/BrandLogo/BrandLogo';
 import styles from './LandingHeader.module.css';
@@ -74,8 +75,20 @@ export default function LandingHeader() {
     <>
       <div ref={stickyNavRef} className={styles.navSticky}>
         <nav className={styles.navContent}>
+          {/* Logo - Desktop uses BrandLogo, Mobile uses logo.svg */}
           <Link href="/landing" className={styles.logo} aria-label="טבעי שזה מרענן">
-            <BrandLogo compact={sticky} />
+            <span className={styles.desktopLogo}>
+              <BrandLogo compact={sticky} />
+            </span>
+            <span className={styles.mobileLogo}>
+              <Image
+                src="/images/logo.svg"
+                alt="טבעי שזה מרענן"
+                width={45}
+                height={45}
+                priority
+              />
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -116,16 +129,16 @@ export default function LandingHeader() {
 
           {/* Mobile Actions */}
           <div className={styles.mobileActions}>
-            <a href="tel:052-678-0739" className={styles.phoneButton}>
-              <Phone size={20} />
-            </a>
             <button
               className={styles.mobileMenuBtn}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
+            <a href="tel:052-678-0739" className={styles.mobilePhoneButton}>
+              <Phone size={20} />
+            </a>
           </div>
         </nav>
       </div>
@@ -146,6 +159,12 @@ export default function LandingHeader() {
             <button onClick={() => scrollToSection('order')} className={styles.mobileMenuItem}>
               הזמנה
             </button>
+
+            {/* Centered Phone Button in Mobile Menu */}
+            <a href="tel:052-678-0739" className={styles.mobileMenuPhone}>
+              <Phone size={20} />
+              052-678-0739
+            </a>
           </div>
         </div>
       )}
