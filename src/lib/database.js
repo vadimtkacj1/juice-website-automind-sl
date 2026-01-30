@@ -549,14 +549,14 @@ async function initializeTables(pool) {
         description TEXT,
         price DECIMAL(10,2) DEFAULT 0,
         image TEXT,
-        ingredient_category TEXT DEFAULT 'fruits',
+        ingredient_category VARCHAR(50) DEFAULT 'fruits',
         is_available TINYINT(1) DEFAULT 1,
         sort_order INT DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-    await addColumnIfNotExists(pool, 'custom_ingredients', 'ingredient_category', "TEXT DEFAULT 'fruits'");
+    await addColumnIfNotExists(pool, 'custom_ingredients', 'ingredient_category', "VARCHAR(50) DEFAULT 'fruits'");
 
     await createTable(pool, 'menu_item_additional_items', `
       CREATE TABLE IF NOT EXISTS menu_item_additional_items (
@@ -577,7 +577,7 @@ async function initializeTables(pool) {
         id INT AUTO_INCREMENT PRIMARY KEY,
         menu_item_id INT NOT NULL,
         custom_ingredient_id INT NOT NULL,
-        selection_type TEXT DEFAULT 'multiple',
+        selection_type VARCHAR(50) DEFAULT 'multiple',
         price_override DECIMAL(10,2),
         ingredient_group_id INT,
         ingredient_group TEXT,
@@ -590,7 +590,7 @@ async function initializeTables(pool) {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-    await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'selection_type', "TEXT DEFAULT 'multiple'");
+    await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'selection_type', "VARCHAR(50) DEFAULT 'multiple'");
     await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'price_override', 'DECIMAL(10,2)');
     await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'ingredient_group_id', 'INT');
     await addColumnIfNotExists(pool, 'menu_item_custom_ingredients', 'ingredient_group', 'TEXT');
@@ -623,7 +623,7 @@ async function initializeTables(pool) {
         id INT AUTO_INCREMENT PRIMARY KEY,
         category_id INT NOT NULL,
         custom_ingredient_id INT NOT NULL,
-        selection_type TEXT DEFAULT 'multiple',
+        selection_type VARCHAR(50) DEFAULT 'multiple',
         price_override DECIMAL(10,2),
         ingredient_group_id INT,
         ingredient_group TEXT,
