@@ -8,7 +8,7 @@ export default function ContactPage() {
   return (
     <div className={styles['contact-page']} dir="rtl">
       <HeroSection showFloatingOranges={false} showOverlay={false} backgroundColor="#1a365d">
-        <h1 className="hero-title" style={{fontSize: '56px', fontWeight: 900}}>צור קשר</h1>
+        <h1 className="hero-title">צור קשר</h1>
       </HeroSection>
 
       <div className={styles['contact-content']}>
@@ -38,7 +38,7 @@ export default function ContactPage() {
         <div className={styles['links-row']}>
           <a href="https://wa.me/972501234567" className={styles['action-link']}>
             <MessageSquare size={40} color="#ed810e" strokeWidth={2.5} />
-            <div>
+            <div className={styles['link-text-wrapper']}>
               <div className={styles['link-title']}>וואטסאפ</div>
               <div className={styles['link-sub']} dir="ltr">+972 50 123 4567</div>
             </div>
@@ -47,7 +47,7 @@ export default function ContactPage() {
 
           <a href="mailto:info@reviva.co.il" className={styles['action-link']}>
             <Mail size={40} color="#ed810e" strokeWidth={2.5} />
-            <div>
+            <div className={styles['link-text-wrapper']}>
               <div className={styles['link-title']}>שלחו לנו מייל</div>
               <div className={styles['link-sub']}>info@reviva.co.il</div>
             </div>
@@ -86,9 +86,9 @@ export default function ContactPage() {
             <p className={styles['section-desc']}>
               אנחנו פרוסים במספר מוקדים. מצאו את הסניף הקרוב אליכם ביותר.
             </p>
-            <a href="/locations" className={styles['action-link']} style={{padding: '20px 30px', flex: '0 1 auto'}}>
-              <span className={styles['link-title']} style={{fontSize: '22px'}}>צפה בכל המיקומים</span>
-              <ArrowLeft size={24} />
+            <a href="/locations" className={`${styles['action-link']} ${styles['full-width-btn']}`}>
+              <span className={styles['link-title']} style={{fontSize: '22px', marginBottom: 0}}>צפה בכל המיקומים</span>
+              <ArrowLeft className={styles['arrow-icon']} size={24} />
             </a>
           </section>
         </div>

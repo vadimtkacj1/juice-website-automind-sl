@@ -94,10 +94,10 @@ export default function CategoryPage() {
         </div>
       </HeroSection>
 
-      <Breadcrumbs items={breadcrumbItems} />
 
       <div className={styles.menuContent}>
-        {/* <FloatingFruits /> */}
+      <Breadcrumbs items={breadcrumbItems} />
+        <FloatingFruits />
         <div className={styles.categorySection}>
           {category?.items && category.items.length > 0 ? (
             <div className={categoryStyles.strictGrid}>

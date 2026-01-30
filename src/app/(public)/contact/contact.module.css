@@ -1,4 +1,3 @@
-/* Main container styling */
 .contact-page {
   padding-bottom: 80px;
   width: 100%;
@@ -15,7 +14,6 @@
   gap: 60px;
 }
 
-/* Top grid for Phone and Address - No backgrounds */
 .top-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -31,18 +29,15 @@
   gap: 16px;
 }
 
-/* Headers: Large and Extra Bold */
 .section-header {
   display: flex;
   align-items: center;
-  flex-direction: row-reverse; /* Icon to the right of text */
   gap: 12px;
   color: #ed810e;
   font-weight: 900;
   font-size: 28px;
 }
 
-/* Main values: Maximum visibility */
 .section-value {
   font-size: 38px;
   font-weight: 900;
@@ -58,7 +53,6 @@
   line-height: 1.5;
 }
 
-/* Secondary Links (WhatsApp / Email) */
 .links-row {
   display: flex;
   flex-wrap: wrap;
@@ -67,7 +61,6 @@
 
 .action-link {
   display: flex;
-  flex-direction: row-reverse; /* Content flows right-to-left */
   align-items: center;
   gap: 20px;
   text-decoration: none;
@@ -77,8 +70,12 @@
   border-radius: 20px;
   flex: 1;
   min-width: 320px;
-  background-color: transparent; /* No white background if needed */
+  background-color: transparent;
   transition: all 0.3s ease;
+}
+
+.link-text-wrapper {
+  flex-grow: 1; /* Растягиваем блок с текстом, чтобы стрелка ушла влево */
 }
 
 .action-link:hover {
@@ -98,19 +95,22 @@
   opacity: 0.8;
 }
 
-/* ARROW CORRECTION: Must point LEFT (←) for Hebrew navigation */
+/* СТРЕЛКА: Будет всегда слева из-за flex-grow у текста */
 .arrow-icon {
-  margin-right: auto; /* Push to the far left in RTL */
+  margin-right: auto; /* В RTL это отталкивает элемент к левому краю */
   color: #ed810e;
-  transform: scaleX(1); /* Ensure it points left */
   transition: transform 0.2s ease;
 }
 
 .action-link:hover .arrow-icon {
-  transform: translateX(-8px); /* Slide further left on hover */
+  transform: translateX(-8px); /* Прыжок влево */
 }
 
-/* Business Hours Table */
+.full-width-btn {
+  padding: 20px 30px;
+  flex: 0 1 auto;
+}
+
 .hours-table {
   width: 100%;
   display: flex;
@@ -120,7 +120,6 @@
 
 .hours-row {
   display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
   padding: 16px 0;
   border-bottom: 2px dashed rgba(29, 26, 64, 0.1);
@@ -132,17 +131,11 @@
   font-weight: 900;
 }
 
-/* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
-  .contact-content {
-    gap: 40px;
-  }
-
   .top-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
   }
-
+  
   .section-value {
     font-size: 32px;
   }

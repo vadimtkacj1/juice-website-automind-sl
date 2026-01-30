@@ -1,71 +1,444 @@
 .floatingFruitsContainer {
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
   height: 100%;
   overflow: hidden;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 .floatingFruit {
   position: absolute;
-  bottom: -150px;
-  animation: floatUp linear infinite;
-  opacity: 0.7;
+  opacity: 0.3;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
-.fruitImage {
-  display: block;
-  animation: rotate linear infinite;
-  animation-duration: 10s;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+/* Паттерн 0: Круговое движение */
+.pattern0 {
+  animation-name: floatPattern0;
 }
 
-@keyframes floatUp {
+@keyframes floatPattern0 {
   0% {
-    transform: translateY(0) translateX(0) rotate(var(--initial-rotation, 0deg));
-    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.8);
   }
-  10% {
-    opacity: 0.7;
+  25% {
+    transform: translate(-120px, -180px) rotate(90deg) scale(1.1);
   }
-  90% {
-    opacity: 0.7;
+  50% {
+    transform: translate(80px, -100px) rotate(180deg) scale(0.9);
+  }
+  75% {
+    transform: translate(-150px, 100px) rotate(270deg) scale(1.15);
   }
   100% {
-    transform: translateY(-120vh) translateX(calc(var(--drift, 0) * 50px)) rotate(calc(var(--initial-rotation, 0deg) + 360deg));
-    opacity: 0;
+    transform: translate(0, 0) rotate(360deg) scale(0.8);
   }
 }
 
-@keyframes rotate {
+/* Паттерн 1: Волнообразное движение */
+.pattern1 {
+  animation-name: floatPattern1;
+}
+
+@keyframes floatPattern1 {
   0% {
-    transform: rotate(0deg);
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translate(100px, -120px) rotate(-60deg) scale(0.85);
+  }
+  40% {
+    transform: translate(-80px, 90px) rotate(120deg) scale(1.2);
+  }
+  60% {
+    transform: translate(150px, -200px) rotate(-180deg) scale(0.95);
+  }
+  80% {
+    transform: translate(-100px, 150px) rotate(240deg) scale(1.1);
   }
   100% {
-    transform: rotate(360deg);
+    transform: translate(0, 0) rotate(360deg) scale(1);
   }
 }
 
-/* Добавляем небольшое покачивание */
-.floatingFruit:nth-child(odd) {
-  --drift: 1;
+/* Паттерн 2: Зигзаг движение */
+.pattern2 {
+  animation-name: floatPattern2;
 }
 
-.floatingFruit:nth-child(even) {
-  --drift: -1;
+@keyframes floatPattern2 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.9);
+  }
+  25% {
+    transform: translate(-150px, 70px) rotate(120deg) scale(1.15);
+  }
+  50% {
+    transform: translate(130px, -150px) rotate(-120deg) scale(0.85);
+  }
+  75% {
+    transform: translate(-90px, -80px) rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-360deg) scale(0.9);
+  }
+}
+
+/* Паттерн 3: Хаотичное движение */
+.pattern3 {
+  animation-name: floatPattern3;
+}
+
+@keyframes floatPattern3 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  15% {
+    transform: translate(80px, -100px) rotate(90deg) scale(1.1);
+  }
+  35% {
+    transform: translate(-120px, 50px) rotate(-90deg) scale(0.9);
+  }
+  55% {
+    transform: translate(140px, 120px) rotate(180deg) scale(1.2);
+  }
+  75% {
+    transform: translate(-100px, -150px) rotate(-180deg) scale(0.85);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg) scale(1);
+  }
+}
+
+/* Паттерн 4: Диагональное плавание */
+.pattern4 {
+  animation-name: floatPattern4;
+}
+
+@keyframes floatPattern4 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.95);
+  }
+  20% {
+    transform: translate(-100px, -150px) rotate(-80deg) scale(1.1);
+  }
+  40% {
+    transform: translate(120px, -70px) rotate(100deg) scale(0.9);
+  }
+  60% {
+    transform: translate(-80px, 120px) rotate(-160deg) scale(1.15);
+  }
+  80% {
+    transform: translate(150px, -180px) rotate(220deg) scale(0.85);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-360deg) scale(0.95);
+  }
+}
+
+/* Адаптив для планшетов */
+@media (max-width: 1024px) {
+  .floatingFruit {
+    opacity: 0.25;
+  }
+
+  /* Уменьшаем расстояние перемещения на планшетах */
+  @keyframes floatPattern0 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.8); }
+    25% { transform: translate(-80px, -120px) rotate(90deg) scale(1.05); }
+    50% { transform: translate(50px, -70px) rotate(180deg) scale(0.9); }
+    75% { transform: translate(-100px, 70px) rotate(270deg) scale(1.1); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(0.8); }
+  }
+
+  @keyframes floatPattern1 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(70px, -90px) rotate(-60deg) scale(0.9); }
+    50% { transform: translate(-60px, 60px) rotate(120deg) scale(1.1); }
+    75% { transform: translate(100px, -130px) rotate(-180deg) scale(0.95); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+  }
+
+  @keyframes floatPattern2 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.9); }
+    25% { transform: translate(-100px, 50px) rotate(120deg) scale(1.1); }
+    50% { transform: translate(90px, -100px) rotate(-120deg) scale(0.85); }
+    75% { transform: translate(-60px, -60px) rotate(180deg) scale(1.05); }
+    100% { transform: translate(0, 0) rotate(-360deg) scale(0.9); }
+  }
+
+  @keyframes floatPattern3 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(60px, -80px) rotate(90deg) scale(1.05); }
+    50% { transform: translate(-90px, 40px) rotate(-90deg) scale(0.9); }
+    75% { transform: translate(100px, 90px) rotate(180deg) scale(1.15); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+  }
+
+  @keyframes floatPattern4 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.95); }
+    25% { transform: translate(-70px, -100px) rotate(-80deg) scale(1.05); }
+    50% { transform: translate(80px, -50px) rotate(100deg) scale(0.9); }
+    75% { transform: translate(-60px, 90px) rotate(-160deg) scale(1.1); }
+    100% { transform: translate(0, 0) rotate(-360deg) scale(0.95); }
+  }
 }
 
 /* Адаптив для мобильных устройств */
 @media (max-width: 768px) {
   .floatingFruit {
-    opacity: 0.5;
+    opacity: 0.2;
   }
 
-  .fruitImage {
-    max-width: 60px;
-    max-height: 60px;
+  /* Еще меньше движений на мобильных */
+  @keyframes floatPattern0 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.8); }
+    33% { transform: translate(-50px, -80px) rotate(120deg) scale(1); }
+    66% { transform: translate(60px, -50px) rotate(240deg) scale(0.9); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(0.8); }
+  }
+
+  @keyframes floatPattern1 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    33% { transform: translate(40px, -60px) rotate(-90deg) scale(0.9); }
+    66% { transform: translate(-50px, 40px) rotate(180deg) scale(1.05); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+  }
+
+  @keyframes floatPattern2 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.9); }
+    33% { transform: translate(-60px, 30px) rotate(100deg) scale(1.05); }
+    66% { transform: translate(50px, -70px) rotate(-100deg) scale(0.85); }
+    100% { transform: translate(0, 0) rotate(-360deg) scale(0.9); }
+  }
+
+  @keyframes floatPattern3 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    33% { transform: translate(40px, -50px) rotate(80deg) scale(1.05); }
+    66% { transform: translate(-60px, 30px) rotate(-80deg) scale(0.9); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+  }
+
+  @keyframes floatPattern4 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.95); }
+    33% { transform: translate(-40px, -70px) rotate(-70deg) scale(1); }
+    66% { transform: translate(50px, -40px) rotate(90deg) scale(0.9); }
+    100% { transform: translate(0, 0) rotate(-360deg) scale(0.95); }
+  }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 480px) {
+  .floatingFruit {
+    opacity: 0.15;
+  }
+}
+
+/* Большие экраны (2K+) - увеличиваем дистанцию движения для заполнения пространства */
+@media (min-width: 1920px) {
+  @keyframes floatPattern0 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.8);
+    }
+    25% {
+      transform: translate(-180px, -250px) rotate(90deg) scale(1.15);
+    }
+    50% {
+      transform: translate(140px, -150px) rotate(180deg) scale(0.9);
+    }
+    75% {
+      transform: translate(-200px, 150px) rotate(270deg) scale(1.2);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(0.8);
+    }
+  }
+
+  @keyframes floatPattern1 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    20% {
+      transform: translate(150px, -180px) rotate(-60deg) scale(0.85);
+    }
+    40% {
+      transform: translate(-120px, 130px) rotate(120deg) scale(1.25);
+    }
+    60% {
+      transform: translate(200px, -280px) rotate(-180deg) scale(0.95);
+    }
+    80% {
+      transform: translate(-150px, 200px) rotate(240deg) scale(1.15);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(1);
+    }
+  }
+
+  @keyframes floatPattern2 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.9);
+    }
+    25% {
+      transform: translate(-200px, 100px) rotate(120deg) scale(1.2);
+    }
+    50% {
+      transform: translate(180px, -200px) rotate(-120deg) scale(0.85);
+    }
+    75% {
+      transform: translate(-130px, -120px) rotate(180deg) scale(1.1);
+    }
+    100% {
+      transform: translate(0, 0) rotate(-360deg) scale(0.9);
+    }
+  }
+
+  @keyframes floatPattern3 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    15% {
+      transform: translate(120px, -150px) rotate(90deg) scale(1.15);
+    }
+    35% {
+      transform: translate(-180px, 80px) rotate(-90deg) scale(0.9);
+    }
+    55% {
+      transform: translate(200px, 180px) rotate(180deg) scale(1.25);
+    }
+    75% {
+      transform: translate(-150px, -200px) rotate(-180deg) scale(0.85);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(1);
+    }
+  }
+
+  @keyframes floatPattern4 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.95);
+    }
+    20% {
+      transform: translate(-150px, -220px) rotate(-80deg) scale(1.15);
+    }
+    40% {
+      transform: translate(180px, -100px) rotate(100deg) scale(0.9);
+    }
+    60% {
+      transform: translate(-120px, 180px) rotate(-160deg) scale(1.2);
+    }
+    80% {
+      transform: translate(200px, -250px) rotate(220deg) scale(0.85);
+    }
+    100% {
+      transform: translate(0, 0) rotate(-360deg) scale(0.95);
+    }
+  }
+}
+
+/* Очень большие экраны (3K+) - еще больше движений */
+@media (min-width: 2560px) {
+  @keyframes floatPattern0 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.8);
+    }
+    25% {
+      transform: translate(-220px, -300px) rotate(90deg) scale(1.2);
+    }
+    50% {
+      transform: translate(180px, -180px) rotate(180deg) scale(0.95);
+    }
+    75% {
+      transform: translate(-250px, 200px) rotate(270deg) scale(1.25);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(0.8);
+    }
+  }
+
+  @keyframes floatPattern1 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    20% {
+      transform: translate(180px, -220px) rotate(-60deg) scale(0.9);
+    }
+    40% {
+      transform: translate(-150px, 160px) rotate(120deg) scale(1.3);
+    }
+    60% {
+      transform: translate(250px, -320px) rotate(-180deg) scale(1);
+    }
+    80% {
+      transform: translate(-180px, 250px) rotate(240deg) scale(1.2);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(1);
+    }
+  }
+
+  @keyframes floatPattern2 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.9);
+    }
+    25% {
+      transform: translate(-250px, 130px) rotate(120deg) scale(1.25);
+    }
+    50% {
+      transform: translate(220px, -250px) rotate(-120deg) scale(0.9);
+    }
+    75% {
+      transform: translate(-160px, -150px) rotate(180deg) scale(1.15);
+    }
+    100% {
+      transform: translate(0, 0) rotate(-360deg) scale(0.9);
+    }
+  }
+
+  @keyframes floatPattern3 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    15% {
+      transform: translate(150px, -180px) rotate(90deg) scale(1.2);
+    }
+    35% {
+      transform: translate(-220px, 100px) rotate(-90deg) scale(0.95);
+    }
+    55% {
+      transform: translate(250px, 220px) rotate(180deg) scale(1.3);
+    }
+    75% {
+      transform: translate(-180px, -250px) rotate(-180deg) scale(0.9);
+    }
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(1);
+    }
+  }
+
+  @keyframes floatPattern4 {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(0.95);
+    }
+    20% {
+      transform: translate(-180px, -270px) rotate(-80deg) scale(1.2);
+    }
+    40% {
+      transform: translate(220px, -130px) rotate(100deg) scale(0.95);
+    }
+    60% {
+      transform: translate(-150px, 220px) rotate(-160deg) scale(1.25);
+    }
+    80% {
+      transform: translate(250px, -300px) rotate(220deg) scale(0.9);
+    }
+    100% {
+      transform: translate(0, 0) rotate(-360deg) scale(0.95);
+    }
   }
 }

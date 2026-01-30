@@ -55,7 +55,6 @@ export default function LocationsClient() {
     <div>
       <HeroSection showFloatingOranges={false} showOverlay={false} backgroundColor="#1a365d">
         <h1 className="hero-title">{'המיקומים שלנו'}</h1>
-        <p className="hero-subtitle">{'מצא אותנו במיקום קרוב אליך'}</p>
       </HeroSection>
       <div className="mx-[15px]">
         <LocationList locations={locations} />

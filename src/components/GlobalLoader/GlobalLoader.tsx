@@ -43,7 +43,7 @@ export default function GlobalLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backgroundColor: '#dcbca0',
         backdropFilter: 'blur(8px)',
         zIndex: 999999,
         transition: 'opacity 0.2s ease-out, visibility 0.2s ease-out',

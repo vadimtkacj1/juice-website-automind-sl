@@ -1,10 +1,11 @@
 /* ============================================
-   BREADCRUMBS COMPONENT STYLES
+   BREADCRUMBS COMPONENT STYLES (ENLARGED)
    ============================================ */
 
 .breadcrumbs {
   background: transparent;
-  padding: 16px 0;
+  /* Увеличил отступы сверху и снизу */
+  padding: 24px 0; 
   direction: rtl;
 }
 
@@ -18,20 +19,22 @@
   margin-inline: auto;
   padding-inline: 20px;
   justify-content: flex-start;
-  gap: 10px;
+  /* Увеличил расстояние между элементами */
+  gap: 15px; 
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
 .link {
   color: #666;
   text-decoration: none;
-  font-size: 1.05rem;
-  font-weight: 400;
+  /* Размер увеличен с 1.05rem до 1.25rem */
+  font-size: 1.25rem; 
+  font-weight: 500;
   transition: color 0.2s ease;
 }
 
@@ -42,13 +45,15 @@
 
 .separator {
   color: #999;
-  font-size: 1.1rem;
+  /* Разделитель теперь тоже крупнее */
+  font-size: 1.3rem; 
 }
 
 .current {
   color: #1a1a1a;
-  font-size: 1.05rem;
-  font-weight: 600;
+  /* Текущая страница стала значительно солиднее */
+  font-size: 1.25rem; 
+  font-weight: 700;
   pointer-events: none;
 }
 
@@ -56,6 +61,10 @@
 @media (max-width: 900px) {
   .link,
   .current {
-    font-size: 0.95rem;
+    /* На мобильных тоже сделал побольше, чем было раньше */
+    font-size: 1.1rem; 
+  }
+  .breadcrumbs {
+    padding: 16px 0;
   }
 }
