@@ -2,85 +2,42 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Helper functions for cookies
-// Cookies have a 4KB limit, so we'll use localStorage as fallback for large carts
-const MAX_COOKIE_SIZE = 4000; // 4KB limit for cookies
+// Helper functions for localStorage
+// Using localStorage instead of cookies to avoid "Request Header Or Cookie Too Large" errors
+// Cookies are sent with every HTTP request and can cause nginx errors when cart is large
 
-function setCookie(name: string, value: string, days: number = 30) {
+function setStorage(name: string, value: string) {
   if (typeof window === 'undefined') return false;
-  
-  // Check if value is too large for cookie
-  const encodedValue = encodeURIComponent(value);
-  if (encodedValue.length > MAX_COOKIE_SIZE) {
-    console.warn('Cart data too large for cookie, using localStorage instead');
-    try {
-      localStorage.setItem(name, value);
-      // Set a flag cookie to indicate we're using localStorage
-      const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}_storage=localStorage;expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-      return false; // Indicate we used localStorage
-    } catch (e) {
-      console.error('Error saving to localStorage:', e);
-      return false;
-    }
-  }
-  
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${encodedValue};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-  // Clear localStorage flag if using cookie
+
   try {
-    localStorage.removeItem(`${name}_storage`);
+    localStorage.setItem(name, value);
+    console.log(`Cart saved to localStorage (${value.length} bytes)`);
+    return true;
   } catch (e) {
-    // Ignore
+    console.error('Error saving to localStorage:', e);
+    return false;
   }
-  return true; // Indicate we used cookie
 }
 
-function getCookie(name: string): string | null {
+function getStorage(name: string): string | null {
   if (typeof window === 'undefined') return null;
-  
-  // Check if we're using localStorage instead
-  const storageFlag = getCookieValue(`${name}_storage`);
-  if (storageFlag === 'localStorage') {
-    try {
-      const stored = localStorage.getItem(name);
-      if (stored) {
-        console.log('Loaded cart from localStorage (too large for cookie)');
-        return stored;
-      }
-    } catch (e) {
-      console.error('Error reading from localStorage:', e);
-    }
+
+  try {
+    return localStorage.getItem(name);
+  } catch (e) {
+    console.error('Error reading from localStorage:', e);
+    return null;
   }
-  
-  return getCookieValue(name);
 }
 
-function getCookieValue(name: string): string | null {
-  if (typeof window === 'undefined') return null;
-  const nameEQ = name + '=';
-  const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(c.substring(nameEQ.length, c.length));
-    }
-  }
-  return null;
-}
-
-function deleteCookie(name: string) {
+function deleteStorage(name: string) {
   if (typeof window === 'undefined') return;
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-  document.cookie = `${name}_storage=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+
   try {
     localStorage.removeItem(name);
-    localStorage.removeItem(`${name}_storage`);
+    console.log('Cart removed from localStorage');
   } catch (e) {
-    // Ignore
+    console.error('Error removing from localStorage:', e);
   }
 }
 
@@ -138,9 +95,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         
-        const cookieCart = getCookie('cart');
-        if (cookieCart) {
-          const savedCart = JSON.parse(cookieCart);
+        const storageCart = getStorage('cart');
+        if (storageCart) {
+          const savedCart = JSON.parse(storageCart);
           if (Array.isArray(savedCart) && savedCart.length > 0) {
             console.log('📥 [Cart Context] Loaded cart from storage:', savedCart.length, 'items');
             savedCart.forEach((item: CartItem, index: number) => {
@@ -165,26 +122,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (cart.length === 0) {
       // Only clear if we're sure it's intentional (not initial load)
       const timer = setTimeout(() => {
-        deleteCookie('cart');
+        deleteStorage('cart');
       }, 100);
       return () => clearTimeout(timer);
     }
-    
+
     console.log('Saving cart to storage:', cart);
     cart.forEach((item, index) => {
       console.log(`Saving cart item ${index}:`, item.name, 'has ingredients?', item.customIngredients && item.customIngredients.length > 0, 'ingredients:', item.customIngredients);
     });
-    
+
     const cartJson = JSON.stringify(cart);
-    
-    // Save to cookies (with localStorage fallback for large carts)
+
+    // Save to localStorage only (no cookies to avoid nginx header size errors)
     try {
-      const savedToCookie = setCookie('cart', cartJson, 30); // Save for 30 days
-      if (savedToCookie) {
-        console.log('Cart saved to cookie');
-      } else {
-        console.log('Cart saved to localStorage (too large for cookie)');
-      }
+      setStorage('cart', cartJson);
     } catch (e) {
       console.error('Error saving cart to storage:', e);
     }
@@ -282,12 +234,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     console.log('🧹 [Cart Context] Current cart before clearing:', cart);
     setCart([]);
     console.log('🧹 [Cart Context] Cart state set to empty array');
-    // Clear cookie
+    // Clear localStorage
     try {
-      deleteCookie('cart');
-      console.log('✅ [Cart Context] Cart cookie deleted successfully');
+      deleteStorage('cart');
+      console.log('✅ [Cart Context] Cart storage cleared successfully');
     } catch (e) {
-      console.error('❌ [Cart Context] Error clearing cart from cookies:', e);
+      console.error('❌ [Cart Context] Error clearing cart from storage:', e);
     }
   };
 
