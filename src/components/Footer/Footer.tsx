@@ -2,7 +2,6 @@ import Link from 'next/link';
 import styles from './Footer.module.css';
 
 const footerLinks = [
-  { href: '/', label: 'בית' },
   { href: '/menu', label: 'תפריט' },
   { href: '/locations', label: 'מיקומים' },
   { href: '/contact', label: 'צור קשר' },

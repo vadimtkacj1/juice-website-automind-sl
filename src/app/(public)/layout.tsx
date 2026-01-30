@@ -16,14 +16,15 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   }, []);
 
   const isCheckoutPage = pathname === '/checkout';
+  const isLandingPage = pathname === '/landing';
 
   return (
     <>
-      {!isCheckoutPage && <Navbar />}
+      {!isCheckoutPage && !isLandingPage && <Navbar />}
       <ScrollReveal />
       <main>{children}</main>
-      {mounted && !isCheckoutPage && <Footer />}
-      <Cart />
+      {mounted && !isCheckoutPage && !isLandingPage && <Footer />}
+      {!isLandingPage && <Cart />}
     </>
   );
 }

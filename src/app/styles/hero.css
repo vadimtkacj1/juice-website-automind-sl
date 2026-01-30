@@ -3,19 +3,21 @@
    ============================================ */
 .hero {
   background: #ed810e;
-  border-radius: var(--radius-md);
-  margin: 15px 15px 0px 15px;
+  border-radius: 0;
+  margin: 0;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 70vh;
-  padding-block: 120px 80px;
-  width: calc(100% - 32px);
-  max-width: calc(100% - 32px);
+  min-height: 80vh;
+  padding-block: 100px 100px;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+  border: none;
+  border-bottom: none;
 }
 
 .hero-gradient-overlay {
@@ -39,6 +41,7 @@
   padding-inline: var(--spacing-sm);
   position: relative;
   z-index: 10;
+  flex: 1;
 }
 
 .hero-title {
@@ -415,8 +418,10 @@
    ============================================ */
 @media (max-width: 1200px) {
   .hero {
-    width: calc(100% - 32px);
-    max-width: calc(100% - 32px);
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
 }
 
@@ -424,8 +429,10 @@
   .hero {
     min-height: 60vh;
     padding-block: 80px 50px;
-    width: calc(100% - 32px);
-    max-width: calc(100% - 32px);
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
   
   .hero-title {
@@ -455,6 +462,10 @@
   .hero {
     min-height: 50vh;
     padding-block: 60px 40px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
   
   .title-container {

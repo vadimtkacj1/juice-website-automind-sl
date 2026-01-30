@@ -6,6 +6,7 @@ import { ShoppingBag, Plus } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
 import { prefetchModalData } from '@/components/ProductModal/useProductModalData';
 import { useTouchHandler } from '@/hooks/useTouchHandler';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import styles from '../menu.module.css';
 
 export interface MenuItem {
@@ -90,17 +91,24 @@ const MenuItemCard = memo(function MenuItemCard({
       {/* Image Container with Fixed Aspect Ratio */}
       <div className={styles.productImageWrapper}>
         {hasValidImage ? (
-          <Image
-            src={item.image as string}
-            alt={translateToHebrew(item.name)}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-            className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
-            loading="lazy"
-            quality={85}
-          />
+          <>
+            <Image
+              src={item.image as string}
+              alt={translateToHebrew(item.name)}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+              className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
+              loading="lazy"
+              quality={85}
+            />
+            {!imageLoaded && (
+              <div className={styles.imageSpinner}>
+                <LoadingSpinner size="sm" />
+              </div>
+            )}
+          </>
         ) : (
           <div className={styles.productImagePlaceholder}>
             <ShoppingBag size={42} strokeWidth={1.2} />

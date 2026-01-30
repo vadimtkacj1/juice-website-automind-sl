@@ -1,0 +1,150 @@
+.footer {
+  background: linear-gradient(135deg, #1d1a40 0%, #2a2558 100%);
+  color: #ffffff;
+  padding: 60px 20px 30px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+/* Brand Section */
+.brandSection {
+  max-width: 400px;
+}
+
+.brandName {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 900;
+  color: #ed810e;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.brandTagline {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+/* Contact Section */
+.contactSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contactItem:hover {
+  color: #ed810e;
+}
+
+.contactItem svg {
+  flex-shrink: 0;
+  color: #ed810e;
+}
+
+/* Links Section */
+.linksSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.linksList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+  width: fit-content;
+}
+
+.link:hover {
+  color: #ed810e;
+  transform: translateX(-4px);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+}
+
+/* Copyright */
+.copyright {
+  text-align: center;
+}
+
+.copyright p {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(13px, 1.8vw, 14px);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 20px 24px;
+  }
+
+  .mainContent {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  .brandSection {
+    max-width: 100%;
+  }
+
+  .link:hover {
+    transform: translateX(-2px);
+  }
+}

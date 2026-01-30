@@ -10,6 +10,8 @@ interface HeroSectionProps {
   backgroundImage?: string;
   showFloatingOranges?: boolean;
   showOverlay?: boolean;
+  backgroundColor?: string;
+  showNavbar?: boolean;
 }
 
 // Floating orange configuration
@@ -76,7 +78,7 @@ const floatingOranges = [
   },
 ];
 
-export default function HeroSection({ children, backgroundImage, showFloatingOranges = false, showOverlay = true }: HeroSectionProps) {
+export default function HeroSection({ children, backgroundImage, showFloatingOranges = false, showOverlay = true, backgroundColor, showNavbar = true }: HeroSectionProps) {
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -153,7 +155,7 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       className={`hero ${isVisible ? 'active' : ''}`}
       id="hero"
       style={{
-        backgroundColor: showOverlay ? '#7322ff' : '#f5f5f5',
+        backgroundColor: backgroundColor || (showOverlay ? '#7322ff' : '#f5f5f5'),
         ...(backgroundImage && imageLoaded ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
@@ -167,11 +169,13 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       aria-label="אזור ראשי - טבעי שזה מרענן"
     >
       {/* Main Navigation */}
-      <NavBarShell 
-        className="nav-main" 
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+      {showNavbar && (
+        <NavBarShell
+          className="nav-main"
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+        />
+      )}
       
       {/* Animated background gradient overlay */}
       {showOverlay && <div className="hero-gradient-overlay" aria-hidden="true"></div>}
@@ -237,10 +241,12 @@ export default function HeroSection({ children, backgroundImage, showFloatingOra
       )}
       
       {/* Mobile Menu */}
-      <MobileMenu 
-        isOpen={mobileMenuOpen} 
-        onClose={handleCloseMenu}
-      />
+      {showNavbar && (
+        <MobileMenu
+          isOpen={mobileMenuOpen}
+          onClose={handleCloseMenu}
+        />
+      )}
     </section>
   );
 }

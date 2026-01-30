@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Folder } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import styles from './CategoryCard.module.css';
 
 export interface Category {
@@ -55,17 +56,24 @@ const CategoryCard = memo(function CategoryCard({
       {/* Контейнер изображения */}
       <div className={styles.imageWrapper}>
         {hasValidImage ? (
-          <Image
-            src={category.image as string}
-            alt={translateToHebrew(category.name)}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-            className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
-            loading="lazy"
-            quality={90}
-          />
+          <>
+            <Image
+              src={category.image as string}
+              alt={translateToHebrew(category.name)}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+              className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
+              loading="lazy"
+              quality={90}
+            />
+            {!imageLoaded && (
+              <div className={styles.imageSpinner}>
+                <LoadingSpinner size="sm" />
+              </div>
+            )}
+          </>
         ) : (
           <div className={styles.placeholder}>
             <Folder size={40} strokeWidth={1.2} />

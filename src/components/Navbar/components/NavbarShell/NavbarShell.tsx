@@ -2,12 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useCart } from '@/lib/cart-context';
-import BrandLogo from '../BrandLogo/BrandLogo';
+import Image from 'next/image'; // Importing Next.js Image component
 import DesktopNavigation from '../DesktopNavigation/DesktopNavigation';
 import CartButton from '../CartButton/CartButton';
 import MobileActions from '../MovileActions/MobileActions';
-import navbarStyles from '../../Navbar.module.css';
 
 interface NavBarShellProps {
   className: string;
@@ -22,14 +20,26 @@ const NavBarShell = React.forwardRef<HTMLDivElement, NavBarShellProps>((
   return (
     <div ref={ref} className={className}>
       <nav className="nav-content">
+        {/* Logo Section: Using the image path /images/some.svg */}
         <Link href="/" className="logo" aria-label="טבעי שזה מרענן">
-          <BrandLogo compact={compact} />
+          <Image 
+            src="/images/logo.svg" 
+            alt="Brand Logo"
+            /* Adjust dimensions based on compact state */
+            width={compact ? 120 : 150} 
+            height={40} 
+            priority // Ensures the logo loads immediately without lag
+            style={{ objectFit: 'contain' }}
+          />
         </Link>
         
+        {/* Desktop Navigation Links */}
         <DesktopNavigation />
         
+        {/* Shopping Cart Trigger */}
         <CartButton />
 
+        {/* Mobile Menu Toggle and Actions */}
         <MobileActions 
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}

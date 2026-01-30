@@ -66,7 +66,7 @@
   transform: translate(-50%, -50%);
   width: 10px; /* Slightly larger dot */
   height: 10px; /* Slightly larger dot */
-  background: var(--primary, #ed810e);
+  background: #dcbca0;
   border-radius: 50%;
   animation: pulse 1.2s ease-in-out infinite; /* Smoother pulse */
 }

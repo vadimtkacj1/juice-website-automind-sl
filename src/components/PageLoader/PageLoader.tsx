@@ -54,7 +54,7 @@ export default function PageLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        backgroundColor: '#dcbca0',
         backdropFilter: 'blur(4px)',
         zIndex: 999999,
         transition: 'opacity 0.3s ease-out, visibility 0.3s ease-out',

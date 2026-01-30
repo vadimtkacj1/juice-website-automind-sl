@@ -8,7 +8,7 @@ interface LocationListProps {
 
 export default function LocationList({ locations }: LocationListProps) {
   return (
-    <div className="py-12 rounded-b-2xl bg-white relative z-10">
+    <div className="py-12 rounded-b-2xl relative z-10">
       {locations.length === 0 ? (
         <div className="text-center py-16">
           <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

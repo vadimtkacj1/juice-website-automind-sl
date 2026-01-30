@@ -15,6 +15,41 @@ interface NewsItem {
   created_at: string;
 }
 
+interface NewsImageProps {
+  src: string;
+  alt: string;
+}
+
+function NewsImage({ src, alt }: NewsImageProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="news-card-image">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        style={{ objectFit: 'cover' }}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        onLoad={() => setImageLoaded(true)}
+      />
+      {!imageLoaded && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#f8fafc',
+          zIndex: 1
+        }}>
+          <LoadingSpinner size="sm" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 const NewsSection = () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,15 +111,7 @@ const NewsSection = () => {
                 role="listitem"
               >
                 {item.image && !item.image.includes('framerusercontent.com') && (
-                  <div className="news-card-image">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
+                  <NewsImage src={item.image} alt={item.title} />
                 )}
                 <div className="news-card-content">
                   <time className="news-card-date" dateTime={item.created_at}>

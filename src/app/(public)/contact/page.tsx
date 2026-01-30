@@ -1,346 +1,98 @@
 'use client';
 
-import type { Metadata } from 'next';
-
-import { useState, useEffect } from 'react';
-import { Mail, Phone, MessageSquare, Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Phone, Mail, MessageSquare, Clock, MapPin, ArrowLeft } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
-import { useLoading } from '@/lib/loading-context';
 import styles from './contact.module.css';
 
-interface Contact {
-  id: number;
-  type: string;
-  value: string;
-  label?: string;
-  description?: string;
-}
-
-interface BusinessHour {
-  id: number;
-  day_of_week: string;
-  open_time: string;
-  close_time: string;
-  is_active: boolean;
-}
-
-interface BusinessHourDisplay {
-  day: string;
-  hours: string;
-}
-
 export default function ContactPage() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [businessHours, setBusinessHours] = useState<BusinessHourDisplay[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { setLoading: setGlobalLoading } = useLoading();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setGlobalLoading(true);
-      await Promise.all([fetchContacts(), fetchBusinessHours()]);
-      if (!cancelled) {
-        setLoading(false);
-        setGlobalLoading(false);
-      }
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-      setGlobalLoading(false);
-    };
-  }, [setGlobalLoading]);
-
-  useEffect(() => {
-    if (loading) return;
-
-    const revealElements = document.querySelectorAll('.reveal');
-    if (revealElements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    revealElements.forEach((el) => observer.observe(el));
-
-    const timer = window.setTimeout(() => {
-      revealElements.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight) {
-          el.classList.add('active');
-        }
-      });
-    }, 100);
-
-    return () => {
-      window.clearTimeout(timer);
-      observer.disconnect();
-    };
-  }, [loading, contacts.length, businessHours.length]);
-
-  async function fetchContacts() {
-    try {
-      const response = await fetch('/api/contacts');
-      if (response.ok) {
-        const data = await response.json();
-        setContacts(data.contacts || []);
-      }
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-    }
-  }
-
-  async function fetchBusinessHours() {
-    try {
-      const response = await fetch('/api/business-hours');
-      if (response.ok) {
-        const data = await response.json();
-        // Filter only active hours and format them
-        const activeHours = (data.businessHours || [])
-          .filter((bh: BusinessHour) => bh.is_active)
-          .map((bh: BusinessHour) => ({
-            day: bh.day_of_week,
-            hours: `${formatTime(bh.open_time)} - ${formatTime(bh.close_time)}`
-          }));
-        setBusinessHours(activeHours);
-      }
-    } catch (error) {
-      console.error('Error fetching business hours:', error);
-    }
-  }
-
-  function formatTime(time: string): string {
-    // Convert 24h format to 12h format
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  }
-
-  function getContactLabel(contact: Contact): string {
-    if (contact.label) return contact.label;
-    // Fallback to default labels
-    switch (contact.type.toLowerCase()) {
-      case 'email':
-        return 'שלח אימייל';
-      case 'phone':
-        return 'התקשר אלינו';
-      case 'whatsapp':
-        return 'וואטסאפ';
-      case 'address':
-        return 'בקר אותנו';
-      default:
-        return 'צור קשר';
-    }
-  }
-
-  function getContactDescription(contact: Contact): string {
-    if (contact.description) return contact.description;
-    // Fallback to default descriptions
-    switch (contact.type.toLowerCase()) {
-      case 'email':
-        return "נגיב תוך 24 שעות";
-      case 'phone':
-        return 'ב-ו, 8:00-18:00';
-      case 'whatsapp':
-        return 'שוחח איתנו בכל זמן';
-      case 'address':
-        return 'המיקום שלנו';
-      default:
-        return 'צור קשר איתנו';
-    }
-  }
-
-  const getContactIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'email':
-        return <Mail size={24} />;
-      case 'phone':
-        return <Phone size={24} />;
-      case 'whatsapp':
-        return <MessageSquare size={24} />;
-      case 'address':
-        return <MapPin size={24} />;
-      default:
-        return <MessageSquare size={24} />;
-    }
-  };
-
-  const getContactLink = (type: string, value: string) => {
-    switch (type.toLowerCase()) {
-      case 'email':
-        return `mailto:${value}`;
-      case 'phone':
-        return `tel:${value.replace(/\D/g, '')}`;
-      case 'whatsapp':
-        return `https://wa.me/${value.replace(/\D/g, '')}`;
-      case 'address':
-        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(value)}`;
-      default:
-        return '#';
-    }
-  };
-
-  // Разделим контакты по типам для особого отображения
-  const phoneContact = contacts.find(c => c.type.toLowerCase() === 'phone');
-  const addressContact = contacts.find(c => c.type.toLowerCase() === 'address');
-  const otherContacts = contacts.filter(c => 
-    c.type.toLowerCase() !== 'phone' && c.type.toLowerCase() !== 'address'
-  );
-
   return (
-    <div className={styles['contact-page']}>
-      <HeroSection showFloatingOranges={true}>
-        <h1 className="hero-title">{'צור קשר'}</h1>
-        <p className="hero-subtitle">יש לך שאלה או משוב? נשמח לשמוע ממך!</p>
+    <div className={styles['contact-page']} dir="rtl">
+      <HeroSection showFloatingOranges={false} showOverlay={false} backgroundColor="#1a365d">
+        <h1 className="hero-title" style={{fontSize: '56px', fontWeight: 900}}>צור קשר</h1>
       </HeroSection>
 
-      {/* Main Content */}
       <div className={styles['contact-content']}>
-        {loading ? (
-          <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            minHeight: '100vh',
-            width: '100vw',
-            background: 'rgba(255, 255, 255, 0.95)',
-            zIndex: 9999
-          }}>
-            <LoadingSpinner size="lg" text={'טוען אנשי קשר...'}/>
-          </div>
-        ) : (
-          <>
-            {/* Главные контакты: Телефон и Адрес */}
-            {(phoneContact || addressContact) && (
-              <section className={`${styles['main-contacts']} reveal`}>
-                {phoneContact && (
-                  <a
-                    href={getContactLink(phoneContact.type, phoneContact.value)}
-                    className={`${styles['main-contact-card']} ${styles['phone-card']}`}
-                    style={{ ['--delay' as string]: '0.1s' }}
-                  >
-                    <div className={styles['main-contact-icon']}>
-                      <Phone size={32} />
-                    </div>
-                    <div className={styles['main-contact-info']}>
-                      <h2>{translateToHebrew(phoneContact.label || 'התקשר אלינו')}</h2>
-                      <p className={styles['main-contact-value']}>{phoneContact.value}</p>
-                      {phoneContact.description && (
-                        <p className={styles['main-contact-desc']}>{translateToHebrew(phoneContact.description)}</p>
-                      )}
-                    </div>
-                  </a>
-                )}
-                
-                {addressContact && (
-                  <a
-                    href={getContactLink(addressContact.type, addressContact.value)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles['main-contact-card']} ${styles['address-card']}`}
-                    style={{ ['--delay' as string]: '0.2s' }}
-                  >
-                    <div className={styles['main-contact-icon']}>
-                      <MapPin size={32} />
-                    </div>
-                    <div className={styles['main-contact-info']}>
-                      <h2>{translateToHebrew(addressContact.label || 'בקר אותנו')}</h2>
-                      <p className={styles['main-contact-value']}>{addressContact.value}</p>
-                      {addressContact.description && (
-                        <p className={styles['main-contact-desc']}>{translateToHebrew(addressContact.description)}</p>
-                      )}
-                    </div>
-                  </a>
-                )}
-              </section>
-            )}
+        
+        {/* Main Contacts: Phone & Address */}
+        <div className={styles['top-grid']}>
+          <section className={styles['info-section']}>
+            <div className={styles['section-header']}>
+              <Phone size={36} strokeWidth={3} />
+              <span>התקשרו אלינו</span>
+            </div>
+            <a href="tel:031234567" className={styles['section-value']}>03-1234567</a>
+            <p className={styles['section-desc']}>שירות לקוחות פעיל בימים א-ה, 9:00-18:00</p>
+          </section>
 
-            {/* Остальные контакты */}
-            {otherContacts.length > 0 && (
-              <section className={`${styles['contact-cards']} reveal`} style={{ ['--delay' as string]: '0.3s' }}>
-                {otherContacts.map((contact, index) => (
-                  <a
-                    key={contact.id}
-                    href={getContactLink(contact.type, contact.value)}
-                    target={contact.type === 'whatsapp' ? '_blank' : undefined}
-                    rel={contact.type === 'whatsapp' ? 'noopener noreferrer' : undefined}
-                    className={styles['contact-card']}
-                    style={{ ['--delay' as string]: `${0.3 + 0.1 * (index + 1)}s` }}
-                  >
-                    <div className={styles['contact-card-icon']}>
-                      {getContactIcon(contact.type)}
-                    </div>
-                    <div className={styles['contact-card-info']}>
-                      <h3>{translateToHebrew(contact.label || getContactLabel(contact))}</h3>
-                      <p className={styles['contact-card-value']}>{contact.value}</p>
-                      {contact.description && (
-                        <p className={styles['contact-card-desc']}>{translateToHebrew(contact.description)}</p>
-                      )}
-                    </div>
-                    <ArrowRight size={20} className={styles['contact-card-arrow']} />
-                  </a>
-                ))}
-              </section>
-            )}
+          <section className={styles['info-section']}>
+            <div className={styles['section-header']}>
+              <MapPin size={36} strokeWidth={3} />
+              <span>בואו לבקר</span>
+            </div>
+            <div className={styles['section-value']}>דב הוז 63, חולון</div>
+            <p className={styles['section-desc']}>המיקום המרכזי שלנו - מחכים לכם עם מיץ טרי!</p>
+          </section>
+        </div>
 
-            {/* Info Cards Grid */}
-            <div className={styles['info-cards-grid']}>
-              {/* Business Hours */}
-              {businessHours.length > 0 && (
-                <div className={`${styles['info-card']} ${styles['info-card-large']} reveal`} style={{ ['--delay' as string]: '0.5s' }}>
-                  <div className={styles['info-card-header']}>
-                    <Clock size={24} />
-                    <h3>{'שעות פעילות'}</h3>
-                  </div>
-                  <div className={styles['hours-list']}>
-                    {businessHours.map((item, index) => (
-                      <div key={index} className={styles['hours-item']}>
-                        <span className={styles['hours-day']}>{translateToHebrew(item.day)}</span>
-                        <span className={styles['hours-time']}>{item.hours}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+        {/* Secondary Action Links */}
+        <div className={styles['links-row']}>
+          <a href="https://wa.me/972501234567" className={styles['action-link']}>
+            <MessageSquare size={40} color="#ed810e" strokeWidth={2.5} />
+            <div>
+              <div className={styles['link-title']}>וואטסאפ</div>
+              <div className={styles['link-sub']} dir="ltr">+972 50 123 4567</div>
+            </div>
+            <ArrowLeft className={styles['arrow-icon']} size={28} />
+          </a>
 
-              {/* Location Hint */}
-              <div className={`${styles['info-card']} ${styles['info-card-large']} reveal`} style={{ ['--delay' as string]: '0.6s' }}>
-                <div className={styles['info-card-header']}>
-                  <MapPin size={24} />
-                  <h3>{'בואו לבקר אותנו'}</h3>
-                </div>
-                <p className={styles['info-text']}>
-                  מצא אותנו במיקומים מרובים. מיצים טריים וסמוזים מחכים לך!
-                </p>
-                <a href="/locations" className={styles['info-link']}>
-                  {'צפה בכל המיקומים'}
-                  <ArrowRight size={16} />
-                </a>
+          <a href="mailto:info@reviva.co.il" className={styles['action-link']}>
+            <Mail size={40} color="#ed810e" strokeWidth={2.5} />
+            <div>
+              <div className={styles['link-title']}>שלחו לנו מייל</div>
+              <div className={styles['link-sub']}>info@reviva.co.il</div>
+            </div>
+            <ArrowLeft className={styles['arrow-icon']} size={28} />
+          </a>
+        </div>
+
+        {/* Business Hours & Footer Section */}
+        <div className={styles['top-grid']} style={{borderBottom: 'none'}}>
+          <section className={styles['info-section']}>
+            <div className={styles['section-header']}>
+              <Clock size={36} strokeWidth={3} />
+              <span>שעות פעילות</span>
+            </div>
+            <div className={styles['hours-table']}>
+              <div className={styles['hours-row']}>
+                <span className={styles['day-name']}>יום ראשון</span>
+                <span>08:00 - 20:00</span>
+              </div>
+              <div className={styles['hours-row']}>
+                <span className={styles['day-name']}>יום שני</span>
+                <span>08:00 - 20:00</span>
+              </div>
+              <div className={styles['hours-row']}>
+                <span className={styles['day-name']}>יום שלישי</span>
+                <span>08:00 - 20:00</span>
               </div>
             </div>
-          </>
-        )}
+          </section>
+
+          <section className={styles['info-section']} style={{justifyContent: 'center'}}>
+            <div className={styles['section-header']}>
+              <MapPin size={36} strokeWidth={3} />
+              <span>הסניפים שלנו</span>
+            </div>
+            <p className={styles['section-desc']}>
+              אנחנו פרוסים במספר מוקדים. מצאו את הסניף הקרוב אליכם ביותר.
+            </p>
+            <a href="/locations" className={styles['action-link']} style={{padding: '20px 30px', flex: '0 1 auto'}}>
+              <span className={styles['link-title']} style={{fontSize: '22px'}}>צפה בכל המיקומים</span>
+              <ArrowLeft size={24} />
+            </a>
+          </section>
+        </div>
+
       </div>
     </div>
   );

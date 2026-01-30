@@ -1,0 +1,90 @@
+/* ============================================
+   WHY SECTION
+   ============================================ */
+
+.whySection {
+  padding: 100px 20px;
+  background: #dcbca0;
+  position: relative;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.sectionTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 900;
+  color: #1d1a40;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.whyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+}
+
+.whyCard {
+  background: transparent;
+  padding: 40px 28px;
+  text-align: center;
+  position: relative;
+}
+
+.whyNumber {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(72px, 8vw, 96px);
+  font-weight: 900;
+  background: linear-gradient(135deg, #ed810e 0%, #ffa94d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.35;
+  margin-bottom: 24px;
+}
+
+.whyCardTitle {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(28px, 3.5vw, 36px);
+  font-weight: 800;
+  color: #1d1a40;
+  margin-bottom: 16px;
+}
+
+.whyCardDescription {
+  font-family: 'Heebo', sans-serif;
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-weight: 600;
+  color: #4a2800;
+  line-height: 1.7;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .whySection {
+    padding: 60px 20px;
+  }
+
+  .whyGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whyCard {
+    padding: 32px 20px;
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface OptimizedImageProps {
   src: string;
@@ -16,6 +17,7 @@ interface OptimizedImageProps {
   onLoad?: () => void;
   quality?: number;
   sizes?: string;
+  showSpinner?: boolean;
 }
 
 /**
@@ -39,6 +41,7 @@ export default function OptimizedImage({
   onLoad,
   quality = 75,
   sizes,
+  showSpinner = true,
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
@@ -181,6 +184,11 @@ export default function OptimizedImage({
             style={{ objectFit }}
           />
         )}
+        {!isLoaded && showSpinner && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+            <LoadingSpinner size="sm" />
+          </div>
+        )}
         {placeholder && !isLoaded && (
           <div
             className="absolute inset-0"
@@ -229,6 +237,11 @@ export default function OptimizedImage({
             style={{ objectFit }}
           />
         )}
+        {!isLoaded && showSpinner && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+            <LoadingSpinner size="sm" />
+          </div>
+        )}
         {placeholder && !isLoaded && (
           <div
             className="absolute inset-0"
@@ -258,6 +271,11 @@ export default function OptimizedImage({
         }`}
         style={{ objectFit }}
       />
+      {!isLoaded && showSpinner && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+          <LoadingSpinner size="sm" />
+        </div>
+      )}
       {placeholder && !isLoaded && (
         <div
           className="absolute inset-0"
