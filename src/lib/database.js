@@ -117,7 +117,9 @@ async function initializeTables(pool) {
 
   // Порядок важен из-за Foreign Keys
   await t(`CREATE TABLE IF NOT EXISTS menu_categories (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255) NOT NULL, description TEXT, image TEXT, sort_order INT DEFAULT 0, is_active TINYINT(1) DEFAULT 1, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB`);
-  
+
+  await t(`CREATE TABLE IF NOT EXISTS menu_category_volumes (id INT AUTO_INCREMENT PRIMARY KEY, category_id INT NOT NULL, volume VARCHAR(100) NOT NULL, is_default TINYINT(1) DEFAULT 0, sort_order INT DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (category_id) REFERENCES menu_categories(id) ON DELETE CASCADE) ENGINE=InnoDB`);
+
   await t(`CREATE TABLE IF NOT EXISTS menu_items (id INT AUTO_INCREMENT PRIMARY KEY, category_id INT NOT NULL, name VARCHAR(255) NOT NULL, description TEXT, price DECIMAL(10,2) NOT NULL, volume VARCHAR(100), image TEXT, discount_percent DECIMAL(10,2) DEFAULT 0, is_available TINYINT(1) DEFAULT 1, sort_order INT DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (category_id) REFERENCES menu_categories(id) ON DELETE CASCADE) ENGINE=InnoDB`);
 
   await t(`CREATE TABLE IF NOT EXISTS admins (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(191) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, email VARCHAR(191), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB`);
