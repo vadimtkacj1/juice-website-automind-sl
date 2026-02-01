@@ -74,20 +74,22 @@ RUN apk add --no-cache \
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy public folder
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-
-# Copy Next.js standalone build output
+# Copy Next.js standalone build output first
 # The standalone output includes server.js and all necessary files
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+
+# Create .next directory and copy static files
+RUN mkdir -p .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public folder (must be after standalone to ensure proper structure)
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Copy scripts and services directories
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/src/services ./services
 
-# Copy database initialization script
+# Copy database initialization script and shell script
 COPY --from=builder --chown=nextjs:nodejs /app/init-database.sql ./init-database.sql
 COPY --from=builder --chown=root:root /app/scripts/init-db.sh /usr/local/bin/init-db.sh
 RUN chmod +x /usr/local/bin/init-db.sh
