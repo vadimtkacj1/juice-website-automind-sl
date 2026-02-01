@@ -15,6 +15,9 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql  # Data stored on host
       - ./mysql-backups:/backups      # Backup directory on host
+      # NOTE: init-database.sql should be executed manually or via application
+      # Volume mount won't work when deploying with pre-built image from registry
+      # - ./init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
       interval: 10s

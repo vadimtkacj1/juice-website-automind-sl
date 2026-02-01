@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "init-db": "node scripts/init-database.js",
+    "init-sql": "node scripts/run-sql-init.js",
     "create-admin": "node scripts/create-admin.js",
     "seed-demo": "node scripts/seed-demo-data.js",
     "seed-menu": "node scripts/seed-menu.js",

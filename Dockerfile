@@ -87,6 +87,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/src/services ./services
 
+# Copy database initialization script
+COPY --from=builder --chown=nextjs:nodejs /app/init-database.sql ./init-database.sql
+
 # Persist PayPlus credentials for tools expecting a nano file (requested)
 RUN printf "PAYPLUS_API_KEY=%s\nPAYPLUS_SECRET_KEY=%s\nPAYPLUS_PAGE_UID=%s\nPAYPLUS_TEST_MODE=%s\n" \
     "$PAYPLUS_API_KEY" "$PAYPLUS_SECRET_KEY" "$PAYPLUS_PAGE_UID" "$PAYPLUS_TEST_MODE" > /app/nano \
