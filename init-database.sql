@@ -97,6 +97,67 @@ CREATE TABLE `ingredient_groups` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Menu Item Volumes Table
+CREATE TABLE `menu_item_volumes` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `menu_item_id` INT NOT NULL,
+  `volume` VARCHAR(100) NOT NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `is_default` TINYINT(1) DEFAULT 0,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Menu Item Custom Ingredients Table
+CREATE TABLE `menu_item_custom_ingredients` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `menu_item_id` INT NOT NULL,
+  `custom_ingredient_id` INT NOT NULL,
+  `ingredient_group` VARCHAR(191),
+  `ingredient_group_id` INT,
+  `selection_type` VARCHAR(50) DEFAULT 'multiple',
+  `price_override` DECIMAL(10,2),
+  `is_required` TINYINT(1) DEFAULT 0,
+  `sort_order` INT DEFAULT 0,
+  `volume_prices` JSON DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`custom_ingredient_id`) REFERENCES `custom_ingredients`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`ingredient_group_id`) REFERENCES `ingredient_groups`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Menu Category Custom Ingredients Table
+CREATE TABLE `menu_category_custom_ingredients` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `category_id` INT NOT NULL,
+  `custom_ingredient_id` INT NOT NULL,
+  `ingredient_group` VARCHAR(191),
+  `ingredient_group_id` INT,
+  `selection_type` VARCHAR(50) DEFAULT 'multiple',
+  `price_override` DECIMAL(10,2),
+  `is_required` TINYINT(1) DEFAULT 0,
+  `sort_order` INT DEFAULT 0,
+  `volume_prices` JSON DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`category_id`) REFERENCES `menu_categories`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`custom_ingredient_id`) REFERENCES `custom_ingredients`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`ingredient_group_id`) REFERENCES `ingredient_groups`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Menu Item Additional Items Table
+CREATE TABLE `menu_item_additional_items` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `menu_item_id` INT NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `price` DECIMAL(10,2) DEFAULT 0,
+  `is_available` TINYINT(1) DEFAULT 1,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Orders Table
 CREATE TABLE `orders` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
