@@ -83,8 +83,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: "docker-compose.yml,init-database.sql"
+          source: "docker-compose.yml,init-database.sql,public/uploads/menu"
           target: "${{ secrets.APP_PATH || '/opt/juice-website' }}"
+          strip_components: 0
 
       - name: SSH Remote Deployment
         env:
@@ -129,6 +130,16 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker-compose pull
           docker-compose up -d
+
+          # Copy menu images to container if they exist
+          if [ -d "public/uploads/menu" ]; then
+            echo "📸 Copying menu images to container..."
+            docker exec juice-website mkdir -p /app/public/uploads/menu
+            docker cp public/uploads/menu/. juice-website:/app/public/uploads/menu/
+            docker exec juice-website chown -R nextjs:nodejs /app/public/uploads/menu
+            echo "✅ Menu images copied"
+          fi
+
           docker image prune -f
           echo "✅ Deployment successful!"
           DEPLOY_SCRIPT
