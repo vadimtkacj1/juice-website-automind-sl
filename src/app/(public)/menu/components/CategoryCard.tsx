@@ -67,6 +67,8 @@ const CategoryCard = memo(function CategoryCard({
               className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
               loading="lazy"
               quality={90}
+              // Uploaded images are already optimized by sharp
+              unoptimized={category.image?.startsWith('/uploads')}
             />
             {!imageLoaded && (
               <div className={styles.imageSpinner}>

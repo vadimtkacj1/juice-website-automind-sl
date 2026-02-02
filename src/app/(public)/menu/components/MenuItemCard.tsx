@@ -102,6 +102,8 @@ const MenuItemCard = memo(function MenuItemCard({
               className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
               loading="lazy"
               quality={85}
+              // Uploaded images are already optimized by sharp
+              unoptimized={item.image?.startsWith('/uploads')}
             />
             {!imageLoaded && (
               <div className={styles.imageSpinner}>

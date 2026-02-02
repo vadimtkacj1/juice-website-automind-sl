@@ -52,6 +52,16 @@ const nextConfig = {
     unoptimized: false,
   },
 
+  // Rewrites to handle uploaded images through API in production
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/uploads/:path*',
+      },
+    ];
+  },
+
   // Production optimizations
   swcMinify: true,
   
