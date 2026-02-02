@@ -83,7 +83,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: "docker-compose.yml,init-database.sql,public/uploads/menu"
+          source: "docker-compose.yml,init-database.sql,fix-images-correct.sql,public/uploads/menu"
           target: "${{ secrets.APP_PATH || '/opt/juice-website' }}"
           strip_components: 0
 
@@ -138,6 +138,13 @@ jobs:
             docker cp public/uploads/menu/. juice-website:/app/public/uploads/menu/
             docker exec juice-website chown -R nextjs:nodejs /app/public/uploads/menu
             echo "✅ Menu images copied"
+          fi
+
+          # Update image paths in database if SQL file exists
+          if [ -f "fix-images-correct.sql" ]; then
+            echo "🔄 Updating image paths in database..."
+            docker exec -i juice-website-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-rootpassword} ${MYSQL_DATABASE:-juice_website} < fix-images-correct.sql
+            echo "✅ Image paths updated"
           fi
 
           docker image prune -f
