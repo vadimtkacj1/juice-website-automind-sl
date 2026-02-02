@@ -142,12 +142,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         
         {/* Preload critical local fonts */}
-        <link 
+        <link
           rel="preload"
           href="/fonts/Heebo-VariableFont_wght.ttf"
           as="font"
           type="font/ttf"
           crossOrigin="anonymous"
+        />
+
+        {/* Preload critical hero image for faster LCP */}
+        <link
+          rel="preload"
+          href="/images/hero.jpg"
+          as="image"
+          type="image/jpeg"
         />
         
         {/* Mobile support script */}

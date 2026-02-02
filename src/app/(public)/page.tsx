@@ -7,6 +7,7 @@ import { ShoppingBag } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { translateToHebrew } from '@/lib/translations';
+import { fetchMenuWithCache, preloadImages } from '@/lib/client-cache';
 import styles from './page.module.css';
 
 interface MenuItem {
@@ -33,15 +34,18 @@ export default function HomePage() {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/menu');
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch menu');
-        }
-
-        const data = await response.json();
+        // Use cached data if available, otherwise fetch from API
+        const data = await fetchMenuWithCache();
         const menuData = data.menu || [];
         setCategories(menuData);
+
+        // Preload images in the background for faster loading
+        const imageUrls = [
+          '/images/hero.jpg',
+          ...menuData.filter((cat: Category) => cat.image?.trim()).map((cat: Category) => cat.image)
+        ];
+        preloadImages(imageUrls);
 
         // Count total images to load (categories with images + hero image)
         const imagesWithUrl = menuData.filter((cat: Category) => cat.image?.trim()).length;

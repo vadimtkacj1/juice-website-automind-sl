@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import FloatingFruits from '@/components/FloatingFruits';
 import { translateToHebrew } from '@/lib/translations';
+import { fetchMenuWithCache, preloadImages } from '@/lib/client-cache';
 import MenuItemCard, { MenuItem } from '../../components/MenuItemCard';
 import styles from '../../menu.module.css';
 import categoryStyles from './category.module.css';
@@ -44,14 +45,22 @@ export default function CategoryPage() {
     const fetchCategory = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/menu');
-        if (!response.ok) throw new Error('Failed to fetch');
-        const data = await response.json();
+
+        // Use cached data if available
+        const data = await fetchMenuWithCache();
         const found = data.menu.find((cat: Category) => cat.id === parseInt(categoryId));
         setCategory(found || null);
 
-        // Count total images to load (hero image + menu item images)
+        // Preload images in the background for faster loading
         if (found) {
+          const heroImage = found.image || "https://images.unsplash.com/photo-1628178652615-3974c5d63f03";
+          const imageUrls = [
+            heroImage,
+            ...found.items?.filter((item: MenuItem) => item.image?.trim()).map((item: MenuItem) => item.image) || []
+          ];
+          preloadImages(imageUrls);
+
+          // Count total images to load (hero image + menu item images)
           const itemImagesWithUrl = found.items?.filter((item: MenuItem) => item.image?.trim()).length || 0;
           totalImagesCount.current = itemImagesWithUrl + 1; // +1 for hero image
 

@@ -153,8 +153,12 @@ export async function GET() {
 
     return NextResponse.json(responseData, {
       headers: {
-        'Cache-Control': 'no-store, must-revalidate',
+        // Allow browser to cache for 5 minutes, but revalidate in background
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+        // No CDN caching to ensure fresh data for dynamic changes
         'CDN-Cache-Control': 'no-store',
+        // Add ETag for conditional requests
+        'ETag': `"menu-${cacheVersion}"`,
       },
     });
 
