@@ -131,13 +131,11 @@ jobs:
           docker-compose pull
           docker-compose up -d
 
-          # Copy menu images to container if they exist
+          # Ensure menu images have correct permissions (already copied by SCP)
           if [ -d "public/uploads/menu" ]; then
-            echo "📸 Copying menu images to container..."
-            docker exec juice-website mkdir -p /app/public/uploads/menu
-            docker cp public/uploads/menu/. juice-website:/app/public/uploads/menu/
-            docker exec juice-website chown -R nextjs:nodejs /app/public/uploads/menu
-            echo "✅ Menu images copied"
+            echo "📸 Setting permissions for menu images..."
+            chmod -R 755 public/uploads
+            echo "✅ Menu images ready (volume mounted to container)"
           fi
 
           # Update image paths in database if SQL file exists
