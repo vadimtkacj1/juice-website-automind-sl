@@ -28,6 +28,7 @@ interface MenuItemCardProps {
   itemIndex: number;
   onItemClick: (item: MenuItem) => void;
   getDiscountedPrice: (price: number | string, discountPercent: number | string) => number;
+  onImageLoad?: () => void;
 }
 
 const MenuItemCard = memo(function MenuItemCard({
@@ -36,6 +37,7 @@ const MenuItemCard = memo(function MenuItemCard({
   itemIndex,
   onItemClick,
   getDiscountedPrice,
+  onImageLoad,
 }: MenuItemCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -97,11 +99,18 @@ const MenuItemCard = memo(function MenuItemCard({
               alt={translateToHebrew(item.name)}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
+              onLoad={() => {
+                setImageLoaded(true);
+                onImageLoad?.();
+              }}
+              onError={() => {
+                setImageError(true);
+                onImageLoad?.();
+              }}
               className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
-              loading="lazy"
+              loading="eager"
               quality={85}
+              priority
               // Uploaded images are already optimized by sharp
               unoptimized={item.image?.startsWith('/uploads')}
             />

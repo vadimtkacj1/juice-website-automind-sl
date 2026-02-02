@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import ProductModal from '@/components/ProductModal';
@@ -30,11 +30,15 @@ const calculateFinalPrice = (price: number | string, discountPercent: number | s
 export default function CategoryPage() {
   const params = useParams();
   const categoryId = params.id as string;
-  
+
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [imagesLoading, setImagesLoading] = useState(true);
   const { addToCart } = useCart();
+
+  const loadedImagesCount = useRef(0);
+  const totalImagesCount = useRef(0);
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -45,14 +49,35 @@ export default function CategoryPage() {
         const data = await response.json();
         const found = data.menu.find((cat: Category) => cat.id === parseInt(categoryId));
         setCategory(found || null);
+
+        // Count total images to load (hero image + menu item images)
+        if (found) {
+          const itemImagesWithUrl = found.items?.filter((item: MenuItem) => item.image?.trim()).length || 0;
+          totalImagesCount.current = itemImagesWithUrl + 1; // +1 for hero image
+
+          // If no images to load, hide spinner immediately
+          if (totalImagesCount.current === 1) { // Only hero image
+            setImagesLoading(false);
+          }
+        } else {
+          setImagesLoading(false);
+        }
       } catch (err) {
         console.error("Error loading items:", err);
+        setImagesLoading(false);
       } finally {
         setLoading(false);
       }
     };
     if (categoryId) fetchCategory();
   }, [categoryId]);
+
+  const handleImageLoad = () => {
+    loadedImagesCount.current += 1;
+    if (loadedImagesCount.current >= totalImagesCount.current) {
+      setImagesLoading(false);
+    }
+  };
 
   const handleAddToCart = useCallback((item: any) => {
     const numericId = typeof item.id === 'string' ? parseInt(item.id, 10) : item.id;
@@ -79,53 +104,69 @@ export default function CategoryPage() {
     { label: translateToHebrew(category?.name || ''), href: `/menu/category/${categoryId}` }
   ];
 
+  const heroImage = category?.image || "https://images.unsplash.com/photo-1628178652615-3974c5d63f03";
+
   return (
-    <div className={styles.menuPage}>
-      <HeroSection
-        backgroundImage={category?.image || "https://images.unsplash.com/photo-1628178652615-3974c5d63f03"}
-        showFloatingOranges={false}
-        showOverlay={false}
-      >
-        <div className={categoryStyles.heroInner}>
-          <h1 className={categoryStyles.mainTitle}>{translateToHebrew(category?.name || '')}</h1>
-          {category?.description && (
-            <p className={categoryStyles.mainSubtitle}>{translateToHebrew(category.description)}</p>
-          )}
-        </div>
-      </HeroSection>
+    <>
+      {/* Full-screen spinner while images are loading */}
+      {imagesLoading && <LoadingSpinner fullPage size="lg" text="טוען תמונות..." />}
 
+      <div className={styles.menuPage} style={{ visibility: imagesLoading ? 'hidden' : 'visible' }}>
+        <HeroSection
+          backgroundImage={heroImage}
+          showFloatingOranges={false}
+          showOverlay={false}
+        >
+          <div className={categoryStyles.heroInner}>
+            <h1 className={categoryStyles.mainTitle}>{translateToHebrew(category?.name || '')}</h1>
+            {category?.description && (
+              <p className={categoryStyles.mainSubtitle}>{translateToHebrew(category.description)}</p>
+            )}
+          </div>
+        </HeroSection>
 
-      <div className={styles.menuContent}>
-      <Breadcrumbs items={breadcrumbItems} />
-        <FloatingFruits />
-        <div className={styles.categorySection}>
-          {category?.items && category.items.length > 0 ? (
-            <div className={categoryStyles.strictGrid}>
-              {category.items.map((item, idx) => (
-                <MenuItemCard
-                  key={item.id}
-                  item={item}
-                  categoryId={category.id}
-                  itemIndex={idx}
-                  onItemClick={setSelectedItem}
-                  getDiscountedPrice={(p, d) => calculateFinalPrice(p, d)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className={categoryStyles.noData}>
-              <h3>אין פריטים זמינים</h3>
-            </div>
-          )}
+        {/* Hidden hero image to track loading */}
+        <img
+          src={heroImage}
+          alt="Hero"
+          style={{ display: 'none' }}
+          onLoad={handleImageLoad}
+          onError={handleImageLoad}
+        />
+
+        <div className={styles.menuContent}>
+          <Breadcrumbs items={breadcrumbItems} />
+          <FloatingFruits />
+          <div className={styles.categorySection}>
+            {category?.items && category.items.length > 0 ? (
+              <div className={categoryStyles.strictGrid}>
+                {category.items.map((item, idx) => (
+                  <MenuItemCard
+                    key={item.id}
+                    item={item}
+                    categoryId={category.id}
+                    itemIndex={idx}
+                    onItemClick={setSelectedItem}
+                    getDiscountedPrice={(p, d) => calculateFinalPrice(p, d)}
+                    onImageLoad={handleImageLoad}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className={categoryStyles.noData}>
+                <h3>אין פריטים זמינים</h3>
+              </div>
+            )}
+          </div>
         </div>
+
+        <ProductModal
+          item={selectedItem}
+          isOpen={!!selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onAddToCart={handleAddToCart}
+        />
       </div>
-
-      <ProductModal
-        item={selectedItem}
-        isOpen={!!selectedItem}
-        onClose={() => setSelectedItem(null)}
-        onAddToCart={handleAddToCart}
-      />
-    </div>
+    </>
   );
 }
