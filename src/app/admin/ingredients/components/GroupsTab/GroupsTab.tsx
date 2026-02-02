@@ -76,10 +76,9 @@ export default function GroupsTab({
                 onChange={(e) => onNewGroupNameChange(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && onCreateGroup()}
               />
-              <Button 
-                onClick={onCreateGroup} 
-                disabled={!newGroupName.trim()}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              <Button
+                onClick={onCreateGroup}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
               >
                 צור קבוצה
               </Button>

@@ -123,7 +123,13 @@ export default function AdminIngredientsPage() {
    * Creates a new ingredient group.
    */
   const handleCreateGroup = async () => {
-    if (!newGroupName.trim()) return;
+    if (!newGroupName.trim()) {
+      setDialogs(p => ({
+        ...p,
+        alert: { open: true, title: 'שגיאה', message: 'נא להזין שם לקבוצה', type: 'warning' }
+      }));
+      return;
+    }
     try {
       const res = await fetch('/api/ingredient-groups', {
         method: 'POST',
@@ -131,17 +137,17 @@ export default function AdminIngredientsPage() {
         body: JSON.stringify({ name_he: newGroupName.trim(), sort_order: groups.length }),
       });
       if (!res.ok) throw new Error();
-      
+
       setNewGroupName('');
       fetchGroups();
-      setDialogs(p => ({ 
-        ...p, 
-        alert: { open: true, title: t('Success'), message: t('Group created!'), type: 'success' } 
+      setDialogs(p => ({
+        ...p,
+        alert: { open: true, title: 'הצלחה', message: 'הקבוצה נוצרה בהצלחה!', type: 'success' }
       }));
     } catch {
-      setDialogs(p => ({ 
-        ...p, 
-        alert: { open: true, title: t('Error'), message: 'Failed to create group', type: 'error' } 
+      setDialogs(p => ({
+        ...p,
+        alert: { open: true, title: 'שגיאה', message: 'שגיאה ביצירת הקבוצה', type: 'error' }
       }));
     }
   };
