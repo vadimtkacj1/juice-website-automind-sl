@@ -37,22 +37,23 @@ export default function HomePage() {
 
         // Use cached data if available, otherwise fetch from API
         const data = await fetchMenuWithCache();
-        const menuData = data.menu || [];
+        const menuData: Category[] = data.menu || [];
         setCategories(menuData);
 
-        // Preload images in the background for faster loading
-        const imageUrls = [
-          '/images/hero.jpg',
-          ...menuData.filter((cat: Category) => cat.image?.trim()).map((cat: Category) => cat.image)
-        ];
+        // --- ИСПРАВЛЕННЫЙ БЛОК ТИПИЗАЦИИ ---
+        const categoryImages = menuData
+          .map((cat) => cat.image)
+          .filter((img): img is string => !!img?.trim());
+
+        const imageUrls: string[] = ['/images/hero.jpg', ...categoryImages];
         preloadImages(imageUrls);
+        // ------------------------------------
 
         // Count total images to load (categories with images + hero image)
-        const imagesWithUrl = menuData.filter((cat: Category) => cat.image?.trim()).length;
-        totalImagesCount.current = imagesWithUrl + 1; // +1 for hero image
+        totalImagesCount.current = categoryImages.length + 1; // +1 for hero image
 
         // If no images to load, hide spinner immediately
-        if (totalImagesCount.current === 1) { // Only hero image
+        if (totalImagesCount.current <= 1 && !categoryImages.length) {
           setImagesLoading(false);
         }
       } catch (err: any) {
