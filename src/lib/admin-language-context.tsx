@@ -18,17 +18,21 @@ export function AdminLanguageProvider({ children }: { children: React.ReactNode 
 
   // Load language from localStorage on mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('admin-language') as Language;
-    if (savedLanguage === 'he' || savedLanguage === 'en') {
-      setLanguageState(savedLanguage);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const savedLanguage = localStorage.getItem('admin-language') as Language;
+      if (savedLanguage === 'he' || savedLanguage === 'en') {
+        setLanguageState(savedLanguage);
+      }
     }
   }, []);
 
   // Update document direction and language when language changes
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     const root = document.getElementById('admin-layout-root');
     const main = document.getElementById('admin-main-content');
-    
+
     if (language === 'he') {
       if (root) root.setAttribute('dir', 'rtl');
       if (main) main.setAttribute('dir', 'rtl');
@@ -43,7 +47,9 @@ export function AdminLanguageProvider({ children }: { children: React.ReactNode 
   // Save language to localStorage when it changes
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('admin-language', lang);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem('admin-language', lang);
+    }
   };
 
   // Translation function

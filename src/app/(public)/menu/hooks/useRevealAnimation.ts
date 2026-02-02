@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 
 export function useRevealAnimation(isActive: boolean) {
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || typeof document === 'undefined' || typeof window === 'undefined') return;
+    if (typeof IntersectionObserver === 'undefined') return;
 
     const revealElements = document.querySelectorAll('.reveal');
 

@@ -142,6 +142,8 @@ export default function Cart() {
   }
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
     if (isCartOpen) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       document.body.style.overflow = 'hidden';
@@ -158,6 +160,8 @@ export default function Cart() {
   }, [isCartOpen]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeCart();
     };

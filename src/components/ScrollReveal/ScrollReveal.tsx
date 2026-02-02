@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 
 export default function ScrollReveal() {
   useEffect(() => {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
     // Hero animation with delay
     const hero = document.getElementById('hero');
     if (hero) {
@@ -23,7 +26,7 @@ export default function ScrollReveal() {
           }
         });
       },
-      { 
+      {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
       }
@@ -41,7 +44,7 @@ export default function ScrollReveal() {
       // Store the text first, then clear and rebuild
       const letters = text.split('');
       heroTitle.textContent = ''; // Clear all content at once
-      
+
       letters.forEach((char, index) => {
         const span = document.createElement('span');
         span.className = 'letter';
