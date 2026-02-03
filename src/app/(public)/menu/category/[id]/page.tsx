@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import ProductModal from '@/components/ProductModal';
@@ -35,11 +35,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [imagesLoading, setImagesLoading] = useState(true);
   const { addToCart } = useCart();
-
-  const loadedImagesCount = useRef(0);
-  const totalImagesCount = useRef(0);
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -59,34 +55,15 @@ export default function CategoryPage() {
             ...found.items?.filter((item: MenuItem) => item.image?.trim()).map((item: MenuItem) => item.image) || []
           ];
           preloadImages(imageUrls);
-
-          // Count total images to load (hero image + menu item images)
-          const itemImagesWithUrl = found.items?.filter((item: MenuItem) => item.image?.trim()).length || 0;
-          totalImagesCount.current = itemImagesWithUrl + 1; // +1 for hero image
-
-          // If no images to load, hide spinner immediately
-          if (totalImagesCount.current === 1) { // Only hero image
-            setImagesLoading(false);
-          }
-        } else {
-          setImagesLoading(false);
         }
       } catch (err) {
         console.error("Error loading items:", err);
-        setImagesLoading(false);
       } finally {
         setLoading(false);
       }
     };
     if (categoryId) fetchCategory();
   }, [categoryId]);
-
-  const handleImageLoad = () => {
-    loadedImagesCount.current += 1;
-    if (loadedImagesCount.current >= totalImagesCount.current) {
-      setImagesLoading(false);
-    }
-  };
 
   const handleAddToCart = useCallback((item: any) => {
     const numericId = typeof item.id === 'string' ? parseInt(item.id, 10) : item.id;
@@ -104,7 +81,7 @@ export default function CategoryPage() {
 
   if (loading) return (
     <div className={categoryStyles.loaderWrapper}>
-      <LoadingSpinner size="lg" text={'loading category'} />
+      <LoadingSpinner size="lg" text="טוען קטגוריה" />
     </div>
   );
 
@@ -117,10 +94,7 @@ export default function CategoryPage() {
 
   return (
     <>
-      {/* Full-screen spinner while images are loading */}
-      {imagesLoading && <LoadingSpinner fullPage size="lg" text="טוען תמונות..." />}
-
-      <div className={styles.menuPage} style={{ visibility: imagesLoading ? 'hidden' : 'visible' }}>
+      <div className={styles.menuPage}>
         <HeroSection
           backgroundImage={heroImage}
           showFloatingOranges={false}
@@ -133,15 +107,6 @@ export default function CategoryPage() {
             )}
           </div>
         </HeroSection>
-
-        {/* Hidden hero image to track loading */}
-        <img
-          src={heroImage}
-          alt="Hero"
-          style={{ display: 'none' }}
-          onLoad={handleImageLoad}
-          onError={handleImageLoad}
-        />
 
         <div className={styles.menuContent}>
           <Breadcrumbs items={breadcrumbItems} />
@@ -157,7 +122,6 @@ export default function CategoryPage() {
                     itemIndex={idx}
                     onItemClick={setSelectedItem}
                     getDiscountedPrice={(p, d) => calculateFinalPrice(p, d)}
-                    onImageLoad={handleImageLoad}
                   />
                 ))}
               </div>

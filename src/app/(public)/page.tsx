@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag } from 'lucide-react';
@@ -26,9 +26,6 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [imagesLoading, setImagesLoading] = useState(true);
-  const loadedImagesCount = useRef(0);
-  const totalImagesCount = useRef(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,15 +44,6 @@ export default function HomePage() {
 
         const imageUrls: string[] = ['/images/hero.jpg', ...categoryImages];
         preloadImages(imageUrls);
-        // ------------------------------------
-
-        // Count total images to load (categories with images + hero image)
-        totalImagesCount.current = categoryImages.length + 1; // +1 for hero image
-
-        // If no images to load, hide spinner immediately
-        if (totalImagesCount.current <= 1 && !categoryImages.length) {
-          setImagesLoading(false);
-        }
       } catch (err: any) {
         console.error('Error fetching categories:', err);
         setError(err.message);
@@ -66,13 +54,6 @@ export default function HomePage() {
 
     fetchCategories();
   }, []);
-
-  const handleImageLoad = () => {
-    loadedImagesCount.current += 1;
-    if (loadedImagesCount.current >= totalImagesCount.current) {
-      setImagesLoading(false);
-    }
-  };
 
   // Show spinner while data is loading
   if (loading) {
@@ -95,10 +76,7 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Full-screen spinner while images are loading */}
-      {imagesLoading && <LoadingSpinner fullPage size="lg" text="טוען תמונות..." />}
-
-      <div className={styles.homePage} style={{ visibility: imagesLoading ? 'hidden' : 'visible' }}>
+      <div className={styles.homePage}>
         <HeroSection
           backgroundImage="/images/hero.jpg"
           showFloatingOranges={false}
@@ -106,15 +84,6 @@ export default function HomePage() {
         >
           <></>
         </HeroSection>
-
-        {/* Hidden hero image to track loading */}
-        <img
-          src="/images/hero.jpg"
-          alt="Hero"
-          style={{ display: 'none' }}
-          onLoad={handleImageLoad}
-          onError={handleImageLoad}
-        />
 
         <section className={styles.categoriesSection}>
           <div className={styles.sectionHeader}>
@@ -140,11 +109,8 @@ export default function HomePage() {
                       fill
                       sizes="(max-width: 768px) 50vw, 33vw"
                       className={styles.categoryImage}
-                      loading="eager"
+                      loading="lazy"
                       quality={90}
-                      onLoad={handleImageLoad}
-                      onError={handleImageLoad}
-                      priority
                     />
                   ) : (
                     <div className={styles.categoryImagePlaceholder}>
