@@ -1,13 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ShoppingBag } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { translateToHebrew } from '@/lib/translations';
 import { fetchMenuWithCache, preloadImages } from '@/lib/client-cache';
+import HomeCategoryCard from './components/HomeCategoryCard';
 import styles from './page.module.css';
 
 interface MenuItem {
@@ -95,37 +92,11 @@ export default function HomePage() {
 
           <div className={styles.categoriesGrid}>
             {categories.map((category) => (
-              <Link
+              <HomeCategoryCard
                 key={category.id}
-                href={`/menu/category/${category.id}`}
-                className={styles.categoryCard}
-              >
-                {/* Image Container */}
-                <div className={styles.categoryImageWrapper}>
-                  {category.image ? (
-                    <Image
-                      src={category.image}
-                      alt={translateToHebrew(category.name)}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                      className={styles.categoryImage}
-                      loading="lazy"
-                      quality={90}
-                    />
-                  ) : (
-                    <div className={styles.categoryImagePlaceholder}>
-                      <ShoppingBag size={48} strokeWidth={1.2} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Category Name Below Image */}
-                <div className={styles.categoryContent}>
-                  <h3 className={styles.categoryName}>
-                    {translateToHebrew(category.name)}
-                  </h3>
-                </div>
-              </Link>
+                category={category}
+                styles={styles}
+              />
             ))}
           </div>
         </section>
