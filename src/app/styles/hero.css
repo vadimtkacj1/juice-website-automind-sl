@@ -110,7 +110,7 @@
 
 /* Orange 1 - Top Right */
 .floating-orange-1 {
-  width: clamp(80px, 15vw, 180px);
+  width: clamp(50px, 10vw, 110px);
   top: 10%;
   right: 5%;
   animation: float-1 8s ease-in-out infinite;
@@ -118,7 +118,7 @@
 
 /* Orange 2 - Bottom Left */
 .floating-orange-2 {
-  width: clamp(100px, 20vw, 220px);
+  width: clamp(65px, 13vw, 140px);
   bottom: 15%;
   left: 8%;
   animation: float-2 10s ease-in-out infinite;
@@ -127,7 +127,7 @@
 
 /* Orange 3 - Top Left */
 .floating-orange-3 {
-  width: clamp(60px, 12vw, 140px);
+  width: clamp(40px, 8vw, 90px);
   top: 20%;
   left: 12%;
   animation: float-3 7s ease-in-out infinite;
@@ -136,7 +136,7 @@
 
 /* Orange 4 - Bottom Right */
 .floating-orange-4 {
-  width: clamp(70px, 14vw, 160px);
+  width: clamp(45px, 9vw, 100px);
   bottom: 20%;
   right: 10%;
   animation: float-4 9s ease-in-out infinite;
@@ -145,7 +145,7 @@
 
 /* Orange 5 - Center Left */
 .floating-orange-5 {
-  width: clamp(50px, 10vw, 120px);
+  width: clamp(35px, 7vw, 75px);
   top: 45%;
   left: 3%;
   animation: float-5 11s ease-in-out infinite;
@@ -154,7 +154,7 @@
 
 /* Orange 6 - Center Right */
 .floating-orange-6 {
-  width: clamp(55px, 11vw, 130px);
+  width: clamp(38px, 7.5vw, 80px);
   top: 40%;
   right: 3%;
   animation: float-6 8.5s ease-in-out infinite;
@@ -163,7 +163,7 @@
 
 /* Orange 7 - Mid Top Right */
 .floating-orange-7 {
-  width: clamp(65px, 13vw, 150px);
+  width: clamp(42px, 8.5vw, 95px);
   top: 30%;
   right: 18%;
   animation: float-7 9.5s ease-in-out infinite;
@@ -172,7 +172,7 @@
 
 /* Orange 8 - Mid Bottom Left */
 .floating-orange-8 {
-  width: clamp(75px, 15vw, 170px);
+  width: clamp(48px, 10vw, 105px);
   bottom: 30%;
   left: 18%;
   animation: float-8 10.5s ease-in-out infinite;
@@ -181,7 +181,7 @@
 
 /* Orange 9 - Upper Left */
 .floating-orange-9 {
-  width: clamp(58px, 12vw, 135px);
+  width: clamp(40px, 8vw, 85px);
   top: 15%;
   left: 25%;
   animation: float-9 8s ease-in-out infinite;
@@ -190,7 +190,7 @@
 
 /* Orange 10 - Lower Right */
 .floating-orange-10 {
-  width: clamp(62px, 13vw, 145px);
+  width: clamp(42px, 8.5vw, 90px);
   bottom: 25%;
   right: 25%;
   animation: float-10 11.5s ease-in-out infinite;

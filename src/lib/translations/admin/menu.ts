@@ -108,5 +108,9 @@ export const adminMenuTranslations: Record<string, string> = {
   '25': '25',
   '0.5L': '0.5L',
   '0': '0',
+
+  // Ingredient configuration
+  'Configure Ingredients for': 'הגדר מרכיבים עבור',
+  'configure ingredients for': 'הגדר מרכיבים עבור',
 };
 

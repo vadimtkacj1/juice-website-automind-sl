@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ShoppingBag, Droplets } from 'lucide-react';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageSpinner from '@/components/LoadingSpinner/ImageSpinner';
 import styles from './styles/ProductModalImage.module.css';
 
 interface ProductModalImageProps {
@@ -17,17 +17,15 @@ export default function ProductModalImage({ image, name }: ProductModalImageProp
     <div className={styles['modal-image']}>
       {image ? (
         <>
-          <img 
-            src={image} 
+          <img
+            src={image}
             alt={name}
-            loading="eager"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="high"
             onLoad={() => setImageLoaded(true)}
           />
-          {!imageLoaded && (
-            <div className={styles['image-spinner']}>
-              <LoadingSpinner size="md" />
-            </div>
-          )}
+          {!imageLoaded && <ImageSpinner size="md" overlay />}
           <div className={styles['image-disclaimer']}>
             <p>התמונה להמחשה בלבד. ייתכנו הבדלים בצבע, צורה או מראה בין המוצר בפועל לבין המוצר המוצג בתמונה.</p>
           </div>

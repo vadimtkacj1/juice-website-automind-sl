@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageSpinner from '@/components/LoadingSpinner/ImageSpinner';
 
 interface OptimizedImageProps {
   src: string;
@@ -62,7 +62,7 @@ export default function OptimizedImage({
         });
       },
       {
-        rootMargin: '100px', // Начинаем загрузку за 100px до появления в viewport
+        rootMargin: '50px', // Начинаем загрузку за 50px для более быстрой загрузки
         threshold: 0.01,
       }
     );
@@ -161,6 +161,7 @@ export default function OptimizedImage({
             src={src}
             alt={alt}
             loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
             onLoad={handleLoad}
             onError={handleError}
             className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
@@ -186,7 +187,7 @@ export default function OptimizedImage({
         )}
         {!isLoaded && showSpinner && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-            <LoadingSpinner size="sm" />
+            <ImageSpinner size="sm" overlay={false} />
           </div>
         )}
         {placeholder && !isLoaded && (
@@ -213,6 +214,7 @@ export default function OptimizedImage({
             src={src}
             alt={alt}
             loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
             onLoad={handleLoad}
             onError={handleError}
             className={`transition-opacity duration-300 ${className} ${
@@ -239,7 +241,7 @@ export default function OptimizedImage({
         )}
         {!isLoaded && showSpinner && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-            <LoadingSpinner size="sm" />
+            <ImageSpinner size="sm" overlay={false} />
           </div>
         )}
         {placeholder && !isLoaded && (

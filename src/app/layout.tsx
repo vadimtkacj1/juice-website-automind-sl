@@ -137,9 +137,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Preconnect to external resources for performance */}
         <link rel="preconnect" href="https://images.unsplash.com" />
-        
+
         {/* DNS prefetch for critical resources */}
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
+
+        {/* Preconnect for faster image loading from same domain */}
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'} crossOrigin="anonymous" />
         
         {/* Preload critical local fonts */}
         <link

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Folder } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageSpinner from '@/components/LoadingSpinner/ImageSpinner';
 import styles from './CategoryCard.module.css';
 
 export interface Category {
@@ -72,7 +72,7 @@ const CategoryCard = memo(function CategoryCard({
             />
             {!imageLoaded && (
               <div className={styles.imageSpinner}>
-                <LoadingSpinner size="sm" />
+                <ImageSpinner size="xs" overlay={false} />
               </div>
             )}
           </>

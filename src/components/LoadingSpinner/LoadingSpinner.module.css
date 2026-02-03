@@ -5,7 +5,7 @@
   justify-content: center;
   gap: 20px;
   width: 100%;
-  min-height: 200px;
+  /* Removed min-height to allow flexible sizing */
 }
 
 .loading-spinner {

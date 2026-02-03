@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageSpinner from '@/components/LoadingSpinner/ImageSpinner';
 
 interface NewsItem {
   id: number;
@@ -33,19 +34,7 @@ function NewsImage({ src, alt }: NewsImageProps) {
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         onLoad={() => setImageLoaded(true)}
       />
-      {!imageLoaded && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#f8fafc',
-          zIndex: 1
-        }}>
-          <LoadingSpinner size="sm" />
-        </div>
-      )}
+      {!imageLoaded && <ImageSpinner size="sm" overlay />}
     </div>
   );
 }

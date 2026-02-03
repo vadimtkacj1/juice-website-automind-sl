@@ -6,7 +6,7 @@ import { ShoppingBag, Plus } from 'lucide-react';
 import { translateToHebrew } from '@/lib/translations';
 import { prefetchModalData } from '@/components/ProductModal/useProductModalData';
 import { useTouchHandler } from '@/hooks/useTouchHandler';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageSpinner from '@/components/LoadingSpinner/ImageSpinner';
 import styles from '../menu.module.css';
 
 export interface MenuItem {
@@ -108,15 +108,15 @@ const MenuItemCard = memo(function MenuItemCard({
                 onImageLoad?.();
               }}
               className={`${styles.image} ${imageLoaded ? styles.imageLoaded : ''}`}
-              loading="eager"
+              loading={itemIndex < 6 ? "eager" : "lazy"}
               quality={85}
-              priority
+              priority={itemIndex < 6}
               // Uploaded images are already optimized by sharp
               unoptimized={item.image?.startsWith('/uploads')}
             />
             {!imageLoaded && (
               <div className={styles.imageSpinner}>
-                <LoadingSpinner size="sm" />
+                <ImageSpinner size="xs" overlay={false} />
               </div>
             )}
           </>

@@ -27,7 +27,8 @@
       "Bash(docker-compose exec:*)",
       "Bash(docker volume:*)",
       "Bash(docker exec:*)",
-      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"rename-all-menu-images.ps1\")"
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"rename-all-menu-images.ps1\")",
+      "Bash(npx tsc:*)"
     ]
   }
 }

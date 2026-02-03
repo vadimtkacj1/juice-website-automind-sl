@@ -43,16 +43,7 @@
 }
 
 .whyNumber {
-  font-family: 'Heebo', sans-serif;
-  font-size: clamp(80px, 10vw, 110px);
-  font-weight: 900;
-  background: linear-gradient(135deg, #ed810e 0%, #ffa94d 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  /* Уменьшили прозрачность до 0.2, чтобы цифра не мешала читать текст поверх неё */
-  opacity: 0.2; 
-  margin-bottom: -40px; /* Подтянули текст выше к цифре */
+  display: none; /* Скрыли цифры */
 }
 
 .whyCardTitle {

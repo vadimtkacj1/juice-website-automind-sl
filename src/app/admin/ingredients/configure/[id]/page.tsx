@@ -60,6 +60,7 @@ export default function ConfigureCategory() {
   const [groups, setGroups] = useState<IngredientGroupOption[]>([]);
   const [newGroupName, setNewGroupName] = useState('');
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [alertDialog, setAlertDialog] = useState<{
     open: boolean;
     title: string;
@@ -166,8 +167,86 @@ export default function ConfigureCategory() {
       ingredient_group_id: groupId,
       is_required: groupId ? false : false,
     };
-    
+
     setCategoryConfigs([...categoryConfigs, newConfig]);
+  }
+
+  function toggleIngredientSelection(ingredientId: number) {
+    setSelectedIngredients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(ingredientId)) {
+        newSet.delete(ingredientId);
+      } else {
+        newSet.add(ingredientId);
+      }
+      return newSet;
+    });
+  }
+
+  function handleAddSelectedIngredients() {
+    if (selectedIngredients.size === 0) {
+      setAlertDialog({
+        open: true,
+        title: t('No Selection'),
+        message: t('Please select at least one ingredient to add.'),
+        type: 'info',
+      });
+      return;
+    }
+
+    const newConfigs: CategoryIngredientConfig[] = [];
+    const skipped: string[] = [];
+
+    selectedIngredients.forEach(ingredientId => {
+      const ingredient = ingredients.find(ing => ing.id === ingredientId);
+      if (!ingredient) return;
+
+      const existing = categoryConfigs.find(c => c.ingredient_id === ingredientId);
+      if (existing) {
+        skipped.push(ingredient.name);
+        return;
+      }
+
+      newConfigs.push({
+        category_id: category!.id,
+        category_name: category!.name,
+        ingredient_id: ingredient.id,
+        ingredient_name: ingredient.name,
+        selection_type: 'multiple',
+        price_override: undefined,
+        ingredient_group: null,
+        ingredient_group_id: null,
+        is_required: false,
+      });
+    });
+
+    if (newConfigs.length > 0) {
+      setCategoryConfigs([...categoryConfigs, ...newConfigs]);
+      setSelectedIngredients(new Set());
+
+      if (skipped.length > 0) {
+        setAlertDialog({
+          open: true,
+          title: t('Partially Added'),
+          message: `${t('Added')} ${newConfigs.length} ${t('ingredients')}. ${t('Skipped')} ${skipped.length}: ${skipped.join(', ')}`,
+          type: 'warning',
+        });
+      } else {
+        setAlertDialog({
+          open: true,
+          title: t('Success'),
+          message: `${t('Added')} ${newConfigs.length} ${t('ingredients successfully')}`,
+          type: 'success',
+        });
+      }
+    } else if (skipped.length > 0) {
+      setAlertDialog({
+        open: true,
+        title: t('Already Added'),
+        message: `${t('All selected ingredients are already attached')}: ${skipped.join(', ')}`,
+        type: 'info',
+      });
+    }
   }
 
   function handleRemoveIngredientFromCategory(ingredientId: number) {
@@ -368,7 +447,20 @@ export default function ConfigureCategory() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>{t('Step 2: Add Ingredients to Groups')}</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('Step 2: Add Ingredients to Groups')}</CardTitle>
+            {selectedIngredients.size > 0 && (
+              <Button
+                onClick={handleAddSelectedIngredients}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t('Add Selected')} ({selectedIngredients.size})
+              </Button>
+            )}
+          </div>
+        </CardHeader>
         <CardContent>
           <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-4">
             {ingredients
@@ -378,15 +470,26 @@ export default function ConfigureCategory() {
 
                 return (
                   <div key={ingredient.id} className="flex items-center justify-between p-2 hover:bg-muted rounded gap-2">
-                    <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedIngredients.has(ingredient.id)}
+                        onChange={() => toggleIngredientSelection(ingredient.id)}
+                        className="w-4 h-4 cursor-pointer"
+                      />
                       <span className="font-medium">{t(ingredient.name)}</span>
                     </div>
                     <select
                       className="text-sm border rounded px-2 py-1"
                       defaultValue=""
-                      onChange={(e) => handleAddIngredientToCategory(ingredient, e.target.value || null)}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleAddIngredientToCategory(ingredient, e.target.value);
+                        }
+                        e.target.value = '';
+                      }}
                     >
-                      <option value="">{t('Attach without group (multi-choice)')}</option>
+                      <option value="">{t('Add to group...')}</option>
                       {existingGroups.map(g => <option key={g.id} value={g.id}>{g.name_he}</option>)}
                     </select>
                   </div>
