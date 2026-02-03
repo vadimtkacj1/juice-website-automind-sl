@@ -266,6 +266,7 @@ export default function OptimizedImage({
         src={src}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
         onLoad={handleLoad}
         onError={handleError}
         className={`transition-opacity duration-300 ${className} ${
@@ -275,7 +276,7 @@ export default function OptimizedImage({
       />
       {!isLoaded && showSpinner && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-          <LoadingSpinner size="sm" />
+          <ImageSpinner size="sm" overlay={false} />
         </div>
       )}
       {placeholder && !isLoaded && (
