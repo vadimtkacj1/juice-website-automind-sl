@@ -4,6 +4,43 @@ const mysql = require('mysql2/promise');
 globalThis.pool = globalThis.pool || null;
 globalThis.dbInitPromise = globalThis.dbInitPromise || null;
 globalThis.tablesInitialized = globalThis.tablesInitialized || false;
+globalThis.poolMonitorInterval = globalThis.poolMonitorInterval || null;
+
+// Мониторинг состояния пула соединений
+function monitorPoolHealth(pool) {
+  if (globalThis.poolMonitorInterval) return;
+
+  globalThis.poolMonitorInterval = setInterval(() => {
+    try {
+      const poolState = pool.pool;
+      if (poolState) {
+        const allConnections = poolState._allConnections ? poolState._allConnections.length : 0;
+        const freeConnections = poolState._freeConnections ? poolState._freeConnections.length : 0;
+        const acquiringConnections = poolState._acquiringConnections ? poolState._acquiringConnections.length : 0;
+
+        // Логируем только если есть проблемы
+        if (freeConnections === 0 && allConnections > 0) {
+          console.warn(`⚠️ Pool warning: All connections busy (${allConnections}/${process.env.MYSQL_CONNECTION_LIMIT || 50}), queue: ${acquiringConnections}`);
+        }
+      }
+    } catch (e) {
+      // Игнорируем ошибки мониторинга
+    }
+  }, 30000); // Проверка каждые 30 секунд
+}
+
+// Очистка старых соединений при завершении процесса
+if (typeof process !== 'undefined') {
+  process.on('SIGTERM', async () => {
+    if (globalThis.pool) {
+      console.log('Closing database pool...');
+      await globalThis.pool.end();
+      if (globalThis.poolMonitorInterval) {
+        clearInterval(globalThis.poolMonitorInterval);
+      }
+    }
+  });
+}
 
 async function ensureDatabaseExists() {
   const dbName = process.env.MYSQL_DATABASE || 'juice_website';
@@ -46,10 +83,19 @@ function getDatabase() {
           password: process.env.MYSQL_PASSWORD || '',
           database: dbName,
           waitForConnections: true,
-          connectionLimit: 10,
+          connectionLimit: parseInt(process.env.MYSQL_CONNECTION_LIMIT || '50'),
+          queueLimit: 0,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 10000,
+          connectTimeout: 60000,
+          acquireTimeout: 60000,
+          timeout: 60000,
           charset: 'utf8mb4',
         };
-        if (!globalThis.pool) globalThis.pool = mysql.createPool(config);
+        if (!globalThis.pool) {
+          globalThis.pool = mysql.createPool(config);
+          monitorPoolHealth(globalThis.pool);
+        }
         if (!globalThis.tablesInitialized) {
           await initializeTables(globalThis.pool);
           globalThis.tablesInitialized = true;
